@@ -14,6 +14,8 @@ const testRoutes = require("./Routes/Test-Routes");
 const scoreRoutes = require("./Routes/Score-Routes");
 const queryRoutes = require("./Routes/Query-Routes");
 const questionRoutes = require("./Routes/Question-Routes");
+const attemptRoutes = require("./Routes/Attempt-Routes");
+const questionAPIRoutes = require("./Routes/QuestionAPI-Routes");
 const path = require("path");
 app.use(bodyParser.json());
 app.use(cors());
@@ -45,6 +47,9 @@ app.use("/api/beta/test", testRoutes);
 app.use("/api/beta/score", scoreRoutes);
 app.use("/api/beta/query", queryRoutes);
 app.use("/api/beta/question", questionRoutes);
+app.use("/api/beta/attempt", attemptRoutes);
+app.use("/api", questionAPIRoutes);
+
 app.get("/", (req, res) => {
   return res.status(200).json({ message: "Hello World" });
 });
