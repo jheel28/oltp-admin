@@ -18,19 +18,19 @@ import RoleSelection from "views/auth/RoleSelection";
 import StudentRegister from "views/auth/StudentRegister";
 import AdminRegister from "views/auth/AdminRegister";
 import StudentResultsTable from "views/student/result/components/StudentResultTable";
+import LandingPage from "views/LandingPage";
 
 const App = () => {
   const { login, logout, userId, token, email, role } = useAuth();
   const [loading, setLoading] = useState(true);
-  console.log(process.env.BACKEND_URL);
+  console.log(process.env.REACT_APP_BACKEND_URL);
   let routes;
 
   useEffect(() => {
-    // Check if authentication information is available
-    if (role === null) {
-      setLoading(false);
-    }
+    // Once we have a checked the auth state (even if null), stop loading
+    setLoading(false);
   }, [role]);
+
   if (loading) {
     // Display a loading spinner while authentication is in progress
     return (
@@ -46,41 +46,43 @@ const App = () => {
       </div>
     );
   }
+
   if (role === "SuperAdmin") {
     routes = (
       <Routes>
         <Route path="superadmin/*" element={<SuperAdminLayout />} />
+        <Route path="/" element={<Navigate to="/superadmin" replace />} />
       </Routes>
     );
   } else if (role === "Admin") {
     routes = (
       <Routes>
         <Route path="admin/*" element={<AdminLayout />} />
+        <Route path="/" element={<Navigate to="/admin" replace />} />
       </Routes>
     );
   } else if (role === "Student") {
     routes = (
-      <React.Fragment>
-        <Routes>
-          <Route path="student/*" element={<StudentLayout />} />
-          <Route path="student/test/:id" element={<TestingPlatformHome />} />
-          <Route path="student/testingscreen/:id" element={<TestingScreen />} />
-          <Route
-            path="student/result/result-page/:testId/:questionPaperId"
-            element={<StudentResultsTable />}
-          />
-          <Route
-            path="student/feedbackscreen/:score/:maxscore"
-            element={<FeedbackScreen />}
-          />
-        </Routes>
-      </React.Fragment>
+      <Routes>
+        <Route path="student/*" element={<StudentLayout />} />
+        <Route path="student/test/:id" element={<TestingPlatformHome />} />
+        <Route path="student/testingscreen/:id" element={<TestingScreen />} />
+        <Route
+          path="student/result/result-page/:testId/:questionPaperId"
+          element={<StudentResultsTable />}
+        />
+        <Route
+          path="student/feedbackscreen/:score/:maxscore"
+          element={<FeedbackScreen />}
+        />
+        <Route path="/" element={<Navigate to="/student" replace />} />
+      </Routes>
     );
   } else {
     routes = (
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route path="auth/*" element={<AuthLayout />} />
-        <Route path="/" element={<Navigate to="/auth/sign-in" replace />} />
         <Route
           path="/admin/*"
           element={<Navigate to="/auth/sign-in" replace />}
@@ -93,9 +95,6 @@ const App = () => {
           path="/student/*"
           element={<Navigate to="/auth/sign-in" replace />}
         />
-        <Route path="auth/register" element={<RoleSelection />} />
-        <Route path="auth/register/student" element={<StudentRegister />} />
-        <Route path="auth/register/admin" element={<AdminRegister />} />
       </Routes>
     );
   }

@@ -1,21 +1,13 @@
 import Footer from "components/footer/Footer";
 import authImg from "assets/img/BETA-CLASSES Logo/BETA CLASSES 01 TRANSPARENT .-011 copy.jpg";
 import { Link, Routes, Route, Navigate } from "react-router-dom";
-import routes from "routes.js";
+import SignIn from "views/auth/SignIn";
+import RoleSelection from "views/auth/RoleSelection";
+import StudentRegister from "views/auth/StudentRegister";
+import AdminRegister from "views/auth/AdminRegister";
 import FixedPlugin from "components/fixedPlugin/FixedPlugin";
 
 export default function Auth() {
-  const getRoutes = (routes) => {
-    return routes.map((prop, key) => {
-      if (prop.layout === "/auth") {
-        return (
-          <Route path={`/${prop.path}`} element={prop.component} key={key} />
-        );
-      } else {
-        return null;
-      }
-    });
-  };
   document.documentElement.dir = "ltr";
   return (
     <div>
@@ -26,9 +18,13 @@ export default function Auth() {
             <div className="mx-auto flex min-h-full w-full flex-col justify-start pt-12 md:max-w-[75%] lg:h-screen lg:max-w-[1013px] lg:px-8 lg:pt-0 xl:h-[100vh] xl:max-w-[1383px] xl:px-0 xl:pl-[70px]">
               <div className="mb-auto flex flex-col pl-5 pr-5 md:pl-12 md:pr-0 lg:max-w-[48%] lg:pl-0 xl:max-w-full">
                 <Routes>
-                  {getRoutes(routes)}
+                  <Route path="sign-in" element={<SignIn />} />
+                  <Route path="admin-login" element={<SignIn />} />
+                  <Route path="register" element={<RoleSelection />} />
+                  <Route path="register/student" element={<StudentRegister />} />
+                  <Route path="register/admin" element={<AdminRegister />} />
                   <Route
-                    path="/"
+                    index
                     element={<Navigate to="/auth/sign-in" replace />}
                   />
                 </Routes>

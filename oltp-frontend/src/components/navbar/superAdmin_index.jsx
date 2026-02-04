@@ -41,7 +41,9 @@ const Navbar = (props) => {
   }, []);
   const handleSearch = (event) => {
     const searchText = event.target.value;
-    onSearch(searchText); // Pass the search text to the parent component
+    if (onSearch) {
+      onSearch(searchText);
+    }
   };
   return (
     <nav className="sticky top-4 z-40 flex flex-row flex-wrap items-center justify-between rounded-xl bg-white/10 p-2 backdrop-blur-xl dark:bg-[#0b14374d]">

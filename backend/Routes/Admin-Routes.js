@@ -9,7 +9,6 @@ router.get("/get/all/admins", adminControllers.getAllAdmins);
 router.get("/get/admin/byid/:id", adminControllers.getAdminById);
 router.post(
   "/create/admin",
-  checkAuth("SuperAdmin"),
   imageUpload.fields([
     { name: "image", maxCount: 1 },
     { name: "universityLogo", maxCount: 1 },

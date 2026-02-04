@@ -8,7 +8,9 @@ import PasswordInputField from "components/fields/PasswordInputField";
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState(""); // State to store the selected role
+  // Default role is Student unless on admin page (where user selects)
+  const isStudentPage = !window.location.pathname.includes("admin");
+  const [role, setRole] = useState(isStudentPage ? "Student" : "Admin");
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
   const handleEmailChange = (e) => {
@@ -25,7 +27,7 @@ export default function SignIn() {
     e.preventDefault();
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/${role}/login`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/beta/${role.toLowerCase()}/login`,
         {
           method: "POST",
           headers: {
@@ -114,64 +116,49 @@ export default function SignIn() {
               Forgot Password?
             </a>
           </div>
-          <div className="mb-6 flex flex-row items-center">
-            <label className="font-large mr-4 block text-base text-gray-700 dark:text-white">
-              I am
-            </label>
-            <div className="flex flex-row items-center">
-              <div className="mr-6">
-                <input
-                  type="radio"
-                  id="superAdmin"
-                  name="role"
-                  value="superAdmin"
-                  checked={role === "superAdmin"}
-                  onChange={handleRoleChange}
-                  className="mr-2"
-                />
-                <label
-                  htmlFor="superAdmin"
-                  className="mr-4 text-navy-700 dark:text-white"
-                >
-                  Super Admin
-                </label>
-              </div>
-              <div className="mr-4">
-                <input
-                  type="radio"
-                  id="admin"
-                  name="role"
-                  value="admin"
-                  checked={role === "admin"}
-                  onChange={handleRoleChange}
-                  className="mr-2"
-                />
-                <label
-                  htmlFor="admin"
-                  className="mr-4 text-navy-700 dark:text-white"
-                >
-                  Admin
-                </label>
-              </div>
-              <div>
-                <input
-                  type="radio"
-                  id="student"
-                  name="role"
-                  value="student"
-                  checked={role === "student"}
-                  onChange={handleRoleChange}
-                  className="mr-2"
-                />
-                <label
-                  htmlFor="student"
-                  className="mr-4 text-navy-700 dark:text-white"
-                >
-                  Student
-                </label>
+          {window.location.pathname.includes("admin") ? (
+            <div className="mb-6 flex flex-row items-center">
+              <label className="font-large mr-4 block text-base text-gray-700 dark:text-white">
+                I am
+              </label>
+              <div className="flex flex-row items-center">
+                <div className="mr-6">
+                  <input
+                    type="radio"
+                    id="superAdmin"
+                    name="role"
+                    value="SuperAdmin"
+                    checked={role === "SuperAdmin"}
+                    onChange={handleRoleChange}
+                    className="mr-2"
+                  />
+                  <label
+                    htmlFor="superAdmin"
+                    className="mr-4 text-navy-700 dark:text-white"
+                  >
+                    Super Admin
+                  </label>
+                </div>
+                <div className="mr-4">
+                  <input
+                    type="radio"
+                    id="admin"
+                    name="role"
+                    value="Admin"
+                    checked={role === "Admin"}
+                    onChange={handleRoleChange}
+                    className="mr-2"
+                  />
+                  <label
+                    htmlFor="admin"
+                    className="mr-4 text-navy-700 dark:text-white"
+                  >
+                    Admin
+                  </label>
+                </div>
               </div>
             </div>
-          </div>
+          ) : null}
           <button
             type="submit"
             className="linear mt-2 w-full rounded-xl bg-brand-500 py-[12px] text-base font-medium text-white transition duration-200 hover:bg-brand-600 active:bg-brand-700 dark:bg-brand-400 dark:text-white dark:hover:bg-brand-300 dark:active:bg-brand-200"

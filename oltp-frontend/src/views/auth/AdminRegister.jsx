@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { Steps, Form, Input, Select, Button, message } from 'antd';
-import InputField from 'components/fields/InputField';
-import CustButton from 'components/button';
-import Footer from 'components/footer/Footer';
-import VectorImage from 'assets/img/auth/College.jpg'; 
+import React, { useState } from "react";
+import { Steps, Form, Input, Select, Button, message, Upload } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import InputField from "components/fields/InputField";
+import CustButton from "components/button";
+import Footer from "components/footer/Footer";
+import VectorImage from "assets/img/auth/College.jpg";
+import { useNavigate } from "react-router-dom";
 
 const { Step } = Steps;
 const { Option } = Select;
@@ -11,129 +13,215 @@ const { Option } = Select;
 const AdminRegister = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [form] = Form.useForm(); 
+  const navigate = useNavigate();
 
   const handleNext = () => {
-    setCurrentStep(currentStep + 1);
+    // Define which fields to validate for each step
+    const fieldsToValidate = [
+      ['firstName', 'lastName', 'mobile'], // Step 0
+      ['universityName', 'address', 'landmark', 'pincode', 'state', 'country', 'dateOfEstablishment'], // Step 1
+      ['universityLogo', 'image'], // Step 2
+      ['email', 'password'], // Step 3
+    ];
+
+    form
+      .validateFields(fieldsToValidate[currentStep])
+      .then(() => {
+        setCurrentStep(currentStep + 1);
+      })
+      .catch((error) => {
+        console.log("Validation Failed:", error);
+      });
   };
 
   const handlePrev = () => {
     setCurrentStep(currentStep - 1);
   };
 
-  const onFinish = (values) => {
-    // Handle form submission here
-    console.log('Received values:', values);
-    message.success('Registration Successful');
+  const onFinish = async () => {
+    const values = form.getFieldsValue(true);
+    console.log("Submitting Admin values:", values);
+    
+    const formData = new FormData();
+    formData.append("firstName", values.firstName);
+    formData.append("lastName", values.lastName);
+    formData.append("mobile", values.mobile);
+    formData.append("universityName", values.universityName);
+    formData.append("address", values.address);
+    formData.append("landmark", values.landmark);
+    formData.append("pincode", values.pincode);
+    formData.append("state", values.state);
+    formData.append("country", values.country);
+    formData.append("dateOfEstablishment", values.dateOfEstablishment);
+    formData.append("email", values.email);
+    formData.append("password", values.password);
+
+    if (values.image && values.image.length > 0) {
+      formData.append("image", values.image[0].originFileObj);
+    }
+    if (values.universityLogo && values.universityLogo.length > 0) {
+      formData.append("universityLogo", values.universityLogo[0].originFileObj);
+    }
+
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/beta/admin/create/admin`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed");
+      }
+      message.success("Registration Successful");
+      navigate("/auth/sign-in");
+    } catch (error) {
+      message.error(error.message);
+    }
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex-grow flex items-center justify-center">
-        <div className="mt-[6vh] ml-4 flex flex-col items-center w-full max-w-full md:pl-4 xl:max-w-[750px]">
+    <div className="flex h-screen flex-col">
+      <div className="flex flex-grow items-center justify-center">
+        <div className="ml-4 mt-[6vh] flex w-full max-w-full flex-col items-center md:pl-4 xl:max-w-[750px]">
           <h4 className="mb-4 text-4xl font-bold text-navy-700 dark:text-white">
             University Registration
           </h4>
-          <div className="w-full mb-2">
-            <Steps current={currentStep} >
-              <Step title="Admin Details" />
-              <Step title="University Details" />
-              <Step title="Upload Logo" />
-              <Step title="Account Details" />
+          <div className="mb-2 w-full">
+            <Steps current={currentStep}>
+              <Step title="Admin" />
+              <Step title="University" />
+              <Step title="Photos" />
+              <Step title="Account" />
             </Steps>
           </div>
           <Form
-            form={form} // Add this line to bind the form instance
-            name="register"
-            onsubmit={onFinish}
+            form={form}
+            name="admin-register"
+            onFinish={onFinish}
             initialValues={{ remember: true }}
             className="w-full"
+            layout="vertical"
+            preserve={true}
           >
-            {currentStep === 0 && (
-              <>
-                <InputField
-                  placeholder="First Name"
-                  className="mb-4"
-                  autoFocus
-                />
-                <InputField
-                  placeholder="Last Name"
-                  className="mb-4"
-                />
-                <InputField
-                  placeholder="Mobile Number"
-                  className="mb-4"
-                />
-              </>
-            )}
-            {currentStep === 1 && (
-              <>
-                <InputField
-                  placeholder="University Name"
-                  className="mb-4"
-                />
-                <InputField
-                  placeholder="Address"
-                  className="mb-4"
-                />
-                <InputField
-                  placeholder="Landmark"
-                  className="mb-4"
-                />
-                <InputField
-                  placeholder="Pincode"
-                  className="mb-4"
-                />
-                <InputField
-                  placeholder="State"
-                  className="mb-4"
-                />
-                <InputField
-                  placeholder="Country"
-                  className="mb-4"
-                />
-                <InputField
-                  placeholder="Date of Establishment"
-                  className="mb-4"
-                />
-              </>
-            )}
-            {currentStep === 2 && (
-              <>
-                <Input
-                  type="file"
-                  placeholder="Upload University Logo"
-                  className="mb-4"
-                />
-              </>
-            )}
-            {currentStep === 3 && (
-              <>
-                <InputField
-                  type="email"
-                  placeholder="Email"
-                  className="mb-4"
-                />
-                <InputField
-                  type="password"
-                  placeholder="Password"
-                  className="mb-4"
-                />
-                <InputField
-                  type="password"
-                  placeholder="Confirm Password"
-                  className="mb-4"
-                />
-              </>
-            )}
-            <div className="flex justify-between items-center mb-8">
+            <div style={{ display: currentStep === 0 ? "block" : "none" }}>
+              <Form.Item
+                name="firstName"
+                rules={[{ required: true, message: "First Name is required" }]}
+              >
+                <InputField placeholder="First Name" />
+              </Form.Item>
+              <Form.Item
+                name="lastName"
+                rules={[{ required: true, message: "Last Name is required" }]}
+              >
+                <InputField placeholder="Last Name" />
+              </Form.Item>
+              <Form.Item
+                name="mobile"
+                rules={[
+                  { required: true, message: "Mobile Number is required" },
+                  { pattern: /^\d{10}$/, message: "Invalid mobile number" },
+                ]}
+              >
+                <InputField placeholder="Mobile Number" />
+              </Form.Item>
+            </div>
+
+            <div style={{ display: currentStep === 1 ? "block" : "none" }}>
+              <Form.Item
+                name="universityName"
+                rules={[{ required: true, message: "Required" }]}
+              >
+                <InputField placeholder="University Name" />
+              </Form.Item>
+              <Form.Item name="address" rules={[{ required: true }]}>
+                <InputField placeholder="Address" />
+              </Form.Item>
+              <Form.Item name="landmark" rules={[{ required: true }]}>
+                <InputField placeholder="Landmark" />
+              </Form.Item>
+              <Form.Item
+                name="pincode"
+                rules={[
+                  { required: true },
+                  { pattern: /^\d{6}$/, message: "Invalid pincode" },
+                ]}
+              >
+                <InputField placeholder="Pincode" />
+              </Form.Item>
+              <Form.Item name="state" rules={[{ required: true }]}>
+                <InputField placeholder="State" />
+              </Form.Item>
+              <Form.Item name="country" rules={[{ required: true }]}>
+                <InputField placeholder="Country" />
+              </Form.Item>
+              <Form.Item
+                name="dateOfEstablishment"
+                rules={[{ required: true }]}
+              >
+                <InputField placeholder="Date of Establishment" />
+              </Form.Item>
+            </div>
+
+            <div style={{ display: currentStep === 2 ? "block" : "none" }}>
+              <Form.Item
+                name="universityLogo"
+                label="University Logo"
+                valuePropName="fileList"
+                getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+                rules={[{ required: true }]}
+              >
+                <Upload maxCount={1} beforeUpload={() => false} listType="picture">
+                  <Button icon={<UploadOutlined />}>Upload Logo</Button>
+                </Upload>
+              </Form.Item>
+              <Form.Item
+                name="image"
+                label="Admin Photo"
+                valuePropName="fileList"
+                getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+                rules={[{ required: true }]}
+              >
+                <Upload maxCount={1} beforeUpload={() => false} listType="picture">
+                  <Button icon={<UploadOutlined />}>Upload Photo</Button>
+                </Upload>
+              </Form.Item>
+            </div>
+
+            <div style={{ display: currentStep === 3 ? "block" : "none" }}>
+              <Form.Item
+                name="email"
+                rules={[
+                  { required: true, message: "Email is required" },
+                  { type: "email", message: "Invalid email" },
+                ]}
+              >
+                <InputField type="email" placeholder="Email" />
+              </Form.Item>
+              <Form.Item
+                name="password"
+                rules={[
+                  { required: true, message: "Password is required" },
+                  { min: 6, message: "Min 6 characters" },
+                ]}
+              >
+                <InputField type="password" placeholder="Password" />
+              </Form.Item>
+            </div>
+
+            <div className="mb-8 mt-4 flex items-center justify-between">
               {currentStep > 0 && (
-                <CustButton onClick={handlePrev} label="Previous" />
+                <CustButton type="button" onClick={handlePrev} label="Previous" />
               )}
               {currentStep < 3 && (
-                <CustButton type="primary" onClick={handleNext} label="Next" />
+                <CustButton type="button" onClick={handleNext} label="Next" />
               )}
               {currentStep === 3 && (
-                <CustButton type="primary" htmlType="submit" label="Register"/>
+                <CustButton type="submit" label="Register" />
               )}
             </div>
           </Form>

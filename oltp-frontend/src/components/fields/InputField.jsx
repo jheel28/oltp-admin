@@ -29,7 +29,7 @@ function InputField(props) {
         type={type}
         id={id}
         placeholder={placeholder}
-        value={value} // Added value prop
+        value={value === undefined ? "" : value} // Added value prop
         onChange={onChange} // Added onChange prop
         className={`mt-2 flex h-12 w-full items-center justify-center rounded-xl border bg-white/0 p-3 text-sm outline-none ${
           disabled === true

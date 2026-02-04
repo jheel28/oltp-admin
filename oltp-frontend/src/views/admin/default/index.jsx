@@ -49,7 +49,7 @@ const Dashboard = () => {
     };
     fetchTests();
   }, []);
-  console.log(process.env.BACKEND_URL);
+  console.log(process.env.REACT_APP_BACKEND_URL);
   const numberOfStudents = students.length;
   const numberOfTests = tests.length;
 

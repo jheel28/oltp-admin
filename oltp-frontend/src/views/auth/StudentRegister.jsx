@@ -1,29 +1,76 @@
 import React, { useState } from "react";
-import { Steps, Form, Input, Select, Button, message } from "antd";
+import { Steps, Form, Input, Select, Button, message, Upload } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import InputField from "components/fields/InputField";
 import CustButton from "components/button";
 import Footer from "components/footer/Footer";
-import VectorImage from "assets/img/auth/2.svg"; // Import your vector image
+import VectorImage from "assets/img/auth/2.svg";
+import { useNavigate } from "react-router-dom";
 
 const { Step } = Steps;
 const { Option } = Select;
 
 const StudentRegister = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [form] = Form.useForm(); // Add this line to create a form instance
+  const [form] = Form.useForm();
+  const navigate = useNavigate();
 
   const handleNext = () => {
-    setCurrentStep(currentStep + 1);
+    form
+      .validateFields()
+      .then(() => {
+        setCurrentStep(currentStep + 1);
+      })
+      .catch((error) => {
+        console.log("Validation Failed:", error);
+      });
   };
 
   const handlePrev = () => {
     setCurrentStep(currentStep - 1);
   };
 
-  const onFinish = (values) => {
-    // Handle form submission here
-    console.log("Received values:", values);
-    message.success("Registration Successful");
+  const onFinish = async () => {
+    const values = form.getFieldsValue(true);
+    console.log("Submitting with all values:", values);
+    const formData = new FormData();
+    formData.append("firstName", values.firstName);
+    formData.append("lastName", values.lastName);
+    formData.append("email", values.email);
+    formData.append("password", values.password);
+    formData.append("studentId", values.studentId);
+    formData.append("batch", values.batch);
+    formData.append("admissionDate", values.admissionDate);
+    formData.append("address", values.address);
+    formData.append("pincode", values.pincode);
+    formData.append("state", values.state);
+    formData.append("country", values.country);
+    formData.append("fatherName", values.fatherName);
+    formData.append("fatherNumber", values.fatherNumber);
+    formData.append("motherName", values.motherName);
+    formData.append("motherNumber", values.motherNumber);
+    if (values.image && values.image.length > 0) {
+      formData.append("image", values.image[0].originFileObj);
+    }
+
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/signup`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed");
+      }
+      message.success("Registration Successful");
+      navigate("/auth/sign-in");
+    } catch (error) {
+      message.error(error.message);
+    }
   };
 
   return (
@@ -35,93 +82,133 @@ const StudentRegister = () => {
           </h4>
           <div className="mb-2 w-full">
             <Steps current={currentStep}>
-              <Step title="Personal Information" />
-              <Step title="Academic Details" />
-              <Step title="Address Details" />
-              <Step title="Other Details" />
-              <Step title="Upload Image" />
+              <Step title="Personal" />
+              <Step title="Academic" />
+              <Step title="Address" />
+              <Step title="Family" />
+              <Step title="Upload" />
             </Steps>
           </div>
           <Form
-            form={form} // Add this line to bind the form instance
+            form={form}
             name="register"
             onFinish={onFinish}
             initialValues={{ remember: true }}
             className="w-full"
+            layout="vertical"
+            preserve={true}
           >
-            {currentStep === 0 && (
-              <>
-                <InputField
-                  placeholder="Full Name"
-                  className="mb-4"
-                  autoFocus
-                />
-                <InputField placeholder="Student ID" className="mb-4" />
-                <InputField type="email" placeholder="Email" className="mb-4" />
-                <InputField
-                  type="password"
-                  placeholder="Password"
-                  className="mb-4"
-                />
-              </>
-            )}
-            {currentStep === 1 && (
-              <>
-                <Form.Item name="college">
-                  {" "}
-                  {/* Wrap with Form.Item */}
-                  <Select placeholder="Select College" className="mb-4 w-full">
-                    <Option value="college1">College 1</Option>
-                    <Option value="college2">College 2</Option>
-                    <Option value="other">Other</Option>
-                  </Select>
-                </Form.Item>
-                {/* Additional InputField for entering College Name if "Other" is selected */}
-                {/* Conditionally render this field based on selection */}
-                {form.getFieldValue("college") === "other" && (
-                  <InputField
-                    placeholder="Enter College Name"
-                    className="mb-4"
-                  />
-                )}
-                <InputField placeholder="Batch" className="mb-4" />
-              </>
-            )}
-            {currentStep === 2 && (
-              <>
-                <InputField placeholder="Address" className="mb-4" />
-                <InputField placeholder="Pincode" className="mb-4" />
-                <InputField placeholder="State" className="mb-4" />
-                <InputField placeholder="Country" className="mb-4" />
-              </>
-            )}
-            {currentStep === 3 && (
-              <>
-                <InputField placeholder="Mother's Name" className="mb-4" />
-                <InputField placeholder="Mother's Number" className="mb-4" />
-                <InputField placeholder="Father's Name" className="mb-4" />
-                <InputField placeholder="Father's Number" className="mb-4" />
-              </>
-            )}
-            {currentStep === 4 && (
-              <>
-                <Input
-                  type="file"
-                  placeholder="Upload Image"
-                  className="mb-4"
-                />
-                <InputField placeholder="Admission Date" className="mb-4" />
-              </>
-            )}
-            <div className="mb-8 flex items-center justify-between">
+            <div style={{ display: currentStep === 0 ? "block" : "none" }}>
+              <Form.Item
+                name="firstName"
+                rules={[{ required: true, message: "First Name is required" }]}
+              >
+                <InputField placeholder="First Name" />
+              </Form.Item>
+              <Form.Item
+                name="lastName"
+                rules={[{ required: true, message: "Last Name is required" }]}
+              >
+                <InputField placeholder="Last Name" />
+              </Form.Item>
+              <Form.Item
+                name="studentId"
+                rules={[{ required: true, message: "Student ID is required" }]}
+              >
+                <InputField placeholder="Student ID" />
+              </Form.Item>
+              <Form.Item
+                name="email"
+                rules={[
+                  { required: true, message: "Email is required" },
+                  { type: "email", message: "Invalid email" },
+                ]}
+              >
+                <InputField type="email" placeholder="Email" />
+              </Form.Item>
+              <Form.Item
+                name="password"
+                rules={[
+                  { required: true, message: "Password is required" },
+                  { min: 6, message: "Password must be at least 6 characters" },
+                ]}
+              >
+                <InputField type="password" placeholder="Password" />
+              </Form.Item>
+            </div>
+
+            <div style={{ display: currentStep === 1 ? "block" : "none" }}>
+              <Form.Item name="batch" rules={[{ required: true }]}>
+                <InputField placeholder="Batch" />
+              </Form.Item>
+              <Form.Item name="admissionDate" rules={[{ required: true }]}>
+                <InputField placeholder="Admission Date (YYYY-MM-DD)" />
+              </Form.Item>
+            </div>
+
+            <div style={{ display: currentStep === 2 ? "block" : "none" }}>
+              <Form.Item name="address" rules={[{ required: true }]}>
+                <InputField placeholder="Address" />
+              </Form.Item>
+              <Form.Item name="pincode" rules={[{ required: true }]}>
+                <InputField placeholder="Pincode" />
+              </Form.Item>
+              <Form.Item name="state" rules={[{ required: true }]}>
+                <InputField placeholder="State" />
+              </Form.Item>
+              <Form.Item name="country" rules={[{ required: true }]}>
+                <InputField placeholder="Country" />
+              </Form.Item>
+            </div>
+
+            <div style={{ display: currentStep === 3 ? "block" : "none" }}>
+              <Form.Item name="motherName" rules={[{ required: true }]}>
+                <InputField placeholder="Mother's Name" />
+              </Form.Item>
+              <Form.Item name="motherNumber" rules={[{ required: true }]}>
+                <InputField placeholder="Mother's Number" />
+              </Form.Item>
+              <Form.Item name="fatherName" rules={[{ required: true }]}>
+                <InputField placeholder="Father's Name" />
+              </Form.Item>
+              <Form.Item name="fatherNumber" rules={[{ required: true }]}>
+                <InputField placeholder="Father's Number" />
+              </Form.Item>
+            </div>
+
+            <div style={{ display: currentStep === 4 ? "block" : "none" }}>
+              <Form.Item
+                name="image"
+                rules={[{ required: true, message: "Please upload an image" }]}
+                valuePropName="fileList"
+                getValueFromEvent={(e) => {
+                  if (Array.isArray(e)) {
+                    return e;
+                  }
+                  return e && e.fileList;
+                }}
+              >
+                <Upload
+                  maxCount={1}
+                  beforeUpload={() => false}
+                  listType="picture"
+                >
+                  <Button icon={<UploadOutlined />}>
+                    Click to Upload Image
+                  </Button>
+                </Upload>
+              </Form.Item>
+            </div>
+
+            <div className="mb-8 mt-4 flex items-center justify-between">
               {currentStep > 0 && (
-                <CustButton onClick={handlePrev} label="Previous" />
+                <CustButton type="button" onClick={handlePrev} label="Previous" />
               )}
               {currentStep < 4 && (
-                <CustButton type="primary" onClick={handleNext} label="Next" />
+                <CustButton type="button" onClick={handleNext} label="Next" />
               )}
               {currentStep === 4 && (
-                <CustButton type="primary" htmlType="submit" label="Register" />
+                <CustButton type="submit" label="Register" />
               )}
             </div>
           </Form>
@@ -138,7 +225,6 @@ const StudentRegister = () => {
           </div>
         </div>
         <div className="ml-10 hidden md:block">
-          {/* Add your vector image here */}
           <img src={VectorImage} alt="Vector Image" />
         </div>
       </div>
