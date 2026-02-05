@@ -16,8 +16,35 @@ const StudentRegister = () => {
   const navigate = useNavigate();
 
   const handleNext = () => {
+    let fieldsToValidate = [];
+    switch (currentStep) {
+      case 0:
+        fieldsToValidate = [
+          "firstName",
+          "lastName",
+          "studentId",
+          "email",
+          "password",
+        ];
+        break;
+      case 1:
+        fieldsToValidate = ["batch", "admissionDate"];
+        break;
+      case 2:
+        fieldsToValidate = ["address", "pincode", "state", "country"];
+        break;
+      case 3:
+        fieldsToValidate = ["phoneNumber", "alternateNumber"];
+        break;
+      case 4:
+        fieldsToValidate = ["image"];
+        break;
+      default:
+        fieldsToValidate = [];
+    }
+
     form
-      .validateFields()
+      .validateFields(fieldsToValidate)
       .then(() => {
         setCurrentStep(currentStep + 1);
       })
