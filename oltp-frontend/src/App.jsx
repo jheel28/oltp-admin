@@ -47,57 +47,6 @@ const App = () => {
     );
   }
 
-  if (role === "SuperAdmin") {
-    routes = (
-      <Routes>
-        <Route path="superadmin/*" element={<SuperAdminLayout />} />
-        <Route path="/" element={<Navigate to="/superadmin" replace />} />
-      </Routes>
-    );
-  } else if (role === "Admin") {
-    routes = (
-      <Routes>
-        <Route path="admin/*" element={<AdminLayout />} />
-        <Route path="/" element={<Navigate to="/admin" replace />} />
-      </Routes>
-    );
-  } else if (role === "Student") {
-    routes = (
-      <Routes>
-        <Route path="student/*" element={<StudentLayout />} />
-        <Route path="student/test/:id" element={<TestingPlatformHome />} />
-        <Route path="student/testingscreen/:id" element={<TestingScreen />} />
-        <Route
-          path="student/result/result-page/:testId/:questionPaperId"
-          element={<StudentResultsTable />}
-        />
-        <Route
-          path="student/feedbackscreen/:score/:maxscore"
-          element={<FeedbackScreen />}
-        />
-        <Route path="/" element={<Navigate to="/student" replace />} />
-      </Routes>
-    );
-  } else {
-    routes = (
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="auth/*" element={<AuthLayout />} />
-        <Route
-          path="/admin/*"
-          element={<Navigate to="/auth/sign-in" replace />}
-        />
-        <Route
-          path="/superadmin/*"
-          element={<Navigate to="/auth/sign-in" replace />}
-        />
-        <Route
-          path="/student/*"
-          element={<Navigate to="/auth/sign-in" replace />}
-        />
-      </Routes>
-    );
-  }
   return (
     <AuthContext.Provider
       value={{
@@ -110,7 +59,53 @@ const App = () => {
         role: role,
       }}
     >
-      <main>{routes}</main>
+      <main>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={role ? <Navigate to={`/${role.toLowerCase()}`} replace /> : <LandingPage />} />
+          <Route path="auth/*" element={<AuthLayout />} />
+
+          {/* Role-Based Protected Routes */}
+          {role === "SuperAdmin" && (
+            <Route path="superadmin/*" element={<SuperAdminLayout />} />
+          )}
+          {role === "Admin" && (
+            <Route path="admin/*" element={<AdminLayout />} />
+          )}
+          {role === "Student" && (
+            <>
+              <Route path="student/*" element={<StudentLayout />} />
+              <Route path="student/test/:id" element={<TestingPlatformHome />} />
+              <Route path="student/testingscreen/:id" element={<TestingScreen />} />
+              <Route
+                path="student/result/result-page/:testId/:questionPaperId"
+                element={<StudentResultsTable />}
+              />
+              <Route
+                path="student/feedbackscreen/:score/:maxscore"
+                element={<FeedbackScreen />}
+              />
+            </>
+          )}
+
+          {/* Redirect to login if accessing protected route without right role */}
+          <Route
+            path="/admin/*"
+            element={<Navigate to="/auth/admin-login" replace />}
+          />
+          <Route
+            path="/superadmin/*"
+            element={<Navigate to="/auth/admin-login" replace />}
+          />
+          <Route
+            path="/student/*"
+            element={<Navigate to="/auth/sign-in" replace />}
+          />
+          
+          {/* Catch-all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
     </AuthContext.Provider>
   );
 };

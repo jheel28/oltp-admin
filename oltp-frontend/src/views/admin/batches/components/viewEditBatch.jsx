@@ -36,17 +36,7 @@ const ViewEditBatch = ({ batchData, onUpdate, onBack }) => {
         ...prevData,
         image: file,
       }));
-    } else if (name === "studentId" || name === "sectionName") {
-      // Remove any leading or trailing whitespace and split the input value by commas into an array
-      const valuesArray = value
-        .trim()
-        .split(",")
-        .map((item) => item.trim());
 
-      setEditedData((prevData) => ({
-        ...prevData,
-        [name]: [`${valuesArray.join(",")}`], // Wrap the values in square brackets and convert to a single string
-      }));
     } else {
       // For other input fields
       setEditedData((prevData) => ({
@@ -107,34 +97,7 @@ const ViewEditBatch = ({ batchData, onUpdate, onBack }) => {
               {editedData.batchName}
             </p>
           )}
-          <label className="text-sm text-gray-600">Section Names</label>
-          {isEditing ? (
-            <input
-              type="text"
-              name="sectionName"
-              value={editedData.sectionName}
-              onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
-            />
-          ) : (
-            <p className="text-base font-medium text-navy-700 dark:text-white">
-              {editedData.sectionName}
-            </p>
-          )}
-          <label className="text-sm text-gray-600">Roll No</label>
-          {isEditing ? (
-            <input
-              type="text"
-              name="studentId"
-              value={editedData.studentId}
-              onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
-            />
-          ) : (
-            <p className="text-base font-medium text-navy-700 dark:text-white">
-              {editedData.studentId}
-            </p>
-          )}
+
         </div>{" "}
         <div className="flex space-x-6">
           {isEditing ? (

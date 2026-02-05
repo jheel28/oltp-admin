@@ -105,13 +105,14 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
         </h2>
         <div className="mb-4">
           <div className="mb-4">
-            <label className="text-sm text-gray-600">First Name</label>
+            <label className="text-sm text-gray-600">First Name *</label>
             {isEditing ? (
               <input
                 type="text"
                 name="firstName"
                 value={editedData.firstName}
                 onChange={handleChange}
+                required
                 className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
               />
             ) : (
@@ -119,13 +120,14 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
                 {editedData.firstName}
               </p>
             )}
-            <label className="text-sm text-gray-600">Last Name</label>
+            <label className="text-sm text-gray-600">Last Name *</label>
             {isEditing ? (
               <input
                 type="text"
                 name="lastName"
                 value={editedData.lastName}
                 onChange={handleChange}
+                required
                 className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
               />
             ) : (
@@ -133,13 +135,14 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
                 {editedData.lastName}
               </p>
             )}
-            <label className="text-sm text-gray-600">Roll No</label>
+            <label className="text-sm text-gray-600">Student ID *</label>
             {isEditing ? (
               <input
                 type="text"
                 name="studentId"
                 value={editedData.studentId}
                 onChange={handleChange}
+                required
                 className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
               />
             ) : (
@@ -147,7 +150,37 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
                 {editedData.studentId}
               </p>
             )}
-            <label className="text-sm text-gray-600">Father Name</label>
+            <label className="text-sm text-gray-600">Phone Number *</label>
+            {isEditing ? (
+              <input
+                type="text"
+                name="phoneNumber"
+                value={editedData.phoneNumber}
+                onChange={handleChange}
+                required
+                className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
+              />
+            ) : (
+              <p className="text-base font-medium text-navy-700 dark:text-white">
+                {editedData.phoneNumber}
+              </p>
+            )}
+            <label className="text-sm text-gray-600">Alternate Number *</label>
+            {isEditing ? (
+              <input
+                type="text"
+                name="alternateNumber"
+                value={editedData.alternateNumber}
+                onChange={handleChange}
+                required
+                className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
+              />
+            ) : (
+              <p className="text-base font-medium text-navy-700 dark:text-white">
+                {editedData.alternateNumber}
+              </p>
+            )}
+            <label className="text-sm text-gray-600">Father's Name</label>
             {isEditing ? (
               <input
                 type="text"
@@ -161,21 +194,7 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
                 {editedData.fatherName}
               </p>
             )}
-            <label className="text-sm text-gray-600">Father Number</label>
-            {isEditing ? (
-              <input
-                type="text"
-                name="fatherNumber"
-                value={editedData.fatherNumber}
-                onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
-              />
-            ) : (
-              <p className="text-base font-medium text-navy-700 dark:text-white">
-                {editedData.fatherNumber}
-              </p>
-            )}
-            <label className="text-sm text-gray-600">Mother Name</label>
+            <label className="text-sm text-gray-600">Mother's Name</label>
             {isEditing ? (
               <input
                 type="text"
@@ -189,27 +208,14 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
                 {editedData.motherName}
               </p>
             )}
-            <label className="text-sm text-gray-600">Mother Number</label>
-            {isEditing ? (
-              <input
-                type="text"
-                name="motherNumber"
-                value={editedData.motherNumber}
-                onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
-              />
-            ) : (
-              <p className="text-base font-medium text-navy-700 dark:text-white">
-                {editedData.motherNumber}
-              </p>
-            )}
-            <label className="text-sm text-gray-600">Email</label>
+            <label className="text-sm text-gray-600">Email *</label>
             {isEditing ? (
               <input
                 type="text"
                 name="email"
                 value={editedData.email}
                 onChange={handleChange}
+                required
                 className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
               />
             ) : (

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { FaTrashAlt } from "react-icons/fa";
+import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import {
   useGlobalFilter,
   usePagination,
@@ -17,6 +17,8 @@ const TestTable = (props) => {
   const auth = useContext(AuthContext);
   const { tableData } = props;
   const [tests, setTests] = useState([]);
+  const [filterCategory, setFilterCategory] = useState("All");
+  const [isQuizFormVisible, setIsQuizFormVisible] = useState(false);
   const [selectedTest, setSelectedTest] = useState(null);
   const [isEditTestFormVisible, setIsEditTestFormVisible] = useState(false);
 
@@ -40,7 +42,17 @@ const TestTable = (props) => {
     fetchTests();
   }, []);
 
-  const data = useMemo(() => (tests ? tests : []), [tests]);
+  const data = useMemo(() => {
+    if (!tests) return [];
+    if (filterCategory === "All") return tests;
+    return tests.filter((test) => test.course === filterCategory);
+  }, [tests, filterCategory]);
+
+  const categories = useMemo(() => {
+    if (!tests) return ["All"];
+    const uniqueCategories = [...new Set(tests.map((test) => test.course))];
+    return ["All", ...uniqueCategories];
+  }, [tests]);
 
   const handleEditTestClick = () => {
     setIsEditTestFormVisible(true);
@@ -48,14 +60,18 @@ const TestTable = (props) => {
 
   const handleCancelForm = () => {
     setIsEditTestFormVisible(false);
+    setIsQuizFormVisible(false); // Also close QuizForm if open
   };
 
   const handleFormSubmit = (formData) => {
     console.log("General Form submitted:", formData);
     setIsEditTestFormVisible(false);
+    setIsQuizFormVisible(false); // Close QuizForm after submission
   };
-  const handleViewClick = (test) => {
+
+  const handleEditQuizClick = (test) => {
     setSelectedTest(test);
+    setIsEditTestFormVisible(true);
   };
 
   const handleDelete = (id) => {
@@ -108,7 +124,7 @@ const TestTable = (props) => {
         ),
       },
       {
-        Header: "Test Name",
+        Header: "Exam Title",
         accessor: "examName",
         Cell: ({ value }) => (
           <p className="text-sm font-bold text-navy-700 dark:text-white">
@@ -117,7 +133,25 @@ const TestTable = (props) => {
         ),
       },
       {
-        Header: "Test Stream",
+        Header: "Category",
+        accessor: "course",
+        Cell: ({ value }) => (
+          <p className="text-sm font-bold text-navy-700 dark:text-white">
+            {value}
+          </p>
+        ),
+      },
+      {
+        Header: "Subjects",
+        accessor: "subjects",
+        Cell: ({ value }) => (
+          <p className="text-sm font-bold text-navy-700 dark:text-white">
+            {value}
+          </p>
+        ),
+      },
+      {
+        Header: "Batch",
         accessor: "batchName",
         Cell: ({ value }) => (
           <p className="text-sm font-bold text-navy-700 dark:text-white">
@@ -126,32 +160,41 @@ const TestTable = (props) => {
         ),
       },
       {
-        Header: "Max Marks",
-        accessor: "score",
-        Cell: ({ value }) => (
-          <p className="text-sm font-bold text-navy-700 dark:text-white">
-            {value}
-          </p>
+        Header: "Schedule",
+        id: "schedule",
+        Cell: ({ row }) => (
+          <div className="text-sm font-bold text-navy-700 dark:text-white">
+            <p>{row.original.date}</p>
+            <p className="text-[10px] text-gray-500">
+              {row.original.startTime} - {row.original.endTime}
+            </p>
+          </div>
         ),
       },
       {
-        Header: "Question Paper Id",
-        accessor: "questionPaperId",
-        Cell: ({ value }) => (
-          <p className="text-sm font-bold text-navy-700 dark:text-white">
-            {value}
-          </p>
-        ),
+        Header: "Difficulty",
+        accessor: "difficulty",
+        Cell: ({ value }) => {
+          let color = "bg-gray-100 text-gray-800";
+          if (value === "Easy") color = "bg-green-100 text-green-800";
+          if (value === "Medium") color = "bg-orange-100 text-orange-800";
+          if (value === "Hard") color = "bg-red-100 text-red-800";
+          return (
+            <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${color}`}>
+              {value || "Medium"}
+            </span>
+          );
+        },
       },
       {
-        Header: "View",
-        accessor: "view",
+        Header: "Action",
+        accessor: "action",
         Cell: ({ row }) => (
           <button
             className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
-            onClick={() => handleViewClick(row.original)}
+            onClick={() => handleEditQuizClick(row.original)}
           >
-            View
+            <FaEdit />
           </button>
         ),
       },
@@ -180,6 +223,7 @@ const TestTable = (props) => {
   const handleUpdate = (updatedTestData) => {
     console.log("Updated student data:", updatedTestData);
     setSelectedTest(null);
+    setIsEditTestFormVisible(false);
   };
 
   const {
@@ -201,24 +245,39 @@ const TestTable = (props) => {
 
   return (
     <Card extra={"w-full pb-10 p-4 h-full"}>
-      {isEditTestFormVisible ? (
+      {isQuizFormVisible ? (
         <QuizForm onSubmit={handleFormSubmit} onCancel={handleCancelForm} />
-      ) : selectedTest ? (
+      ) : isEditTestFormVisible && selectedTest ? (
         <EditQuizForm
           testData={selectedTest}
           onUpdate={handleUpdate}
-          onBack={() => setSelectedTest(null)}
+          onBack={() => {
+            setSelectedTest(null);
+            setIsEditTestFormVisible(false);
+          }}
         />
       ) : (
         <>
           <header className="relative flex items-center justify-between">
             <div className="text-xl font-bold text-navy-700 dark:text-white">
-              Test History
+              Manage Tests
             </div>
             <div className="flex items-center space-x-4">
+              <div className="flex items-center bg-gray-100 rounded-full px-4 py-2 dark:bg-navy-800">
+                <span className="mr-2 text-xs font-bold text-gray-600 dark:text-gray-300">Category:</span>
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className="bg-transparent text-xs font-bold text-navy-700 dark:text-white outline-none"
+                >
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
               <button
                 className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
-                onClick={handleEditTestClick}
+                onClick={() => setIsQuizFormVisible(true)}
               >
                 Add Test
               </button>

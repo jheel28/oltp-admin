@@ -11,7 +11,6 @@ router.post(
   "/create/admin",
   imageUpload.fields([
     { name: "image", maxCount: 1 },
-    { name: "universityLogo", maxCount: 1 },
   ]),
   [
     check("firstName").isLength({ min: 2, max: 255 }),
@@ -19,13 +18,6 @@ router.post(
     check("mobile").isNumeric().isLength({ min: 10, max: 10 }),
     check("email").isEmail(),
     check("password").isLength({ min: 6 }),
-    check("universityName").isLength({ min: 2, max: 255 }),
-    check("address").isLength({ min: 2, max: 255 }),
-    check("landmark").isLength({ min: 2, max: 255 }),
-    check("pincode").isNumeric().isLength({ min: 6, max: 6 }),
-    check("state").isLength({ min: 2, max: 255 }),
-    check("country").isLength({ min: 2, max: 255 }),
-    check("dateOfEstablishment").notEmpty(),
   ],
   adminControllers.createAdmin
 );
@@ -36,7 +28,6 @@ router.patch(
 
   imageUpload.fields([
     { name: "image", maxCount: 1 },
-    { name: "universityLogo", maxCount: 1 },
   ]),
   adminControllers.updateAdminById
 );
@@ -46,7 +37,6 @@ router.patch(
 
   imageUpload.fields([
     { name: "image", maxCount: 1 },
-    { name: "universityLogo", maxCount: 1 },
   ]),
   adminControllers.updateAdminById
 );

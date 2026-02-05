@@ -7,6 +7,8 @@ const questionPaperSchema = new Schema({
   score: { type: Number, required: true },
   noOfQuestions: { type: Number, required: true },
   category: { type: String, required: true },
+  difficulty: { type: String }, // New field: Easy, Medium, Hard
+  subjects: { type: String }, // New field: e.g., Physics, Chemistry
   keySheet: { type: String },
 });
 questionPaperSchema.plugin(uniqueValidator);

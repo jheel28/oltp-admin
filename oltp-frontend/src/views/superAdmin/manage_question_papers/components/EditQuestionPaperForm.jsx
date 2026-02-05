@@ -70,6 +70,18 @@ const EditQuestionPaper = ({ questionPaper, onCancel }) => {
           <option value="Advance">Advance</option>
         </select>
       </div>
+      <div className="mb-4">
+        <strong>Subjects:</strong>
+        <input
+          type="text"
+          placeholder="e.g., Physics, Chemistry"
+          value={editedQuestionPaper.subjects || ""}
+          onChange={(e) =>
+            handleQuestionPaperChange("subjects", e.target.value)
+          }
+          className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
+        />
+      </div>
 
       <div className="mb-4">
         <strong>Maximum Marks to Score:</strong>

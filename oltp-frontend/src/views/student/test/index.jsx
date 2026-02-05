@@ -64,22 +64,24 @@ const Marketplace = () => {
   }, [auth.userId]);
 
   const filteredTests = tests.filter((test) => {
+    if (!student || !test) return false;
+
     const isTestAttempted = attempted.some(
       (attemptedTest) => attemptedTest.testId === test.testId
     );
-    const isSameBatch = student.batch === test.batchName;
+    
+    // Use case-insensitive comparison and trim for safety
+    const isSameBatch = 
+      student.batch?.trim().toLowerCase() === test.batchName?.trim().toLowerCase();
 
-    // Construct start and end time Date objects using the date attribute and startTime/endTime
-    const startTime = new Date(`${test.date} ${test.startTime}`);
+    // Construct end time Date object
     const endTime = new Date(`${test.date} ${test.endTime}`);
-    // Get the current time
     const currentTime = new Date();
 
-    // Check if the current time is after the start time and before the end time
-    const isTestWithinTimeRange =
-      currentTime >= startTime && currentTime <= endTime;
-    console.log(isTestWithinTimeRange);
-    return !isTestAttempted && isSameBatch && isTestWithinTimeRange;
+    // Show tests that have not yet ended
+    const isTestNotExpired = currentTime <= endTime;
+
+    return !isTestAttempted && isSameBatch && isTestNotExpired;
   });
 
   return (
@@ -96,21 +98,19 @@ const Marketplace = () => {
         </div>
 
         {/* NFTs trending card */}
-        <div className="z-20 grid grid-cols-1 gap-5 md:grid-cols-3">
-          {filteredTests.map((test) => (
-            <>
-              <TestCard
-                key={test.testId} // Move the key prop to TestCard component
-                title={test.examName}
-                image={BetaLogo}
-                score={test.score}
-                course={test.course}
-                batchName={test.batchName}
-                handleClick={test.handleClick}
-                testId={test.testId}
-              />
-            </>
-          ))}
+        <div className="flex flex-wrap gap-4 mt-8">
+          {filteredTests.length > 0 ? (
+            filteredTests.map((test) => (
+              <div key={test.testId} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.33%-1.33rem)]">
+                <TestCard test={test} />
+              </div>
+            ))
+          ) : (
+            <div className="w-full text-center py-20 bg-gray-50 rounded-2xl dark:bg-navy-800">
+              <p className="text-gray-500 font-bold">No upcoming tests for your batch.</p>
+              <p className="text-gray-400 text-sm mt-2">Check back later or contact your mentor.</p>
+            </div>
+          )}
         </div>
       </div>
 

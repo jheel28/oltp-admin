@@ -104,6 +104,7 @@ const TestsTable = () => {
       lastName: score.lastName,
       marks: score.marks,
       maxscore: score.maxscore,
+      questionPaperId: score.questionPaperId,
       viewButton: (
         <button
           className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
@@ -119,11 +120,11 @@ const TestsTable = () => {
   const columns = useMemo(
     () => [
       {
-        Header: "Test Id",
+        Header: "Test ID",
         accessor: "testId",
       },
       {
-        Header: "Student Id",
+        Header: "Student ID",
         accessor: "studentId",
       },
       {
@@ -140,8 +141,12 @@ const TestsTable = () => {
       },
 
       {
-        Header: "Max marks",
+        Header: "Max Marks",
         accessor: "maxscore",
+      },
+      {
+        Header: "Question Paper ID",
+        accessor: "questionPaperId",
       },
       // {
       //   Header: "Date",

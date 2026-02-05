@@ -10,8 +10,10 @@ const QuestionPaperForm = ({ onCancel }) => {
   const [questionPaper, setQuestionPaper] = useState({
     questionPaperId: "",
     score: "",
-    noOfQuestions: "",
+    noOfQuestions: 0,
     category: "",
+    difficulty: "Medium", // Default
+    subjects: "", // New field
   });
   const [questions, setQuestions] = useState([
     {
@@ -20,6 +22,8 @@ const QuestionPaperForm = ({ onCancel }) => {
       options: [{ text: "" }],
       correctOption: 0,
       marks: 1,
+      difficulty: "Medium",
+      topic: "",
     },
   ]);
   const [showQuestionImageInput, setShowQuestionImageInput] = useState(false);
@@ -38,6 +42,8 @@ const QuestionPaperForm = ({ onCancel }) => {
         options: [{ text: "" }],
         correctOption: 0,
         marks: 1,
+        difficulty: "Medium",
+        topic: "",
       },
     ]);
   };
@@ -197,10 +203,10 @@ const QuestionPaperForm = ({ onCancel }) => {
   return (
     <div className="p-4">
       <div className="mb-4">
-        <strong>Question Paper Id:</strong>
+        <strong>Question Paper ID:</strong>
         <input
           type="text"
-          placeholder="Enter Question Paper Id"
+          placeholder="Enter Question Paper ID"
           className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
           value={questionPaper.questionPaperId}
           onChange={(e) =>
@@ -209,21 +215,35 @@ const QuestionPaperForm = ({ onCancel }) => {
         />
       </div>
       <div className="mb-4">
-        <strong>Category:</strong>
+        <strong>Subjects:</strong>
+        <input
+          type="text"
+          placeholder="e.g., Physics, Chemistry"
+          className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
+          value={questionPaper.subjects}
+          onChange={(e) =>
+            setQuestionPaper({
+              ...questionPaper,
+              subjects: e.target.value,
+            })
+          }
+        />
+      </div>
+      <div className="mb-4">
+        <strong>Paper Level:</strong>
         <select
           className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
-          value={questionPaper.category}
-          onChange={(e) => handleTestInfoChange("category", e.target.value)}
+          value={questionPaper.difficulty}
+          onChange={(e) => handleTestInfoChange("difficulty", e.target.value)}
         >
-          <option value="">Select a category</option>
-          <option value="NEET">NEET</option>
-          <option value="Mains">Mains</option>
-          <option value="Advance">Advance</option>
+          <option value="Easy">Easy</option>
+          <option value="Medium">Medium</option>
+          <option value="Hard">Hard</option>
         </select>
       </div>
 
       <div className="mb-4">
-        <strong>Maximum Marks to Score:</strong>
+        <strong>Maximum Marks:</strong>
         <input
           type="number"
           min="0"
@@ -245,7 +265,7 @@ const QuestionPaperForm = ({ onCancel }) => {
             handleTestInfoChange("noOfQuestions", parseInt(e.target.value))
           }
         />
-        <strong>Upload answer sheet:</strong>
+        <strong>Upload Answer Sheet:</strong>
         <br />
         <br />
         <input
@@ -274,6 +294,17 @@ const QuestionPaperForm = ({ onCancel }) => {
               className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
               value={question.text}
               onChange={(e) => handleQuestionTextChange(questionIndex, e)}
+            />
+            <input
+              type="text"
+              placeholder="Topic (e.g., Calculus, Organic Chemistry)"
+              className="block w-full rounded-lg border-gray-300 p-2 mt-2 text-sm italic focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
+              value={question.topic}
+              onChange={(e) => {
+                const newQs = [...questions];
+                newQs[questionIndex].topic = e.target.value;
+                setQuestions(newQs);
+              }}
             />
             <div className="mt-2 flex items-center">
               <input

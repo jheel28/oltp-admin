@@ -12,6 +12,8 @@ const testSchema = new Schema({
   startTime: { type: String, required: true },
   endTime: { type: String, required: true },
   questionPaperId: { type: String, required: true },
+  subjects: { type: String }, // New field: e.g., Physics, Chemistry
+  difficulty: { type: String }, // New field: Easy, Medium, Hard
 });
 testSchema.plugin(uniqueValidator);
 module.exports = mongoose.model("Test", testSchema);

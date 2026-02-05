@@ -13,7 +13,8 @@ const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
     startTime: "",
     endTime: "",
     testId: "",
-    course: "",
+    course: "", // Category
+    subjects: "", // New field
     questionPaperId: "",
   });
   const [questionPapers, setQuestionPapers] = useState([]);
@@ -93,7 +94,7 @@ const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
   return (
     <div className="p-4">
       <div className="mb-4">
-        <strong>Test Name:</strong>
+        <strong>Exam Title:</strong>
         <input
           type="text"
           placeholder="Enter Test Name"
@@ -119,27 +120,37 @@ const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
         </Select>
       </div>
       <div className="mb-4">
-        <strong>Course:</strong>
+        <strong>Category:</strong>
         <input
           type="text"
-          placeholder="Enter Test Stream"
+          placeholder="e.g., NEET, Mains, Board"
           className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
           value={testInfo.course}
           onChange={(e) => handleTestInfoChange("course", e.target.value)}
         />
       </div>
       <div className="mb-4">
-        <strong>Test Id:</strong>
+        <strong>Subjects:</strong>
         <input
           type="text"
-          placeholder="Enter Test Stream"
+          placeholder="e.g., Physics, Chemistry"
+          className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
+          value={testInfo.subjects}
+          onChange={(e) => handleTestInfoChange("subjects", e.target.value)}
+        />
+      </div>
+      <div className="mb-4">
+        <strong>Test ID:</strong>
+        <input
+          type="text"
+          placeholder="Enter Test ID"
           className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
           value={testInfo.testId}
           onChange={(e) => handleTestInfoChange("testId", e.target.value)}
         />
       </div>
       <div className="mb-4">
-        <strong>Maximum Marks to Score:</strong>
+        <strong>Maximum Marks:</strong>
         <input
           type="number"
           min="0"
@@ -179,7 +190,7 @@ const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
         />
       </div>
       <div className="mb-4">
-        <strong>Question Paper:</strong>
+        <strong>Question Paper ID:</strong>
         <br />
         <br />
         <Select

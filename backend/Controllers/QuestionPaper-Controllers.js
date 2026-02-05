@@ -11,8 +11,15 @@ const createQuestionPaper = async (req, res, next) => {
     });
   }
 
-  const { questionPaperId, score, noOfQuestions, category, keySheet } =
-    req.body;
+  const {
+    questionPaperId,
+    score,
+    noOfQuestions,
+    category,
+    difficulty,
+    subjects,
+    keySheet,
+  } = req.body;
 
   let existingQuestionPaper;
   try {
@@ -33,10 +40,11 @@ const createQuestionPaper = async (req, res, next) => {
 
   const createdQuestionPaper = new QuestionPaper({
     questionPaperId,
-
     score,
     noOfQuestions,
     category,
+    difficulty,
+    subjects,
   });
   if (req.file) {
     createdQuestionPaper.keySheet = req.file.path;
@@ -99,7 +107,8 @@ const getQuestionPaperById = async (req, res, next) => {
 };
 const updateQuestionPaperById = async (req, res, next) => {
   const id = req.params.id;
-  const { questions, answers, score, noOfQuestions, category } = req.body;
+  const { questions, answers, score, noOfQuestions, category, difficulty, subjects } =
+    req.body;
   let questionPaper;
   try {
     questionPaper = await QuestionPaper.findOne({ _id: id });
@@ -123,6 +132,10 @@ const updateQuestionPaperById = async (req, res, next) => {
     ? noOfQuestions
     : questionPaper.noOfQuestions;
   questionPaper.category = category ? category : questionPaper.category;
+  questionPaper.difficulty = difficulty
+    ? difficulty
+    : questionPaper.difficulty;
+  questionPaper.subjects = subjects ? subjects : questionPaper.subjects;
   try {
     await questionPaper.save();
   } catch (err) {

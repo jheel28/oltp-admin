@@ -21,6 +21,8 @@ const createTest = async (req, res, next) => {
     startTime,
     endTime,
     questionPaperId,
+    subjects,
+    difficulty,
   } = req.body;
   let existingTest;
   try {
@@ -49,6 +51,8 @@ const createTest = async (req, res, next) => {
     date,
     startTime,
     endTime,
+    subjects,
+    difficulty,
   });
   try {
     await createdTest.save();
@@ -114,6 +118,8 @@ const updateTestById = async (req, res, next) => {
     date,
     startTime,
     endTime,
+    subjects,
+    difficulty,
   } = req.body;
   try {
     test = await Test.findOne({ _id: id });
@@ -138,6 +144,8 @@ const updateTestById = async (req, res, next) => {
   test.questionPaperId = questionPaperId
     ? questionPaperId
     : test.questionPaperId;
+  test.subjects = subjects ? subjects : test.subjects;
+  test.difficulty = difficulty ? difficulty : test.difficulty;
   try {
     await test.save();
   } catch (err) {

@@ -10,7 +10,7 @@ const createBatch = async (req, res, next) => {
       errors: errors.array(),
     });
   }
-  const { batchName, sectionName, studentId } = req.body;
+  const { batchName } = req.body;
   let existingBatch;
   try {
     existingBatch = await Batch.findOne({ batchName: batchName });
@@ -30,8 +30,6 @@ const createBatch = async (req, res, next) => {
   }
   const createdBatch = new Batch({
     batchName,
-    sectionName,
-    studentId,
   });
   try {
     await createdBatch.save();
@@ -60,7 +58,7 @@ const getAllBatches = async (req, res, next) => {
 };
 const updateBatchById = async (req, res, next) => {
   const id = req.params.id;
-  const { batchName, sectionName, studentId } = req.body;
+  const { batchName } = req.body;
   let batch;
   try {
     batch = await Batch.findOne({ _id: id });
@@ -75,9 +73,7 @@ const updateBatchById = async (req, res, next) => {
     const error = new HttpError("Batch not found, please try again", 500);
     return next(error);
   }
-  (batch.batchName = batchName ? batchName : batch.batchName),
-    (batch.sectionName = sectionName ? sectionName : batch.sectionName),
-    (batch.studentId = studentId ? studentId : batch.studentId);
+  batch.batchName = batchName ? batchName : batch.batchName;
   try {
     batch.save();
   } catch (err) {

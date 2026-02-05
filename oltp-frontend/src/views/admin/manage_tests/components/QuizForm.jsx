@@ -13,8 +13,10 @@ const QuizForm = ({ onSubmit, onCancel }) => {
     startTime: "",
     endTime: "",
     testId: "",
-    course: "",
+    course: "", // This is Category
+    subjects: "", // New field
     questionPaperId: "",
+    difficulty: "Medium", // Default value
   });
   const [questionPapers, setQuestionPapers] = useState([]);
   const [batches, setBatches] = useState([]);
@@ -107,27 +109,37 @@ const QuizForm = ({ onSubmit, onCancel }) => {
         </Select>
       </div>
       <div className="mb-4">
-        <strong>Course:</strong>
+        <strong>Category:</strong>
         <input
           type="text"
-          placeholder="Enter Test Stream"
+          placeholder="e.g., NEET, Mains, Board"
           className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
           value={testInfo.course}
           onChange={(e) => handleTestInfoChange("course", e.target.value)}
         />
       </div>
       <div className="mb-4">
-        <strong>Test Id:</strong>
+        <strong>Subjects:</strong>
         <input
           type="text"
-          placeholder="Enter Test Stream"
+          placeholder="e.g., Physics, Chemistry"
+          className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
+          value={testInfo.subjects}
+          onChange={(e) => handleTestInfoChange("subjects", e.target.value)}
+        />
+      </div>
+      <div className="mb-4">
+        <strong>Test ID:</strong>
+        <input
+          type="text"
+          placeholder="Enter Test ID"
           className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
           value={testInfo.testId}
           onChange={(e) => handleTestInfoChange("testId", e.target.value)}
         />
       </div>
       <div className="mb-4">
-        <strong>Maximum Marks to Score:</strong>
+        <strong>Maximum Marks:</strong>
         <input
           type="number"
           min="0"
@@ -157,6 +169,18 @@ const QuizForm = ({ onSubmit, onCancel }) => {
           />
         </div>
         <div className="mb-4">
+          <strong>Difficulty:</strong>
+          <select
+            className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700 text-black"
+            value={testInfo.difficulty}
+            onChange={(e) => handleTestInfoChange("difficulty", e.target.value)}
+          >
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+        </div>
+        <div className="mb-4">
           <strong>End Time:</strong>
           <input
             type="time"
@@ -167,7 +191,7 @@ const QuizForm = ({ onSubmit, onCancel }) => {
         </div>
 
         <div className="mb-4">
-          <strong>Question Paper:</strong>
+          <strong>Question Paper ID:</strong>
           <br />
           <br />
           <Select

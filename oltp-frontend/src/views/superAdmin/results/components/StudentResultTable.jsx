@@ -39,12 +39,16 @@ const StudentResultsTable = ({setShowResultPage}) => { // Track the selected stu
   const columns = useMemo(
     () => [
       {
-        Header: "Student Name",
+        Header: "Exam Title",
         accessor: "testName",
       },
       {
-        Header: "Batch",
+        Header: "Category",
         accessor: "subject",
+      },
+      {
+        Header: "Question Paper ID",
+        accessor: "questionPaperId",
       },
       {
         Header: "Average Score",

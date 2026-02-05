@@ -8,12 +8,16 @@ const StudentResultsTable = ({ student, onClose }) => {
   const columns = useMemo(
     () => [
       {
-        Header: "Test Name",
+        Header: "Exam Title",
         accessor: "testName",
       },
       {
-        Header: "Test Stream",
+        Header: "Category",
         accessor: "subject",
+      },
+      {
+        Header: "Question Paper ID",
+        accessor: "questionPaperId",
       },
       {
         Header: "Score",

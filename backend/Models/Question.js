@@ -13,6 +13,8 @@ const questionSchema = new Schema({
   options: [optionSchema],
   correctOption: { type: Number, required: true },
   marks: { type: Number, required: true },
+  difficulty: { type: String }, // New field: Easy, Medium, Hard
+  topic: { type: String }, // New field: e.g., Algebra, Mechanics
 });
 
 module.exports = mongoose.model("Question", questionSchema);

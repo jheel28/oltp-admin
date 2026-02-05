@@ -1,76 +1,74 @@
-import { IoHeart, IoHeartOutline } from "react-icons/io5";
-import { useState } from "react";
-import Card from "components/card";
-import { Button, message, notification } from "antd";
-import ReactDOM from "react-dom";
-import TestingPlatformHome from "views/student/test/TestingPlatform/testingPlatformHome";
 import { useNavigate } from "react-router-dom";
-const TestCard = ({
-  title,
-  author,
-  price,
-  image,
-  bidders,
-  extra,
-  score,
-  course,
-  examName,
-  batchName,
-  testId,
-}) => {
-  const [heart, setHeart] = useState(true);
-  const navigate = useNavigate();
-  const handleClick = () => {
-    // Prompt the user to activate full-screen mode manually
-    message.success(
-      "To get the best experience, please activate full-screen mode."
-    );
+import Card from "components/card";
+import { message } from "antd";
 
-    // Request full screen for the document
-    document.documentElement
-      .requestFullscreen()
-      .then(() => {
-        // Navigate to the desired route after full-screen mode is activated
-        navigate(`/student/test/${testId}`);
-      })
-      .catch((error) => {
-        console.error("Error entering full screen:", error);
+const TestCard = ({ test }) => {
+  const navigate = useNavigate();
+
+  const handleStartExam = () => {
+    // Request full screen for the professional exam experience
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen().catch((err) => {
+        message.error("Error attempting to enable full-screen: " + err.message);
       });
+    }
+
+    // Navigate to the test
+    navigate(`/student/test/${test.testId}/${test._id}`);
+  };
+
+  const getDifficultyColor = (difficulty) => {
+    switch (difficulty) {
+      case "Easy": return "bg-green-100 text-green-800";
+      case "Medium": return "bg-orange-100 text-orange-800";
+      case "Hard": return "bg-red-100 text-red-800";
+      default: return "bg-gray-100 text-gray-800";
+    }
   };
 
   return (
-    <Card
-      extra={`flex flex-col w-full h-full !p-4 3xl:p-![18px] bg-white ${extra}`}
-    >
-      <div className="h-full w-full">
-        <div className="relative w-full">
-          <img
-            src={image}
-            className="mb-3 h-full w-full rounded-xl 3xl:h-full 3xl:w-full"
-            alt=""
-          />
+    <Card extra={"flex flex-col w-full h-full p-4 bg-white dark:bg-navy-700 border border-gray-100 dark:border-navy-600 rounded-2xl shadow-sm"}>
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <h3 className="text-xl font-bold text-navy-700 dark:text-white leading-tight">
+            {test.examName}
+          </h3>
+          <p className="text-sm font-medium text-gray-500 mt-1 italic">
+            {test.course}
+          </p>
         </div>
+        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getDifficultyColor(test.difficulty)}`}>
+          {test.difficulty || "Medium"}
+        </span>
+      </div>
 
-        <div className="mb-3 flex items-center justify-between px-1 md:flex-col md:items-start lg:flex-row lg:justify-between xl:flex-col xl:items-start 3xl:flex-row 3xl:justify-between">
-          <div className="mb-2">
-            <p className="text-lg font-bold text-navy-700 dark:text-white">
-              {title}
-            </p>
-            <p className="text-lg text-gray-500 dark:text-gray-400">
-              Score: {score}
-            </p>
-            <p className="text-lg text-gray-500 dark:text-gray-400">
-              Course: {course}
-            </p>
-            <p className="text-lg text-gray-500 dark:text-gray-400">
-              Batch Name: {batchName}
-            </p>
-          </div>
-          <Button primary size="large" onClick={handleClick}>
-            Start
-          </Button>
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="flex flex-col">
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Schedule</span>
+          <span className="text-sm font-bold text-navy-700 dark:text-white mt-1">
+            {test.date}
+          </span>
+          <span className="text-[11px] text-gray-500">
+            {test.startTime} - {test.endTime}
+          </span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-sm font-bold text-navy-700 dark:text-white">
+            {test.course} {test.subjects ? `| ${test.subjects}` : ""}
+          </span>
+          <span className="mt-1 text-sm font-medium text-gray-600">
+            {test.examName}
+          </span>
         </div>
       </div>
+
+      <button
+        onClick={handleStartExam}
+        className="w-full bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-200 transform hover:scale-[1.02] shadow-lg shadow-blue-200 dark:shadow-none"
+      >
+        Start Exam
+      </button>
     </Card>
   );
 };

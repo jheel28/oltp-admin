@@ -5,10 +5,8 @@ import { AuthContext } from "components/Auth-context";
 const General = ({ adminData, onUpdate, onBack }) => {
   const initialData = {
     name: "Medona",
-    university: "JK Lakshmipat University",
     mobile: 1234567890,
     email: "medona@gmail.com",
-    address: "Hyderabad",
   };
 
   const [isEditing, setIsEditing] = useState(false);
@@ -138,22 +136,6 @@ const General = ({ adminData, onUpdate, onBack }) => {
         </div>
 
         <div className="flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 shadow-3xl shadow-shadow-500 dark:!bg-navy-700 dark:shadow-none">
-          <p className="text-sm text-gray-600">University</p>
-          {isEditing ? (
-            <input
-              type="text"
-              name="universityName"
-              value={editedData.universityName}
-              onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
-            />
-          ) : (
-            <p className="text-base font-medium text-navy-700 dark:text-white">
-              {editedData.universityName}
-            </p>
-          )}
-        </div>
-        <div className="flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 shadow-3xl shadow-shadow-500 dark:!bg-navy-700 dark:shadow-none">
           <p className="text-sm text-gray-600">Mobile Number</p>
           {isEditing ? (
             <input
@@ -182,70 +164,6 @@ const General = ({ adminData, onUpdate, onBack }) => {
           ) : (
             <p className="text-base font-medium text-navy-700 dark:text-white">
               {editedData.email}
-            </p>
-          )}
-        </div>
-        <div className="flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 shadow-3xl shadow-shadow-500 dark:!bg-navy-700 dark:shadow-none">
-          <p className="text-sm text-gray-600">Address</p>
-          {isEditing ? (
-            <input
-              type="text"
-              name="address"
-              value={editedData.address}
-              onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
-            />
-          ) : (
-            <p className="text-base font-medium text-navy-700 dark:text-white">
-              {editedData.address}
-            </p>
-          )}
-        </div>
-        <div className="flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 shadow-3xl shadow-shadow-500 dark:!bg-navy-700 dark:shadow-none">
-          <p className="text-sm text-gray-600">State</p>
-          {isEditing ? (
-            <input
-              type="text"
-              name="state"
-              value={editedData.state}
-              onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
-            />
-          ) : (
-            <p className="text-base font-medium text-navy-700 dark:text-white">
-              {editedData.state}
-            </p>
-          )}
-        </div>
-        <div className="flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 shadow-3xl shadow-shadow-500 dark:!bg-navy-700 dark:shadow-none">
-          <p className="text-sm text-gray-600">Country</p>
-          {isEditing ? (
-            <input
-              type="text"
-              name="country"
-              value={editedData.country}
-              onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
-            />
-          ) : (
-            <p className="text-base font-medium text-navy-700 dark:text-white">
-              {editedData.country}
-            </p>
-          )}
-        </div>
-        <div className="flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 shadow-3xl shadow-shadow-500 dark:!bg-navy-700 dark:shadow-none">
-          <p className="text-sm text-gray-600">Date of Establishment</p>
-          {isEditing ? (
-            <input
-              type="text"
-              name="dateOfEstablishment"
-              value={editedData.dateOfEstablishment}
-              onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
-            />
-          ) : (
-            <p className="text-base font-medium text-navy-700 dark:text-white">
-              {editedData.dateOfEstablishment}
             </p>
           )}
         </div>

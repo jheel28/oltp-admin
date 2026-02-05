@@ -21,8 +21,8 @@ const createStudent = async (req, res, next) => {
     password,
     fatherName,
     motherName,
-    fatherNumber,
-    motherNumber,
+    phoneNumber,
+    alternateNumber,
     studentId,
     admissionDate,
     batch,
@@ -62,8 +62,8 @@ const createStudent = async (req, res, next) => {
     password: hashedPassword,
     fatherName,
     motherName,
-    fatherNumber,
-    motherNumber,
+    phoneNumber,
+    alternateNumber,
     studentId,
     role: "Student",
     admissionDate,
@@ -162,7 +162,7 @@ const login = async (req, res, next) => {
     return next(error);
   }
   if (!isValidPassword) {
-    const error = new HttpError("Invalid crudentials, please try agin", 401);
+    const error = new HttpError("Invalid credentials, please try again", 401);
     return next(error);
   }
   let token;
@@ -270,8 +270,8 @@ const updateStudentById = async (req, res, next) => {
     password,
     fatherName,
     motherName,
-    fatherNumber,
-    motherNumber,
+    phoneNumber,
+    alternateNumber,
     studentId,
     admissionDate,
     batch,
@@ -317,8 +317,8 @@ const updateStudentById = async (req, res, next) => {
     (student.password = updatedPassword),
     (student.fatherName = fatherName ? fatherName : student.fatherName),
     (student.motherName = motherName ? motherName : student.motherName),
-    (student.fatherNumber = fatherNumber ? fatherNumber : student.fatherNumber),
-    (student.motherNumber = motherNumber ? motherNumber : student.motherNumber),
+    (student.phoneNumber = phoneNumber ? phoneNumber : student.phoneNumber),
+    (student.alternateNumber = alternateNumber ? alternateNumber : student.alternateNumber),
     (student.studentId = studentId ? studentId : student.studentId),
     (student.batch = batch ? batch : student.batch),
     (student.address = address ? address : student.address),

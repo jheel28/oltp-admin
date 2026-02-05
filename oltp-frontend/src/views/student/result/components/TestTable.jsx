@@ -86,7 +86,7 @@ const TestsTable = () => {
   const columns = useMemo(
     () => [
       {
-        Header: "Test Id",
+        Header: "Test ID",
         accessor: "testId",
       },
       {
@@ -99,8 +99,12 @@ const TestsTable = () => {
       },
 
       {
-        Header: "Max marks",
+        Header: "Max Marks",
         accessor: "score",
+      },
+      {
+        Header: "Question Paper ID",
+        accessor: "questionPaperId",
       },
       {
         Header: "Date",

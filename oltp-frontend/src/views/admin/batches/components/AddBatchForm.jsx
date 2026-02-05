@@ -6,8 +6,6 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
   const auth = useContext(AuthContext);
   const [formData, setFormData] = useState({
     batchName: "",
-    sectionName: [],
-    studentId: [],
   });
 
   const handleChange = (e) => {
@@ -20,11 +18,10 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
 
   const handleSubmit = async () => {
     try {
-      const formDataToSend = new FormData();
-      for (let key in formData) {
-        formDataToSend.append(key, formData[key]);
-      }
-      console.log(formData);
+      // Split comma-separated strings into arrays for student IDs
+      const processedData = {
+        ...formData,
+      };
 
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/create/batch`,
@@ -34,7 +31,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
             "Content-Type": "application/json",
             Authorization: "Bearer " + auth.token,
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(processedData),
         }
       );
 
@@ -47,8 +44,6 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
 
       setFormData({
         batchName: "",
-        sectionName: [],
-        studentId: [],
       });
       onSubmit(responseData);
       setTimeout(() => {
@@ -69,28 +64,11 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         name="batchName"
         value={formData.batchName}
         onChange={handleChange}
-        placeholder="Batch Name"
+        placeholder="Batch & Section (e.g., 2026-CSE-A)"
         style={{ color: "black" }}
         className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
       />
-      <input
-        type="text"
-        name="sectionName"
-        value={formData.sectionName}
-        onChange={handleChange}
-        placeholder="Sections "
-        style={{ color: "black" }}
-        className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
-      />
-      <input
-        type="text"
-        name="studentId"
-        value={formData.studentId}
-        onChange={handleChange}
-        placeholder="Student's Roll numbers"
-        style={{ color: "black" }}
-        className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
-      />
+
 
       <div className="flex space-x-4">
         <button

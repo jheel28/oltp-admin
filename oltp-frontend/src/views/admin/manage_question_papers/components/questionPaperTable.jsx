@@ -145,6 +145,30 @@ const TestTable = (props) => {
           </p>
         ),
       },
+      {
+        Header: "Subjects",
+        accessor: "subjects",
+        Cell: ({ value }) => (
+          <p className="text-sm font-bold text-navy-700 dark:text-white">
+            {value}
+          </p>
+        ),
+      },
+      {
+        Header: "Paper Level",
+        accessor: "difficulty",
+        Cell: ({ value }) => {
+          let color = "bg-gray-100 text-gray-800";
+          if (value === "Easy") color = "bg-green-100 text-green-800";
+          if (value === "Medium") color = "bg-orange-100 text-orange-800";
+          if (value === "Hard") color = "bg-red-100 text-red-800";
+          return (
+            <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${color}`}>
+              {value || "Medium"}
+            </span>
+          );
+        },
+      },
       // {
       //   Header: "Action",
       //   accessor: "action",
@@ -218,7 +242,10 @@ const TestTable = (props) => {
             <div className="flex items-center space-x-4">
               <button
                 className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
-                onClick={() => setIsEditQuestionPaperFormVisible(true)}
+                onClick={() => {
+                  setSelectedQuestionPaper(null); // Clear selected question paper when adding new
+                  setIsEditQuestionPaperFormVisible(true);
+                }}
               >
                 Add Question Paper
               </button>

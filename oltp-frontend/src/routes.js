@@ -39,7 +39,7 @@ const LogoutCard = ({ onConfirm }) => {
     auth.logout();
     message.success("Logged out Successfully");
     setTimeout(() => {
-      navigate("/");
+      navigate("/auth/admin-login");
     }, 200);
     onConfirm();
   };

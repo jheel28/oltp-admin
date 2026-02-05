@@ -148,6 +148,15 @@ const TestTable = (props) => {
           </p>
         ),
       },
+      {
+        Header: "Subjects",
+        accessor: "subjects",
+        Cell: ({ value }) => (
+          <p className="text-sm font-bold text-navy-700 dark:text-white">
+            {value}
+          </p>
+        ),
+      },
       // {
       //   Header: "Action",
       //   accessor: "action",

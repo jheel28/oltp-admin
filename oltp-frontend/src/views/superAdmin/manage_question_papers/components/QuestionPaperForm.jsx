@@ -9,8 +9,10 @@ const QuestionPaperForm = ({ onCancel }) => {
   const [questionPaper, setQuestionPaper] = useState({
     questionPaperId: "",
     score: "",
-    noOfQuestions: "",
+    noOfQuestions: 0,
     category: "",
+    difficulty: "Medium",
+    subjects: "",
   });
   const [questions, setQuestions] = useState([
     {
@@ -196,16 +198,43 @@ const QuestionPaperForm = ({ onCancel }) => {
   return (
     <div className="p-4">
       <div className="mb-4">
-        <strong>Question Paper Id:</strong>
+        <strong>Question Paper ID:</strong>
         <input
           type="text"
-          placeholder="Enter Question Paper Id"
+          placeholder="Enter Question Paper ID"
           className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
           value={questionPaper.questionPaperId}
           onChange={(e) =>
             handleTestInfoChange("questionPaperId", e.target.value)
           }
         />
+      </div>
+      <div className="mb-4">
+        <strong>Subjects:</strong>
+        <input
+          type="text"
+          placeholder="e.g., Physics, Chemistry"
+          className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
+          value={questionPaper.subjects}
+          onChange={(e) =>
+            setQuestionPaper({
+              ...questionPaper,
+              subjects: e.target.value,
+            })
+          }
+        />
+      </div>
+      <div className="mb-4">
+        <strong>Difficulty:</strong>
+        <select
+          className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
+          value={questionPaper.difficulty}
+          onChange={(e) => handleTestInfoChange("difficulty", e.target.value)}
+        >
+          <option value="Easy">Easy</option>
+          <option value="Medium">Medium</option>
+          <option value="Hard">Hard</option>
+        </select>
       </div>
       <div className="mb-4">
         <strong>Category:</strong>

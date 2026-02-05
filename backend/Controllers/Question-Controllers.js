@@ -11,7 +11,15 @@ const createQuestion = async (req, res, next) => {
       errors: errors.array(),
     });
   }
-  const { questionPaperId, text, options, correctOption, marks } = req.body;
+  const {
+    questionPaperId,
+    text,
+    options,
+    correctOption,
+    marks,
+    difficulty,
+    topic,
+  } = req.body;
 
   const processedOptions = [];
 
@@ -28,6 +36,8 @@ const createQuestion = async (req, res, next) => {
     options: processedOptions,
     correctOption,
     marks,
+    difficulty,
+    topic,
   });
   if (
     req.files &&
@@ -95,7 +105,15 @@ const getQuestionById = async (req, res, next) => {
 };
 const updateQuestionById = async (req, res, next) => {
   const id = req.params.id;
-  const { text, options, correctOption, marks, questionPaperId } = req.body;
+  const {
+    text,
+    options,
+    correctOption,
+    marks,
+    questionPaperId,
+    difficulty,
+    topic,
+  } = req.body;
   let question;
   try {
     question = await Question.findOne({ _id: id });
@@ -116,6 +134,8 @@ const updateQuestionById = async (req, res, next) => {
     ? correctOption
     : question.correctOption;
   question.marks = marks ? marks : question.marks;
+  question.difficulty = difficulty ? difficulty : question.difficulty;
+  question.topic = topic ? topic : question.topic;
 
   try {
     await question.save();

@@ -108,7 +108,7 @@ const TestTable = (props) => {
         ),
       },
       {
-        Header: "Test Name",
+        Header: "Exam Title",
         accessor: "examName",
         Cell: ({ value }) => (
           <p className="text-sm font-bold text-navy-700 dark:text-white">
@@ -117,7 +117,7 @@ const TestTable = (props) => {
         ),
       },
       {
-        Header: "Test Stream",
+        Header: "Batch",
         accessor: "batchName",
         Cell: ({ value }) => (
           <p className="text-sm font-bold text-navy-700 dark:text-white">
@@ -135,7 +135,7 @@ const TestTable = (props) => {
         ),
       },
       {
-        Header: "Question Paper Id",
+        Header: "Question Paper ID",
         accessor: "questionPaperId",
         Cell: ({ value }) => (
           <p className="text-sm font-bold text-navy-700 dark:text-white">

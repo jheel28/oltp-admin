@@ -122,8 +122,17 @@ const StudentsTable = (props) => {
         ),
       },
       {
-        Header: "Roll No",
+        Header: "Student ID",
         accessor: "studentId",
+        Cell: ({ value }) => (
+          <p className="text-sm font-bold text-navy-700 dark:text-white">
+            {value}
+          </p>
+        ),
+      },
+      {
+        Header: "Phone Number",
+        accessor: "phoneNumber",
         Cell: ({ value }) => (
           <p className="text-sm font-bold text-navy-700 dark:text-white">
             {value}
@@ -226,7 +235,7 @@ const StudentsTable = (props) => {
         <>
           <header className="relative flex items-center justify-between">
             <div className="text-xl font-bold text-navy-700 dark:text-white">
-              Students
+              Registration
             </div>
             <div className="flex items-center space-x-4">
               <button

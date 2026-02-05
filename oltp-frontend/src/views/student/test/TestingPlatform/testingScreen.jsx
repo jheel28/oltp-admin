@@ -24,18 +24,25 @@ const TestingScreen = () => {
   );
   const [test, setTest] = useState({});
   const [student, setStudent] = useState({});
-  const [remainingTime, setRemainingTime] = useState(30 * 60);
+  const [remainingTime, setRemainingTime] = useState(0); // Initialize with 0
   useEffect(() => {
     const fetchTestAndQuestions = async () => {
       try {
         const testResponse = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/test/bytestid/${id}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/test/byid/${id}`
         );
         if (!testResponse.ok) {
           throw new Error(`HTTP error! Status: ${testResponse.status}`);
         }
         const testData = await testResponse.json();
         setTest(testData.test);
+
+        // --- DYNAMIC TIMER CALCULATION ---
+        const endTime = new Date(`${testData.test.date} ${testData.test.endTime}`);
+        const currentTime = new Date();
+        const differenceInSeconds = Math.max(0, Math.floor((endTime.getTime() - currentTime.getTime()) / 1000));
+        
+        setRemainingTime(differenceInSeconds);
 
         const questionsResponse = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/api/beta/question/get/questions/byquestionpaperid/${testData.test.questionPaperId}`
@@ -52,11 +59,11 @@ const TestingScreen = () => {
         }
         const studentData = await studentResponse.json();
         setStudent(studentData.student);
-        setTest(testData.test);
         setQuestions(questionsData.questions);
         setOptionIndex(Array(questionsData.questions.length).fill(null));
         setSelectedOptions(Array(questionsData.questions.length).fill(null));
-      } catch (err) {
+      } catch (error) {
+        console.error("Error fetching data:", error);
         message.error("Error while fetching data");
       }
     };
@@ -65,28 +72,27 @@ const TestingScreen = () => {
   }, []);
 
   useEffect(() => {
+    // Check if time is up on every tick or data load
+    if (remainingTime <= 0 && questions.length > 0) {
+      handleConfirmSubmission();
+      return;
+    }
+
     const timer = setInterval(() => {
       setRemainingTime((prevTime) => {
-        if (prevTime === 5 * 60) {
-          message.warning("Only 5 minutes left!");
-        }
-        if (prevTime === 0) {
+        if (prevTime <= 1) {
           clearInterval(timer);
-          message.warning("Time's up! Test will be submitted automatically.");
-          handleTestSubmission();
           return 0;
+        }
+        if (prevTime === 301) { // 5 minute warning
+          message.warning("5 minutes remaining!");
         }
         return prevTime - 1;
       });
     }, 1000);
 
-    if (remainingTime === 0) {
-      clearInterval(timer);
-      navigate("/student/feedbackscreen");
-    }
-
     return () => clearInterval(timer);
-  }, [remainingTime, navigate]);
+  }, [remainingTime, questions.length]);
 
   const handlePreviousQuestion = () => {
     if (currentQuestion > 0) {

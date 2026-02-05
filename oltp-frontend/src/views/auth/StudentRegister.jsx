@@ -45,10 +45,10 @@ const StudentRegister = () => {
     formData.append("pincode", values.pincode);
     formData.append("state", values.state);
     formData.append("country", values.country);
+    formData.append("phoneNumber", values.phoneNumber);
+    formData.append("alternateNumber", values.alternateNumber);
     formData.append("fatherName", values.fatherName);
-    formData.append("fatherNumber", values.fatherNumber);
     formData.append("motherName", values.motherName);
-    formData.append("motherNumber", values.motherNumber);
     if (values.image && values.image.length > 0) {
       formData.append("image", values.image[0].originFileObj);
     }
@@ -103,19 +103,19 @@ const StudentRegister = () => {
                 name="firstName"
                 rules={[{ required: true, message: "First Name is required" }]}
               >
-                <InputField placeholder="First Name" />
+                <InputField placeholder="First Name *" />
               </Form.Item>
               <Form.Item
                 name="lastName"
                 rules={[{ required: true, message: "Last Name is required" }]}
               >
-                <InputField placeholder="Last Name" />
+                <InputField placeholder="Last Name *" />
               </Form.Item>
               <Form.Item
                 name="studentId"
                 rules={[{ required: true, message: "Student ID is required" }]}
               >
-                <InputField placeholder="Student ID" />
+                <InputField placeholder="Student ID *" />
               </Form.Item>
               <Form.Item
                 name="email"
@@ -124,7 +124,7 @@ const StudentRegister = () => {
                   { type: "email", message: "Invalid email" },
                 ]}
               >
-                <InputField type="email" placeholder="Email" />
+                <InputField type="email" placeholder="Email *" />
               </Form.Item>
               <Form.Item
                 name="password"
@@ -133,46 +133,46 @@ const StudentRegister = () => {
                   { min: 6, message: "Password must be at least 6 characters" },
                 ]}
               >
-                <InputField type="password" placeholder="Password" />
+                <InputField type="password" placeholder="Password *" />
               </Form.Item>
             </div>
 
             <div style={{ display: currentStep === 1 ? "block" : "none" }}>
               <Form.Item name="batch" rules={[{ required: true }]}>
-                <InputField placeholder="Batch" />
+                <InputField placeholder="Batch *" />
               </Form.Item>
               <Form.Item name="admissionDate" rules={[{ required: true }]}>
-                <InputField placeholder="Admission Date (YYYY-MM-DD)" />
+                <InputField placeholder="Admission Date *" />
               </Form.Item>
             </div>
 
             <div style={{ display: currentStep === 2 ? "block" : "none" }}>
               <Form.Item name="address" rules={[{ required: true }]}>
-                <InputField placeholder="Address" />
+                <InputField placeholder="Address *" />
               </Form.Item>
               <Form.Item name="pincode" rules={[{ required: true }]}>
-                <InputField placeholder="Pincode" />
+                <InputField placeholder="Pincode *" />
               </Form.Item>
               <Form.Item name="state" rules={[{ required: true }]}>
-                <InputField placeholder="State" />
+                <InputField placeholder="State *" />
               </Form.Item>
               <Form.Item name="country" rules={[{ required: true }]}>
-                <InputField placeholder="Country" />
+                <InputField placeholder="Country *" />
               </Form.Item>
             </div>
 
             <div style={{ display: currentStep === 3 ? "block" : "none" }}>
-              <Form.Item name="motherName" rules={[{ required: true }]}>
-                <InputField placeholder="Mother's Name" />
+              <Form.Item name="phoneNumber" rules={[{ required: true, message: "Phone Number is required" }]}>
+                <InputField placeholder="Phone Number *" />
               </Form.Item>
-              <Form.Item name="motherNumber" rules={[{ required: true }]}>
-                <InputField placeholder="Mother's Number" />
+              <Form.Item name="alternateNumber" rules={[{ required: true, message: "Alternate Number is required" }]}>
+                <InputField placeholder="Alternate Number *" />
               </Form.Item>
-              <Form.Item name="fatherName" rules={[{ required: true }]}>
+              <Form.Item name="fatherName">
                 <InputField placeholder="Father's Name" />
               </Form.Item>
-              <Form.Item name="fatherNumber" rules={[{ required: true }]}>
-                <InputField placeholder="Father's Number" />
+              <Form.Item name="motherName">
+                <InputField placeholder="Mother's Name" />
               </Form.Item>
             </div>
 

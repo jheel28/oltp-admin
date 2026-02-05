@@ -102,47 +102,87 @@ const General = () => {
       {/* Form */}
       <form className="grid grid-cols-2 gap-4 px-2">
         {/* Render input fields for each data attribute */}
-        {Object.entries(editedData).map(([key, value]) => {
-          if (
-            key === "_id" ||
-            key === "image" ||
-            key === "email" ||
-            key === "studentId"
-          ) {
+        {(() => {
+          const fieldOrder = [
+            "studentId",
+            "phoneNumber",
+            "alternateNumber",
+            "fatherName",
+            "motherName",
+            "firstName",
+            "lastName",
+            "email",
+            "batch",
+            "admissionDate",
+            "address",
+            "pincode",
+            "state",
+            "country",
+            "role"
+          ];
+          const mandatoryFields = [
+            "firstName", "lastName", "studentId", "phoneNumber", "alternateNumber", 
+            "email", "batch", "address", "pincode", "state", "country", "admissionDate"
+          ];
+
+          return fieldOrder.map((key) => {
+            const value = editedData[key];
+            const originalLabel = {
+              firstName: "First Name",
+              lastName: "Last Name",
+              fatherName: "Father's Name",
+              motherName: "Mother's Name",
+              phoneNumber: "Phone Number",
+              alternateNumber: "Alternate Number",
+              admissionDate: "Admission Date",
+              batch: "Batch",
+              address: "Address",
+              pincode: "Pincode",
+              state: "State",
+              country: "Country",
+              email: "Email",
+              studentId: "Student ID",
+              role: "Role"
+            }[key] || key;
+
+            const label = mandatoryFields.includes(key) ? `${originalLabel} *` : originalLabel;
+
+            if (key === "email" || key === "studentId" || key === "role") {
+              return (
+                <div
+                  key={key}
+                  className="flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 shadow-3xl shadow-shadow-500 dark:!bg-navy-700 dark:shadow-none"
+                >
+                  <p className="text-sm text-gray-600">{label}</p>
+                  <p className="text-base font-medium text-navy-700 dark:text-white">
+                    {value}
+                  </p>
+                </div>
+              );
+            }
             return (
               <div
                 key={key}
                 className="flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 shadow-3xl shadow-shadow-500 dark:!bg-navy-700 dark:shadow-none"
               >
-                <p className="text-sm text-gray-600">{key}</p>
-                <p className="text-base font-medium text-navy-700 dark:text-white">
-                  {value}
-                </p>
+                <p className="text-sm text-gray-600">{label}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name={key}
+                    value={value}
+                    onChange={handleChange}
+                    className="w-full rounded-md border border-gray-300 p-1 text-base font-medium text-navy-700 dark:text-white dark:bg-navy-700"
+                  />
+                ) : (
+                  <p className="text-base font-medium text-navy-700 dark:text-white">
+                    {value}
+                  </p>
+                )}
               </div>
             );
-          }
-          return (
-            <div
-              key={key}
-              className="flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 shadow-3xl shadow-shadow-500 dark:!bg-navy-700 dark:shadow-none"
-            >
-              <p className="text-sm text-gray-600">{key}</p>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name={key}
-                  value={value}
-                  onChange={handleChange}
-                  className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
-                />
-              ) : (
-                <p className="text-base font-medium text-navy-700 dark:text-white">
-                  {value}
-                </p>
-              )}
-            </div>
-          );
-        })}
+          });
+        })()}
         <div className="col-span-2 flex justify-end">
           {isEditing ? (
             <button

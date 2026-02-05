@@ -8,16 +8,8 @@ const adminSchema = new Schema({
   mobile: { type: Number, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  universityName: { type: String, required: true },
-  address: { type: String, required: true },
-  landmark: { type: String, required: true },
-  pincode: { type: String, required: true },
-  state: { type: String, required: true },
-  country: { type: String, required: true },
-  image: { type: String, rewquired: true },
+  image: { type: String, required: true },
   role: { type: String, required: true },
-  universityLogo: { type: String, required: true },
-  dateOfEstablishment: { type: String, required: true },
 });
 adminSchema.plugin(uniqueValidator);
 module.exports = mongoose.model("Admin", adminSchema);

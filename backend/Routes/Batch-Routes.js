@@ -10,8 +10,6 @@ router.post(
   checkAuth("Admin"),
   [
     check("batchName").isLength({ min: 2, max: 255 }),
-    check("sectionName").isLength({ min: 2, max: 255 }),
-    check("studentId").isLength({ min: 2, max: 255 }),
   ],
   batchControllers.createBatch
 );

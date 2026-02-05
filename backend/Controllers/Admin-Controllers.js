@@ -18,13 +18,6 @@ const createAdmin = async (req, res, next) => {
     lastName,
     email,
     password,
-    universityName,
-    address,
-    landmark,
-    pincode,
-    state,
-    country,
-    dateOfEstablishment,
     mobile,
   } = req.body;
   let existingAdmin;
@@ -57,22 +50,13 @@ const createAdmin = async (req, res, next) => {
   }
 
   const image = req.files["image"][0].path;
-  const universityLogo = req.files["universityLogo"][0].path;
   const createdAdmin = new Admin({
     firstName,
     lastName,
     email,
     password: hashedPassword,
-    universityName,
-    address,
-    landmark,
-    pincode,
-    state,
-    country,
-    dateOfEstablishment,
     image,
     role: "Admin",
-    universityLogo,
     mobile,
   });
   try {
@@ -270,13 +254,6 @@ const updateAdminById = async (req, res, next) => {
     firstName,
     lastName,
     password,
-    universityName,
-    address,
-    landmark,
-    pincode,
-    state,
-    country,
-    dateOfEstablishment,
     mobile,
   } = req.body;
   let admin;
@@ -311,39 +288,20 @@ const updateAdminById = async (req, res, next) => {
   }
 
   let image = null;
-  let universityLogo = null;
 
   if (req.files && req.files["image"]) {
     image = req.files["image"][0].path;
   }
 
-  if (req.files && req.files["universityLogo"]) {
-    universityLogo = req.files["universityLogo"][0].path;
-  }
-
   if (image) {
     admin.image = image;
-  } else if (universityLogo) {
-    admin.universityLogo = universityLogo;
   }
-  (admin.firstName = firstName ? firstName : admin.firstName),
-    (admin.lastName = lastName ? lastName : admin.lastName),
-    (admin.password = updatedPassword),
-    (admin.universityName = universityName
-      ? universityName
-      : admin.universityName);
-  (admin.address = address ? address : admin.address),
-    (admin.landmark = landmark ? landmark : admin.landmark),
-    (admin.pincode = pincode ? pincode : admin.pincode),
-    (admin.country = country ? country : admin.country),
-    (admin.mobile = mobile ? mobile : admin.mobile),
-    (admin.role = "Admin"),
-    (admin.state = state ? state : admin.state),
-    (admin.dateOfEstablishment = dateOfEstablishment
-      ? dateOfEstablishment
-      : admin.dateOfEstablishment);
+  admin.firstName = firstName ? firstName : admin.firstName;
+  admin.lastName = lastName ? lastName : admin.lastName;
+  admin.password = updatedPassword;
+  admin.mobile = mobile ? mobile : admin.mobile;
+  admin.role = "Admin";
   admin.image = image ? image : admin.image;
-  admin.universityLogo = universityLogo ? universityLogo : admin.universityLogo;
   try {
     await admin.save();
   } catch (err) {
@@ -405,13 +363,9 @@ const deleteAdmin = async (req, res, next) => {
       return next(error);
     }
     const imagePath = admin.image;
-    const universityLogoPath = admin.universityLogo;
     await admin.deleteOne();
     res.status(200).json({ message: "Admin successfully deleted" });
     fs.unlink(imagePath, (err) => {
-      console.log(err);
-    });
-    fs.unlink(universityLogoPath, (err) => {
       console.log(err);
     });
   } catch (err) {

@@ -9,9 +9,9 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
     lastName: "",
     studentId: "",
     fatherName: "",
-    fatherNumber: "",
     motherName: "",
-    motherNumber: "",
+    phoneNumber: "",
+    alternateNumber: "",
     email: "",
     password: "",
     batch: "",
@@ -90,9 +90,9 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         lastName: "",
         studentId: "",
         fatherName: "",
-        fatherNumber: "",
         motherName: "",
-        motherNumber: "",
+        phoneNumber: "",
+        alternateNumber: "",
         email: "",
         password: "",
         batch: "",
@@ -122,7 +122,8 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         name="firstName"
         value={formData.firstName}
         onChange={handleChange}
-        placeholder="First Name"
+        placeholder="First Name *"
+        required
         style={{ color: "black" }}
         className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
       />
@@ -131,7 +132,8 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         name="lastName"
         value={formData.lastName}
         onChange={handleChange}
-        placeholder="Last Name"
+        placeholder="Last Name *"
+        required
         style={{ color: "black" }}
         className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
       />
@@ -140,7 +142,28 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         name="studentId"
         value={formData.studentId}
         onChange={handleChange}
-        placeholder="Roll No"
+        placeholder="Student ID *"
+        required
+        style={{ color: "black" }}
+        className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
+      />
+      <input
+        type="number"
+        name="phoneNumber"
+        value={formData.phoneNumber}
+        onChange={handleChange}
+        placeholder="Phone Number *"
+        required
+        style={{ color: "black" }}
+        className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
+      />
+      <input
+        type="number"
+        name="alternateNumber"
+        value={formData.alternateNumber}
+        onChange={handleChange}
+        placeholder="Alternate Number *"
+        required
         style={{ color: "black" }}
         className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
       />
@@ -149,16 +172,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         name="fatherName"
         value={formData.fatherName}
         onChange={handleChange}
-        placeholder="Father Name"
-        style={{ color: "black" }}
-        className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
-      />
-      <input
-        type="number"
-        name="fatherNumber"
-        value={formData.fatherNumber}
-        onChange={handleChange}
-        placeholder="Father Number"
+        placeholder="Father's Name"
         style={{ color: "black" }}
         className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
       />
@@ -167,16 +181,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         name="motherName"
         value={formData.motherName}
         onChange={handleChange}
-        placeholder="Mother Name"
-        style={{ color: "black" }}
-        className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
-      />
-      <input
-        type="number"
-        name="motherNumber"
-        value={formData.motherNumber}
-        onChange={handleChange}
-        placeholder="Mother Number"
+        placeholder="Mother's Name"
         style={{ color: "black" }}
         className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
       />
@@ -185,7 +190,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         name="email"
         value={formData.email}
         onChange={handleChange}
-        placeholder="Email"
+        placeholder="Email *"
         style={{ color: "black" }}
         className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
       />
@@ -194,13 +199,13 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         name="password"
         value={formData.password}
         onChange={handleChange}
-        placeholder="Password"
+        placeholder="Password *"
         style={{ color: "black" }}
         className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
       />
 
       <div className="mb-4">
-        <strong>Batch:</strong>
+        <strong className="text-white">Batch * :</strong>
 
         <br />
         <Select
@@ -221,7 +226,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         name="address"
         value={formData.address}
         onChange={handleChange}
-        placeholder="Address"
+        placeholder="Address *"
         style={{ color: "black" }}
         className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
       />
@@ -230,7 +235,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         name="pincode"
         value={formData.pincode}
         onChange={handleChange}
-        placeholder="Pincode"
+        placeholder="Pincode *"
         style={{ color: "black" }}
         className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
       />
@@ -239,7 +244,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         name="state"
         value={formData.state}
         onChange={handleChange}
-        placeholder="State"
+        placeholder="State *"
         style={{ color: "black" }}
         className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
       />
@@ -248,12 +253,12 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         name="country"
         value={formData.country}
         onChange={handleChange}
-        placeholder="Country"
+        placeholder="Country *"
         style={{ color: "black" }}
         className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
       />
 
-      <strong>Date of Admission:</strong>
+      <strong className="text-white">Date of Admission * :</strong>
       <input
         type="date"
         className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
