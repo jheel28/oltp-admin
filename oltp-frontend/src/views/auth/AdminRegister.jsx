@@ -1,73 +1,92 @@
 import React, { useState } from "react";
-import { Steps, Form, Input, Select, Button, message, Upload } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import InputField from "components/fields/InputField";
+import { Steps, Form, Input, message } from "antd";
+import { useNavigate } from "react-router-dom";
 import CustButton from "components/button";
 import Footer from "components/footer/Footer";
 import VectorImage from "assets/img/auth/College.jpg";
-import { useNavigate } from "react-router-dom";
 
 const { Step } = Steps;
-const { Option } = Select;
 
 const AdminRegister = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [form] = Form.useForm(); 
+  const [loading, setLoading] = useState(false);
+  const [logoFile, setLogoFile] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  const handleNext = () => {
-    // Define which fields to validate for each step
-    const fieldsToValidate = [
-      ['firstName', 'lastName', 'mobile'], // Step 0
-      ['email', 'password', 'image'], // Step 1
-    ];
+  const handleNext = async () => {
+    try {
+      const stepFields = getStepFields(currentStep);
+      await form.validateFields(stepFields);
+      setCurrentStep(currentStep + 1);
+    } catch (error) {
+      console.log("Step validation failed:", error);
+      message.error("Please fill in all required fields correctly");
+    }
+  };
 
-    form
-      .validateFields(fieldsToValidate[currentStep])
-      .then(() => {
-        setCurrentStep(currentStep + 1);
-      })
-      .catch((error) => {
-        console.log("Validation Failed:", error);
-      });
+  const getStepFields = (step) => {
+    switch (step) {
+      case 0: return ["firstName", "lastName", "mobile"];
+      case 1: return ["universityName", "address", "landmark", "pincode", "state", "country", "dateOfEstablishment"];
+      case 2: return []; // Logo step
+      case 3: return ["email", "password", "confirmPassword"];
+      default: return [];
+    }
   };
 
   const handlePrev = () => {
     setCurrentStep(currentStep - 1);
   };
 
-  const onFinish = async () => {
-    const values = form.getFieldsValue(true);
-    console.log("Submitting Admin values:", values);
-    
-    const formData = new FormData();
-    formData.append("firstName", values.firstName);
-    formData.append("lastName", values.lastName);
-    formData.append("mobile", values.mobile);
-    formData.append("email", values.email);
-    formData.append("password", values.password);
-
-    if (values.image && values.image.length > 0) {
-      formData.append("image", values.image[0].originFileObj);
+  const onFinish = async (values) => {
+    if (values.password !== values.confirmPassword) {
+      message.error("Passwords do not match");
+      return;
     }
 
+    setLoading(true);
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/admin/create/admin`,
-        {
-          method: "POST",
-          body: formData,
+      const formData = new FormData();
+
+      // Append all form values
+      Object.entries(values).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && key !== 'confirmPassword') {
+          formData.append(key, value);
         }
-      );
+      });
+
+      // Append files
+      if (logoFile) {
+        formData.append("universityLogo", logoFile);
+      }
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5005";
+
+      const response = await fetch(`${backendUrl}/api/beta/admin/register`, {
+        method: "POST",
+        body: formData,
+      });
 
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
+
+      if (response.ok) {
+        message.success("Registration successful! Please login.");
+        setTimeout(() => {
+          navigate("/auth/sign-in");
+        }, 1500);
+      } else {
+        message.error(data.message || "Registration failed. Please try again.");
       }
-      message.success("Registration Successful");
-      navigate("/auth/admin-login");
     } catch (error) {
-      message.error(error.message);
+      console.error("Registration error:", error);
+      message.error("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,88 +95,194 @@ const AdminRegister = () => {
       <div className="flex flex-grow items-center justify-center">
         <div className="ml-4 mt-[6vh] flex w-full max-w-full flex-col items-center md:pl-4 xl:max-w-[750px]">
           <h4 className="mb-4 text-4xl font-bold text-navy-700 dark:text-white">
-            Mentor Registration
+            University Registration
           </h4>
-          <div className="mb-2 w-full">
-            <Steps current={currentStep}>
-              <Step title="Personal Info" />
+          <div className="mb-6 w-full px-4">
+            <Steps current={currentStep} size="small">
+              <Step title="Admin" />
+              <Step title="University" />
+              <Step title="Logo" />
               <Step title="Account" />
             </Steps>
           </div>
           <Form
             form={form}
-            name="admin-register"
+            name="register"
             onFinish={onFinish}
-            initialValues={{ remember: true }}
-            className="w-full"
             layout="vertical"
+            className="w-full px-4"
             preserve={true}
           >
+            {/* Step 0: Admin Details */}
             <div style={{ display: currentStep === 0 ? "block" : "none" }}>
               <Form.Item
                 name="firstName"
-                rules={[{ required: true, message: "First Name is required" }]}
+                label="First Name"
+                rules={[{ required: true, message: "Required" }]}
               >
-                <InputField placeholder="First Name" />
+                <Input placeholder="First Name" size="large" />
               </Form.Item>
               <Form.Item
                 name="lastName"
-                rules={[{ required: true, message: "Last Name is required" }]}
+                label="Last Name"
+                rules={[{ required: true, message: "Required" }]}
               >
-                <InputField placeholder="Last Name" />
+                <Input placeholder="Last Name" size="large" />
               </Form.Item>
               <Form.Item
                 name="mobile"
+                label="Mobile Number"
                 rules={[
-                  { required: true, message: "Mobile Number is required" },
-                  { pattern: /^\d{10}$/, message: "Invalid mobile number" },
+                  { required: true, message: "Required" },
+                  { len: 10, message: "Must be 10 digits" }
                 ]}
               >
-                <InputField placeholder="Mobile Number" />
+                <Input placeholder="Mobile Number (10 digits)" maxLength={10} size="large" />
               </Form.Item>
             </div>
 
+            {/* Step 1: University Details */}
             <div style={{ display: currentStep === 1 ? "block" : "none" }}>
               <Form.Item
+                name="universityName"
+                label="University Name"
+                rules={[{ required: true, message: "Required" }]}
+              >
+                <Input placeholder="University Name" size="large" />
+              </Form.Item>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Form.Item
+                  name="address"
+                  label="Address"
+                  rules={[{ required: true, message: "Required" }]}
+                >
+                  <Input placeholder="Address" size="large" />
+                </Form.Item>
+                <Form.Item
+                  name="landmark"
+                  label="Landmark"
+                >
+                  <Input placeholder="Landmark" size="large" />
+                </Form.Item>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Form.Item
+                  name="pincode"
+                  label="Pincode"
+                  rules={[{ required: true, message: "Required" }, { len: 6, message: "6 digits" }]}
+                >
+                  <Input placeholder="Pincode" maxLength={6} size="large" />
+                </Form.Item>
+                <Form.Item
+                  name="state"
+                  label="State"
+                  rules={[{ required: true, message: "Required" }]}
+                >
+                  <Input placeholder="State" size="large" />
+                </Form.Item>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Form.Item
+                  name="country"
+                  label="Country"
+                  rules={[{ required: true, message: "Required" }]}
+                >
+                  <Input placeholder="Country" size="large" default="India" />
+                </Form.Item>
+                <Form.Item
+                  name="dateOfEstablishment"
+                  label="Date of Establishment"
+                  rules={[{ required: true, message: "Required" }]}
+                >
+                  <Input type="date" size="large" />
+                </Form.Item>
+              </div>
+            </div>
+
+            {/* Step 2: Uploads */}
+            <div style={{ display: currentStep === 2 ? "block" : "none" }}>
+              <div className="mb-4">
+                <label className="mb-2 block text-sm font-medium text-navy-700 dark:text-white">
+                  University Logo (Required)
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setLogoFile(e.target.files[0])}
+                  className="w-full rounded-lg border border-gray-300 p-2"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="mb-2 block text-sm font-medium text-navy-700 dark:text-white">
+                  Admin Profile Picture (Optional)
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImageFile(e.target.files[0])}
+                  className="w-full rounded-lg border border-gray-300 p-2"
+                />
+              </div>
+            </div>
+
+            {/* Step 3: Account Details */}
+            <div style={{ display: currentStep === 3 ? "block" : "none" }}>
+              <Form.Item
                 name="email"
+                label="Email"
                 rules={[
-                  { required: true, message: "Email is required" },
-                  { type: "email", message: "Invalid email" },
+                  { required: true, message: "Required" },
+                  { type: "email", message: "Invalid email" }
                 ]}
               >
-                <InputField type="email" placeholder="Email" />
+                <Input placeholder="Email" size="large" />
               </Form.Item>
               <Form.Item
                 name="password"
-                rules={[
-                  { required: true, message: "Password is required" },
-                  { min: 6, message: "Min 6 characters" },
-                ]}
+                label="Password"
+                rules={[{ required: true, message: "Required" }, { min: 6, message: "Min 6 chars" }]}
               >
-                <InputField type="password" placeholder="Password" />
+                <Input.Password placeholder="Password" size="large" />
               </Form.Item>
               <Form.Item
-                name="image"
-                label="Mentor Photo"
-                valuePropName="fileList"
-                getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
-                rules={[{ required: true }]}
+                name="confirmPassword"
+                label="Confirm Password"
+                rules={[
+                  { required: true, message: "Required" },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || getFieldValue('password') === value) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(new Error('Passwords do not match'));
+                    },
+                  }),
+                ]}
               >
-                <Upload maxCount={1} beforeUpload={() => false} listType="picture">
-                  <Button icon={<UploadOutlined />}>Upload Photo</Button>
-                </Upload>
+                <Input.Password placeholder="Confirm Password" size="large" />
               </Form.Item>
             </div>
 
-            <div className="mb-8 mt-4 flex items-center justify-between">
+            <div className="mb-8 mt-6 flex items-center justify-between">
               {currentStep > 0 && (
-                <CustButton type="button" onClick={handlePrev} label="Previous" />
+                <CustButton onClick={handlePrev} label="Previous" />
               )}
-              {currentStep < 1 && (
-                <CustButton type="button" onClick={handleNext} label="Next" />
+              {currentStep < 3 && (
+                <CustButton
+                  type="primary"
+                  onClick={handleNext}
+                  label="Next"
+                  className="ml-auto"
+                />
               )}
-              {currentStep === 1 && (
-                <CustButton type="submit" label="Register" />
+              {currentStep === 3 && (
+                <CustButton
+                  type="primary"
+                  htmlType="submit"
+                  label={loading ? "Registering..." : "Register"}
+                  disabled={loading}
+                  className="ml-auto"
+                />
               )}
             </div>
           </Form>
@@ -173,9 +298,8 @@ const AdminRegister = () => {
             </a>
           </div>
         </div>
-        <div className="hidden md:block ml-10 mr-4">
-          {/* Add your vector image here */}
-          <img src={VectorImage} alt="Vector Image" />
+        <div className="ml-10 hidden md:block mr-4">
+          <img src={VectorImage} alt="Vector Image" className="max-w-[300px] rounded-2xl shadow-xl" />
         </div>
       </div>
       <Footer />

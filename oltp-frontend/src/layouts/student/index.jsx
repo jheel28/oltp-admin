@@ -9,7 +9,9 @@ export default function Student(props) {
   const { ...rest } = props;
   const location = useLocation();
   const [open, setOpen] = React.useState(true);
-  const [currentRoute, setCurrentRoute] = React.useState("Student Main Dashboard");
+  const [currentRoute, setCurrentRoute] = React.useState(
+    "Student Main Dashboard"
+  );
 
   React.useEffect(() => {
     window.addEventListener("resize", () =>
