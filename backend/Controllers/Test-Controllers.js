@@ -6,9 +6,10 @@ const createTest = async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
+    console.log("Validation errors in createTest:", errors.array());
     return res.status(422).json({
       message: "Invalid inputs passed, please try again",
-      errors: errors.array,
+      errors: errors.array(),
     });
   }
   const {
@@ -20,6 +21,7 @@ const createTest = async (req, res, next) => {
     date,
     startTime,
     endTime,
+    duration,
     questionPaperId,
   } = req.body;
   let existingTest;
@@ -49,6 +51,7 @@ const createTest = async (req, res, next) => {
     date,
     startTime,
     endTime,
+    duration,
   });
   try {
     await createdTest.save();
@@ -135,6 +138,7 @@ const updateTestById = async (req, res, next) => {
   test.date = date ? date : test.date;
   test.startTime = startTime ? startTime : test.startTime;
   test.endTime = endTime ? endTime : test.endTime;
+  test.duration = duration ? duration : test.duration;
   test.questionPaperId = questionPaperId
     ? questionPaperId
     : test.questionPaperId;
@@ -166,7 +170,7 @@ const deleteTestById = async (req, res, next) => {
     return next(error);
   }
   try {
-    test.deleteOne();
+    await test.deleteOne();
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while deleting the test, please try again",

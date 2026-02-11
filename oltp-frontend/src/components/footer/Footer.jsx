@@ -1,50 +1,34 @@
 const Footer = () => {
   return (
-    <div className="flex w-full flex-col items-center justify-between px-1 pb-8 pt-3 lg:px-8 xl:flex-row">
-      <h5 className="mb-4 text-center text-sm font-medium text-gray-600 sm:!mb-0 md:text-lg">
-        <p className="mb-4 text-center text-sm text-gray-600 sm:!mb-0 md:text-base">
-          ©{1900 + new Date().getYear()} Correct Steps Consultancy. All Rights Reserved.
-        </p>
-      </h5>
-      <div>
-        <ul className="flex flex-wrap items-center gap-3 sm:flex-nowrap md:gap-10">
-          <li>
-            <a
-              target="blank"
-              href="mailto:hello@simmmple.com"
-              className="text-base font-medium text-gray-600 hover:text-gray-600"
-            >
-              Support
-            </a>
-          </li>
-          <li>
-            <a
-              target="blank"
-              href="https://simmmple.com/licenses"
-              className="text-base font-medium text-gray-600 hover:text-gray-600"
-            >
-              License
-            </a>
-          </li>
-          <li>
-            <a
-              target="blank"
-              href="https://simmmple.com/terms-of-service"
-              className="text-base font-medium text-gray-600 hover:text-gray-600"
-            >
-              Terms of Use
-            </a>
-          </li>
-          <li>
-            <a
-              target="blank"
-              href="https://blog.horizon-ui.com/"
-              className="text-base font-medium text-gray-600 hover:text-gray-600"
-            >
-              Blog
-            </a>
-          </li>
-        </ul>
+    <div className="flex w-full flex-col items-start justify-start px-1 pb-10 pt-3 lg:px-0 xl:flex-row xl:items-center xl:gap-8">
+      <p className="mb-2 text-left text-sm font-medium text-gray-400 sm:mb-0 md:text-base">
+        ©{new Date().getFullYear()} Correct Steps Consultancy. All Rights Reserved.
+      </p>
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+        <a
+          href="#"
+          className="text-xs font-medium text-gray-400 hover:text-brand-500 transition-colors duration-200 md:text-sm"
+        >
+          Support
+        </a>
+        <a
+          href="#"
+          className="text-xs font-medium text-gray-400 hover:text-brand-500 transition-colors duration-200 md:text-sm"
+        >
+          License
+        </a>
+        <a
+          href="#"
+          className="text-xs font-medium text-gray-400 hover:text-brand-500 transition-colors duration-200 md:text-sm"
+        >
+          Terms of Use
+        </a>
+        <a
+          href="#"
+          className="text-xs font-medium text-gray-400 hover:text-brand-500 transition-colors duration-200 md:text-sm"
+        >
+          Blog
+        </a>
       </div>
     </div>
   );

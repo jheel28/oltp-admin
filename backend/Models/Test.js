@@ -11,6 +11,7 @@ const testSchema = new Schema({
   date: { type: String, required: true },
   startTime: { type: String, required: true },
   endTime: { type: String, required: true },
+  duration: { type: Number, required: true },
   questionPaperId: { type: String, required: true },
 });
 testSchema.plugin(uniqueValidator);

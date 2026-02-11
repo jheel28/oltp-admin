@@ -51,13 +51,8 @@ const createAdmin = async (req, res, next) => {
     );
     return next(error);
   }
-  // Checking if files are uploaded
-  if (!req.files || Object.keys(req.files).length === 0) {
-    return res.status(400).json({ message: "No files were uploaded." });
-  }
-
-  const image = req.files["image"][0].path;
-  const universityLogo = req.files["universityLogo"][0].path;
+  const image = (req.files && req.files["image"]) ? req.files["image"][0].path : "uploads/images/default-avatar.png";
+  const universityLogo = (req.files && req.files["universityLogo"]) ? req.files["universityLogo"][0].path : "uploads/images/default-logo.png";
   const createdAdmin = new Admin({
     firstName,
     lastName,
@@ -93,7 +88,7 @@ const createAdmin = async (req, res, next) => {
         role: createdAdmin.role,
       },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -175,7 +170,7 @@ const login = async (req, res, next) => {
         role: existingAdmin.role,
       },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -357,7 +352,7 @@ const updateAdminById = async (req, res, next) => {
     token = jwt.sign(
       { userId: admin.id, email: admin.email, role: admin.role },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -386,9 +381,13 @@ const updateImageById = async (req, res, next) => {
     const error = new HttpError("Admin not found");
     return next(error);
   }
+  if (!req.file) {
+    const error = new HttpError("No image provided.", 422);
+    return next(error);
+  }
   admin.image = req.file.path;
   try {
-    admin.save();
+    await admin.save();
   } catch (err) {
     const error = new HttpError("Error occured while saving the admin");
     return next(error);

@@ -7,6 +7,31 @@ const checkAuth = require("../Middleware/check-auth");
 
 router.get("/get/all/students", studentControllers.getAllStudents);
 router.get("/get/student/byid/:id", studentControllers.getStudentById);
+
+// Public student registration
+router.post(
+  "/register",
+  imageUpload.single("image"),
+  [
+    check("firstName").isLength({ min: 1, max: 255 }),
+    check("lastName").isLength({ min: 1, max: 255 }),
+    check("fatherName").isLength({ min: 1, max: 255 }),
+    check("motherName").isLength({ min: 1, max: 255 }),
+    check("batch").isLength({ min: 1, max: 255 }),
+    check("fatherNumber").isNumeric().isLength({ min: 1, max: 10 }),
+    check("motherNumber").isNumeric().isLength({ min: 1, max: 10 }),
+    check("email").isEmail(),
+    check("password").isLength({ min: 6 }),
+    check("studentId").isLength({ min: 1, max: 255 }),
+    check("admissionDate").isLength({ min: 1, max: 255 }),
+    check("address").isLength({ min: 2, max: 255 }),
+    check("pincode").isNumeric().isLength({ min: 6, max: 6 }),
+    check("state").isLength({ min: 2, max: 255 }),
+    check("country").isLength({ min: 2, max: 255 }),
+  ],
+  studentControllers.createStudent
+);
+
 router.post("/login", studentControllers.login);
 router.post(
   "/create/student",

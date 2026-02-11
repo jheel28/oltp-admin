@@ -9,6 +9,7 @@ const TestingScreen = () => {
   const navigate = useNavigate();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [submitConfirmation, setSubmitConfirmation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { id } = useParams();
   const auth = useContext(AuthContext);
@@ -25,6 +26,13 @@ const TestingScreen = () => {
   const [test, setTest] = useState({});
   const [student, setStudent] = useState({});
   const [remainingTime, setRemainingTime] = useState(30 * 60);
+
+  // Use refs to avoid timer resets when options change
+  const stateRef = React.useRef({ questions: [], optionIndex: [], student: {}, test: {} });
+
+  useEffect(() => {
+    stateRef.current = { questions, optionIndex, student, test };
+  }, [questions, optionIndex, student, test]);
   useEffect(() => {
     const fetchTestAndQuestions = async () => {
       try {
@@ -53,6 +61,12 @@ const TestingScreen = () => {
         const studentData = await studentResponse.json();
         setStudent(studentData.student);
         setTest(testData.test);
+
+        // Update remaining time based on test duration
+        if (testData.test.duration) {
+          setRemainingTime(testData.test.duration * 60);
+        }
+
         setQuestions(questionsData.questions);
         setOptionIndex(Array(questionsData.questions.length).fill(null));
         setSelectedOptions(Array(questionsData.questions.length).fill(null));
@@ -64,29 +78,106 @@ const TestingScreen = () => {
     fetchTestAndQuestions();
   }, []);
 
+  const submitFinalTest = React.useCallback(async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    const { questions: curQuestions, optionIndex: curOptionIndex, student: curStudent, test: curTest } = stateRef.current;
+
+    console.log("Starting submission for student:", curStudent.studentId);
+
+    const calculateLocalScore = () => {
+      let score = 0;
+      curQuestions.forEach((question, index) => {
+        if (curOptionIndex[index] === question.correctOption) {
+          score += question.marks;
+        }
+      });
+      return score;
+    };
+
+    const score = calculateLocalScore();
+    const maxscore = curTest.score;
+
+    if (curStudent.studentId && curTest.testId && curTest.questionPaperId) {
+      try {
+        const data = {
+          marks: score,
+          studentId: curStudent.studentId,
+          testId: curTest.testId,
+          questionPaperId: curTest.questionPaperId,
+          maxscore: maxscore,
+          questions: curQuestions.map((question, index) => ({
+            questionId: question._id,
+            correctAnswer: question.correctOption,
+            chosenAnswer: curOptionIndex[index],
+          })),
+        };
+
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/create/score`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + auth.token,
+            },
+            body: JSON.stringify(data),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || "Something went wrong while submitting the test");
+        }
+        message.success("Successfully submitted the test");
+        navigate(`/student/feedbackscreen/${score}/${maxscore}`);
+      } catch (err) {
+        console.error("Submission Error Details:", err);
+        message.error(`Submission failed: ${err.message}`);
+        setIsSubmitting(false);
+      }
+    } else {
+      console.error("Missing required fields for submission:", {
+        studentId: curStudent.studentId,
+        testId: curTest.testId,
+        qpId: curTest.questionPaperId
+      });
+      message.error("Could not submit: Test data missing");
+      setIsSubmitting(false);
+    }
+  }, [auth.token, navigate, isSubmitting]);
+
   useEffect(() => {
     const timer = setInterval(() => {
       setRemainingTime((prevTime) => {
         if (prevTime === 5 * 60) {
           message.warning("Only 5 minutes left!");
         }
-        if (prevTime === 0) {
+        if (prevTime <= 1) {
           clearInterval(timer);
-          message.warning("Time's up! Test will be submitted automatically.");
-          handleTestSubmission();
+          if (prevTime === 1) {
+            message.warning("Time's up! Test will be submitted automatically.");
+            submitFinalTest();
+          }
           return 0;
         }
         return prevTime - 1;
       });
     }, 1000);
 
-    if (remainingTime === 0) {
-      clearInterval(timer);
-      navigate("/student/feedbackscreen");
-    }
-
     return () => clearInterval(timer);
-  }, [remainingTime, navigate]);
+  }, [submitFinalTest]);
+
+  const calculateScore = () => {
+    let score = 0;
+    questions.forEach((question, index) => {
+      if (optionIndex[index] === question.correctOption) {
+        score += question.marks;
+      }
+    });
+    return score;
+  };
 
   const handlePreviousQuestion = () => {
     if (currentQuestion > 0) {
@@ -125,69 +216,14 @@ const TestingScreen = () => {
     setSelectedOptions(updatedSelectedOptions);
   };
 
-  const calculateScore = () => {
-    let score = 0;
-    questions.forEach((question, index) => {
-      if (optionIndex[index] === question.correctOption) {
-        score += question.marks;
-      }
-    });
-    return score;
-  };
-
   const handleConfirmSubmission = async () => {
-    // Calculate the score
-    const score = calculateScore();
-    const maxscore = test.score;
-
-    // Check if studentId, testId, and questionPaperId are not undefined
-    if (student.studentId && test.testId && test.questionPaperId) {
-      try {
-        const data = {
-          marks: score,
-          studentId: student.studentId,
-          testId: test.testId,
-          questionPaperId: test.questionPaperId,
-          maxscore: maxscore,
-          questions: questions.map((question, index) => ({
-            questionId: question._id,
-            correctAnswer: question.correctOption,
-            chosenAnswer: optionIndex[index],
-          })),
-        };
-        console.log(optionIndex);
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/create/score`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + auth.token,
-            },
-            body: JSON.stringify(data),
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Something went wrong while submitting the test");
-        }
-        message.success("Successfully submitted the test");
-
-        // Navigate to the result screen with the score
-        navigate(`/student/feedbackscreen/${score}/${maxscore}`);
-      } catch (err) {
-        message.error("Something went wrong while submitting the test");
-      }
-    } else {
-      // Handle the case where studentId, testId, or questionPaperId is undefined
-      console.error("studentId, testId, or questionPaperId is undefined");
-    }
+    await submitFinalTest();
   };
 
   return (
     <div className="text-black relative flex min-h-screen flex-col items-center bg-gray-100">
       <div className="mb-6 mt-0 w-full bg-blue-500 py-4 text-center text-2xl font-bold text-white">
-        <h1>Beta Classes Online Testing Platform </h1>
+        <h1>Correct Steps Online Testing Platform </h1>
       </div>
 
       {!submitConfirmation ? (
@@ -197,7 +233,7 @@ const TestingScreen = () => {
             {questions.length > 0 && (
               <div className="mb-4">
                 <Watermark
-                  content={`${"Beta Classes"} - Testid:${test.testId}`}
+                  content={`Testid:${test.testId}`}
                   gap={[30, 30]}
                   offset={[0, 0]}
                 >
@@ -215,7 +251,7 @@ const TestingScreen = () => {
                         style={{
                           height: "500px",
                         }}
-                        // Adjust these classes as needed
+                      // Adjust these classes as needed
                       />
                     )}
                     <br />
@@ -226,11 +262,10 @@ const TestingScreen = () => {
                         (option, index) => (
                           <label
                             key={option._id}
-                            className={`mb-2 inline-flex cursor-pointer items-center rounded-lg p-2 ${
-                              selectedOptions[currentQuestion] === option._id
-                                ? "bg-blue-500 text-white"
-                                : "bg-gray-200"
-                            }`}
+                            className={`mb-2 inline-flex cursor-pointer items-center rounded-lg p-2 ${selectedOptions[currentQuestion] === option._id
+                              ? "bg-blue-500 text-white"
+                              : "bg-gray-200"
+                              }`}
                             onClick={() =>
                               handleOptionSelect(
                                 option._id,
@@ -307,15 +342,14 @@ const TestingScreen = () => {
                     {questions.map((question, index) => (
                       <div
                         key={question._id}
-                        className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-gray-300 ${
-                          visitedQuestions[question._id - 1]
-                            ? selectedOptions[question._id - 1] !== null
-                              ? "bg-green-500 text-white"
-                              : "bg-red-500 text-white"
-                            : currentQuestion === question._id - 1
+                        className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-gray-300 ${visitedQuestions[question._id - 1]
+                          ? selectedOptions[question._id - 1] !== null
+                            ? "bg-green-500 text-white"
+                            : "bg-red-500 text-white"
+                          : currentQuestion === question._id - 1
                             ? "bg-blue-500 text-white"
                             : ""
-                        }`}
+                          }`}
                         onClick={() => setCurrentQuestion(index)}
                       >
                         {index + 1}

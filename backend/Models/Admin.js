@@ -14,7 +14,7 @@ const adminSchema = new Schema({
   pincode: { type: String, required: true },
   state: { type: String, required: true },
   country: { type: String, required: true },
-  image: { type: String, rewquired: true },
+  image: { type: String, required: true },
   role: { type: String, required: true },
   universityLogo: { type: String, required: true },
   dateOfEstablishment: { type: String, required: true },

@@ -1,5 +1,5 @@
 import nft1 from "assets/img/nfts/NftBanner1.png";
-import Logo from "assets/img/BETA-CLASSES Logo/BETA CLASSES 01 TRANSPARENT .-011 copy.jpg";
+import logo from "assets/img/Logo/correct.png";
 const Banner1 = () => {
   return (
     <div
@@ -8,17 +8,13 @@ const Banner1 = () => {
     >
       <div className="flex w-full items-center justify-between">
         <h4 className="mb-[14px] max-w-full text-xl font-bold text-white md:w-[64%] md:text-3xl md:leading-[42px] lg:w-[46%] xl:w-[85%] 2xl:w-[75%] 3xl:w-[52%]">
-          Beta Classes
+          Correct Steps
         </h4>
-        &nbsp;&nbsp;
         <img
-          src={Logo}
-          alt="beta classes logo"
-          style={{
-            width: "160px",
-            height: "auto",
-            borderRadius: "50%", // Apply rounded corners
-          }}
+          src={logo}
+          alt="Correct Steps Logo"
+          className="h-[120px] w-auto"
+          onError={(e) => { e.target.style.display = 'none'; }}
         />
         {/* <p className="mb-[40px] max-w-full text-base font-medium text-[#E3DAFF] md:w-[64%] lg:w-[40%] xl:w-[72%] 2xl:w-[60%] 3xl:w-[45%]">
           Enter in this creative world. Discover now the latest NFTs or start

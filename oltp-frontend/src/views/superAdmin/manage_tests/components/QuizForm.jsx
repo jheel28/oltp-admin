@@ -14,6 +14,7 @@ const QuizForm = ({ onSubmit, onCancel }) => {
     endTime: "",
     testId: "",
     course: "",
+    duration: "",
     questionPaperId: "",
   });
   const [questionPapers, setQuestionPapers] = useState([]);
@@ -33,7 +34,7 @@ const QuizForm = ({ onSubmit, onCancel }) => {
         }
         const data = await response.json();
         setQuestionPapers(data.questionPapers);
-      } catch (err) {}
+      } catch (err) { }
     };
     fetchQuestionPapers();
     const fetchBatches = async () => {
@@ -46,13 +47,22 @@ const QuizForm = ({ onSubmit, onCancel }) => {
         }
         const data = await response.json();
         setBatches(data.batches);
-      } catch (err) {}
+      } catch (err) { }
     };
     fetchBatches();
-  }, [batches, questionPapers]);
+
+  }, []);
 
   const handleSubmit = async () => {
     try {
+      console.log("Submitting testInfo (SuperAdmin):", testInfo);
+
+      // Basic frontend validation
+      if (!testInfo.examName || !testInfo.batchName || !testInfo.testId || !testInfo.questionPaperId || !testInfo.duration) {
+        message.warning("Please fill in all required fields (Name, Batch, Test ID, Question Paper, Duration)");
+        return;
+      }
+
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/beta/test/create/test/superadmin`,
         {
@@ -100,7 +110,7 @@ const QuizForm = ({ onSubmit, onCancel }) => {
           onChange={(value) => handleTestInfoChange("batchName", value)}
         >
           {batches.map((batch) => (
-            <Select.Option value={batch.batchName}>
+            <Select.Option key={batch._id} value={batch.batchName}>
               {batch.batchName}
             </Select.Option>
           ))}
@@ -163,6 +173,19 @@ const QuizForm = ({ onSubmit, onCancel }) => {
             className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
             value={testInfo.endTime}
             onChange={(e) => handleTestInfoChange("endTime", e.target.value)}
+          />
+        </div>
+        <div className="mb-4">
+          <strong>Test Duration (minutes):</strong>
+          <input
+            type="number"
+            min="1"
+            placeholder="Enter Duration in minutes"
+            className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
+            value={testInfo.duration}
+            onChange={(e) =>
+              handleTestInfoChange("duration", parseInt(e.target.value))
+            }
           />
         </div>
 

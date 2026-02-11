@@ -1,4 +1,4 @@
-// require("dotenv").config();
+require("dotenv").config();
 const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
@@ -14,6 +14,7 @@ const testRoutes = require("./Routes/Test-Routes");
 const scoreRoutes = require("./Routes/Score-Routes");
 const queryRoutes = require("./Routes/Query-Routes");
 const questionRoutes = require("./Routes/Question-Routes");
+const dashboardRoutes = require("./Routes/Dashboard-Routes");
 const path = require("path");
 app.use(bodyParser.json());
 app.use(cors());
@@ -45,6 +46,7 @@ app.use("/api/beta/test", testRoutes);
 app.use("/api/beta/score", scoreRoutes);
 app.use("/api/beta/query", queryRoutes);
 app.use("/api/beta/question", questionRoutes);
+app.use("/api/beta/dashboard", dashboardRoutes);
 app.get("/", (req, res) => {
   return res.status(200).json({ message: "Hello World" });
 });
@@ -57,14 +59,31 @@ app.get("/", (req, res) => {
 //     console.log(err);
 //   });
 
+const PORT = process.env.PORT || 5005;
+
 mongoose
   .connect("mongodb://127.0.0.1:27017/testseries")
   .then(() => {
-    app.listen(5000, () => {
-      console.log("Server running on port 5000");
+    const server = app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+    server.on("error", (err) => {
+      if (err.code === "EADDRINUSE") {
+        console.error(`Port ${PORT} is already in use. Please run 'npm run cleanup' or kill the process manually.`);
+      } else {
+        console.error("Server error:", err);
+      }
     });
   })
   .catch((err) => {
     console.log(err);
   });
+
+app.use((error, req, res, next) => {
+  if (res.headerSent) {
+    return next(error);
+  }
+  res.status(error.code || 500);
+  res.json({ message: error.message || "An unknown error occurred!" });
+});
 

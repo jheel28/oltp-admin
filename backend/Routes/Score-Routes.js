@@ -23,7 +23,7 @@ router.post(
   checkAuth("Student"),
   [
     check("studentId").isLength({ min: 1, max: 255 }),
-    check("testId").isNumeric().isLength({ min: 1, max: 255 }),
+    check("testId").isLength({ min: 1, max: 255 }),
     check("marks").notEmpty(),
     check("maxscore").notEmpty(),
     check("questions").isArray().withMessage("Questions must be an array"),

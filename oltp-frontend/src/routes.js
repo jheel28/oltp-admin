@@ -20,6 +20,7 @@ import {
   MdSettings,
 } from "react-icons/md";
 import SignIn from "views/auth/SignIn";
+import StudentRegister from "views/auth/StudentRegister";
 import { AuthContext } from "components/Auth-context";
 import { Button, Card, message } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
@@ -129,6 +130,13 @@ const routes = [
     path: "sign-in",
     icon: <MdLock className="h-6 w-6" />,
     component: <SignIn />,
+  },
+  {
+    name: "Student Register",
+    layout: "/auth",
+    path: "register",
+    icon: <MdLock className="h-6 w-6" />,
+    component: <StudentRegister />,
   },
 
   {

@@ -15,43 +15,32 @@ import tableDataTopCreators from "views/admin/marketplace/variables/tableDataTop
 import { useEffect, useState } from "react";
 
 const Dashboard = () => {
-  const [students, setStudents] = useState([]);
-  const [tests, setTests] = useState([]);
+  const [stats, setStats] = useState({
+    totalStudents: 0,
+    totalTests: 0,
+    jeeStudents: 50,
+    neetStudents: 100,
+    upcomingTests: 0,
+    regionalTests: 145
+  });
+
   useEffect(() => {
-    const fetchStudents = async () => {
+    const fetchStats = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/all/students`
+          `${process.env.REACT_APP_BACKEND_URL}/api/beta/dashboard/admin`
         );
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        setStudents(data.students);
+        setStats(data);
       } catch (err) {
-        console.error("Error fetching students:", err.message);
+        console.error("Error fetching dashboard stats:", err.message);
       }
     };
-    fetchStudents();
-    const fetchTests = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/all/tests`
-        );
-        if (!response) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        setTests(data.tests);
-      } catch (err) {
-        console.log("Error fetching tests:", err.message);
-      }
-    };
-    fetchTests();
+    fetchStats();
   }, []);
-  console.log(process.env.BACKEND_URL);
-  const numberOfStudents = students.length;
-  const numberOfTests = tests.length;
 
   return (
     <div>
@@ -72,32 +61,32 @@ const Dashboard = () => {
         <Widget
           icon={<FaUsers className="h-7 w-7" />}
           title={"No.of Students"}
-          subtitle={numberOfStudents}
+          subtitle={stats.totalStudents}
         />
         <Widget
           icon={<IoDocuments className="h-6 w-6" />}
           title={"No.of Tests Completed"}
-          subtitle={numberOfTests}
+          subtitle={stats.totalTests}
         />
         <Widget
           icon={<MdBarChart className="h-7 w-7" />}
           title={"JEE Students"}
-          subtitle={"50"}
+          subtitle={stats.jeeStudents}
         />
         <Widget
           icon={<MdDashboard className="h-6 w-6" />}
           title={"NEET Students"}
-          subtitle={"100"}
+          subtitle={stats.neetStudents}
         />
         <Widget
           icon={<MdBarChart className="h-7 w-7" />}
           title={"Regional test"}
-          subtitle={"145"}
+          subtitle={stats.regionalTests}
         />
         <Widget
           icon={<IoMdHome className="h-6 w-6" />}
           title={"Upcoming Tests"}
-          subtitle={"3"}
+          subtitle={stats.upcomingTests}
         />
       </div>
 

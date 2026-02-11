@@ -8,7 +8,7 @@ import TopStudentsTable from "./components/TableTopStudents";
 
 import HistoryCard from "./components/HistoryCard";
 import TestCard from "./components/TestCard";
-import BetaLogo from "./variables/bata_logo.png";
+import logo from "assets/img/Logo/correct.png";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "components/Auth-context";
 import TestingPlatformHome from "./TestingPlatform/testingPlatformHome";
@@ -63,64 +63,112 @@ const Marketplace = () => {
     fetchData();
   }, [auth.userId]);
 
-  const filteredTests = tests.filter((test) => {
+  const activeTests = tests.filter((test) => {
     const isTestAttempted = attempted.some(
       (attemptedTest) => attemptedTest.testId === test.testId
     );
-    const isSameBatch = student.batch === test.batchName;
+    // Use robust batch matching (trim and case-insensitive check is safer)
+    const isSameBatch = student.batch?.trim().toLowerCase() === test.batchName?.trim().toLowerCase();
 
-    // Construct start and end time Date objects using the date attribute and startTime/endTime
     const startTime = new Date(`${test.date} ${test.startTime}`);
     const endTime = new Date(`${test.date} ${test.endTime}`);
-    // Get the current time
     const currentTime = new Date();
 
-    // Check if the current time is after the start time and before the end time
-    const isTestWithinTimeRange =
-      currentTime >= startTime && currentTime <= endTime;
-    console.log(isTestWithinTimeRange);
-    return !isTestAttempted && isSameBatch && isTestWithinTimeRange;
+    const isActive = currentTime >= startTime && currentTime <= endTime;
+
+    return !isTestAttempted && isSameBatch && isActive;
+  });
+
+  const upcomingTests = tests.filter((test) => {
+    const isTestAttempted = attempted.some(
+      (attemptedTest) => attemptedTest.testId === test.testId
+    );
+    const isSameBatch = student.batch?.trim().toLowerCase() === test.batchName?.trim().toLowerCase();
+
+    const startTime = new Date(`${test.date} ${test.startTime}`);
+    const currentTime = new Date();
+
+    const isUpcoming = currentTime < startTime;
+
+    return !isTestAttempted && isSameBatch && isUpcoming;
   });
 
   return (
-    <div className="mt-3 grid h-full grid-cols-1 gap-5 xl:grid-cols-2 2xl:grid-cols-3">
-      <div className="col-span-1 h-fit w-full xl:col-span-1 2xl:col-span-2">
-        {/* NFt Banner */}
-        <Banner1 />
+    <div className="mt-3 h-full">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
+        {/* Left Section: Exams */}
+        <div className="col-span-1 h-fit w-full xl:col-span-2">
+          <Banner1 />
 
-        {/* NFt Header */}
-        <div className="mb-4 mt-5 flex flex-col justify-between px-4 md:flex-row md:items-center">
-          <h4 className="ml-1 text-2xl font-bold text-navy-700 dark:text-white">
-            Exam
-          </h4>
+          {/* Active Exams Section */}
+          <div className="mb-4 mt-5 px-4">
+            <h4 className="text-2xl font-bold text-navy-700 dark:text-white">
+              Active Exams
+            </h4>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Exams you can take right now</p>
+          </div>
+
+          <div className="z-20 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {activeTests.length > 0 ? (
+              activeTests.map((test) => (
+                <TestCard
+                  key={test.testId}
+                  title={test.examName}
+                  image={logo}
+                  score={test.score}
+                  course={test.course}
+                  batchName={test.batchName}
+                  testId={test.testId}
+                />
+              ))
+            ) : (
+              <div className="col-span-full p-4 bg-gray-50 rounded-lg text-center text-gray-500 italic">
+                No active exams at the moment.
+              </div>
+            )}
+          </div>
+
+          {/* Upcoming Exams Section */}
+          <div className="mb-4 mt-8 px-4 border-t pt-5 border-gray-200 dark:border-navy-600">
+            <h4 className="text-2xl font-bold text-navy-700 dark:text-white">
+              Upcoming Exams
+            </h4>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Scheduled for the future</p>
+          </div>
+
+          <div className="z-20 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {upcomingTests.length > 0 ? (
+              upcomingTests.map((test) => (
+                <div key={test.testId} className="relative grayscale opacity-80 pointer-events-none">
+                  <div className="absolute top-2 right-2 z-30 bg-blue-500 text-white text-[10px] px-2 py-1 rounded-full font-bold">
+                    UPCOMING: {test.date} {test.startTime}
+                  </div>
+                  <TestCard
+                    title={test.examName}
+                    image={logo}
+                    score={test.score}
+                    course={test.course}
+                    batchName={test.batchName}
+                    testId={test.testId}
+                  />
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full p-4 bg-gray-50 rounded-lg text-center text-gray-500 italic">
+                No upcoming exams scheduled.
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* NFTs trending card */}
-        <div className="z-20 grid grid-cols-1 gap-5 md:grid-cols-3">
-          {filteredTests.map((test) => (
-            <>
-              <TestCard
-                key={test.testId} // Move the key prop to TestCard component
-                title={test.examName}
-                image={BetaLogo}
-                score={test.score}
-                course={test.course}
-                batchName={test.batchName}
-                handleClick={test.handleClick}
-                testId={test.testId}
-              />
-            </>
-          ))}
+        {/* Right Section: Stats/Table */}
+        <div className="col-span-1 h-full w-full rounded-xl">
+          <TopCreatorTable
+            extra="mb-1"
+            tableData={tableDataTopCreators}
+            columnsData={tableColumnsTopCreators}
+          />
         </div>
-      </div>
-
-      {/* right side section */}
-      <div className="col-span-1 h-full w-full rounded-xl 2xl:col-span-1">
-        <TopCreatorTable
-          extra="mb-1"
-          tableData={tableDataTopCreators}
-          columnsData={tableColumnsTopCreators}
-        />
       </div>
     </div>
   );

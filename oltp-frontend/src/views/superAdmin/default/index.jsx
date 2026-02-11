@@ -13,55 +13,33 @@ import { useEffect, useState } from "react";
 import { message } from "antd";
 
 const Dashboard = () => {
-  const [universities, setUniversities] = useState([]);
-  const [students, setStudents] = useState([]);
-  const [tests, setTests] = useState([]);
+  const [stats, setStats] = useState({
+    totalUniversities: 0,
+    totalStudents: 0,
+    totalTests: 0,
+    queryStats: {
+      total: 0,
+      pending: 0,
+      resolved: 0
+    }
+  });
+
   useEffect(() => {
-    const fetchUniversities = async () => {
+    const fetchStats = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/admin/get/all/admins`
+          `${process.env.REACT_APP_BACKEND_URL}/api/beta/dashboard/superadmin`
         );
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        setUniversities(data.admins);
+        setStats(data);
       } catch (err) {
-        message.error("error fetching universities:", err.message);
+        message.error("Error fetching dashboard stats: " + err.message);
       }
     };
-    fetchUniversities();
-    const fetchStudents = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/all/students`
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status ${response.status}`);
-        }
-        const data = await response.json();
-        setStudents(data.students);
-      } catch (err) {
-        message.error("Error fetching students:", err.message);
-      }
-    };
-    fetchStudents();
-    const fetchTests = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/all/tests`
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setTests(data.tests);
-      } catch (err) {
-        message.error("Error fetching tests", err.message);
-      }
-    };
-    fetchTests();
+    fetchStats();
   }, []);
 
   return (
@@ -72,33 +50,33 @@ const Dashboard = () => {
         <Widget
           icon={<FaUniversity className="h-6 w-6" />}
           title={"Universities"}
-          subtitle={universities.length}
+          subtitle={stats.totalUniversities}
         />
         <Widget
           icon={<FaUser className="h-7 w-7" />}
           title={"Students"}
-          subtitle={students.length}
+          subtitle={stats.totalStudents}
         />
         <Widget
           icon={<IoDocuments className="h-7 w-7" />}
           title={"Tests"}
-          subtitle={tests.length}
+          subtitle={stats.totalTests}
         />
         <Widget
           icon={<MdHelpOutline className="h-7 w-7" />}
           title={"Pending Queries"}
-          subtitle={"2"}
+          subtitle={stats.queryStats.pending}
         />
         <Widget
           icon={<MdBarChart className="h-7 w-7" />}
           title={"Resolved Queries"}
-          subtitle={"340"}
+          subtitle={stats.queryStats.resolved}
         />
 
         <Widget
           icon={<MdDashboard className="h-6 w-6" />}
           title={"Total Queries"}
-          subtitle={"342"}
+          subtitle={stats.queryStats.total}
         />
       </div>
 

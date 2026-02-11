@@ -9,14 +9,15 @@ import { useAuth } from "components/auth-hook";
 import { AuthContext } from "components/Auth-context";
 import StudentRoutes from "studentRoutes";
 import { BeatLoader } from "react-spinners";
-import SignIn from "views/auth/SignIn";
+import LandingPage from "views/landing";
+import LoginRoleSelection from "views/auth/LoginRoleSelection";
 import TestingPlatformHome from "views/student/test/TestingPlatform/testingPlatformHome";
 import TestingScreen from "views/student/test/TestingPlatform/testingScreen";
 import FeedbackScreen from "views/student/test/TestingPlatform/feedbackScreen";
-import Register from "views/auth/Register";
 import RoleSelection from "views/auth/RoleSelection";
 import StudentRegister from "views/auth/StudentRegister";
 import AdminRegister from "views/auth/AdminRegister";
+import SuperAdminRegister from "views/auth/SuperAdminRegister";
 import StudentResultsTable from "views/student/result/components/StudentResultTable";
 
 const App = () => {
@@ -26,8 +27,8 @@ const App = () => {
   let routes;
 
   useEffect(() => {
-    // Check if authentication information is available
-    if (role === null) {
+    // Stop loading once we've checked for a role (either it's a string from login or it stays null)
+    if (role !== undefined) {
       setLoading(false);
     }
   }, [role]);
@@ -50,12 +51,22 @@ const App = () => {
     routes = (
       <Routes>
         <Route path="superadmin/*" element={<SuperAdminLayout />} />
+        <Route path="/" element={<Navigate to="/superadmin" replace />} />
+        {/* If user hits other roles while logged in as SuperAdmin, redirect to their home */}
+        <Route path="/admin/*" element={<Navigate to="/superadmin" replace />} />
+        <Route path="/student/*" element={<Navigate to="/superadmin" replace />} />
+        <Route path="/auth/*" element={<Navigate to="/superadmin" replace />} />
       </Routes>
     );
   } else if (role === "Admin") {
     routes = (
       <Routes>
         <Route path="admin/*" element={<AdminLayout />} />
+        <Route path="/" element={<Navigate to="/admin" replace />} />
+        {/* If user hits other roles while logged in as Admin, redirect to their home */}
+        <Route path="/superadmin/*" element={<Navigate to="/admin" replace />} />
+        <Route path="/student/*" element={<Navigate to="/admin" replace />} />
+        <Route path="/auth/*" element={<Navigate to="/admin" replace />} />
       </Routes>
     );
   } else if (role === "Student") {
@@ -73,29 +84,36 @@ const App = () => {
             path="student/feedbackscreen/:score/:maxscore"
             element={<FeedbackScreen />}
           />
+          <Route path="/" element={<Navigate to="/student" replace />} />
+          {/* If user hits other roles while logged in as Student, redirect to their home */}
+          <Route path="/admin/*" element={<Navigate to="/student" replace />} />
+          <Route path="/superadmin/*" element={<Navigate to="/student" replace />} />
+          <Route path="/auth/*" element={<Navigate to="/student" replace />} />
         </Routes>
       </React.Fragment>
     );
   } else {
     routes = (
       <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="auth/login-role" element={<LoginRoleSelection />} />
         <Route path="auth/*" element={<AuthLayout />} />
-        <Route path="/" element={<Navigate to="/auth/sign-in" replace />} />
         <Route
           path="/admin/*"
-          element={<Navigate to="/auth/sign-in" replace />}
+          element={<Navigate to="/" replace />}
         />
         <Route
           path="/superadmin/*"
-          element={<Navigate to="/auth/sign-in" replace />}
+          element={<Navigate to="/" replace />}
         />
         <Route
           path="/student/*"
-          element={<Navigate to="/auth/sign-in" replace />}
+          element={<Navigate to="/" replace />}
         />
         <Route path="auth/register" element={<RoleSelection />} />
         <Route path="auth/register/student" element={<StudentRegister />} />
         <Route path="auth/register/admin" element={<AdminRegister />} />
+        <Route path="auth/register/superadmin" element={<SuperAdminRegister />} />
       </Routes>
     );
   }

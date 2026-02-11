@@ -25,8 +25,8 @@ const TestingPlatformHome = () => {
     <div className="text-black flex h-screen flex-col items-center justify-between bg-gray-100">
       <div className="mt-8">
         <div className="mb-8 flex flex-col items-center">
-          <h1 className="mb-2 text-7xl font-bold">Beta Classes</h1>
-          <h2 className="mb-2 text-3xl font-bold">Online Test Name</h2>
+          <h2 className="mb-2 text-3xl font-bold text-navy-700">Correct Steps</h2>
+          <h3 className="mb-2 text-xl font-bold">Online Test</h3>
           <p className="text-md">Test ID: {id}</p>
         </div>
         <div className="mb-8">
@@ -87,9 +87,8 @@ const TestingPlatformHome = () => {
         </div>
         <button
           onClick={handleStartTest}
-          className={`rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700 ${
-            !accepted && "cursor-not-allowed opacity-50"
-          }`}
+          className={`rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700 ${!accepted && "cursor-not-allowed opacity-50"
+            }`}
           disabled={!accepted}
         >
           Start Test

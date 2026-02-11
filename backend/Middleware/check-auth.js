@@ -11,6 +11,10 @@ module.exports = (role) => {
       if (!token) {
         throw new Error("Authentication failed");
       }
+      if (!process.env.JWT_KEY) {
+        console.error("JWT_KEY is not defined in process.env");
+        throw new Error("Server configuration error");
+      }
       const decodedToken = jwt.verify(token, process.env.JWT_KEY);
 
       req.userData = { userId: decodedToken.userId };
@@ -21,11 +25,11 @@ module.exports = (role) => {
         throw new Error("Unauthorized");
       }
 
-      next(); // Correctly calling next without any argument
+      next();
     } catch (err) {
-      const error = new HttpError("Authentication failed", 401);
+      console.error("Auth Error:", err.message);
+      const error = new HttpError(err.message || "Authentication failed", 401);
       return next(error);
-      // Correctly calling next with the error argument
     }
   };
 };

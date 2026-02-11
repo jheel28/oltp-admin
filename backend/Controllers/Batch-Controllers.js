@@ -5,12 +5,22 @@ const Batch = require("../Models/Batch");
 const createBatch = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log("Validation errors in createBatch:", errors.array());
     return res.status(422).json({
       message: "Invalid inputs passed, please try again",
       errors: errors.array(),
     });
   }
-  const { batchName, sectionName, studentId } = req.body;
+  let { batchName, sectionName, studentId } = req.body;
+
+  // Robust array handling: convert strings to arrays if they come as single strings
+  if (typeof sectionName === 'string') {
+    sectionName = sectionName.split(',').map(s => s.trim()).filter(s => s !== "");
+  }
+  if (typeof studentId === 'string') {
+    studentId = studentId.split(',').map(s => s.trim()).filter(s => s !== "");
+  }
+
   let existingBatch;
   try {
     existingBatch = await Batch.findOne({ batchName: batchName });
@@ -79,7 +89,7 @@ const updateBatchById = async (req, res, next) => {
     (batch.sectionName = sectionName ? sectionName : batch.sectionName),
     (batch.studentId = studentId ? studentId : batch.studentId);
   try {
-    batch.save();
+    await batch.save();
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while updating the batch, please try again",

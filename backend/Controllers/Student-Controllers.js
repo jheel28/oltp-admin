@@ -67,7 +67,7 @@ const createStudent = async (req, res, next) => {
     studentId,
     role: "Student",
     admissionDate,
-    image: req.file.path,
+    image: req.file ? req.file.path : "uploads/images/default-avatar.png",
     batch,
     address,
     pincode,
@@ -92,7 +92,7 @@ const createStudent = async (req, res, next) => {
         role: createdStudent.role,
       },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -174,7 +174,7 @@ const login = async (req, res, next) => {
         role: existingStudent.role,
       },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -343,7 +343,7 @@ const updateStudentById = async (req, res, next) => {
     token = jwt.sign(
       { userId: student.id, email: student.email, role: student.role },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -372,9 +372,13 @@ const updateImageById = async (req, res, next) => {
     const error = new HttpError("Student not found");
     return next(error);
   }
+  if (!req.file) {
+    const error = new HttpError("No image provided.", 422);
+    return next(error);
+  }
   student.image = req.file.path;
   try {
-    student.save();
+    await student.save();
   } catch (err) {
     const error = new HttpError("Error occured while saving the student");
     return next(error);
@@ -399,7 +403,7 @@ const deleteStudentById = async (req, res, next) => {
   }
   const imagePath = student.image;
   try {
-    student.deleteOne();
+    await student.deleteOne();
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while deleting the student, please try again",

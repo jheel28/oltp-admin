@@ -42,7 +42,7 @@ const createQuestionPaper = async (req, res, next) => {
     createdQuestionPaper.keySheet = req.file.path;
   }
   try {
-    createdQuestionPaper.save();
+    await createdQuestionPaper.save();
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while saving the question paper, please try again",

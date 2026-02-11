@@ -47,7 +47,7 @@ const createSuperAdmin = async (req, res, next) => {
     email,
     password: hashedPassword,
     role: "SuperAdmin",
-    image: req.file.path,
+    image: req.file ? req.file.path : "uploads/images/default-avatar.png",
     mobile,
   });
   try {
@@ -68,7 +68,7 @@ const createSuperAdmin = async (req, res, next) => {
         role: createdSuperAdmin.role,
       },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -170,7 +170,7 @@ const login = async (req, res, next) => {
         role: existingSuperAdmin.role,
       },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -315,7 +315,7 @@ const updateSuperAdminById = async (req, res, next) => {
     token = jwt.sign(
       { userId: superAdmin.id, email: superAdmin.email, role: superAdmin.role },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -346,9 +346,13 @@ const updateImageById = async (req, res, next) => {
     const error = new HttpError("Super admin not found");
     return next(error);
   }
+  if (!req.file) {
+    const error = new HttpError("No image provided.", 422);
+    return next(error);
+  }
   superAdmin.image = req.file.path;
   try {
-    superAdmin.save();
+    await superAdmin.save();
   } catch (err) {
     const error = new HttpError("Error occured while saving the super admin");
     return next(error);

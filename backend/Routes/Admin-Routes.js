@@ -8,6 +8,28 @@ const checkAuth = require("../Middleware/check-auth");
 router.get("/get/all/admins", adminControllers.getAllAdmins);
 router.get("/get/admin/byid/:id", adminControllers.getAdminById);
 router.post(
+  "/register",
+  imageUpload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "universityLogo", maxCount: 1 },
+  ]),
+  [
+    check("firstName").isLength({ min: 2, max: 255 }),
+    check("lastName").isLength({ min: 2, max: 255 }),
+    check("mobile").isNumeric().isLength({ min: 10, max: 10 }),
+    check("email").isEmail(),
+    check("password").isLength({ min: 6 }),
+    check("universityName").isLength({ min: 2, max: 255 }),
+    check("address").isLength({ min: 2, max: 255 }),
+    check("landmark").isLength({ min: 1, max: 255 }), // landmark can be short
+    check("pincode").isNumeric().isLength({ min: 6, max: 6 }),
+    check("state").isLength({ min: 2, max: 255 }),
+    check("country").isLength({ min: 2, max: 255 }),
+    check("dateOfEstablishment").notEmpty(),
+  ],
+  adminControllers.createAdmin
+);
+router.post(
   "/create/admin",
   checkAuth("SuperAdmin"),
   imageUpload.fields([
