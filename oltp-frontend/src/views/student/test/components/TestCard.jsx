@@ -15,7 +15,7 @@ const TestCard = ({ test }) => {
     }
 
     // Navigate to the test
-    navigate(`/student/test/${test.testId}/${test._id}`);
+    navigate(`/student/test/${test._id}`);
   };
 
   const getDifficultyColor = (difficulty) => {

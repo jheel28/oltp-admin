@@ -187,10 +187,6 @@ const QuestionPaperForm = ({ onCancel }) => {
         }
         console.log(question);
         const responseData = await response.json();
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-        message.success("QuestionPaper Successfully created");
       } catch (err) {
         console.error(err);
         message.error(
@@ -198,6 +194,10 @@ const QuestionPaperForm = ({ onCancel }) => {
         );
       }
     }
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
+    message.success("QuestionPaper Successfully created");
   };
 
   return (
@@ -228,6 +228,19 @@ const QuestionPaperForm = ({ onCancel }) => {
             })
           }
         />
+      </div>
+      <div className="mb-4">
+        <strong>Category:</strong>
+        <select
+          className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
+          value={questionPaper.category}
+          onChange={(e) => handleTestInfoChange("category", e.target.value)}
+        >
+          <option value="">Select a category</option>
+          <option value="Mechanics">Mechanics</option>
+          <option value="Robotics">Robotics</option>
+          <option value="CAD">CAD</option>
+        </select>
       </div>
       <div className="mb-4">
         <strong>Paper Level:</strong>

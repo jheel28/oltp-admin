@@ -176,10 +176,6 @@ const QuestionPaperForm = ({ onCancel }) => {
         }
         console.log(question);
         const responseData = await response.json();
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-        message.success("QuestionPaper Successfully created");
       } catch (err) {
         console.error(err);
         message.error(
@@ -187,6 +183,10 @@ const QuestionPaperForm = ({ onCancel }) => {
         );
       }
     }
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
+    message.success("QuestionPaper Successfully created");
   };
 
   const handleFileChange = (event) => {
@@ -244,9 +244,9 @@ const QuestionPaperForm = ({ onCancel }) => {
           onChange={(e) => handleTestInfoChange("category", e.target.value)}
         >
           <option value="">Select a category</option>
-          <option value="NEET">NEET</option>
-          <option value="Mains">Mains</option>
-          <option value="Advance">Advance</option>
+          <option value="Mechanics">Mechanics</option>
+          <option value="Robotics">Robotics</option>
+          <option value="CAD">CAD</option>
         </select>
       </div>
 

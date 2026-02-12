@@ -12,9 +12,7 @@ const TestingScreen = () => {
 
   const { id } = useParams();
   const auth = useContext(AuthContext);
-  const [visitedQuestions, setVisitedQuestions] = useState(
-    Array(6).fill(false)
-  );
+  const [visitedQuestions, setVisitedQuestions] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [optionIndex, setOptionIndex] = useState(
     Array(questions.length).fill(null)
@@ -59,9 +57,13 @@ const TestingScreen = () => {
         }
         const studentData = await studentResponse.json();
         setStudent(studentData.student);
+        if (questionsData.questions.length === 0) {
+           message.warning("No questions found for this test.");
+        }
         setQuestions(questionsData.questions);
         setOptionIndex(Array(questionsData.questions.length).fill(null));
         setSelectedOptions(Array(questionsData.questions.length).fill(null));
+        setVisitedQuestions(Array(questionsData.questions.length).fill(false)); // Initialize visitedQuestions here
       } catch (error) {
         console.error("Error fetching data:", error);
         message.error("Error while fetching data");
@@ -70,6 +72,8 @@ const TestingScreen = () => {
 
     fetchTestAndQuestions();
   }, []);
+
+
 
   useEffect(() => {
     // Check if time is up on every tick or data load
@@ -190,10 +194,18 @@ const TestingScreen = () => {
     }
   };
 
+  if (!questions || questions.length === 0) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading Questions... or No Questions Available
+      </div>
+    );
+  }
+
   return (
     <div className="text-black relative flex min-h-screen flex-col items-center bg-gray-100">
       <div className="mb-6 mt-0 w-full bg-blue-500 py-4 text-center text-2xl font-bold text-white">
-        <h1>Beta Classes Online Testing Platform </h1>
+        <h1>The Correct Steps Consultancy Online Testing Platform </h1>
       </div>
 
       {!submitConfirmation ? (
@@ -203,7 +215,7 @@ const TestingScreen = () => {
             {questions.length > 0 && (
               <div className="mb-4">
                 <Watermark
-                  content={`${"Beta Classes"} - Testid:${test.testId}`}
+                  content={`${"The Correct Steps Consultancy"} - Testid:${test.testId}`}
                   gap={[30, 30]}
                   offset={[0, 0]}
                 >
@@ -314,11 +326,11 @@ const TestingScreen = () => {
                       <div
                         key={question._id}
                         className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-gray-300 ${
-                          visitedQuestions[question._id - 1]
-                            ? selectedOptions[question._id - 1] !== null
+                          visitedQuestions[index]
+                            ? selectedOptions[index] !== null
                               ? "bg-green-500 text-white"
                               : "bg-red-500 text-white"
-                            : currentQuestion === question._id - 1
+                            : currentQuestion === index
                             ? "bg-blue-500 text-white"
                             : ""
                         }`}

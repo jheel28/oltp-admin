@@ -18,11 +18,11 @@ router.post(
     { name: "questionImage", maxCount: 1 },
   ]),
   [
-    check("questionPaperId").isNumeric().isLength({ min: 1, max: 255 }),
+    check("questionPaperId").isLength({ min: 1, max: 255 }),
     check("text").notEmpty(),
     check("options").notEmpty(),
-    check("correctOption").isNumeric().notEmpty(),
-    check("marks").isNumeric().notEmpty(),
+    check("correctOption").notEmpty(),
+    check("marks").notEmpty(),
   ],
   questionControllers.createQuestion
 );
@@ -44,11 +44,11 @@ router.post(
     { name: "questionImage", maxCount: 1 },
   ]),
   [
-    check("questionPaperId").isNumeric().isLength({ min: 1, max: 255 }),
+    check("questionPaperId").isLength({ min: 1, max: 255 }),
     check("text").notEmpty(),
     check("options").notEmpty(),
-    check("correctOption").isNumeric().notEmpty(),
-    check("marks").isNumeric().notEmpty(),
+    check("correctOption").notEmpty(),
+    check("marks").notEmpty(),
   ],
   questionControllers.createQuestion
 );

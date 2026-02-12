@@ -21,13 +21,20 @@ const createQuestion = async (req, res, next) => {
     topic,
   } = req.body;
 
-  const processedOptions = [];
-
+  /*
   const optionRegex = /"text":"([^"]*)"/g;
   let match;
   while ((match = optionRegex.exec(options)) !== null) {
     const textValue = match[1];
     processedOptions.push({ text: textValue });
+  }
+  */
+  
+  let processedOptions = [];
+  try {
+     processedOptions = JSON.parse(options);
+  } catch (error) {
+     return res.status(422).json({ message: "Invalid options format." });
   }
 
   const createdQuestion = new Question({

@@ -51,7 +51,7 @@ const QuizForm = ({ onSubmit, onCancel }) => {
       } catch (err) {}
     };
     fetchBatches();
-  }, [batches, questionPapers]);
+  }, []);
 
   const handleSubmit = async () => {
     try {
@@ -110,13 +110,16 @@ const QuizForm = ({ onSubmit, onCancel }) => {
       </div>
       <div className="mb-4">
         <strong>Category:</strong>
-        <input
-          type="text"
-          placeholder="e.g., NEET, Mains, Board"
-          className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
+        <Select
+          style={{ width: "100%" }}
+          placeholder="Select Category"
           value={testInfo.course}
-          onChange={(e) => handleTestInfoChange("course", e.target.value)}
-        />
+          onChange={(value) => handleTestInfoChange("course", value)}
+        >
+          <Select.Option value="Mechanics">Mechanics</Select.Option>
+          <Select.Option value="Robotics">Robotics</Select.Option>
+          <Select.Option value="CAD">CAD</Select.Option>
+        </Select>
       </div>
       <div className="mb-4">
         <strong>Subjects:</strong>

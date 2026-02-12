@@ -28,7 +28,7 @@ import Batch from "views/admin/batches";
 import { useNavigate } from "react-router-dom";
 import TestingPlatformHome from "views/student/test/TestingPlatform/testingPlatformHome";
 import { TbReportAnalytics } from "react-icons/tb";
-import RoleSelection from "views/auth/RoleSelection";
+
 import StudentRegister from "views/auth/StudentRegister";
 import AdminRegister from "views/auth/AdminRegister";
 const LogoutCard = ({ onConfirm }) => {
@@ -140,12 +140,7 @@ const routes = [
     icon: <MdLock className="h-6 w-6" />,
     component: <SignIn />,
   },
-  {
-    name: "Register",
-    layout: "/auth",
-    path: "register",
-    component: <RoleSelection />,
-  },
+
   {
     name: "Student Register",
     layout: "/auth",

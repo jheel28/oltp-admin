@@ -1,12 +1,30 @@
-import { message } from "antd";
+import { message, Select } from "antd";
 import { AuthContext } from "components/Auth-context";
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { FaPencilAlt, FaCheck } from "react-icons/fa";
+
+const { Option } = Select;
 
 const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
   const auth = useContext(AuthContext);
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState({ ...studentData });
+  const [batches, setBatches] = useState([]);
+
+  useEffect(() => {
+    const fetchBatches = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/get/all/batches`
+        );
+        const data = await response.json();
+        setBatches(data.batches);
+      } catch (error) {
+        console.error("Error fetching batches:", error);
+      }
+    };
+    fetchBatches();
+  }, []);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -225,13 +243,19 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
             )}
             <label className="text-sm text-gray-600">Batch</label>
             {isEditing ? (
-              <input
-                type="text"
-                name="batch"
+              <Select
                 value={editedData.batch}
-                onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
-              />
+                onChange={(value) =>
+                  setEditedData((prev) => ({ ...prev, batch: value }))
+                }
+                className="w-full"
+              >
+                {batches.map((batch) => (
+                  <Option key={batch._id} value={batch.batchName}>
+                    {batch.batchName}
+                  </Option>
+                ))}
+              </Select>
             ) : (
               <p className="text-base font-medium text-navy-700 dark:text-white">
                 {editedData.batch}

@@ -1,18 +1,35 @@
-import React, { useState } from "react";
-import { Steps, Form, Input, message } from "antd";
+import React, { useState, useEffect } from "react";
+import { Steps, Form, Input, message, Select } from "antd";
 import { useNavigate } from "react-router-dom";
 import CustButton from "components/button";
 import Footer from "components/footer/Footer";
 import VectorImage from "assets/img/auth/2.svg";
 
 const { Step } = Steps;
+const { Option } = Select;
 
 const StudentRegister = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+  const [batches, setBatches] = useState([]); // State for batches
   const [form] = Form.useForm();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchBatches = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/get/all/batches`
+        );
+        const data = await response.json();
+        setBatches(data.batches);
+      } catch (error) {
+        console.error("Error fetching batches:", error);
+      }
+    };
+    fetchBatches();
+  }, []);
 
   const handleNext = async () => {
     try {
@@ -72,7 +89,7 @@ const StudentRegister = () => {
         formData.append("image", imageFile);
       }
 
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5005";
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
       console.log("Sending payload to:", `${backendUrl}/api/beta/student/register`);
 
       const response = await fetch(`${backendUrl}/api/beta/student/register`, {
@@ -178,9 +195,15 @@ const StudentRegister = () => {
               <Form.Item
                 name="batch"
                 label="Batch"
-                rules={[{ required: true, message: "Please enter your batch" }]}
+                rules={[{ required: true, message: "Please select your batch" }]}
               >
-                <Input placeholder="Batch (e.g., 2024 or Batch A)" size="large" />
+                <Select placeholder="Select Batch" size="large">
+                  {batches.map((batch) => (
+                    <Option key={batch._id} value={batch.batchName}>
+                      {batch.batchName}
+                    </Option>
+                  ))}
+                </Select>
               </Form.Item>
               <Form.Item name="admissionDate" label="Admission Date">
                 <Input type="date" size="large" />

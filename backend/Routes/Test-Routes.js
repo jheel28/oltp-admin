@@ -12,11 +12,11 @@ router.post(
   checkAuth("Admin"),
   [
     check("batchName").isLength({ min: 1, max: 255 }),
-    check("testId").isNumeric().isLength({ min: 1, max: 255 }),
+    check("testId").isLength({ min: 1, max: 255 }),
     check("score").isLength({ min: 1, max: 255 }),
     check("course").isLength({ min: 1, max: 255 }),
     check("examName").isLength({ min: 1, max: 255 }),
-    check("questionPaperId").isNumeric().isLength({ min: 1, max: 255 }),
+    check("questionPaperId").isLength({ min: 1, max: 255 }),
   ],
   testControllers.createTest
 );
@@ -35,11 +35,11 @@ router.post(
   checkAuth("SuperAdmin"),
   [
     check("batchName").isLength({ min: 1, max: 255 }),
-    check("testId").isNumeric().isLength({ min: 1, max: 255 }),
+    check("testId").isLength({ min: 1, max: 255 }),
     check("score").isLength({ min: 1, max: 255 }),
     check("course").isLength({ min: 1, max: 255 }),
     check("examName").isLength({ min: 1, max: 255 }),
-    check("questionPaperId").isNumeric().isLength({ min: 1, max: 255 }),
+    check("questionPaperId").isLength({ min: 1, max: 255 }),
   ],
   testControllers.createTest
 );
