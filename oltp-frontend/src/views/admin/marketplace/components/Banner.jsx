@@ -8,12 +8,12 @@ const Banner1 = () => {
     >
       <div className="flex w-full items-center justify-between">
         <h4 className="mb-[14px] max-w-full text-xl font-bold text-white md:w-[64%] md:text-3xl md:leading-[42px] lg:w-[46%] xl:w-[85%] 2xl:w-[75%] 3xl:w-[52%]">
-          The Correct Steps Consultancy
+          The Correct Steps
         </h4>
         &nbsp;&nbsp;
         <img
           src={Logo}
-          alt="The Correct Steps Consultancy logo"
+          alt="The Correct Steps logo"
           style={{
             width: "160px",
             height: "auto",

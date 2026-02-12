@@ -39,7 +39,7 @@ const TestingScreen = () => {
         const endTime = new Date(`${testData.test.date} ${testData.test.endTime}`);
         const currentTime = new Date();
         const differenceInSeconds = Math.max(0, Math.floor((endTime.getTime() - currentTime.getTime()) / 1000));
-        
+
         setRemainingTime(differenceInSeconds);
 
         const questionsResponse = await fetch(
@@ -58,7 +58,7 @@ const TestingScreen = () => {
         const studentData = await studentResponse.json();
         setStudent(studentData.student);
         if (questionsData.questions.length === 0) {
-           message.warning("No questions found for this test.");
+          message.warning("No questions found for this test.");
         }
         setQuestions(questionsData.questions);
         setOptionIndex(Array(questionsData.questions.length).fill(null));
@@ -205,7 +205,7 @@ const TestingScreen = () => {
   return (
     <div className="text-black relative flex min-h-screen flex-col items-center bg-gray-100">
       <div className="mb-6 mt-0 w-full bg-blue-500 py-4 text-center text-2xl font-bold text-white">
-        <h1>The Correct Steps Consultancy Online Testing Platform </h1>
+        <h1>The Correct Steps Online Testing Platform </h1>
       </div>
 
       {!submitConfirmation ? (
@@ -215,7 +215,7 @@ const TestingScreen = () => {
             {questions.length > 0 && (
               <div className="mb-4">
                 <Watermark
-                  content={`${"The Correct Steps Consultancy"} - Testid:${test.testId}`}
+                  content={`${"The Correct Steps"} - Testid:${test.testId}`}
                   gap={[30, 30]}
                   offset={[0, 0]}
                 >
@@ -233,7 +233,7 @@ const TestingScreen = () => {
                         style={{
                           height: "500px",
                         }}
-                        // Adjust these classes as needed
+                      // Adjust these classes as needed
                       />
                     )}
                     <br />
@@ -244,11 +244,10 @@ const TestingScreen = () => {
                         (option, index) => (
                           <label
                             key={option._id}
-                            className={`mb-2 inline-flex cursor-pointer items-center rounded-lg p-2 ${
-                              selectedOptions[currentQuestion] === option._id
+                            className={`mb-2 inline-flex cursor-pointer items-center rounded-lg p-2 ${selectedOptions[currentQuestion] === option._id
                                 ? "bg-blue-500 text-white"
                                 : "bg-gray-200"
-                            }`}
+                              }`}
                             onClick={() =>
                               handleOptionSelect(
                                 option._id,
@@ -325,15 +324,14 @@ const TestingScreen = () => {
                     {questions.map((question, index) => (
                       <div
                         key={question._id}
-                        className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-gray-300 ${
-                          visitedQuestions[index]
+                        className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-gray-300 ${visitedQuestions[index]
                             ? selectedOptions[index] !== null
                               ? "bg-green-500 text-white"
                               : "bg-red-500 text-white"
                             : currentQuestion === index
-                            ? "bg-blue-500 text-white"
-                            : ""
-                        }`}
+                              ? "bg-blue-500 text-white"
+                              : ""
+                          }`}
                         onClick={() => setCurrentQuestion(index)}
                       >
                         {index + 1}

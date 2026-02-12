@@ -25,7 +25,7 @@ const TestingPlatformHome = () => {
     <div className="text-black flex h-screen flex-col items-center justify-between bg-gray-100">
       <div className="mt-8">
         <div className="mb-8 flex flex-col items-center">
-          <h1 className="mb-2 text-7xl font-bold">The Correct Steps Consultancy</h1>
+          <h1 className="mb-2 text-7xl font-bold">The Correct Steps</h1>
           <h2 className="mb-2 text-3xl font-bold">Online Test Name</h2>
           <p className="text-md">Test ID: {id}</p>
         </div>

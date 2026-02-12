@@ -3,7 +3,7 @@
     "DB_USER": "thecorrectsteps",
     "DB_PASSWORD": "sajaljain%40390",
     "DB_NAME": "VirtualOffice",
-    "JWT_KEY": "ERP_Correct_Steps_Consultancy",
+    "JWT_KEY": "ERP_The_Correct_Steps",
     "REDIS_PASSWORD": "4444"
   }
 }
