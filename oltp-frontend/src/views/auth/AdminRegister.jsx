@@ -95,7 +95,7 @@ const AdminRegister = () => {
       <div className="flex flex-grow items-center justify-center">
         <div className="ml-4 mt-[6vh] flex w-full max-w-full flex-col items-center md:pl-4 xl:max-w-[750px]">
           <h4 className="mb-4 text-4xl font-bold text-navy-700 dark:text-white">
-            University Registration
+            Admin Registration
           </h4>
           <div className="mb-6 w-full px-4">
             <Steps current={currentStep} size="small">

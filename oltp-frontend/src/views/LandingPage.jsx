@@ -26,9 +26,9 @@ const LandingPage = () => {
       <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
-            <img src={logo} alt="Correct Steps" className="h-10 w-auto" />
+            <img src={logo} alt="The Correct Steps" className="h-10 w-auto" />
             <span className="text-xl font-bold tracking-tight text-brand-500">
-              Correct Steps
+              The Correct Steps
             </span>
           </div>
           <nav className="hidden items-center gap-8 font-medium md:flex">
@@ -55,8 +55,8 @@ const LandingPage = () => {
       <section className="relative overflow-hidden pb-32 pt-20">
         <div className="container mx-auto px-6 text-center">
           <h1 className="mb-6 text-5xl font-extrabold leading-tight tracking-tight text-navy-700 md:text-7xl">
-            Professional Online <br />
-            <span className="text-brand-500">Testing Platform</span>
+            Master Your Exams with <br />
+            <span className="text-brand-500">The Correct Steps</span>
           </h1>
           <p className="mx-auto mb-10 max-w-2xl text-lg text-gray-600 md:text-xl">
             The most robust, dynamic, and easy-to-use platform for Universities
@@ -84,7 +84,7 @@ const LandingPage = () => {
         <div className="container mx-auto px-6">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-3xl font-bold text-navy-700 md:text-4xl">
-              Why Choose Correct Steps?
+              Why Choose The Correct Steps?
             </h2>
             <div className="mx-auto h-1.5 w-20 rounded-full bg-brand-500"></div>
           </div>
@@ -113,11 +113,11 @@ const LandingPage = () => {
         <div className="container mx-auto px-6 text-center">
           <img
             src={logo}
-            alt="Correct Steps"
+            alt="The Correct Steps"
             className="mx-auto mb-6 h-12 w-auto brightness-200 grayscale"
           />
           <p className="mb-4 opacity-70">
-            &copy; 2026 Correct Steps. All rights reserved.
+            &copy; 2026 The Correct Steps. All rights reserved.
           </p>
           <div className="flex justify-center gap-6 text-sm opacity-50">
             <a href="#">Privacy Policy</a>

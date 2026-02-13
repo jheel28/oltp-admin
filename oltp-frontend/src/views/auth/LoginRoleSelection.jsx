@@ -24,8 +24,8 @@ const LoginRoleSelection = () => {
         <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4">
             <div className="mb-10 text-center">
                 <div className="flex items-center justify-center gap-2 mb-4">
-                    <img src={logo} alt="Correct Steps" className="h-12 w-auto" />
-                    <span className="text-2xl font-bold text-brand-500">Correct Steps</span>
+                    <img src={logo} alt="The Correct Steps" className="h-12 w-auto" />
+                    <span className="text-2xl font-bold text-brand-500">The Correct Steps</span>
                 </div>
                 <h1 className="text-3xl font-extrabold text-navy-700">Choose Login Type</h1>
                 <p className="mt-2 text-gray-500">Select how you want to access the platform</p>

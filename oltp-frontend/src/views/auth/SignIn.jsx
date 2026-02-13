@@ -82,13 +82,13 @@ export default function SignIn() {
       <div className="mt-[8vh] w-full max-w-full flex-col items-center md:pl-4 lg:pl-0 xl:max-w-[450px]">
         <div className="flex flex-col">
           <h1 className="mb-2 text-4xl font-extrabold tracking-tight text-navy-700 dark:text-white md:text-5xl">
-            Correct Steps
+            The Correct Steps
           </h1>
           <p className="mb-8 text-sm font-medium text-gray-400 dark:text-gray-500 md:text-base">
             Professional Online Testing Platform
           </p>
           <h4 className="mb-6 text-2xl font-bold text-navy-700 dark:text-white">
-            {isStudentOnly ? "Student Login" : isAdminOnly ? "University Login" : isSuperAdminOnly ? "Super Admin Login" : "Sign In"}
+            {isStudentOnly ? "Student Login" : isAdminOnly ? "Admin Login" : isSuperAdminOnly ? "Super Admin Login" : "Sign In"}
           </h4>
         </div>
         <form onSubmit={handleSignIn} className="w-full">
