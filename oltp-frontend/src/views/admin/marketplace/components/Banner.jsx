@@ -1,5 +1,5 @@
 import nft1 from "assets/img/nfts/NftBanner1.png";
-import Logo from "assets/img/BETA-CLASSES Logo/BETA CLASSES 01 TRANSPARENT .-011 copy.jpg";
+import Logo from "assets/img/Logo/correct.png";
 const Banner1 = () => {
   return (
     <div
@@ -11,15 +11,13 @@ const Banner1 = () => {
           The Correct Steps
         </h4>
         &nbsp;&nbsp;
-        <img
-          src={Logo}
-          alt="The Correct Steps logo"
-          style={{
-            width: "160px",
-            height: "auto",
-            borderRadius: "50%", // Apply rounded corners
-          }}
-        />
+        <div className="flex h-[110px] w-[110px] items-center justify-center rounded-full bg-white border-[4px] border-white/30 p-3 shadow-2xl md:h-[140px] md:w-[140px]">
+          <img
+            src={Logo}
+            alt="The Correct Steps logo"
+            className="h-full w-full object-contain"
+          />
+        </div>
         {/* <p className="mb-[40px] max-w-full text-base font-medium text-[#E3DAFF] md:w-[64%] lg:w-[40%] xl:w-[72%] 2xl:w-[60%] 3xl:w-[45%]">
           Enter in this creative world. Discover now the latest NFTs or start
           creating your own!

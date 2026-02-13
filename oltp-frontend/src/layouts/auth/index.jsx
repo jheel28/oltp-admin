@@ -47,7 +47,7 @@ export default function Auth() {
                   <img
                     src={logo}
                     alt="Logo"
-                    className="max-h-[80%] max-w-[80%] object-contain"
+                    className="max-h-[500px] max-w-[500px] object-contain"
                     onError={(e) => {
                       e.target.style.display = "none";
                     }}

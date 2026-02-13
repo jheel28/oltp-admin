@@ -55,8 +55,10 @@ const Sidebar = ({ open, onClose }) => {
       </div>
       <div className={`mx-[56px] mt-[10px] flex items-center`}>
         {/* Image */}
-        <div className="ml-1 mt-1 h-2.5 font-poppins text-[26px] font-bold uppercase text-navy-700 dark:text-white">
-          Admin <span class="font-medium"></span>
+        <div className="ml-1 mt-1 flex flex-col items-center justify-center text-center font-poppins font-bold uppercase text-navy-700 dark:text-white">
+          <span className="text-[20px] leading-tight">
+            {admin?.firstName ? `${admin.firstName} ${admin.lastName}` : "Admin"}
+          </span>
         </div>
       </div>
       <div class="mb-7 mt-[58px] h-px bg-gray-300 dark:bg-white/30" />

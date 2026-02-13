@@ -51,8 +51,10 @@ const SuperAdminSidebar = ({ open, onClose }) => {
           className="ml-4 rounded-full" // Use rounded-full class to make the image round
           style={{ width: "80px", height: "80px" }} // Adjust width and height as needed
         />
-        <div className="ml-1 mt-1 h-2.5 font-poppins text-[26px] font-bold uppercase text-navy-700 dark:text-white">
-          Super admin<span class="font-medium"></span>
+        <div className="ml-1 mt-1 flex flex-col items-center justify-center text-center font-poppins font-bold uppercase text-navy-700 dark:text-white">
+          <span className="text-[20px] leading-tight">
+            {superAdmin?.firstName ? `${superAdmin.firstName} ${superAdmin.lastName}` : "Super Admin"}
+          </span>
         </div>
       </div>
       <div class="mb-7 mt-[58px] h-px bg-gray-300 dark:bg-white/30" />
