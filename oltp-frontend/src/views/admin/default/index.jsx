@@ -53,6 +53,17 @@ const Dashboard = () => {
   const numberOfStudents = students.length;
   const numberOfTests = tests.length;
 
+  // Derive dynamic stats
+  const jeeStudents = students.filter((s) =>
+    s.batch?.toUpperCase().includes("JEE")
+  ).length;
+  const neetStudents = students.filter((s) =>
+    s.batch?.toUpperCase().includes("NEET")
+  ).length;
+
+  const today = new Date().toISOString().split("T")[0];
+  const upcomingTests = tests.filter((t) => t.date >= today).length;
+
   return (
     <div>
       <div className="mt-3 grid h-full grid-cols-1 gap-5 xl:grid-cols-2 2xl:grid-cols-3">
@@ -76,28 +87,28 @@ const Dashboard = () => {
         />
         <Widget
           icon={<IoDocuments className="h-6 w-6" />}
-          title={"No.of Tests Completed"}
+          title={"No.of Tests"}
           subtitle={numberOfTests}
         />
         <Widget
           icon={<MdBarChart className="h-7 w-7" />}
           title={"JEE Students"}
-          subtitle={"50"}
+          subtitle={jeeStudents}
         />
         <Widget
           icon={<MdDashboard className="h-6 w-6" />}
           title={"NEET Students"}
-          subtitle={"100"}
+          subtitle={neetStudents}
         />
         <Widget
           icon={<MdBarChart className="h-7 w-7" />}
-          title={"Regional test"}
-          subtitle={"145"}
+          title={"Other Students"}
+          subtitle={numberOfStudents - (jeeStudents + neetStudents)}
         />
         <Widget
           icon={<IoMdHome className="h-6 w-6" />}
           title={"Upcoming Tests"}
-          subtitle={"3"}
+          subtitle={upcomingTests}
         />
       </div>
 

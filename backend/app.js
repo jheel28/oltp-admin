@@ -48,18 +48,29 @@ app.use("/api/beta/question", questionRoutes);
 app.get("/", (req, res) => {
   return res.status(200).json({ message: "Hello World" });
 });
-// mongoose
-//   .connect(
-//     `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.rw3waqy.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
-//   )
-//   .then(app.listen(3000))
-//   .catch((err) => {
-//     console.log(err);
-//   });
+
+app.use((req, res, next) => {
+  const error = new HttpError("Could not find this route.", 404);
+  throw error;
+});
+
+app.use((error, req, res, next) => {
+  if (req.file) {
+    fs.unlink(req.file.path, (err) => {
+      console.log(err);
+    });
+  }
+  if (res.headerSent) {
+    return next(error);
+  }
+  res.status(error.code || 500);
+  res.json({ message: error.message || "An unknown error occurred!" });
+});
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/testseries")
+  .connect(process.env.MONGOURL)
   .then(() => {
+    console.log("Connected to MongoDB");
     app.listen(5000, () => {
       console.log("Server running on port 5000");
     });

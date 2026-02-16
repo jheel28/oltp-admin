@@ -57,17 +57,20 @@ const AdminRegister = () => {
         }
       });
 
-      // Append files
-      if (logoFile) {
-        formData.append("universityLogo", logoFile);
-      }
+      // Append files: backend only expects 'image'
       if (imageFile) {
         formData.append("image", imageFile);
+      } else if (logoFile) {
+        formData.append("image", logoFile);
+      } else {
+        message.error("Please upload either a university logo or a profile picture");
+        setLoading(false);
+        return;
       }
 
       const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
-      const response = await fetch(`${backendUrl}/api/beta/admin/register`, {
+      const response = await fetch(`${backendUrl}/api/beta/admin/create/admin`, {
         method: "POST",
         body: formData,
       });

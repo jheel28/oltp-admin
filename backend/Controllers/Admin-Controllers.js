@@ -45,8 +45,9 @@ const createAdmin = async (req, res, next) => {
     return next(error);
   }
   // Checking if files are uploaded
-  if (!req.files || Object.keys(req.files).length === 0) {
-    return res.status(400).json({ message: "No files were uploaded." });
+  if (!req.files || !req.files["image"] || req.files["image"].length === 0) {
+    const error = new HttpError("No image was uploaded.", 400);
+    return next(error);
   }
 
   const image = req.files["image"][0].path;

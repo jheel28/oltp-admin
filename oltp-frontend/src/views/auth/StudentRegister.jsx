@@ -71,10 +71,13 @@ const StudentRegister = () => {
       // Create FormData for file upload
       const formData = new FormData();
 
-      // Add all form fields
-      // Using Object.entries ensures we capture everything currently in the values object
+      // Map specific fields for backend compatibility
+      if (values.fatherNumber) formData.append("phoneNumber", values.fatherNumber);
+      if (values.motherNumber) formData.append("alternateNumber", values.motherNumber);
+
+      // Add all other form fields
       Object.entries(values).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
+        if (value !== undefined && value !== null && key !== "fatherNumber" && key !== "motherNumber") {
           formData.append(key, value);
         }
       });
@@ -90,9 +93,9 @@ const StudentRegister = () => {
       }
 
       const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
-      console.log("Sending payload to:", `${backendUrl}/api/beta/student/register`);
+      console.log("Sending payload to:", `${backendUrl}/api/beta/student/signup`);
 
-      const response = await fetch(`${backendUrl}/api/beta/student/register`, {
+      const response = await fetch(`${backendUrl}/api/beta/student/signup`, {
         method: "POST",
         body: formData,
       });

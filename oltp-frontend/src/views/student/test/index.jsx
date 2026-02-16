@@ -45,16 +45,18 @@ const Marketplace = () => {
         setTests(testData.tests);
         setStudent(studentData.student);
 
-        const scoreResponse = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/attempted/tests/bystudentId/${studentData.student.studentId}`
-        );
+        if (studentData.student && studentData.student.studentId) {
+          const scoreResponse = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/attempted/tests/bystudentId/${studentData.student.studentId}`
+          );
 
-        if (!scoreResponse.ok) {
-          throw new Error(`HTTP error! Status: ${scoreResponse.status}`);
+          if (!scoreResponse.ok) {
+            throw new Error(`HTTP error! Status: ${scoreResponse.status}`);
+          }
+
+          const scoreData = await scoreResponse.json();
+          setAttempted(scoreData.tests);
         }
-
-        const scoreData = await scoreResponse.json();
-        setAttempted(scoreData.tests);
       } catch (err) {
         console.error("Error fetching data:", err.message);
       }
@@ -69,9 +71,9 @@ const Marketplace = () => {
     const isTestAttempted = attempted.some(
       (attemptedTest) => attemptedTest.testId === test.testId
     );
-    
+
     // Use case-insensitive comparison and trim for safety
-    const isSameBatch = 
+    const isSameBatch =
       student.batch?.trim().toLowerCase() === test.batchName?.trim().toLowerCase();
 
     // Construct end time Date object
