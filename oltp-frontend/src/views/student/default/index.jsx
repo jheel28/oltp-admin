@@ -9,6 +9,7 @@ import Pie from "views/student/default/components/Pie";
 import { AuthContext } from "components/Auth-context";
 import TestCard from "views/student/test/components/TestCard";
 import { IoMdAlarm } from "react-icons/io";
+import SubjectPerformanceReport from "views/student/default/components/SubjectPerformanceReport";
 
 const Dashboard = () => {
   const [tests, setTests] = useState([]);
@@ -110,13 +111,19 @@ const Dashboard = () => {
         <Upcoming unattemptedTests={upcomingTests} />
       </div>
 
-      {/* Performance & Calendar Section */}
+      {/* Balanced Graph System - 2x2 Grid */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         <div className="col-span-1">
           <StudentPerformance tests={tests} attemptedScores={attempted} />
         </div>
         <div className="col-span-1">
-          <div className="h-full rounded-[20px] bg-white dark:bg-navy-800 p-2">
+          <Pie tests={tests} attemptedScores={attempted} />
+        </div>
+        <div className="col-span-1">
+          <SubjectPerformanceReport tests={tests} attemptedScores={attempted} />
+        </div>
+        <div className="col-span-1">
+          <div className="h-full rounded-[20px] bg-white dark:bg-navy-800 p-2 min-h-[350px]">
             <MiniCalendar
               value={calendarValue}
               onChange={setCalendarValue}
