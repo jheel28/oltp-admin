@@ -14,6 +14,7 @@ const Dashboard = () => {
   const [tests, setTests] = useState([]);
   const [student, setStudent] = useState([]);
   const [attempted, setAttempted] = useState([]);
+  const [calendarValue, setCalendarValue] = useState(new Date());
   const auth = useContext(AuthContext);
 
   useEffect(() => {
@@ -57,23 +58,32 @@ const Dashboard = () => {
 
     fetchData();
   }, [auth.userId]);
+
+  // Helper to get local date string YYYY-MM-DD
+  const getLocalDateString = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const currentTime = new Date();
+  const localTodayStr = getLocalDateString(currentTime);
+
   const filteredTests = tests.filter((test) => {
     const isTestAttempted = attempted.some(
       (attemptedTest) => attemptedTest.testId === test.testId
     );
     const isSameBatch = student.batch === test.batchName;
 
-    return !isTestAttempted && isSameBatch;
-  });
-  const attemptedTestsCount = tests.length - filteredTests.length;
+    // Expiration check: Use local time to determine if the test has already ended
+    const testEndDate = new Date(`${test.date} ${test.endTime}`);
+    const isExpired = currentTime > testEndDate;
 
-  // Active Tests: Date is today AND current time is within [startTime, endTime]
-  const currentTime = new Date();
-  // Get local date string YYYY-MM-DD
-  const year = currentTime.getFullYear();
-  const month = String(currentTime.getMonth() + 1).padStart(2, "0");
-  const day = String(currentTime.getDate()).padStart(2, "0");
-  const localTodayStr = `${year}-${month}-${day}`;
+    return !isTestAttempted && isSameBatch && !isExpired;
+  });
+
+  const attemptedTestsCount = tests.length - filteredTests.length;
 
   const activeTests = filteredTests.filter((test) => {
     if (test.date !== localTodayStr) return false;
@@ -82,18 +92,20 @@ const Dashboard = () => {
     return currentTime >= start && currentTime <= end;
   });
 
-  // Upcoming Tests: Scheduled for the future (either a later date OR later today)
   const upcomingTests = filteredTests.filter((test) => {
     const start = new Date(`${test.date} ${test.startTime}`);
-    // A test is upcoming if it starts after now and is NOT already active
     return start > currentTime && !activeTests.some(at => at.testId === test.testId);
   });
+
+  // Calendar filtering logic using local date string
+  const selectedDateStr = getLocalDateString(calendarValue);
+  const examsOnSelectedDate = filteredTests.filter(test => test.date === selectedDateStr);
 
   return (
     <div className="flex flex-col gap-4">
       {/* Stats Widgets Section */}
       <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-3 3xl:grid-cols-6">
-        <Ranking />
+        <Ranking tests={attempted} />
         <PapersSolved attemptedTests={attemptedTestsCount} />
         <Upcoming unattemptedTests={upcomingTests} />
       </div>
@@ -101,16 +113,20 @@ const Dashboard = () => {
       {/* Performance & Calendar Section */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         <div className="col-span-1">
-          <StudentPerformance tests={tests} />
+          <StudentPerformance tests={tests} attemptedScores={attempted} />
         </div>
         <div className="col-span-1">
           <div className="h-full rounded-[20px] bg-white dark:bg-navy-800 p-2">
-            <MiniCalendar />
+            <MiniCalendar
+              value={calendarValue}
+              onChange={setCalendarValue}
+              exams={filteredTests}
+            />
           </div>
         </div>
       </div>
 
-      {/* Active Exams Section */}
+      {/* Active Exams Section - Compact UI */}
       <div className="flex flex-col">
         <div className="flex items-center justify-between mb-3 px-1">
           <h4 className="text-xl font-bold text-navy-700 dark:text-white">
@@ -139,7 +155,29 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Upcoming Exams Section */}
+      {/* Exams on Selected Date Section */}
+      {calendarValue && (
+        <div className="flex flex-col">
+          <h4 className="text-xl font-bold text-navy-700 dark:text-white mb-3 px-1">
+            Exams on {calendarValue.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+          </h4>
+          <div className="flex flex-wrap gap-4">
+            {examsOnSelectedDate.length > 0 ? (
+              examsOnSelectedDate.map((test) => (
+                <div key={test.testId} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.33%-1.33rem)] transition-all duration-300 hover:translate-y-[-4px]">
+                  <TestCard test={test} />
+                </div>
+              ))
+            ) : (
+              <div className="w-full flex flex-col items-center justify-center py-6 bg-white dark:bg-navy-800 rounded-2xl border border-dashed border-gray-200 dark:border-navy-700">
+                <p className="text-gray-500 dark:text-gray-400 font-bold text-sm">No exams scheduled for this date.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Upcoming Exams Section - Compact UI */}
       <div className="flex flex-col mb-4">
         <h4 className="text-xl font-bold text-navy-700 dark:text-white mb-3 px-1">
           Upcoming Exams

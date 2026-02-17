@@ -1,42 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Card from "components/card";
 import LineChart from "components/charts/LineChart";
-// Import Axios for making HTTP requests
 
-const StudentPerformance = () => {
-  const [performanceData, setPerformanceData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+const StudentPerformance = ({ tests = [], attemptedScores = [] }) => {
+  // Map attempted scores to chart data
+  const chartData = attemptedScores
+    .map((score) => {
+      const testInfo = tests.find((t) => t.testId === score.testId);
+      if (!testInfo) return null;
 
-  useEffect(() => {
-    const fetchPerformanceData = async () => {
-      try {
-        const response = await fetch("/api/studentPerformance");
-        setPerformanceData([
-          {
-            name: "Math",
-            data: [50, 60, 55, 70, 65, 75, 80, 85, 90, 95, 100, 105],
-          },
-          {
-            name: "Science",
-            data: [55, 65, 60, 75, 70, 80, 85, 90, 95, 100, 105, 110],
-          },
-          {
-            name: "English",
-            data: [45, 55, 50, 65, 60, 70, 75, 80, 85, 90, 95, 100],
-          },
-        ]);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching performance data:", error);
-        setIsLoading(false);
-        // If API request fails, set performance data manually for testing
-      }
-    };
+      const percentage = Math.round((score.marks / (score.maxscore || 100)) * 100);
+      return {
+        date: new Date(testInfo.date),
+        testName: testInfo.testTitle || `Test ${testInfo.testId}`,
+        score: percentage,
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.date - b.date);
 
-    fetchPerformanceData();
-  }, []);
+  const series = [
+    {
+      name: "Score %",
+      data: chartData.map((d) => d.score),
+    },
+  ];
 
-  // Chart options
   const chartOptions = {
     chart: {
       type: "line",
@@ -44,46 +33,61 @@ const StudentPerformance = () => {
       zoom: {
         enabled: false,
       },
+      toolbar: {
+        show: false,
+      },
+    },
+    colors: ["#4318FF"],
+    stroke: {
+      curve: "smooth",
+      width: 3,
     },
     xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
+      categories: chartData.map((d) => d.testName),
+      labels: {
+        style: {
+          colors: "#A3AED0",
+          fontSize: "12px",
+          fontWeight: "500",
+        },
+      },
     },
     yaxis: {
-      title: {
-        text: "", // Set y-axis title to empty string
+      min: 0,
+      max: 100,
+      labels: {
+        style: {
+          colors: "#A3AED0",
+          fontSize: "12px",
+          fontWeight: "500",
+        },
       },
+    },
+    tooltip: {
+      theme: "dark",
+    },
+    grid: {
+      show: false,
     },
   };
 
   return (
     <Card extra="!p-[20px] text-left">
-      <h4 className="text-xl font-bold text-navy-700 dark:text-white">
-        Performance
+      <h4 className="text-xl font-bold text-navy-700 dark:text-white mb-4">
+        Performance History
       </h4>
 
-      {isLoading ? (
-        <p>Loading performance data...</p>
-      ) : (
-        <div className="flex h-full w-full flex-row justify-between sm:flex-wrap lg:flex-nowrap 2xl:overflow-hidden">
-          <div className="flex flex-col"></div>
-          <div className="h-full w-full">
-            <LineChart options={chartOptions} series={performanceData} />
+      <div className="h-[350px] w-full">
+        {chartData.length > 0 ? (
+          <LineChart options={chartOptions} series={series} />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <p className="text-gray-500 dark:text-gray-400 font-medium text-sm">
+              Attempt a test to see your performance history!
+            </p>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </Card>
   );
 };
