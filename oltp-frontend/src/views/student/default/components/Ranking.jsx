@@ -3,10 +3,16 @@ import Widget from "components/widget/Widget";
 import { MdBarChart } from "react-icons/md";
 
 const Ranking = ({ tests }) => {
-  // Replace random rank with Average Score percentage
-  const attemptedTests = tests.filter(t => t.score !== undefined);
+  // Calculate Average Score percentage from attempted tests
+  const attemptedTests = Array.isArray(tests) ? tests.filter(t => t.marks !== undefined && t.maxscore !== undefined) : [];
+
+  const totalPercentage = attemptedTests.reduce((acc, t) => {
+    const percentage = (parseFloat(t.marks) / parseFloat(t.maxscore)) * 100;
+    return acc + percentage;
+  }, 0);
+
   const avgScore = attemptedTests.length > 0
-    ? Math.round(attemptedTests.reduce((acc, t) => acc + (t.score || 0), 0) / attemptedTests.length)
+    ? Math.round(totalPercentage / attemptedTests.length)
     : 0;
 
   return (

@@ -14,7 +14,9 @@ export const useAuth = () => {
     setEmail(email);
     setRole(role);
     console.log(role);
-    const tokenExpirationDate = new Date(new Date().getTime() + 1000 * 60 * 60);
+    const tokenExpirationDate = new Date(
+      new Date().getTime() + 1000 * 60 * 60 * 24 * 7
+    );
     setTokenExpirationDate(tokenExpirationDate);
     localStorage.setItem(
       "userData",

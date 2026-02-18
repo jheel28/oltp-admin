@@ -18,7 +18,7 @@ const TestTable = (props) => {
   const { tableData } = props;
   const [questionPapers, setQuestionsPapers] = useState([]);
   const [selectedQuestionPaper, setSelectedQuestionPaper] = useState(null);
-  const [isEditQuestionPaperFormVisible, setIsEditQuestionPaperFormVisible] =
+  const [isAddQuestionPaperFormVisible, setIsAddQuestionPaperFormVisible] =
     useState(false);
 
   useEffect(() => {
@@ -48,20 +48,23 @@ const TestTable = (props) => {
 
   const handleEditQuestionPaperClick = (questionPaper) => {
     setSelectedQuestionPaper(questionPaper);
-    setIsEditQuestionPaperFormVisible(true);
+    setIsAddQuestionPaperFormVisible(false); // Ensure Add form is closed
   };
 
   const handleCancelForm = () => {
-    setIsEditQuestionPaperFormVisible(false);
+    setIsAddQuestionPaperFormVisible(false);
+    setSelectedQuestionPaper(null);
   };
 
   const handleViewClick = (questionPaper) => {
     setSelectedQuestionPaper(questionPaper);
   };
 
+
   const handleFormSubmit = (formData) => {
     console.log("General Form submitted:", formData);
-    setIsEditQuestionPaperFormVisible(false);
+    setIsAddQuestionPaperFormVisible(false);
+    setSelectedQuestionPaper(null);
   };
 
   const handleDelete = (id) => {
@@ -169,18 +172,18 @@ const TestTable = (props) => {
           );
         },
       },
-      // {
-      //   Header: "Action",
-      //   accessor: "action",
-      //   Cell: ({ row }) => (
-      //     <button
-      //       className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
-      //       onClick={() => handleEditQuestionPaperClick(row.original)} // Pass the selected question paper to handleEditQuestionPaperClick
-      //     >
-      //       <FaEdit />
-      //     </button>
-      //   ),
-      // },
+      {
+        Header: "Action",
+        accessor: "action",
+        Cell: ({ row }) => (
+          <button
+            className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
+            onClick={() => handleEditQuestionPaperClick(row.original)} // Pass the selected question paper to handleEditQuestionPaperClick
+          >
+            <FaEdit />
+          </button>
+        ),
+      },
       {
         Header: "Delete",
         accessor: "deleteButton",
@@ -223,7 +226,7 @@ const TestTable = (props) => {
 
   return (
     <Card extra={"w-full pb-10 p-4 h-full"}>
-      {isEditQuestionPaperFormVisible ? (
+      {isAddQuestionPaperFormVisible ? (
         <QuestionPaperForm
           onSubmit={handleFormSubmit}
           onCancel={handleCancelForm}
@@ -243,8 +246,8 @@ const TestTable = (props) => {
               <button
                 className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
                 onClick={() => {
-                  setSelectedQuestionPaper(null); // Clear selected question paper when adding new
-                  setIsEditQuestionPaperFormVisible(true);
+                  setSelectedQuestionPaper(null);
+                  setIsAddQuestionPaperFormVisible(true);
                 }}
               >
                 Add Question Paper

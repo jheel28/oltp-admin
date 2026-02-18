@@ -78,7 +78,7 @@ const createAdmin = async (req, res, next) => {
         role: createdAdmin.role,
       },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -160,7 +160,7 @@ const login = async (req, res, next) => {
         role: existingAdmin.role,
       },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -316,7 +316,7 @@ const updateAdminById = async (req, res, next) => {
     token = jwt.sign(
       { userId: admin.id, email: admin.email, role: admin.role },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(

@@ -19,8 +19,9 @@ const QuestionPaperForm = ({ onCancel }) => {
       text: "",
       questionImage: null,
       options: [{ text: "" }],
-      correctOption: 0,
+      correctOption: [],
       marks: 1,
+      type: "MCQ",
     },
   ]);
   const [showQuestionImageInput, setShowQuestionImageInput] = useState(false);
@@ -37,8 +38,9 @@ const QuestionPaperForm = ({ onCancel }) => {
         text: "",
         questionImage: null,
         options: [{ text: "" }],
-        correctOption: 0,
+        correctOption: [],
         marks: 1,
+        type: "MCQ",
       },
     ]);
   };
@@ -76,7 +78,21 @@ const QuestionPaperForm = ({ onCancel }) => {
 
   const handleCorrectOptionChange = (questionIndex, optionIndex) => {
     const newQuestions = [...questions];
-    newQuestions[questionIndex].correctOption = optionIndex;
+    const currentCorrect = newQuestions[questionIndex].correctOption;
+
+    if (newQuestions[questionIndex].type === "MCQ") {
+      if (Array.isArray(currentCorrect)) {
+        if (currentCorrect.includes(optionIndex)) {
+          newQuestions[questionIndex].correctOption = currentCorrect.filter(id => id !== optionIndex);
+        } else {
+          newQuestions[questionIndex].correctOption = [...currentCorrect, optionIndex];
+        }
+      } else {
+        newQuestions[questionIndex].correctOption = [optionIndex];
+      }
+    } else {
+      newQuestions[questionIndex].correctOption = optionIndex;
+    }
     setQuestions(newQuestions);
   };
 
@@ -115,7 +131,7 @@ const QuestionPaperForm = ({ onCancel }) => {
       questionIndex * questions[questionIndex].options.length + optionIndex
     ] =
       !newShowOptionImageInputs[
-        questionIndex * questions[questionIndex].options.length + optionIndex
+      questionIndex * questions[questionIndex].options.length + optionIndex
       ];
     setShowOptionImageInputs(newShowOptionImageInputs);
   };
@@ -302,6 +318,24 @@ const QuestionPaperForm = ({ onCancel }) => {
               value={question.text}
               onChange={(e) => handleQuestionTextChange(questionIndex, e)}
             />
+            <div className="mt-2 text-sm">
+              <strong>Question Type:</strong>
+              <select
+                className="block w-full rounded-lg border-gray-300 p-2 mt-1 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
+                value={question.type}
+                onChange={(e) => {
+                  const newQs = [...questions];
+                  newQs[questionIndex].type = e.target.value;
+                  if (e.target.value === "Numerical") {
+                    newQs[questionIndex].correctOption = 0;
+                  }
+                  setQuestions(newQs);
+                }}
+              >
+                <option value="MCQ">Multiple Choice (MCQ)</option>
+                <option value="Numerical">Numerical</option>
+              </select>
+            </div>
             <div className="mt-2 flex items-center">
               <input
                 type="file"
@@ -316,71 +350,89 @@ const QuestionPaperForm = ({ onCancel }) => {
               />
             </div>
           </div>
-          {/* Options */}
-          <div>
-            {question.options.map((option, optionIndex) => (
-              <div
-                key={optionIndex}
-                className="mb-2 rounded-lg border border-gray-200 p-2"
-              >
-                <strong>Option {optionIndex + 1}:</strong>
-                <input
-                  type="text"
-                  placeholder={`Enter Option ${optionIndex + 1} Text`}
-                  className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
-                  value={option.text}
-                  onChange={(e) =>
-                    handleOptionTextChange(questionIndex, optionIndex, e)
-                  }
-                />
-                <div className="mt-2 flex items-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) =>
-                      handleOptionImageChange(questionIndex, optionIndex, e)
-                    }
-                    style={{
-                      display: showOptionImageInputs[
-                        questionIndex * question.options.length + optionIndex
-                      ]
-                        ? "block"
-                        : "none",
-                    }}
-                  />
-                  <FaImage
-                    className="ml-auto cursor-pointer text-blue-500 hover:text-blue-700"
-                    onClick={() =>
-                      handleToggleOptionImageInput(questionIndex, optionIndex)
-                    }
-                  />
-                </div>
-                <label className="ml-2">
-                  <input
-                    type="radio"
-                    checked={question.correctOption === optionIndex}
-                    onChange={() =>
-                      handleCorrectOptionChange(questionIndex, optionIndex)
-                    }
-                  />
-                  Correct
-                </label>
-                <button
-                  className="ml-2 rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600"
-                  onClick={() => handleDeleteOption(questionIndex, optionIndex)}
+          {/* Options for MCQ */}
+          {question.type === "MCQ" ? (
+            <div>
+              {question.options.map((option, optionIndex) => (
+                <div
+                  key={optionIndex}
+                  className="mb-2 rounded-lg border border-gray-200 p-2"
                 >
-                  Delete
-                </button>
-              </div>
-            ))}
-            <button
-              className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-              onClick={() => handleAddOption(questionIndex)}
-            >
-              Add Option
-            </button>
-          </div>
+                  <strong>Option {optionIndex + 1}:</strong>
+                  <input
+                    type="text"
+                    placeholder={`Enter Option ${optionIndex + 1} Text`}
+                    className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
+                    value={option.text}
+                    onChange={(e) =>
+                      handleOptionTextChange(questionIndex, optionIndex, e)
+                    }
+                  />
+                  <div className="mt-2 flex items-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) =>
+                        handleOptionImageChange(questionIndex, optionIndex, e)
+                      }
+                      style={{
+                        display: showOptionImageInputs[
+                          questionIndex * question.options.length + optionIndex
+                        ]
+                          ? "block"
+                          : "none",
+                      }}
+                    />
+                    <FaImage
+                      className="ml-auto cursor-pointer text-blue-500 hover:text-blue-700"
+                      onClick={() =>
+                        handleToggleOptionImageInput(questionIndex, optionIndex)
+                      }
+                    />
+                  </div>
+                  <label className="ml-2">
+                    <input
+                      type="checkbox"
+                      checked={Array.isArray(question.correctOption) && question.correctOption.includes(optionIndex)}
+                      onChange={() =>
+                        handleCorrectOptionChange(questionIndex, optionIndex)
+                      }
+                    />
+                    Correct
+                  </label>
+                  <button
+                    className="ml-2 rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600"
+                    onClick={() =>
+                      handleDeleteOption(questionIndex, optionIndex)
+                    }
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+              <button
+                className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+                onClick={() => handleAddOption(questionIndex)}
+              >
+                Add Option
+              </button>
+            </div>
+          ) : (
+            <div>
+              <strong>Correct Answer (Numerical):</strong>
+              <input
+                type="number"
+                step="any"
+                placeholder="Enter Correct Numerical Value"
+                className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
+                value={question.correctOption}
+                onChange={(e) =>
+                  handleCorrectOptionChange(questionIndex, parseFloat(e.target.value))
+                }
+              />
+            </div>
+          )}
           {/* Marks */}
           <div>
             <strong>Marks:</strong>

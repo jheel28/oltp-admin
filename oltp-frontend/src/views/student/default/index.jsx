@@ -5,18 +5,24 @@ import Upcoming from "views/student/default/components/Upcoming";
 import PapersSolved from "views/student/default/components/PapersSolved";
 import MiniCalendar from "components/calendar/MiniCalendar";
 import StudentPerformance from "views/student/default/components/StudentPerformance";
-import Pie from "views/student/default/components/Pie";
 import { AuthContext } from "components/Auth-context";
 import TestCard from "views/student/test/components/TestCard";
 import { IoMdAlarm } from "react-icons/io";
-import SubjectPerformanceReport from "views/student/default/components/SubjectPerformanceReport";
 
 const Dashboard = () => {
   const [tests, setTests] = useState([]);
-  const [student, setStudent] = useState([]);
+  const [student, setStudent] = useState(null);
   const [attempted, setAttempted] = useState([]);
   const [calendarValue, setCalendarValue] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(new Date());
   const auth = useContext(AuthContext);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 10000); // Update every 10 seconds to keep timers/sections fresh
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,8 +43,8 @@ const Dashboard = () => {
         const testData = await testResponse.json();
         const studentData = await studentResponse.json();
 
-        setTests(testData.tests);
-        setStudent(studentData.student);
+        setTests(testData.tests || []);
+        setStudent(studentData.student || null);
 
         if (studentData.student && studentData.student.studentId) {
           const scoreResponse = await fetch(
@@ -50,7 +56,7 @@ const Dashboard = () => {
           }
 
           const scoreData = await scoreResponse.json();
-          setAttempted(scoreData.tests);
+          setAttempted(scoreData.tests || []);
         }
       } catch (err) {
         console.error("Error fetching data:", err.message);
@@ -60,26 +66,37 @@ const Dashboard = () => {
     fetchData();
   }, [auth.userId]);
 
-  // Helper to get local date string YYYY-MM-DD
-  const getLocalDateString = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
+  // Helper to parse "YYYY-MM-DD" or "DD-MM-YYYY" and "HH:mm" into a local Date object
+  const parseTestDateTime = (dateStr, timeStr) => {
+    if (!dateStr || !timeStr) return new Date(0);
+    let year, month, day;
+    // Handle both "-" and "/" as separators
+    const parts = dateStr.split(/[-/]/).map(Number);
+    if (parts[0] > 1000) {
+      // Format: YYYY-MM-DD
+      [year, month, day] = parts;
+    } else if (parts[2] > 1000) {
+      // Format: DD-MM-YYYY
+      [day, month, year] = parts;
+    } else {
+      // Fallback
+      [year, month, day] = parts;
+    }
 
-  const currentTime = new Date();
-  const localTodayStr = getLocalDateString(currentTime);
+    // Time format: HH:mm
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    return new Date(year, month - 1, day, hours, minutes, 0);
+  };
 
   const filteredTests = tests.filter((test) => {
     const isTestAttempted = attempted.some(
       (attemptedTest) => attemptedTest.testId === test.testId
     );
-    const isSameBatch = student.batch === test.batchName;
+    const isSameBatch = student && student.batch === test.batchName;
 
-    // Expiration check: Use local time to determine if the test has already ended
-    const testEndDate = new Date(`${test.date} ${test.endTime}`);
-    const isExpired = currentTime > testEndDate;
+    // Expiration check: Use local date/time objects
+    const testEndTime = parseTestDateTime(test.date, test.endTime);
+    const isExpired = currentTime > testEndTime;
 
     return !isTestAttempted && isSameBatch && !isExpired;
   });
@@ -87,20 +104,20 @@ const Dashboard = () => {
   const attemptedTestsCount = tests.length - filteredTests.length;
 
   const activeTests = filteredTests.filter((test) => {
-    if (test.date !== localTodayStr) return false;
-    const start = new Date(`${test.date} ${test.startTime}`);
-    const end = new Date(`${test.date} ${test.endTime}`);
-    return currentTime >= start && currentTime <= end;
+    const startTime = parseTestDateTime(test.date, test.startTime);
+    const endTime = parseTestDateTime(test.date, test.endTime);
+    // Current test if: currentTime is within [startTime, endTime]
+    return currentTime >= startTime && currentTime <= endTime;
   });
 
   const upcomingTests = filteredTests.filter((test) => {
-    const start = new Date(`${test.date} ${test.startTime}`);
-    return start > currentTime && !activeTests.some(at => at.testId === test.testId);
+    const startTime = parseTestDateTime(test.date, test.startTime);
+    // Upcoming if: startTime is in the future AND it's not currently active
+    return (
+      startTime > currentTime &&
+      !activeTests.some(at => at.testId === test.testId)
+    );
   });
-
-  // Calendar filtering logic using local date string
-  const selectedDateStr = getLocalDateString(calendarValue);
-  const examsOnSelectedDate = filteredTests.filter(test => test.date === selectedDateStr);
 
   return (
     <div className="flex flex-col gap-4">
@@ -111,16 +128,10 @@ const Dashboard = () => {
         <Upcoming unattemptedTests={upcomingTests} />
       </div>
 
-      {/* Balanced Graph System - 2x2 Grid */}
+      {/* Balanced Graph System - 1x2 Grid */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         <div className="col-span-1">
           <StudentPerformance tests={tests} attemptedScores={attempted} />
-        </div>
-        <div className="col-span-1">
-          <Pie tests={tests} attemptedScores={attempted} />
-        </div>
-        <div className="col-span-1">
-          <SubjectPerformanceReport tests={tests} attemptedScores={attempted} />
         </div>
         <div className="col-span-1">
           <div className="h-full rounded-[20px] bg-white dark:bg-navy-800 p-2 min-h-[350px]">
@@ -147,7 +158,7 @@ const Dashboard = () => {
           {activeTests.length > 0 ? (
             activeTests.map((test) => (
               <div key={test.testId} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.33%-1.33rem)] transition-all duration-300 hover:translate-y-[-4px]">
-                <TestCard test={test} />
+                <TestCard test={test} isActive={true} />
               </div>
             ))
           ) : (
@@ -162,28 +173,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Exams on Selected Date Section */}
-      {calendarValue && (
-        <div className="flex flex-col">
-          <h4 className="text-xl font-bold text-navy-700 dark:text-white mb-3 px-1">
-            Exams on {calendarValue.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-          </h4>
-          <div className="flex flex-wrap gap-4">
-            {examsOnSelectedDate.length > 0 ? (
-              examsOnSelectedDate.map((test) => (
-                <div key={test.testId} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.33%-1.33rem)] transition-all duration-300 hover:translate-y-[-4px]">
-                  <TestCard test={test} />
-                </div>
-              ))
-            ) : (
-              <div className="w-full flex flex-col items-center justify-center py-6 bg-white dark:bg-navy-800 rounded-2xl border border-dashed border-gray-200 dark:border-navy-700">
-                <p className="text-gray-500 dark:text-gray-400 font-bold text-sm">No exams scheduled for this date.</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Upcoming Exams Section - Compact UI */}
       <div className="flex flex-col mb-4">
         <h4 className="text-xl font-bold text-navy-700 dark:text-white mb-3 px-1">
@@ -193,7 +182,7 @@ const Dashboard = () => {
           {upcomingTests.length > 0 ? (
             upcomingTests.map((test) => (
               <div key={test.testId} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.33%-1.33rem)] transition-all duration-300 hover:translate-y-[-4px]">
-                <TestCard test={test} />
+                <TestCard test={test} isActive={false} />
               </div>
             ))
           ) : (

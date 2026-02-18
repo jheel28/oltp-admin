@@ -19,6 +19,7 @@ const createQuestion = async (req, res, next) => {
     marks,
     difficulty,
     topic,
+    type,
   } = req.body;
 
   /*
@@ -29,12 +30,12 @@ const createQuestion = async (req, res, next) => {
     processedOptions.push({ text: textValue });
   }
   */
-  
+
   let processedOptions = [];
   try {
-     processedOptions = JSON.parse(options);
+    processedOptions = JSON.parse(options);
   } catch (error) {
-     return res.status(422).json({ message: "Invalid options format." });
+    return res.status(422).json({ message: "Invalid options format." });
   }
 
   const createdQuestion = new Question({
@@ -45,6 +46,7 @@ const createQuestion = async (req, res, next) => {
     marks,
     difficulty,
     topic,
+    type,
   });
   if (
     req.files &&
@@ -120,6 +122,7 @@ const updateQuestionById = async (req, res, next) => {
     questionPaperId,
     difficulty,
     topic,
+    type,
   } = req.body;
   let question;
   try {
@@ -143,6 +146,7 @@ const updateQuestionById = async (req, res, next) => {
   question.marks = marks ? marks : question.marks;
   question.difficulty = difficulty ? difficulty : question.difficulty;
   question.topic = topic ? topic : question.topic;
+  question.type = type ? type : question.type;
 
   try {
     await question.save();

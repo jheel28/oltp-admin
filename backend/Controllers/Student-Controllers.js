@@ -92,7 +92,7 @@ const createStudent = async (req, res, next) => {
         role: createdStudent.role,
       },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -174,7 +174,7 @@ const login = async (req, res, next) => {
         role: existingStudent.role,
       },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -343,7 +343,7 @@ const updateStudentById = async (req, res, next) => {
     token = jwt.sign(
       { userId: student.id, email: student.email, role: student.role },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(

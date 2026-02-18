@@ -17,12 +17,33 @@ const QuizForm = ({ onSubmit, onCancel }) => {
     subjects: "", // New field
     questionPaperId: "",
     difficulty: "Medium", // Default value
+    duration: "", // Duration in minutes
   });
   const [questionPapers, setQuestionPapers] = useState([]);
   const [batches, setBatches] = useState([]);
 
   const handleTestInfoChange = (field, value) => {
-    setTestInfo({ ...testInfo, [field]: value });
+    setTestInfo((prev) => {
+      const updated = { ...prev, [field]: value };
+
+      // Automatic endTime calculation
+      if (field === "startTime" || field === "duration") {
+        const startTime = updated.startTime;
+        const duration = updated.duration;
+
+        if (startTime && duration) {
+          const [hours, minutes] = startTime.split(":").map(Number);
+          const date = new Date();
+          date.setHours(hours, minutes, 0);
+          date.setMinutes(date.getMinutes() + parseInt(duration));
+
+          const endHours = date.getHours().toString().padStart(2, "0");
+          const endMinutes = date.getMinutes().toString().padStart(2, "0");
+          updated.endTime = `${endHours}:${endMinutes}`;
+        }
+      }
+      return updated;
+    });
   };
   useEffect(() => {
     const fetchQuestionPapers = async () => {
@@ -35,7 +56,7 @@ const QuizForm = ({ onSubmit, onCancel }) => {
         }
         const data = await response.json();
         setQuestionPapers(data.questionPapers);
-      } catch (err) {}
+      } catch (err) { }
     };
     fetchQuestionPapers();
     const fetchBatches = async () => {
@@ -48,7 +69,7 @@ const QuizForm = ({ onSubmit, onCancel }) => {
         }
         const data = await response.json();
         setBatches(data.batches);
-      } catch (err) {}
+      } catch (err) { }
     };
     fetchBatches();
   }, []);
@@ -169,6 +190,17 @@ const QuizForm = ({ onSubmit, onCancel }) => {
             className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
             value={testInfo.startTime}
             onChange={(e) => handleTestInfoChange("startTime", e.target.value)}
+          />
+        </div>
+        <div className="mb-4">
+          <strong>Duration (minutes):</strong>
+          <input
+            type="number"
+            min="1"
+            placeholder="Enter duration in minutes"
+            className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
+            value={testInfo.duration}
+            onChange={(e) => handleTestInfoChange("duration", parseInt(e.target.value))}
           />
         </div>
         <div className="mb-4">

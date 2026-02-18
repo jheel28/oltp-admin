@@ -23,6 +23,7 @@ const createTest = async (req, res, next) => {
     questionPaperId,
     subjects,
     difficulty,
+    duration,
   } = req.body;
   let existingTest;
   try {
@@ -53,6 +54,7 @@ const createTest = async (req, res, next) => {
     endTime,
     subjects,
     difficulty,
+    duration,
   });
   try {
     await createdTest.save();
@@ -111,6 +113,7 @@ const updateTestById = async (req, res, next) => {
   let test;
   const {
     batchName,
+    testId,
     score,
     course,
     examName,
@@ -120,6 +123,7 @@ const updateTestById = async (req, res, next) => {
     endTime,
     subjects,
     difficulty,
+    duration,
   } = req.body;
   try {
     test = await Test.findOne({ _id: id });
@@ -130,25 +134,27 @@ const updateTestById = async (req, res, next) => {
     );
     return next(error);
   }
-  if (!test) {
-    const error = new HttpError("The test not found, please try again", 500);
-    return next(error);
-  }
-  (test.batchName = batchName ? batchName : test.batchName),
-    (test.score = score ? score : test.score),
-    (test.course = course ? course : test.course),
-    (test.examName = examName ? examName : test.examName);
-  test.date = date ? date : test.date;
-  test.startTime = startTime ? startTime : test.startTime;
-  test.endTime = endTime ? endTime : test.endTime;
-  test.questionPaperId = questionPaperId
-    ? questionPaperId
-    : test.questionPaperId;
-  test.subjects = subjects ? subjects : test.subjects;
-  test.difficulty = difficulty ? difficulty : test.difficulty;
+  console.log("Update Test Body:", req.body);
+  console.log("Update Test ID:", id);
+
+  test.batchName = batchName !== undefined ? batchName : test.batchName;
+  test.score = score !== undefined ? score : test.score;
+  test.course = course !== undefined ? course : test.course;
+  test.examName = examName !== undefined ? examName : test.examName;
+  test.testId = testId !== undefined ? testId : test.testId;
+  test.date = date !== undefined ? date : test.date;
+  test.startTime = startTime !== undefined ? startTime : test.startTime;
+  test.endTime = endTime !== undefined ? endTime : test.endTime;
+  test.questionPaperId = questionPaperId !== undefined ? questionPaperId : test.questionPaperId;
+  test.subjects = subjects !== undefined ? subjects : test.subjects;
+  test.difficulty = difficulty !== undefined ? difficulty : test.difficulty;
+  test.duration = duration !== undefined ? duration : test.duration;
+
   try {
     await test.save();
+    console.log("Test updated successfully");
   } catch (err) {
+    console.error("Error saving test:", err);
     const error = new HttpError(
       "Something went wrong while updating the data, please try again",
       500

@@ -1,9 +1,9 @@
 import { Select, message } from "antd";
 import { AuthContext } from "components/Auth-context";
 import React, { useContext, useEffect, useState } from "react";
-import { FaImage } from "react-icons/fa";
+import { AiOutlineArrowLeft } from "react-icons/ai";
 
-const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
+const EditQuizForm = ({ onUpdate, onBack, testData }) => {
   const auth = useContext(AuthContext);
   const [testInfo, setTestInfo] = useState({
     examName: "",
@@ -16,6 +16,8 @@ const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
     course: "", // Category
     subjects: "", // New field
     questionPaperId: "",
+    duration: "", // Duration in minutes
+    difficulty: "Medium",
   });
   const [questionPapers, setQuestionPapers] = useState([]);
   const [batches, setBatches] = useState([]);
@@ -24,6 +26,7 @@ const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
     if (testData) {
       setTestInfo({
         ...testData,
+        difficulty: testData.difficulty || "Medium",
       });
     }
     const fetchQuestionPapers = async () => {
@@ -60,11 +63,34 @@ const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
   }, [testData]);
 
   const handleTestInfoChange = (field, value) => {
-    setTestInfo({ ...testInfo, [field]: value });
+    setTestInfo((prev) => {
+      const updated = { ...prev, [field]: value };
+
+      // Automatic endTime calculation
+      if (field === "startTime" || field === "duration") {
+        const startTime = updated.startTime;
+        const duration = updated.duration;
+
+        if (startTime && duration && duration !== "") {
+          const [hours, minutes] = startTime.split(":").map(Number);
+          const date = new Date();
+          date.setHours(hours, minutes, 0);
+          date.setMinutes(date.getMinutes() + parseInt(duration));
+
+          const endHours = date.getHours().toString().padStart(2, "0");
+          const endMinutes = date.getMinutes().toString().padStart(2, "0");
+          updated.endTime = `${endHours}:${endMinutes}`;
+        }
+      }
+      return updated;
+    });
   };
 
   const handleSubmit = async () => {
     console.log(testInfo);
+    // Remove metadata that shouldn't be in the body
+    const { _id, __v, ...updateData } = testInfo;
+
     try {
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/beta/test/update/test/superadmin/byid/${testData._id}`,
@@ -74,7 +100,7 @@ const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
             "Content-Type": "application/json",
             Authorization: "Bearer " + auth.token,
           },
-          body: JSON.stringify(testInfo),
+          body: JSON.stringify(updateData),
         }
       );
       if (!response.ok) {
@@ -82,6 +108,9 @@ const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
       }
       const responseData = await response.json();
       message.success("Test successfully updated");
+      if (onUpdate) {
+        onUpdate(responseData.test);
+      }
       setTimeout(() => {
         window.location.reload();
       }, 1000);
@@ -93,8 +122,18 @@ const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
 
   return (
     <div className="p-4">
+      <div className="flex items-center gap-2 mb-6">
+        <button
+          onClick={onBack}
+          className="p-2 hover:bg-gray-100 dark:hover:bg-navy-700 rounded-full transition-colors"
+        >
+          <AiOutlineArrowLeft className="h-5 w-5" />
+        </button>
+        <h2 className="text-xl font-bold text-navy-700 dark:text-white">Edit Test</h2>
+      </div>
+
       <div className="mb-4">
-        <strong>Exam Title:</strong>
+        <strong>Exam Name:</strong>
         <input
           type="text"
           placeholder="Enter Test Name"
@@ -105,7 +144,6 @@ const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
       </div>
       <div className="mb-4">
         <strong>Batch:</strong>
-
         <br />
         <Select
           style={{ width: "100%" }}
@@ -121,13 +159,16 @@ const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
       </div>
       <div className="mb-4">
         <strong>Category:</strong>
-        <input
-          type="text"
-          placeholder="e.g., NEET, Mains, Board"
-          className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
+        <Select
+          style={{ width: "100%" }}
+          placeholder="Select Category"
           value={testInfo.course}
-          onChange={(e) => handleTestInfoChange("course", e.target.value)}
-        />
+          onChange={(value) => handleTestInfoChange("course", value)}
+        >
+          <Select.Option value="Mechanics">Mechanics</Select.Option>
+          <Select.Option value="Robotics">Robotics</Select.Option>
+          <Select.Option value="CAD">CAD</Select.Option>
+        </Select>
       </div>
       <div className="mb-4">
         <strong>Subjects:</strong>
@@ -158,9 +199,21 @@ const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
           className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
           value={testInfo.score}
           onChange={(e) =>
-            handleTestInfoChange("score", parseInt(e.target.value))
+            handleTestInfoChange("score", e.target.value === "" ? "" : parseInt(e.target.value))
           }
         />
+      </div>
+      <div className="mb-4">
+        <strong>Difficulty:</strong>
+        <Select
+          style={{ width: "100%" }}
+          value={testInfo.difficulty}
+          onChange={(value) => handleTestInfoChange("difficulty", value)}
+        >
+          <Select.Option value="Easy">Easy</Select.Option>
+          <Select.Option value="Medium">Medium</Select.Option>
+          <Select.Option value="Hard">Hard</Select.Option>
+        </Select>
       </div>
       <div className="mb-4">
         <strong>Date:</strong>
@@ -169,6 +222,19 @@ const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
           className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
           value={testInfo.date}
           onChange={(e) => handleTestInfoChange("date", e.target.value)}
+        />
+      </div>
+      <div className="mb-4">
+        <strong>Duration (minutes):</strong>
+        <input
+          type="number"
+          min="1"
+          placeholder="Enter duration in minutes"
+          className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
+          value={testInfo.duration}
+          onChange={(e) =>
+            handleTestInfoChange("duration", e.target.value === "" ? "" : parseInt(e.target.value))
+          }
         />
       </div>
       <div className="mb-4">
@@ -186,12 +252,12 @@ const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
           type="time"
           className="block w-full rounded-lg border-gray-300 p-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-navy-700"
           value={testInfo.endTime}
-          onChange={(e) => handleTestInfoChange("endTime", e.target.value)}
+          readOnly
         />
+        <p className="text-[10px] text-gray-500 mt-1 italic">Calculated automatically based on duration</p>
       </div>
       <div className="mb-4">
         <strong>Question Paper ID:</strong>
-        <br />
         <br />
         <Select
           style={{ width: "100%" }}
@@ -207,16 +273,20 @@ const EditQuizForm = ({ onSubmit, onCancel, testData }) => {
             </Select.Option>
           ))}
         </Select>
-        <br />
-        <br />
       </div>
 
-      <div className="flex justify-between">
+      <div className="flex justify-end gap-3 mt-8">
         <button
-          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          className="rounded-lg bg-gray-100 px-6 py-2 text-gray-600 hover:bg-gray-200 transition-colors dark:bg-navy-700 dark:text-white"
+          onClick={onBack}
+        >
+          Cancel
+        </button>
+        <button
+          className="rounded-lg bg-blue-500 px-6 py-2 text-white hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/30"
           onClick={handleSubmit}
         >
-          Submit
+          Update Test
         </button>
       </div>
     </div>

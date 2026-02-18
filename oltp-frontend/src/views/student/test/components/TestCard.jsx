@@ -2,10 +2,11 @@ import { useNavigate } from "react-router-dom";
 import Card from "components/card";
 import { message } from "antd";
 
-const TestCard = ({ test }) => {
+const TestCard = ({ test, isActive }) => {
   const navigate = useNavigate();
 
   const handleStartExam = () => {
+    if (!isActive) return;
     // Request full screen for the professional exam experience
     const elem = document.documentElement;
     if (elem.requestFullscreen) {
@@ -63,12 +64,18 @@ const TestCard = ({ test }) => {
         </div>
       </div>
 
-      <button
-        onClick={handleStartExam}
-        className="w-full bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-200 transform hover:scale-[1.02] shadow-lg shadow-blue-200 dark:shadow-none"
-      >
-        Start Exam
-      </button>
+      {isActive ? (
+        <button
+          onClick={handleStartExam}
+          className="w-full bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-200 transform hover:scale-[1.02] shadow-lg shadow-blue-200 dark:shadow-none"
+        >
+          Start Exam
+        </button>
+      ) : (
+        <div className="w-full bg-gray-100 text-gray-400 font-bold py-3 rounded-xl text-center cursor-not-allowed border border-gray-200">
+          Exam Inactive
+        </div>
+      )}
     </Card>
   );
 };

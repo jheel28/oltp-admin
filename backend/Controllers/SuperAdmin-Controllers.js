@@ -68,7 +68,7 @@ const createSuperAdmin = async (req, res, next) => {
         role: createdSuperAdmin.role,
       },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -170,7 +170,7 @@ const login = async (req, res, next) => {
         role: existingSuperAdmin.role,
       },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -315,7 +315,7 @@ const updateSuperAdminById = async (req, res, next) => {
     token = jwt.sign(
       { userId: superAdmin.id, email: superAdmin.email, role: superAdmin.role },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
   } catch (err) {
     const error = new HttpError(
