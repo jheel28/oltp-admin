@@ -1,9 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
-import { AiOutlineFullscreen } from "react-icons/ai";
-import Card from "components/card";
 import { message } from "antd";
-import profile from "assets/img/profile/image1.png";
 import { useNavigate, useParams } from "react-router-dom";
 
 const TestingPlatformHome = () => {
@@ -12,9 +9,6 @@ const TestingPlatformHome = () => {
   const { id } = useParams();
   const handleStartTest = () => {
     if (accepted) {
-      // Start the test logic here
-      console.log("Test started!");
-      // Redirect to the test page
       navigate(`/student/testingscreen/${id}`);
     } else {
       message.warning("Please accept the guidelines to start the test.");
@@ -75,15 +69,6 @@ const TestingPlatformHome = () => {
       </div>
       <div className="mb-4 flex w-full justify-between px-4">
         <div className="flex items-center">
-          {/* <img
-            src={profile}
-            alt="User Image"
-            className="mr-2 h-12 w-12 rounded-full"
-          />
-          <div>
-            <p className="text-sm font-medium">Bhanu Prakash</p>
-            <p className="text-xs text-gray-500">JK Lakshmipat University</p>
-          </div> */}
         </div>
         <button
           onClick={handleStartTest}

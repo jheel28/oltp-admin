@@ -44,10 +44,10 @@ const StudentSidebar = ({ open, onClose }) => {
 
       <div className={`mx-[56px] mt-[50px] flex flex-col items-center`}>
         <img
-          src={student?.image ? `${process.env.REACT_APP_BACKEND_URL}/${student.image}` : ""} // Replace with the actual path to your image
+          src={student?.image ? `${process.env.REACT_APP_BACKEND_URL}/${student.image}` : ""} 
           alt="Image Description"
-          className="ml-4 rounded-full" // Use rounded-full class to make the image round
-          style={{ width: "80px", height: "80px" }} // Adjust width and height as needed
+          className="ml-4 rounded-full"
+          style={{ width: "80px", height: "80px" }}
         />
         <div className="ml-1 mt-1 flex flex-col items-center justify-center text-center font-poppins font-bold uppercase text-navy-700 dark:text-white">
           <span className="text-[20px] leading-tight">

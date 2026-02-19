@@ -4,7 +4,6 @@ import { HiX } from "react-icons/hi";
 import Links from "./components/Links";
 
 import routes from "routes";
-import avatar1 from "assets/img/avatars/avatar1.png";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "components/Auth-context";
 import { message } from "antd";

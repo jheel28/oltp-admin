@@ -15,14 +15,12 @@ const LandingPage = () => {
     const queryParams = new URLSearchParams(location.search);
     const role = queryParams.get("role");
     if (role) {
-      // Redirect to sign-in with the role preserved
       navigate(`/auth/sign-in?role=${role.toLowerCase()}`, { replace: true });
     }
   }, [location, navigate]);
 
   return (
     <div className="flex min-h-screen flex-col bg-white font-sans text-gray-900">
-      {/* Header/Navbar */}
       <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">

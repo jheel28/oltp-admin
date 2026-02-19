@@ -62,17 +62,14 @@ export default function Student(props) {
   return (
     <div className="flex h-full w-full">
       <StudentSidebar open={open} onClose={() => setOpen(false)} />
-      {/* Navbar & Main Content */}
       <div className="h-full w-full bg-lightPrimary dark:!bg-navy-900">
-        {/* Main Content */}
         <main
           className={`mx-[12px] h-full flex-none transition-all md:pr-2 xl:ml-[313px]`}
         >
-          {/* Routes */}
           <div className="h-full">
             <Navbar
               onOpenSidenav={() => setOpen(true)}
-              logoText={"Horizon UI Tailwind React"}
+              logoText={"The Correct Steps"}
               brandText={currentRoute}
               secondary={getActiveNavbar(routes)}
               {...rest}

@@ -2,17 +2,10 @@ import React from "react";
 import Dropdown from "components/dropdown";
 import { FiAlignJustify } from "react-icons/fi";
 import { Link } from "react-router-dom";
-import navbarimage from "assets/img/layout/Navbar.png";
-import { BsArrowBarUp } from "react-icons/bs";
 import { FiSearch } from "react-icons/fi";
 import { RiMoonFill, RiSunFill } from "react-icons/ri";
-import {
-  IoMdNotificationsOutline,
-  IoMdInformationCircleOutline,
-} from "react-icons/io";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "components/Auth-context";
-import avatar from "assets/img/avatars/avatar4.png";
 import { message } from "antd";
 
 const Navbar = (props) => {

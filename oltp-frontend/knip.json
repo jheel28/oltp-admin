@@ -1,0 +1,32 @@
+{
+    "$schema": "https://unpkg.com/knip@5/schema.json",
+    "entry": [
+        "src/index.js",
+        "src/index.jsx",
+        "src/App.jsx"
+    ],
+    "project": [
+        "src/**/*.{js,jsx}"
+    ],
+    "paths": {
+        "@/*": [
+            "./src/*"
+        ],
+        "*": [
+            "./src/*"
+        ]
+    },
+    "ignoreDependencies": [
+        "tailwindcss-rtl",
+        "postcss",
+        "autoprefixer",
+        "prettier-plugin-tailwindcss",
+        "@emotion/react",
+        "@emotion/styled",
+        "@chakra-ui/system",
+        "framer-motion",
+        "tailwindcss-rtl",
+        "postcss",
+        "autoprefixer"
+    ]
+}
