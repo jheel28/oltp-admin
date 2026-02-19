@@ -18,7 +18,6 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
 
   const handleSubmit = async () => {
     try {
-      // Split comma-separated strings into arrays for student IDs
       const processedData = {
         ...formData,
       };

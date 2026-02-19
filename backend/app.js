@@ -1,11 +1,10 @@
-// require("dotenv").config();
+require("dotenv").config();
 const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const cors = require("cors");
-const superAdminRoutes = require("./Routes/SuperAdmin-Routes");
 const adminRoutes = require("./Routes/Admin-Routes");
 const studentRoutes = require("./Routes/Student-Routes");
 const batchRoutes = require("./Routes/Batch-Routes");
@@ -26,7 +25,7 @@ app.use((req, res, next) => {
     "POST",
     "PATCH",
     "DELETE",
-    "OPTIONS"
+    "OPTIONS",
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -36,7 +35,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api/beta/superadmin", superAdminRoutes);
 app.use("/api/beta/admin", adminRoutes);
 app.use("/api/beta/student", studentRoutes);
 app.use("/api/beta/batch", batchRoutes);
@@ -78,4 +76,3 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
-

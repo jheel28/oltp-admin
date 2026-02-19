@@ -31,14 +31,14 @@ const createTest = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while fetching the data, please try again",
-      500
+      500,
     );
     return next(error);
   }
   if (existingTest) {
     const error = new HttpError(
       "The test already exists, please try again",
-      500
+      500,
     );
     return next(error);
   }
@@ -61,7 +61,7 @@ const createTest = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while creating the test, please try again",
-      500
+      500,
     );
     return next(error);
   }
@@ -74,7 +74,7 @@ const getAllTests = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while fetching the data, please try again",
-      500
+      500,
     );
     return next(error);
   }
@@ -88,7 +88,7 @@ const getTestByTestId = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while fetching the data, please try again",
-      500
+      500,
     );
     return next(error);
   }
@@ -102,7 +102,7 @@ const getTestById = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while fetching the data, please try again",
-      500
+      500,
     );
     return next(error);
   }
@@ -130,12 +130,10 @@ const updateTestById = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while fetching the data, please try again",
-      500
+      500,
     );
     return next(error);
   }
-  console.log("Update Test Body:", req.body);
-  console.log("Update Test ID:", id);
 
   test.batchName = batchName !== undefined ? batchName : test.batchName;
   test.score = score !== undefined ? score : test.score;
@@ -145,19 +143,19 @@ const updateTestById = async (req, res, next) => {
   test.date = date !== undefined ? date : test.date;
   test.startTime = startTime !== undefined ? startTime : test.startTime;
   test.endTime = endTime !== undefined ? endTime : test.endTime;
-  test.questionPaperId = questionPaperId !== undefined ? questionPaperId : test.questionPaperId;
+  test.questionPaperId =
+    questionPaperId !== undefined ? questionPaperId : test.questionPaperId;
   test.subjects = subjects !== undefined ? subjects : test.subjects;
   test.difficulty = difficulty !== undefined ? difficulty : test.difficulty;
   test.duration = duration !== undefined ? duration : test.duration;
 
   try {
     await test.save();
-    console.log("Test updated successfully");
   } catch (err) {
     console.error("Error saving test:", err);
     const error = new HttpError(
       "Something went wrong while updating the data, please try again",
-      500
+      500,
     );
     return next(error);
   }
@@ -171,7 +169,7 @@ const deleteTestById = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while fetching the data, please try again",
-      500
+      500,
     );
     return next(error);
   }
@@ -184,7 +182,7 @@ const deleteTestById = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while deleting the test, please try again",
-      500
+      500,
     );
     return next(error);
   }

@@ -80,7 +80,7 @@ const AdminRegister = () => {
       if (response.ok) {
         message.success("Registration successful! Please login.");
         setTimeout(() => {
-          navigate("/auth/sign-in");
+          navigate("/auth/sign-in?role=admin");
         }, 1500);
       } else {
         message.error(data.message || "Registration failed. Please try again.");
@@ -294,7 +294,7 @@ const AdminRegister = () => {
               Already have an account?
             </span>
             <a
-              href="/auth/sign-in"
+              href="/auth/sign-in?role=admin"
               className="ml-1 text-sm font-medium text-brand-500 hover:text-brand-600 dark:text-white"
             >
               Sign In

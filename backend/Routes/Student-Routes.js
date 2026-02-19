@@ -8,6 +8,7 @@ const checkAuth = require("../Middleware/check-auth");
 router.get("/get/all/students", studentControllers.getAllStudents);
 router.get("/get/student/byid/:id", studentControllers.getStudentById);
 router.post("/login", studentControllers.login);
+
 router.post(
   "/signup",
   imageUpload.single("image"),
@@ -25,8 +26,9 @@ router.post(
     check("state").isLength({ min: 2, max: 255 }),
     check("country").isLength({ min: 2, max: 255 }),
   ],
-  studentControllers.createStudent
+  studentControllers.createStudent,
 );
+
 router.post(
   "/create/student",
   imageUpload.single("image"),
@@ -45,67 +47,40 @@ router.post(
     check("state").isLength({ min: 2, max: 255 }),
     check("country").isLength({ min: 2, max: 255 }),
   ],
-  studentControllers.createStudent
+  studentControllers.createStudent,
 );
+
 router.patch(
   "/update/student/byid/:id",
   imageUpload.single("image"),
   checkAuth("Admin"),
-  studentControllers.updateStudentById
+  studentControllers.updateStudentById,
 );
+
 router.delete(
   "/delete/student/byid/:id",
   checkAuth("Admin"),
-  studentControllers.deleteStudentById
+  studentControllers.deleteStudentById,
 );
 
-router.post(
-  "/create/student/superadmin",
-  imageUpload.single("image"),
-  checkAuth("SuperAdmin"),
-  [
-    check("firstName").isLength({ min: 1, max: 255 }),
-    check("lastName").isLength({ min: 1, max: 255 }),
-    check("phoneNumber").isNumeric().isLength({ min: 1, max: 10 }),
-    check("alternateNumber").isNumeric().isLength({ min: 1, max: 10 }),
-    check("email").isEmail(),
-    check("password").isLength({ min: 6 }),
-    check("studentId").isLength({ min: 1, max: 255 }),
-    check("admissionDate").isLength({ min: 1, max: 255 }),
-    check("address").isLength({ min: 2, max: 255 }),
-    check("pincode").isNumeric().isLength({ min: 6, max: 6 }),
-    check("state").isLength({ min: 2, max: 255 }),
-    check("country").isLength({ min: 2, max: 255 }),
-  ],
-  studentControllers.createStudent
-);
-router.patch(
-  "/update/student/superadmin/byid/:id",
-  imageUpload.single("image"),
-  checkAuth("SuperAdmin"),
-  studentControllers.updateStudentById
-);
-router.delete(
-  "/delete/student/superadmin/byid/:id",
-  checkAuth("SuperAdmin"),
-  studentControllers.deleteStudentById
-);
 router.patch(
   "/update/student/student/byid/:id",
   imageUpload.single("image"),
   checkAuth("Student"),
-  studentControllers.updateStudentById
+  studentControllers.updateStudentById,
 );
+
 router.patch(
   "/update/image/byid/:id",
   imageUpload.single("image"),
   checkAuth("Student"),
-  studentControllers.updateImageById
+  studentControllers.updateImageById,
 );
+
 router.patch(
   "/update/password/byemail/:email",
   checkAuth("Student"),
-  studentControllers.forgotPassword
+  studentControllers.forgotPassword,
 );
 
 module.exports = router;

@@ -7,17 +7,18 @@ const checkAuth = require("../Middleware/check-auth");
 router.get("/get/all/scores", scoreControllers.getAllScore);
 router.get(
   "/get/scores/bystudentId/:studentId",
-  scoreControllers.getScoreByStudentId
+  scoreControllers.getScoreByStudentId,
 );
 router.get(
   "/get/attempted/tests/bystudentId/:studentId",
-  scoreControllers.getAttemptedTestsByStudentId
+  scoreControllers.getAttemptedTestsByStudentId,
 );
 router.get(
   "/get/attempted/tests/bystudentIdandtestId/:studentId/:testId",
-  scoreControllers.getScoreByTestIdAndStudentId
+  scoreControllers.getScoreByTestIdAndStudentId,
 );
 router.get("/get/scores/bytestId/:testId", scoreControllers.getScoreByTestId);
+
 router.post(
   "/create/score",
   checkAuth("Student"),
@@ -33,19 +34,15 @@ router.post(
     check("questions.*.correctAnswer")
       .notEmpty()
       .withMessage("Correct answer is required"),
-    check("questions.*.chosenAnswer").optional(), // Chosen answer is optional
+    check("questions.*.chosenAnswer").optional(),
   ],
-  scoreControllers.createScore
+  scoreControllers.createScore,
 );
 
 router.delete(
-  "/delete/score/superadmin/bytestId/:testId",
-  checkAuth("SuperAdmin"),
-  scoreControllers.deleteScoreByTestId
-);
-router.delete(
   "/delete/score/bytestId/:testId",
   checkAuth("Admin"),
-  scoreControllers.deleteScoreByTestId
+  scoreControllers.deleteScoreByTestId,
 );
+
 module.exports = router;

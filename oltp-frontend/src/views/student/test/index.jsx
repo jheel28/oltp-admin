@@ -1,9 +1,3 @@
-import Banner from "./components/Banner";
-
-import { Link, Navigate } from "react-router-dom";
-// import tableDataTopCreators from "views/admin/batch/variables/tableDataTopCreators.json";
-// import { tableColumnsTopCreators } from "views/admin/batch/variables/tableColumnsTopCreators";
-
 import TopStudentsTable from "./components/TableTopStudents";
 
 import HistoryCard from "./components/HistoryCard";
