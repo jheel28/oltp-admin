@@ -5,6 +5,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 
+const JWT_EXPIRY = process.env.JWT_EXPIRY || "7d";
+
 const createAdmin = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -13,20 +15,14 @@ const createAdmin = async (req, res, next) => {
       errors: errors.array(),
     });
   }
-  const {
-    firstName,
-    lastName,
-    email,
-    password,
-    mobile,
-  } = req.body;
+  const { firstName, lastName, email, password, mobile } = req.body;
   let existingAdmin;
   try {
     existingAdmin = await Admin.findOne({ email: email });
   } catch (err) {
     const error = new HttpError(
       "Something went wrong fetching the data, please try again",
-      500
+      500,
     );
     return next(error);
   }
@@ -40,16 +36,14 @@ const createAdmin = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while encrypting the password, please try again",
-      500
+      500,
     );
     return next(error);
   }
-  // Checking if files are uploaded
   if (!req.files || !req.files["image"] || req.files["image"].length === 0) {
     const error = new HttpError("No image was uploaded.", 400);
     return next(error);
   }
-
   const image = req.files["image"][0].path;
   const createdAdmin = new Admin({
     firstName,
@@ -65,7 +59,7 @@ const createAdmin = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while creating admin, please try again",
-      500
+      500,
     );
     return next(error);
   }
@@ -78,12 +72,12 @@ const createAdmin = async (req, res, next) => {
         role: createdAdmin.role,
       },
       process.env.JWT_KEY,
-      { expiresIn: "7d" }
+      { expiresIn: JWT_EXPIRY },
     );
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while creating the JWT token, please try again",
-      500
+      500,
     );
     return next(error);
   }
@@ -94,6 +88,7 @@ const createAdmin = async (req, res, next) => {
     token: token,
   });
 };
+
 const getAllAdmins = async (req, res, next) => {
   let admins;
   try {
@@ -101,12 +96,13 @@ const getAllAdmins = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while fetching the data, please try again",
-      500
+      500,
     );
     return next(error);
   }
   res.json({ admins: admins });
 };
+
 const getAdminById = async (req, res, next) => {
   let admin;
   const id = req.params.id;
@@ -115,12 +111,13 @@ const getAdminById = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while fetching the data, please try again",
-      500
+      500,
     );
     return next(error);
   }
   res.json({ admin: admin });
 };
+
 const login = async (req, res, next) => {
   const { email, password } = req.body;
   let existingAdmin;
@@ -129,7 +126,7 @@ const login = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while verification of the admin, please try again",
-      500
+      500,
     );
     return next(error);
   }
@@ -143,12 +140,12 @@ const login = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while verification of the password, please try again",
-      500
+      500,
     );
     return next(error);
   }
   if (!isValidPassword) {
-    const error = new HttpError("Invalid crudentials, please try again", 401);
+    const error = new HttpError("Invalid credentials, please try again", 401);
     return next(error);
   }
   let token;
@@ -160,12 +157,12 @@ const login = async (req, res, next) => {
         role: existingAdmin.role,
       },
       process.env.JWT_KEY,
-      { expiresIn: "7d" }
+      { expiresIn: JWT_EXPIRY },
     );
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while fetching the JWT token, please try again",
-      500
+      500,
     );
     return next(error);
   }
@@ -176,94 +173,22 @@ const login = async (req, res, next) => {
     token: token,
   });
 };
-const forgotPassword = async (req, res, next) => {
-  const email = req.params.email;
-
-  const { password, newPassword, confirmPassword } = req.body;
-
-  let existingAdmin;
-  try {
-    existingAdmin = await Admin.findOne({ email: email });
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while verifying the admin, please try again",
-      500
-    );
-    return next(error);
-  }
-
-  if (!existingAdmin) {
-    const error = new HttpError("Invalid email, please try again", 401);
-    return next(error);
-  }
-
-  let isValidPassword = false;
-  try {
-    isValidPassword = await bcrypt.compare(password, existingAdmin.password);
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while verifying the password, please try again",
-      500
-    );
-    return next(error);
-  }
-
-  if (!isValidPassword) {
-    const error = new HttpError("Invalid credentials, please try again", 401);
-    return next(error);
-  }
-  let hashedPassword;
-  try {
-    hashedPassword = await bcrypt.hash(newPassword, 12);
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while encrypting the password, please try again",
-      500
-    );
-    return next(error);
-  }
-
-  // Update the password
-  existingAdmin.password = hashedPassword;
-
-  try {
-    // Save the updated admin document
-    await existingAdmin.save();
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while updating the password, please try again",
-      500
-    );
-    return next(error);
-  }
-
-  res.status(200).json({
-    message: "Password updated successfully",
-  });
-};
 
 const updateAdminById = async (req, res, next) => {
   const errors = validationResult(req);
-
   if (!errors.isEmpty()) {
     const error = new HttpError("Invalid inputs passed, please try again", 422);
     return next(error);
   }
   const id = req.params.id;
-
-  const {
-    firstName,
-    lastName,
-    password,
-    mobile,
-  } = req.body;
+  const { firstName, lastName, password, mobile } = req.body;
   let admin;
   try {
     admin = await Admin.findOne({ _id: id });
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while fetching the data, please try again",
-      500
+      500,
     );
     return next(error);
   }
@@ -282,20 +207,14 @@ const updateAdminById = async (req, res, next) => {
     } catch (err) {
       const error = new HttpError(
         "Something went wrong while encrypting the password, please try again",
-        500
+        500,
       );
       return next(error);
     }
   }
-
   let image = null;
-
   if (req.files && req.files["image"]) {
     image = req.files["image"][0].path;
-  }
-
-  if (image) {
-    admin.image = image;
   }
   admin.firstName = firstName ? firstName : admin.firstName;
   admin.lastName = lastName ? lastName : admin.lastName;
@@ -308,20 +227,21 @@ const updateAdminById = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while the updation of admin, please try again",
-      500
+      500,
     );
     return next(error);
   }
+  let token;
   try {
     token = jwt.sign(
       { userId: admin.id, email: admin.email, role: admin.role },
       process.env.JWT_KEY,
-      { expiresIn: "7d" }
+      { expiresIn: JWT_EXPIRY },
     );
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while fetching the JWT token, please try again",
-      500
+      500,
     );
     return next(error);
   }
@@ -332,6 +252,7 @@ const updateAdminById = async (req, res, next) => {
     token: token,
   });
 };
+
 const updateImageById = async (req, res, next) => {
   const id = req.params.id;
   let admin;
@@ -347,13 +268,14 @@ const updateImageById = async (req, res, next) => {
   }
   admin.image = req.file.path;
   try {
-    admin.save();
+    await admin.save();
   } catch (err) {
     const error = new HttpError("Error occured while saving the admin");
     return next(error);
   }
   res.status(201).json({ message: "Admin updated successfully" });
 };
+
 const deleteAdmin = async (req, res, next) => {
   const id = req.params.id;
   let admin;
@@ -372,16 +294,16 @@ const deleteAdmin = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while deleting the admin, please try again",
-      500
+      500,
     );
     return next(error);
   }
 };
+
 exports.createAdmin = createAdmin;
 exports.getAdminById = getAdminById;
 exports.getAllAdmins = getAllAdmins;
 exports.login = login;
 exports.updateAdminById = updateAdminById;
 exports.updateImageById = updateImageById;
-exports.forgotPassword = forgotPassword;
 exports.deleteAdmin = deleteAdmin;

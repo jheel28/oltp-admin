@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import { HiX } from "react-icons/hi";
-import Links from "./components/Links";
+import {Links} from "./components/Links";
 
 import routes from "studentRoutes";
 import { useContext, useEffect, useState } from "react";

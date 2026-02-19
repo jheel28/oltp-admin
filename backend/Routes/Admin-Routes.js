@@ -4,6 +4,7 @@ const router = express.Router();
 const adminControllers = require("../Controllers/Admin-Controllers");
 const imageUpload = require("../Middleware/image-upload");
 const checkAuth = require("../Middleware/check-auth");
+const { loginRateLimiter } = require("../Middleware/rate-limiter");
 
 router.get("/get/all/admins", adminControllers.getAllAdmins);
 router.get("/get/admin/byid/:id", adminControllers.getAdminById);
@@ -18,35 +19,29 @@ router.post(
     check("email").isEmail(),
     check("password").isLength({ min: 6 }),
   ],
-  adminControllers.createAdmin
+  adminControllers.createAdmin,
 );
 
-router.post("/login", adminControllers.login);
+router.post("/login", loginRateLimiter, adminControllers.login);
 
 router.patch(
   "/update/admin/byid/:id",
   checkAuth("Admin"),
   imageUpload.fields([{ name: "image", maxCount: 1 }]),
-  adminControllers.updateAdminById
-);
-
-router.patch(
-  "/update/password/byemail/:email",
-  checkAuth("Admin"),
-  adminControllers.forgotPassword
+  adminControllers.updateAdminById,
 );
 
 router.patch(
   "/update/image/byid/:id",
   checkAuth("Admin"),
   imageUpload.single("image"),
-  adminControllers.updateImageById
+  adminControllers.updateImageById,
 );
 
 router.delete(
   "/delete/admin/byid/:id",
   checkAuth("Admin"),
-  adminControllers.deleteAdmin
+  adminControllers.deleteAdmin,
 );
 
 module.exports = router;

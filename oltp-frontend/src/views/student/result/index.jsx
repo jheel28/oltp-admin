@@ -1,5 +1,4 @@
 import TestsTable from "./components/TestTable";
-import UniversityTable from "./components/UniversityTable";
 
 const Tables = () => {
   return (

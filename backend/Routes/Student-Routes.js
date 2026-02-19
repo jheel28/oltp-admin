@@ -4,10 +4,11 @@ const router = express.Router();
 const studentControllers = require("../Controllers/Student-Controllers");
 const imageUpload = require("../Middleware/image-upload");
 const checkAuth = require("../Middleware/check-auth");
+const { loginRateLimiter } = require("../Middleware/rate-limiter");
 
 router.get("/get/all/students", studentControllers.getAllStudents);
 router.get("/get/student/byid/:id", studentControllers.getStudentById);
-router.post("/login", studentControllers.login);
+router.post("/login", loginRateLimiter, studentControllers.login);
 
 router.post(
   "/signup",
@@ -75,12 +76,6 @@ router.patch(
   imageUpload.single("image"),
   checkAuth("Student"),
   studentControllers.updateImageById,
-);
-
-router.patch(
-  "/update/password/byemail/:email",
-  checkAuth("Student"),
-  studentControllers.forgotPassword,
 );
 
 module.exports = router;

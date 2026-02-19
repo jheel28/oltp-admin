@@ -1,11 +1,6 @@
-import TopStudentsTable from "./components/TableTopStudents";
-
-import HistoryCard from "./components/HistoryCard";
 import TestCard from "./components/TestCard";
-import BetaLogo from "./variables/bata_logo.png";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "components/Auth-context";
-import TestingPlatformHome from "./TestingPlatform/testingPlatformHome";
 import TopCreatorTable from "../marketplace/components/TableTopCreators";
 import { tableColumnsTopCreators } from "../marketplace/variables/tableColumnsTopCreators";
 import tableDataTopCreators from "../marketplace/variables/tableDataTopCreators.json";
@@ -68,7 +63,8 @@ const Marketplace = () => {
 
     // Use case-insensitive comparison and trim for safety
     const isSameBatch =
-      student.batch?.trim().toLowerCase() === test.batchName?.trim().toLowerCase();
+      student.batch?.trim().toLowerCase() ===
+      test.batchName?.trim().toLowerCase();
 
     // Construct end time Date object
     const endTime = new Date(`${test.date} ${test.endTime}`);
@@ -94,17 +90,24 @@ const Marketplace = () => {
         </div>
 
         {/* NFTs trending card */}
-        <div className="flex flex-wrap gap-4 mt-8">
+        <div className="mt-8 flex flex-wrap gap-4">
           {filteredTests.length > 0 ? (
             filteredTests.map((test) => (
-              <div key={test.testId} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.33%-1.33rem)]">
+              <div
+                key={test.testId}
+                className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.33%-1.33rem)]"
+              >
                 <TestCard test={test} />
               </div>
             ))
           ) : (
-            <div className="w-full text-center py-20 bg-gray-50 rounded-2xl dark:bg-navy-800">
-              <p className="text-gray-500 font-bold">No upcoming tests for your batch.</p>
-              <p className="text-gray-400 text-sm mt-2">Check back later or contact your mentor.</p>
+            <div className="w-full rounded-2xl bg-gray-50 py-20 text-center dark:bg-navy-800">
+              <p className="font-bold text-gray-500">
+                No upcoming tests for your batch.
+              </p>
+              <p className="mt-2 text-sm text-gray-400">
+                Check back later or contact your mentor.
+              </p>
             </div>
           )}
         </div>
