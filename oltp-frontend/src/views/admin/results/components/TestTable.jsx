@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { FaTrashAlt } from "react-icons/fa";
 import Card from "components/card";
 import {
   useGlobalFilter,
@@ -7,26 +6,25 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
-import StudentResultsTable from "./StudentResultTable"; // Import the StudentResultsTable component
+import StudentResultsTable from "./StudentResultTable";
 import { AuthContext } from "components/Auth-context";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 
 const TestsTable = () => {
-  const [selectedStudent, setSelectedStudent] = useState(null); // Track the selected student for viewing results
-  const [selectedTest, setSelectedTest] = useState(null); // Track the selected student for viewing results
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedTest, setSelectedTest] = useState(null);
   const [showResultPage, setShowResultPage] = useState(false);
   const [scores, setScores] = useState([]);
   const [tests, setTests] = useState([]);
   const [students, setStudents] = useState([]);
-  const [selectedTestId, setSelectedTestId] = useState(null); // Track the selected testId
+  const [selectedTestId, setSelectedTestId] = useState(null);
   const navigate = useNavigate();
   const auth = useContext(AuthContext);
 
   useEffect(() => {
     const fetchScores = async () => {
       try {
-        // Fetch the student information
         const studentsResponse = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/all/students`
         );
@@ -36,7 +34,6 @@ const TestsTable = () => {
         const studentsData = await studentsResponse.json();
         setStudents(studentsData.students);
 
-        // Fetch the scores for the authenticated user (assuming it's the same as the student)
         const scoreResponse = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/all/scores`
         );
@@ -45,14 +42,12 @@ const TestsTable = () => {
         }
         const scoreData = await scoreResponse.json();
 
-        // Filter scores based on studentId
         const filteredScores = scoreData.scores.filter((score) =>
           studentsData.students.find(
             (student) => student.studentId === score.studentId
           )
         );
 
-        // Append student details to each score
         const scoresWithStudentDetails = filteredScores.map((score) => {
           const student = studentsData.students.find(
             (student) => student.studentId === score.studentId

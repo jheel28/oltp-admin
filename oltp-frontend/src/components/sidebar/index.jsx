@@ -46,10 +46,10 @@ const Sidebar = ({ open, onClose }) => {
       <div className={`mx-[56px] mt-[50px] flex items-center`}>
         {/* Image */}
         <img
-          src={`${process.env.REACT_APP_BACKEND_URL}/${admin.image}`} // Replace with the actual path to your image
+          src={`${process.env.REACT_APP_BACKEND_URL}/${admin.image}`}
           alt="Image Description"
-          className="ml-4 rounded-full" // Use rounded-full class to make the image round
-          style={{ width: "80px", height: "80px" }} // Adjust width and height as needed
+          className="ml-4 rounded-full"
+          style={{ width: "80px", height: "80px" }}
         />
       </div>
       <div className={`mx-[56px] mt-[10px] flex items-center`}>

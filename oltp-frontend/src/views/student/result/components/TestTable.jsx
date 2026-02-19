@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { FaTrashAlt } from "react-icons/fa";
 import Card from "components/card";
 import {
   useGlobalFilter,
@@ -7,14 +6,14 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
-import StudentResultsTable from "./StudentResultTable"; // Import the StudentResultsTable component
+import StudentResultsTable from "./StudentResultTable";
 import { AuthContext } from "components/Auth-context";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 
 const TestsTable = () => {
-  const [selectedStudent, setSelectedStudent] = useState(null); // Track the selected student for viewing results
-  const [selectedTest, setSelectedTest] = useState(null); // Track the selected student for viewing results
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedTest, setSelectedTest] = useState(null); 
   const [showResultPage, setShowResultPage] = useState(false);
   const [scores, setScores] = useState([]);
   const [tests, setTests] = useState([]);

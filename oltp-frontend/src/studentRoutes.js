@@ -1,26 +1,10 @@
 import React, { useContext } from "react";
 
-// Student Imports
 import StudentMainDashboard from "views/student/default";
 import UpcomingTests from "views/student/test";
-
-// Auth Imports
-import SignIn from "views/auth/SignIn";
-import { IoDocumentsSharp ,IoDocuments} from "react-icons/io5";
+import { IoDocumentsSharp } from "react-icons/io5";
 import ProfileOverview from "views/student/profile";
-
-
-// Icon Imports
-import {
-  MdHome,
-  MdOutlineShoppingCart,
-  MdBarChart,
-  MdPerson,
-  MdLock,
-  MdSettings,
-  MdScore,
-  MdAssessment,
-} from "react-icons/md";
+import { MdHome, MdPerson, MdSettings, MdAssessment } from "react-icons/md";
 import { AuthContext } from "components/Auth-context";
 import { Button, Card, message } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";

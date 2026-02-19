@@ -14,23 +14,18 @@ import { IoDocumentsSharp, IoDocuments } from "react-icons/io5";
 import {
   MdGroups,
   MdHome,
-  MdLock,
   MdManageAccounts,
   MdPerson,
   MdSettings,
 } from "react-icons/md";
-import SignIn from "views/auth/SignIn";
 import { AuthContext } from "components/Auth-context";
 import { Button, Card, message } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
 
 import Batch from "views/admin/batches";
 import { useNavigate } from "react-router-dom";
-import TestingPlatformHome from "views/student/test/TestingPlatform/testingPlatformHome";
 import { TbReportAnalytics } from "react-icons/tb";
 
-import StudentRegister from "views/auth/StudentRegister";
-import AdminRegister from "views/auth/AdminRegister";
 const LogoutCard = ({ onConfirm }) => {
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
@@ -119,41 +114,6 @@ const routes = [
     icon: <MdSettings className="h-6 w-6" />,
     component: <AdminSettings />,
   },
-  {
-    name: "Testing Platform",
-    layout: "/TestingPlatformHome",
-    path: "testingPlatform",
-    icon: <MdHome className="h-6 w-6" />,
-    component: <TestingPlatformHome />,
-  },
-  {
-    name: "Sign In",
-    layout: "/auth",
-    path: "sign-in",
-    icon: <MdLock className="h-6 w-6" />,
-    component: <SignIn />,
-  },
-  {
-    name: "Admin Sign In",
-    layout: "/auth",
-    path: "admin-login",
-    icon: <MdLock className="h-6 w-6" />,
-    component: <SignIn />,
-  },
-
-  {
-    name: "Student Register",
-    layout: "/auth",
-    path: "register/student",
-    component: <StudentRegister />,
-  },
-  {
-    name: "Admin Register",
-    layout: "/auth",
-    path: "register/admin",
-    component: <AdminRegister />,
-  },
-
   {
     name: "Logout",
     path: "logout",

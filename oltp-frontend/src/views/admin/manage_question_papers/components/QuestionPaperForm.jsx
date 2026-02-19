@@ -12,8 +12,8 @@ const QuestionPaperForm = ({ onCancel }) => {
     score: "",
     noOfQuestions: 0,
     category: "",
-    difficulty: "Medium", // Default
-    subjects: "", // New field
+    difficulty: "Medium",
+    subjects: "",
   });
   const [questions, setQuestions] = useState([
     {
@@ -130,7 +130,7 @@ const QuestionPaperForm = ({ onCancel }) => {
     newShowOptionImageInputs.splice(
       questionIndex * questions[questionIndex].options.length + optionIndex,
       1
-    ); // Remove entry for deleted option
+    );
     setShowOptionImageInputs(newShowOptionImageInputs);
     setQuestions(newQuestions);
   };
@@ -346,14 +346,13 @@ const QuestionPaperForm = ({ onCancel }) => {
                 onChange={(e) => {
                   const newQs = [...questions];
                   newQs[questionIndex].type = e.target.value;
-                  // If switching to Numerical, we might want to reset correctOption
                   if (e.target.value === "Numerical") {
                     newQs[questionIndex].correctOption = 0;
                   }
                   setQuestions(newQs);
                 }}
               >
-                <option value="MCQ">Multiple Choice (MCQ)</option>
+                <option value="MCQ">Multiple Choice</option>
                 <option value="Numerical">Numerical</option>
               </select>
             </div>

@@ -20,9 +20,7 @@ export function Links(props) {
       if (
         route.layout === "/admin" ||
         route.layout === "/auth" ||
-        route.layout === "/student" ||
-        route.layout === "/superadmin" ||
-        route.layout === "/rtl"
+        route.layout === "/student"
       ) {
         return (
           <Link key={index} to={route.layout + "/" + route.path}>

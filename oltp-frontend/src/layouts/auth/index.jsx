@@ -1,6 +1,6 @@
 import Footer from "components/footer/Footer";
 import logo from "assets/img/Logo/correct.png";
-import { Link, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import routes from "routes.js";
 import FixedPlugin from "components/fixedPlugin/FixedPlugin";
 
