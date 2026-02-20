@@ -5,19 +5,25 @@ import { message } from "antd";
 const TestCard = ({ test, isActive }) => {
   const navigate = useNavigate();
 
-  const handleStartExam = () => {
-    if (!isActive) return;
-    // Request full screen for the professional exam experience
-    const elem = document.documentElement;
-    if (elem.requestFullscreen) {
-      elem.requestFullscreen().catch((err) => {
-        message.error("Error attempting to enable full-screen: " + err.message);
-      });
-    }
+const handleStartExam = async () => {
+  if (!isActive) return;
 
-    // Navigate to the test
-    navigate(`/student/test/${test._id}`);
-  };
+  const elem = document.documentElement;
+
+  try {
+    if (!document.fullscreenElement) {
+      await elem.requestFullscreen();
+    }
+  } catch (err) {
+    message.error({
+      content: "Fullscreen permission denied. Please allow fullscreen for the exam.",
+      duration: 3,
+      key: "fullscreen-error"
+    });
+  }
+
+  navigate(`/student/test/${test._id}`);
+};
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {

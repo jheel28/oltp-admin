@@ -53,7 +53,7 @@ const TestsTable = () => {
         const testData = await testResponse.json();
         setTests(testData.tests);
       } catch (err) {
-        message.error("Error fetching scores and tests:", err.message);
+        message.error("Error fetching scores and tests: " + err.message);
       }
     };
     fetchScores();

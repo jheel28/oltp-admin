@@ -1,375 +1,299 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
-import { FaTrashAlt, FaEdit } from "react-icons/fa";
-import {
-  useGlobalFilter,
-  usePagination,
-  useSortBy,
-  useTable,
-} from "react-table";
-import { Modal, message } from "antd";
+import React, { useContext, useEffect, useMemo, useState, useCallback } from "react";
+import { FaTrashAlt, FaDownload } from "react-icons/fa";
+import { MdSearch } from "react-icons/md";
 import Card from "components/card";
-import QuizForm from "./QuizForm";
+import AddTestForm from "./QuizForm";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
-import EditQuizForm from "./EditQuizForm";
+import { Modal, message } from "antd";
 import { AuthContext } from "components/Auth-context";
 
-const TestTable = (props) => {
+const STATUS_COLORS = {
+  active: "bg-green-100 text-green-700",
+  inactive: "bg-gray-100 text-gray-500",
+  upcoming: "bg-blue-100 text-blue-700",
+  expired: "bg-red-100 text-red-600",
+};
+
+const getTestStatus = (test) => {
+  const now = new Date();
+  if (!test.isActive) return "inactive";
+  if (test.startDate && new Date(test.startDate) > now) return "upcoming";
+  if (test.endDate && new Date(test.endDate) < now) return "expired";
+  return "active";
+};
+
+const TestTable = () => {
   const auth = useContext(AuthContext);
-  const { tableData } = props;
   const [tests, setTests] = useState([]);
-  const [filterCategory, setFilterCategory] = useState("All");
-  const [isQuizFormVisible, setIsQuizFormVisible] = useState(false);
-  const [selectedTest, setSelectedTest] = useState(null);
-  const [isEditTestFormVisible, setIsEditTestFormVisible] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [batches, setBatches] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [catFilter, setCatFilter] = useState("All");
+  const [batchFilter, setBatchFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
 
-  useEffect(() => {
-    const fetchTests = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/all/tests`
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setTests(data.tests);
-      } catch (err) {
-        message.error("Error fetching tests:", err.message);
-      }
-    };
-    fetchTests();
+  const fetchAll = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [tRes, cRes, bRes] = await Promise.all([
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/all/tests`),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/category/get/all`),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/get/all/batches`),
+      ]);
+      const tData = await tRes.json();
+      const cData = await cRes.json();
+      const bData = await bRes.json();
+      setTests(tData.tests || []);
+      setCategories(cData.categories || []);
+      setBatches(bData.batches || []);
+    } catch {
+      message.error("Failed to load data");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const data = useMemo(() => {
-    if (!tests) return [];
-    if (filterCategory === "All") return tests;
-    return tests.filter((test) => test.course === filterCategory);
-  }, [tests, filterCategory]);
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
-  const categories = useMemo(() => {
-    if (!tests) return ["All"];
-    const uniqueCategories = [...new Set(tests.map((test) => test.course))];
-    return ["All", ...uniqueCategories];
-  }, [tests]);
+  const filtered = useMemo(() => {
+    let list = tests;
+    if (catFilter !== "All") list = list.filter((t) => t.category === catFilter);
+    if (batchFilter !== "All") list = list.filter((t) => t.batch === batchFilter || (Array.isArray(t.batches) && t.batches.includes(batchFilter)));
+    if (statusFilter !== "All") list = list.filter((t) => getTestStatus(t) === statusFilter);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter((t) => t.testName?.toLowerCase().includes(q) || t.subject?.toLowerCase().includes(q));
+    }
+    return list;
+  }, [tests, search, catFilter, batchFilter, statusFilter]);
 
-  const handleEditTestClick = () => {
-    setIsEditTestFormVisible(true);
+  const paginated = useMemo(() => filtered.slice(page * pageSize, (page + 1) * pageSize), [filtered, page, pageSize]);
+  const totalPages = Math.ceil(filtered.length / pageSize);
+
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   };
-
-  const handleCancelForm = () => {
-    setIsEditTestFormVisible(false);
-    setIsQuizFormVisible(false); // Also close QuizForm if open
-  };
-
-  const handleFormSubmit = (formData) => {
-    console.log("General Form submitted:", formData);
-    setIsEditTestFormVisible(false);
-    setIsQuizFormVisible(false); // Close QuizForm after submission
-  };
-
-  const handleEditQuizClick = (test) => {
-    setSelectedTest(test);
-    setIsEditTestFormVisible(true);
-  };
-
-  const handleDelete = (id) => {
-    Modal.confirm({
-      title: "Are you sure you want to delete this test?",
-      icon: <ExclamationCircleOutlined />,
-      okText: "Yes",
-      okType: "danger",
-      cancelText: "No",
-      onOk() {
-        deleteTest(id);
-      },
-      onCancel() {},
-    });
+  const toggleAll = () => {
+    setSelectedIds(selectedIds.size === paginated.length ? new Set() : new Set(paginated.map((t) => t._id)));
   };
 
   const deleteTest = async (id) => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/test/delete/test/byid/${id}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: "Bearer " + auth.token },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      setTests(tests.filter((test) => test.id !== id));
-      message.success(`Test with ID ${id} deleted successfully.`);
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    } catch (error) {
-      message.error("Error deleting test:", error.message);
-    }
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/test/delete/test/byid/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: "Bearer " + auth.token },
+      });
+      if (!res.ok) throw new Error();
+      message.success("Test deleted");
+      setSelectedIds((prev) => { const n = new Set(prev); n.delete(id); return n; });
+      fetchAll();
+    } catch { message.error("Failed to delete test"); }
   };
 
-  const columns = useMemo(
-    () => [
-      {
-        Header: "Test ID",
-        accessor: "testId",
-        Cell: ({ value }) => (
-          <p className="text-sm font-bold text-navy-700 dark:text-white">
-            {value}
-          </p>
-        ),
-      },
-      {
-        Header: "Exam Title",
-        accessor: "examName",
-        Cell: ({ value }) => (
-          <p className="text-sm font-bold text-navy-700 dark:text-white">
-            {value}
-          </p>
-        ),
-      },
-      {
-        Header: "Category",
-        accessor: "course",
-        Cell: ({ value }) => (
-          <p className="text-sm font-bold text-navy-700 dark:text-white">
-            {value}
-          </p>
-        ),
-      },
-      {
-        Header: "Subjects",
-        accessor: "subjects",
-        Cell: ({ value }) => (
-          <p className="text-sm font-bold text-navy-700 dark:text-white">
-            {value}
-          </p>
-        ),
-      },
-      {
-        Header: "Batch",
-        accessor: "batchName",
-        Cell: ({ value }) => (
-          <p className="text-sm font-bold text-navy-700 dark:text-white">
-            {value}
-          </p>
-        ),
-      },
-      {
-        Header: "Schedule",
-        id: "schedule",
-        Cell: ({ row }) => (
-          <div className="text-sm font-bold text-navy-700 dark:text-white">
-            <p>{row.original.date}</p>
-            <p className="text-[10px] text-gray-500">
-              {row.original.startTime} - {row.original.endTime}
-            </p>
-          </div>
-        ),
-      },
-      {
-        Header: "Difficulty",
-        accessor: "difficulty",
-        Cell: ({ value }) => {
-          let color = "bg-gray-100 text-gray-800";
-          if (value === "Easy") color = "bg-green-100 text-green-800";
-          if (value === "Medium") color = "bg-orange-100 text-orange-800";
-          if (value === "Hard") color = "bg-red-100 text-red-800";
-          return (
-            <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${color}`}>
-              {value || "Medium"}
-            </span>
-          );
-        },
-      },
-      {
-        Header: "Action",
-        accessor: "action",
-        Cell: ({ row }) => (
-          <button
-            className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
-            onClick={() => handleEditQuizClick(row.original)}
-          >
-            <FaEdit />
-          </button>
-        ),
-      },
-      {
-        Header: "Delete",
-        accessor: "deleteButton",
-        Cell: ({ row }) => (
-          <button className="rounded-full bg-red-500 px-4 py-2 text-white hover:bg-red-700">
-            <FaTrashAlt onClick={() => handleDelete(row.original._id)} />
-          </button>
-        ),
-      },
-    ],
-    []
-  );
-
-  const tableInstance = useTable(
-    {
-      columns,
-      data,
-    },
-    useGlobalFilter,
-    useSortBy,
-    usePagination
-  );
-  const handleUpdate = (updatedTestData) => {
-    console.log("Updated student data:", updatedTestData);
-    setSelectedTest(null);
-    setIsEditTestFormVisible(false);
+  const handleDelete = (id) => {
+    Modal.confirm({
+      title: "Delete this test?",
+      icon: <ExclamationCircleOutlined />,
+      okText: "Delete", okType: "danger", cancelText: "Cancel",
+      onOk: () => deleteTest(id),
+    });
   };
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    page,
-    prepareRow,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
-    state: { pageIndex, pageSize },
-  } = tableInstance;
+  const bulkDelete = () => {
+    const ids = [...selectedIds];
+    Modal.confirm({
+      title: `Delete ${ids.length} test(s)?`,
+      icon: <ExclamationCircleOutlined />,
+      okText: "Delete All", okType: "danger", cancelText: "Cancel",
+      onOk: async () => {
+        try {
+          await Promise.all(ids.map((id) =>
+            fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/test/delete/test/byid/${id}`, {
+              method: "DELETE", headers: { Authorization: "Bearer " + auth.token },
+            })
+          ));
+          message.success(`${ids.length} test(s) deleted`);
+          setSelectedIds(new Set()); fetchAll();
+        } catch { message.error("Some deletions failed"); }
+      },
+    });
+  };
+
+  const exportCSV = () => {
+    const rows = [["Test Name", "Category", "Subject", "Duration (min)", "Total Marks", "Status", "Batch"]];
+    filtered.forEach((t) => rows.push([
+      t.testName, t.category || "", t.subject || "",
+      t.duration || "", t.totalMarks || "",
+      getTestStatus(t), t.batch || (t.batches || []).join("; "),
+    ]));
+    const csv = rows.map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "tests.csv"; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  if (showAddForm) {
+    return (
+      <Card extra="w-full p-4">
+        <AddTestForm onSubmit={() => { setShowAddForm(false); fetchAll(); }} onCancel={() => setShowAddForm(false)} />
+      </Card>
+    );
+  }
 
   return (
-    <Card extra={"w-full pb-10 p-4 h-full"}>
-      {isQuizFormVisible ? (
-        <QuizForm onSubmit={handleFormSubmit} onCancel={handleCancelForm} />
-      ) : isEditTestFormVisible && selectedTest ? (
-        <EditQuizForm
-          testData={selectedTest}
-          onUpdate={handleUpdate}
-          onBack={() => {
-            setSelectedTest(null);
-            setIsEditTestFormVisible(false);
-          }}
-        />
-      ) : (
-        <>
-          <header className="relative flex items-center justify-between">
-            <div className="text-xl font-bold text-navy-700 dark:text-white">
-              Manage Tests
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center bg-gray-100 rounded-full px-4 py-2 dark:bg-navy-800">
-                <span className="mr-2 text-xs font-bold text-gray-600 dark:text-gray-300">Category:</span>
-                <select
-                  value={filterCategory}
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  className="bg-transparent text-xs font-bold text-navy-700 dark:text-white outline-none"
-                >
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-              <button
-                className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
-                onClick={() => setIsQuizFormVisible(true)}
-              >
-                Add Test
-              </button>
-              <div className="rounded-full bg-blue-500 px-4 py-2 text-white">
-                Rows per page:{" "}
-                <select
-                  value={pageSize}
-                  onChange={(e) => {
-                    setPageSize(Number(e.target.value));
-                  }}
-                  className="rounded-full bg-blue-500 text-white"
-                >
-                  {[3, 5, 10, 20, 30].map((size) => (
-                    <option key={size} value={size}>
-                      {size}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </header>
+    <Card extra="w-full pb-10 p-4 h-full">
+      <header className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div>
+          <h2 className="text-xl font-bold text-navy-700 dark:text-white">Manage Tests</h2>
+          <p className="text-xs text-gray-500 mt-0.5">{filtered.length} test{filtered.length !== 1 ? "s" : ""} shown</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative">
+            <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <input
+              type="text"
+              placeholder="Search tests..."
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+              className="pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-44"
+            />
+          </div>
+          <select
+            value={catFilter}
+            onChange={(e) => { setCatFilter(e.target.value); setPage(0); }}
+            className="py-2 px-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none"
+          >
+            <option value="All">All Categories</option>
+            {categories.map((c) => <option key={c._id} value={c.name}>{c.name}</option>)}
+          </select>
+          <select
+            value={batchFilter}
+            onChange={(e) => { setBatchFilter(e.target.value); setPage(0); }}
+            className="py-2 px-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none"
+          >
+            <option value="All">All Batches</option>
+            {batches.map((b) => <option key={b._id} value={b.batchName}>{b.batchName}</option>)}
+          </select>
+          <select
+            value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
+            className="py-2 px-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none"
+          >
+            <option value="All">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="expired">Expired</option>
+            <option value="inactive">Inactive</option>
+          </select>
+          {selectedIds.size > 0 && (
+            <button onClick={bulkDelete} className="px-3 py-2 text-sm rounded-lg bg-red-500 text-white hover:bg-red-600 flex items-center gap-1">
+              <FaTrashAlt className="h-3 w-3" /> Delete ({selectedIds.size})
+            </button>
+          )}
+          <button onClick={exportCSV} className="px-3 py-2 text-sm rounded-lg bg-green-500 text-white hover:bg-green-600 flex items-center gap-1">
+            <FaDownload className="h-3 w-3" /> Export
+          </button>
+          <button onClick={() => setShowAddForm(true)} className="px-3 py-2 text-sm rounded-lg bg-blue-500 text-white hover:bg-blue-600">
+            + Add Test
+          </button>
+          <select
+            value={pageSize}
+            onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0); }}
+            className="py-2 px-2 text-xs rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700"
+          >
+            {[10, 25, 50].map((s) => <option key={s} value={s}>{s} / page</option>)}
+          </select>
+        </div>
+      </header>
 
-          <div className="mt-8 overflow-x-scroll xl:overflow-x-hidden">
-            <table {...getTableProps()} className="w-full">
-              <thead>
-                {headerGroups.map((headerGroup, index) => (
-                  <tr {...headerGroup.getHeaderGroupProps()} key={index}>
-                    {headerGroup.headers.map((column, index) => (
-                      <th
-                        {...column.getHeaderProps(
-                          column.getSortByToggleProps()
-                        )}
-                        key={index}
-                        className="border-b border-gray-200 pb-[10px] pr-14 text-start dark:!border-navy-700"
-                      >
-                        <div className="flex w-full justify-between pr-10 text-xs tracking-wide text-gray-600">
-                          {column.render("Header")}
-                        </div>
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody {...getTableBodyProps()}>
-                {page.map((row, index) => {
-                  prepareRow(row);
+      {loading ? (
+        <div className="flex items-center justify-center py-20 text-gray-400">Loading...</div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-200 dark:border-navy-600">
+                <th className="pb-3 pr-3 w-8">
+                  <input type="checkbox" checked={paginated.length > 0 && selectedIds.size === paginated.length} onChange={toggleAll} className="rounded" />
+                </th>
+                <th className="pb-3 pr-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Test Name</th>
+                <th className="pb-3 pr-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Category</th>
+                <th className="pb-3 pr-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Subject</th>
+                <th className="pb-3 pr-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Duration</th>
+                <th className="pb-3 pr-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Marks</th>
+                <th className="pb-3 pr-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Status</th>
+                <th className="pb-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginated.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-gray-400 text-sm">
+                    No tests match your filters
+                  </td>
+                </tr>
+              ) : (
+                paginated.map((test) => {
+                  const status = getTestStatus(test);
+                  const isSelected = selectedIds.has(test._id);
                   return (
-                    <tr {...row.getRowProps()} key={index}>
-                      {row.cells.map((cell, index) => (
-                        <td
-                          className="pb-[20px] pt-[14px] sm:text-[14px]"
-                          {...cell.getCellProps()}
-                          key={index}
-                        >
-                          {cell.render("Cell")}
-                        </td>
-                      ))}
+                    <tr key={test._id} className={`border-b border-gray-100 dark:border-navy-700 transition-colors ${isSelected ? "bg-blue-50 dark:bg-navy-800" : "hover:bg-gray-50 dark:hover:bg-navy-800"}`}>
+                      <td className="py-3 pr-3">
+                        <input type="checkbox" checked={isSelected} onChange={() => toggleSelect(test._id)} className="rounded" />
+                      </td>
+                      <td className="py-3 pr-6">
+                        <p className="text-sm font-bold text-navy-700 dark:text-white">{test.testName}</p>
+                        {test.batch && <p className="text-xs text-gray-400">{test.batch}</p>}
+                      </td>
+                      <td className="py-3 pr-6">
+                        <span className="text-sm text-gray-600 dark:text-gray-300">{test.category || "—"}</span>
+                      </td>
+                      <td className="py-3 pr-6">
+                        <span className="text-sm text-gray-600 dark:text-gray-300">{test.subject || "—"}</span>
+                      </td>
+                      <td className="py-3 pr-6">
+                        <span className="text-sm text-gray-600 dark:text-gray-300">{test.duration ? `${test.duration} min` : "—"}</span>
+                      </td>
+                      <td className="py-3 pr-6">
+                        <span className="text-sm text-gray-600 dark:text-gray-300">{test.totalMarks || "—"}</span>
+                      </td>
+                      <td className="py-3 pr-6">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold capitalize ${STATUS_COLORS[status]}`}>
+                          {status}
+                        </span>
+                      </td>
+                      <td className="py-3">
+                        <button onClick={() => handleDelete(test._id)} className="p-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600">
+                          <FaTrashAlt className="h-3 w-3" />
+                        </button>
+                      </td>
                     </tr>
                   );
-                })}
-              </tbody>
-            </table>
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between">
+          <p className="text-xs text-gray-500">Showing {page * pageSize + 1}–{Math.min((page + 1) * pageSize, filtered.length)} of {filtered.length}</p>
+          <div className="flex gap-1">
+            <button onClick={() => setPage(0)} disabled={page === 0} className="px-2 py-1 text-xs rounded border disabled:opacity-40">{"<<"}</button>
+            <button onClick={() => setPage((p) => p - 1)} disabled={page === 0} className="px-2 py-1 text-xs rounded border disabled:opacity-40">{"<"}</button>
+            <span className="px-3 py-1 text-xs">{page + 1} / {totalPages}</span>
+            <button onClick={() => setPage((p) => p + 1)} disabled={page >= totalPages - 1} className="px-2 py-1 text-xs rounded border disabled:opacity-40">{">"}</button>
+            <button onClick={() => setPage(totalPages - 1)} disabled={page >= totalPages - 1} className="px-2 py-1 text-xs rounded border disabled:opacity-40">{">>"}</button>
           </div>
-          <div className="mt-4 flex justify-between">
-            <div>
-              <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-                {"<<"}
-              </button>{" "}
-              <button
-                onClick={() => previousPage()}
-                disabled={!canPreviousPage}
-              >
-                {"<"}
-              </button>{" "}
-              <button onClick={() => nextPage()} disabled={!canNextPage}>
-                {">"}
-              </button>{" "}
-              <button
-                onClick={() => gotoPage(pageCount - 1)}
-                disabled={!canNextPage}
-              >
-                {">>"}
-              </button>{" "}
-            </div>
-            <div>
-              Page{" "}
-              <strong>
-                {pageIndex + 1} of {pageOptions.length}
-              </strong>{" "}
-            </div>
-          </div>
-        </>
+        </div>
       )}
     </Card>
   );

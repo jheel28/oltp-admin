@@ -9,13 +9,12 @@ import {
 import { Modal, message } from "antd";
 import Card from "components/card";
 import QuestionPaperForm from "./QuestionPaperForm";
-import EditQuestionPaper from "./EditQuestionPaperForm";
+import EditQuestionPaperForm from "./EditQuestionPaperForm";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { AuthContext } from "components/Auth-context";
 
-const TestTable = (props) => {
+const TestTable = () => {
   const auth = useContext(AuthContext);
-  const { tableData } = props;
   const [questionPapers, setQuestionsPapers] = useState([]);
   const [selectedQuestionPaper, setSelectedQuestionPaper] = useState(null);
   const [isAddQuestionPaperFormVisible, setIsAddQuestionPaperFormVisible] =
@@ -232,7 +231,7 @@ const TestTable = (props) => {
           onCancel={handleCancelForm}
         />
       ) : selectedQuestionPaper ? (
-        <EditQuestionPaper
+        <EditQuestionPaperForm
           questionPaper={selectedQuestionPaper}
           onCancel={handleCancelForm}
         />

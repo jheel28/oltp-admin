@@ -15,8 +15,8 @@ const batchRoutes = require("./Routes/Batch-Routes");
 const questionPaperRoutes = require("./Routes/QuestionPaper-Routes");
 const testRoutes = require("./Routes/Test-Routes");
 const scoreRoutes = require("./Routes/Score-Routes");
-const queryRoutes = require("./Routes/Query-Routes");
 const questionRoutes = require("./Routes/Question-Routes");
+const categoryRoutes = require("./Routes/Category-Routes");
 const path = require("path");
 
 app.use(
@@ -34,22 +34,22 @@ app.use(
         styleSrc: ["'self'", "https:", "'unsafe-inline'"],
       },
     },
-  }),
+  })
 );
 app.use(morgan("combined"));
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "1mb" }));
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN || "http://localhost:3000",
     methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-  }),
+  })
 );
 app.use(mongoSanitize());
 app.use(
   "/uploads/images",
-  express.static(path.join(__dirname, "uploads", "images")),
+  express.static(path.join(__dirname, "uploads", "images"))
 );
 
 app.use("/api/beta/admin", adminRoutes);
@@ -58,8 +58,8 @@ app.use("/api/beta/batch", batchRoutes);
 app.use("/api/beta/questionpaper", questionPaperRoutes);
 app.use("/api/beta/test", testRoutes);
 app.use("/api/beta/score", scoreRoutes);
-app.use("/api/beta/query", queryRoutes);
 app.use("/api/beta/question", questionRoutes);
+app.use("/api/beta/category", categoryRoutes);
 
 app.get("/", (req, res) => {
   return res.status(200).json({ message: "Hello World" });
@@ -73,10 +73,10 @@ app.use((req, res, next) => {
 app.use((error, req, res, next) => {
   if (req.file) {
     fs.unlink(req.file.path, (err) => {
-      console.log(err);
+      if (err) console.log(err);
     });
   }
-  if (res.headerSent) {
+  if (res.headersSent) {
     return next(error);
   }
   res.status(error.code || 500);

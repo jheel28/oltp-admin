@@ -25,7 +25,7 @@ const Sidebar = ({ open, onClose }) => {
         const data = await response.json();
         setAdmin(data.admin);
       } catch (err) {
-        message.error("Error fetching admin data:", err.message);
+        message.error("Error fetching admin data: " + err.message);
       }
     };
     fetchAdmin();
@@ -60,7 +60,7 @@ const Sidebar = ({ open, onClose }) => {
           </span>
         </div>
       </div>
-      <div class="mb-7 mt-[58px] h-px bg-gray-300 dark:bg-white/30" />
+      <div className="mb-7 mt-[58px] h-px bg-gray-300 dark:bg-white/30" />
       {/* Nav item */}
 
       <ul className="mb-auto pt-1">

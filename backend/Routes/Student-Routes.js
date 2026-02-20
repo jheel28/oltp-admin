@@ -6,8 +6,9 @@ const imageUpload = require("../Middleware/image-upload");
 const checkAuth = require("../Middleware/check-auth");
 const { loginRateLimiter } = require("../Middleware/rate-limiter");
 
-router.get("/get/all/students", studentControllers.getAllStudents);
-router.get("/get/student/byid/:id", studentControllers.getStudentById);
+router.get("/get/all/students",       checkAuth("Admin"),                studentControllers.getAllStudents);
+router.get("/get/student/byid/:id",   checkAuth(["Admin", "Student"]),   studentControllers.getStudentById);
+
 router.post("/login", loginRateLimiter, studentControllers.login);
 
 router.post(

@@ -1,6 +1,6 @@
 import { message } from "antd";
 import { AuthContext } from "components/Auth-context";
-import React, { useState, useRef, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const SettingsScreen = () => {
@@ -22,36 +22,44 @@ const SettingsScreen = () => {
     setImage(file);
   };
   const handleProfileImageUpdate = async () => {
+    const key = "profile-upload";
+
     try {
       const formData = new FormData();
       formData.append("image", profileImage);
 
+      message.loading({ content: "Uploading image...", key, duration: 0 });
+
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/update/image/byid/${auth.userId}`,
         {
-          method: "PATCH", // Change the method to PATCH
+          method: "PATCH",
           body: formData,
           headers: { Authorization: "Bearer " + auth.token },
         }
       );
 
       if (response.status === 201) {
-        message.success("Profile image updated successfully");
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+        message.success({
+          content: "Profile image updated successfully",
+          key,
+          duration: 2,
+        });
+        setTimeout(() => window.location.reload(), 2000);
       } else {
-        message.error("Could not update profile image, please try again");
+        message.error({
+          content: "Could not update profile image, please try again",
+          key,
+          duration: 3,
+        });
       }
-    } catch (err) {
-      console.log(err);
-      message.error("Could not update profile image, please try again");
+    } catch {
+      message.error({
+        content: "Could not update profile image, please try again",
+        key,
+        duration: 3,
+      });
     }
-  };
-
-  const handleBannerImageUpdate = () => {
-    // Your logic for updating the banner image
-    console.log("Banner Image updated:", bannerImage);
   };
 
   const handleChange = (e) => {

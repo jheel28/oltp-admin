@@ -18,7 +18,7 @@ const PieChartCard = () => {
         const data = await response.json();
         setStudents(data.students);
       } catch (err) {
-        message.error("Error fetching students:", err.message);
+        message.error("Error fetching students: " + err.message);
       }
     };
     fetchStudents();

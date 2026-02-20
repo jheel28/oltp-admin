@@ -27,7 +27,7 @@ const Navbar = (props) => {
         const data = await response.json();
         setStudent(data.student);
       } catch (err) {
-        message.error("Error fetching student data:", err.message);
+        message.error("Error fetching student data: " + err.message);
       }
     };
     fetchStudent();

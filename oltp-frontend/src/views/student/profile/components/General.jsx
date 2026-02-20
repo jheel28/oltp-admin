@@ -47,7 +47,7 @@ const General = () => {
       const { _id, image, ...studentData } = data.student;
       setEditedData(studentData);
     } catch (error) {
-      message.error("Error fetching student data:", error.message);
+      message.error("Error fetching student data: " + error.message);
     }
   };
 

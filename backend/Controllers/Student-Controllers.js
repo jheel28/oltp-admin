@@ -15,93 +15,59 @@ const createStudent = async (req, res, next) => {
       errors: errors.array(),
     });
   }
+
+  if (!req.file) {
+    return next(new HttpError("No image was uploaded.", 400));
+  }
+
   const {
-    firstName,
-    lastName,
-    email,
-    password,
-    fatherName,
-    motherName,
-    phoneNumber,
-    alternateNumber,
-    studentId,
-    admissionDate,
-    batch,
-    address,
-    pincode,
-    state,
-    country,
+    firstName, lastName, email, password, fatherName, motherName,
+    phoneNumber, alternateNumber, studentId, admissionDate,
+    batch, address, pincode, state, country,
   } = req.body;
+
   let existingStudent;
   try {
     existingStudent = await Student.findOne({ email: email });
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the data, please try again",
-      500,
-    );
-    return next(error);
+    return next(new HttpError("Something went wrong while fetching the data, please try again", 500));
   }
   if (existingStudent) {
-    const error = new HttpError("email already exists, please try again", 500);
-    return next(error);
+    return next(new HttpError("Email already exists, please try again", 422));
   }
+
   let hashedPassword;
   try {
     hashedPassword = await bcrypt.hash(password, 12);
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while encrypting the password, please try again",
-      500,
-    );
-    return next(error);
+    return next(new HttpError("Something went wrong while encrypting the password, please try again", 500));
   }
+
   const createdStudent = new Student({
-    firstName,
-    lastName,
-    email,
-    password: hashedPassword,
-    fatherName,
-    motherName,
-    phoneNumber,
-    alternateNumber,
-    studentId,
-    role: "Student",
-    admissionDate,
+    firstName, lastName, email, password: hashedPassword,
+    fatherName, motherName, phoneNumber, alternateNumber,
+    studentId, role: "Student", admissionDate,
     image: req.file.path,
-    batch,
-    address,
-    pincode,
-    state,
-    country,
+    batch, address, pincode, state, country,
   });
+
   try {
     await createdStudent.save();
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while creating the student, please try again",
-      500,
-    );
-    return next(error);
+    return next(new HttpError("Something went wrong while creating the student, please try again", 500));
   }
+
   let token;
   try {
     token = jwt.sign(
-      {
-        userId: createdStudent.id,
-        email: createdStudent.email,
-        role: createdStudent.role,
-      },
+      { userId: createdStudent.id, email: createdStudent.email, role: createdStudent.role },
       process.env.JWT_KEY,
-      { expiresIn: JWT_EXPIRY },
+      { expiresIn: JWT_EXPIRY }
     );
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the JWT token, please try again",
-      500,
-    );
-    return next(error);
+    return next(new HttpError("Something went wrong while creating the JWT token, please try again", 500));
   }
+
   res.status(201).json({
     userId: createdStudent.id,
     email: createdStudent.email,
@@ -115,11 +81,7 @@ const getAllStudents = async (req, res, next) => {
   try {
     students = await Student.find({}, "-password");
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the data, please try again",
-      500,
-    );
-    return next(error);
+    return next(new HttpError("Something went wrong while fetching the data, please try again", 500));
   }
   res.json({ students: students });
 };
@@ -130,63 +92,48 @@ const getStudentById = async (req, res, next) => {
   try {
     student = await Student.findOne({ _id: id }, "-password");
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong fetching the data, please try again",
-      500,
-    );
-    return next(error);
+    return next(new HttpError("Something went wrong fetching the data, please try again", 500));
+  }
+  if (!student) {
+    return next(new HttpError("Student not found", 404));
   }
   res.json({ student: student });
 };
 
 const login = async (req, res, next) => {
   const { email, password } = req.body;
+
   let existingStudent;
   try {
     existingStudent = await Student.findOne({ email: email });
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the data, please try again",
-      500,
-    );
-    return next(error);
+    return next(new HttpError("Something went wrong while fetching the data, please try again", 500));
   }
   if (!existingStudent) {
-    const error = new HttpError("No email found, please try again", 500);
-    return next(error);
+    return next(new HttpError("Invalid email, please try again", 401));
   }
+
   let isValidPassword = false;
   try {
     isValidPassword = await bcrypt.compare(password, existingStudent.password);
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while verification of the password, please try again",
-      500,
-    );
-    return next(error);
+    return next(new HttpError("Something went wrong while verification of the password, please try again", 500));
   }
   if (!isValidPassword) {
-    const error = new HttpError("Invalid credentials, please try again", 401);
-    return next(error);
+    return next(new HttpError("Invalid credentials, please try again", 401));
   }
+
   let token;
   try {
     token = jwt.sign(
-      {
-        userId: existingStudent.id,
-        email: existingStudent.email,
-        role: existingStudent.role,
-      },
+      { userId: existingStudent.id, email: existingStudent.email, role: existingStudent.role },
       process.env.JWT_KEY,
-      { expiresIn: JWT_EXPIRY },
+      { expiresIn: JWT_EXPIRY }
     );
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the JWT token, please try again",
-      500,
-    );
-    return next(error);
+    return next(new HttpError("Something went wrong while fetching the JWT token, please try again", 500));
   }
+
   res.status(200).json({
     userId: existingStudent.id,
     email: existingStudent.email,
@@ -203,94 +150,69 @@ const updateStudentById = async (req, res, next) => {
       errors: errors.array(),
     });
   }
+
   const id = req.params.id;
   const {
-    firstName,
-    lastName,
-    password,
-    fatherName,
-    motherName,
-    phoneNumber,
-    alternateNumber,
-    studentId,
-    admissionDate,
-    batch,
-    address,
-    pincode,
-    state,
-    country,
+    firstName, lastName, password, fatherName, motherName,
+    phoneNumber, alternateNumber, studentId, admissionDate,
+    batch, address, pincode, state, country,
   } = req.body;
+
   let student;
   try {
     student = await Student.findOne({ _id: id });
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the data, please try again",
-      500,
-    );
-    return next(error);
+    return next(new HttpError("Something went wrong while fetching the data, please try again", 500));
   }
   if (!student) {
-    const error = new HttpError("Student not found, please try again", 500);
-    return next(error);
+    return next(new HttpError("Student not found, please try again", 404));
   }
-  let hashedPassword;
+
   let updatedPassword;
   if (password == null) {
     updatedPassword = student.password;
   } else {
     try {
-      hashedPassword = await bcrypt.hash(password, 12);
-      updatedPassword = hashedPassword;
+      updatedPassword = await bcrypt.hash(password, 12);
     } catch (err) {
-      const error = new HttpError(
-        "Something went wrong while encrypting the password, please try again",
-        500,
-      );
-      return next(error);
+      return next(new HttpError("Something went wrong while encrypting the password, please try again", 500));
     }
   }
-  student.firstName = firstName ? firstName : student.firstName;
-  student.lastName = lastName ? lastName : student.lastName;
+
+  if (firstName !== undefined) student.firstName = firstName;
+  if (lastName !== undefined) student.lastName = lastName;
+  if (fatherName !== undefined) student.fatherName = fatherName;
+  if (motherName !== undefined) student.motherName = motherName;
+  if (phoneNumber !== undefined) student.phoneNumber = phoneNumber;
+  if (alternateNumber !== undefined) student.alternateNumber = alternateNumber;
+  if (studentId !== undefined) student.studentId = studentId;
+  if (batch !== undefined) student.batch = batch;
+  if (address !== undefined) student.address = address;
+  if (pincode !== undefined) student.pincode = pincode;
+  if (state !== undefined) student.state = state;
+  if (country !== undefined) student.country = country;
+  if (admissionDate !== undefined) student.admissionDate = admissionDate;
   student.password = updatedPassword;
-  student.fatherName = fatherName ? fatherName : student.fatherName;
-  student.motherName = motherName ? motherName : student.motherName;
-  student.phoneNumber = phoneNumber ? phoneNumber : student.phoneNumber;
-  student.alternateNumber = alternateNumber
-    ? alternateNumber
-    : student.alternateNumber;
-  student.studentId = studentId ? studentId : student.studentId;
-  student.batch = batch ? batch : student.batch;
-  student.address = address ? address : student.address;
-  student.pincode = pincode ? pincode : student.pincode;
-  student.state = state ? state : student.state;
-  student.country = country ? country : student.country;
-  student.admissionDate = admissionDate ? admissionDate : student.admissionDate;
-  student.image = req.file ? req.file.path : student.image;
+  if (req.file) student.image = req.file.path;
+
   try {
     await student.save();
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while updating the student, please try again",
-      500,
-    );
-    return next(error);
+    return next(new HttpError("Something went wrong while updating the student, please try again", 500));
   }
+
   let token;
   try {
     token = jwt.sign(
       { userId: student.id, email: student.email, role: student.role },
       process.env.JWT_KEY,
-      { expiresIn: JWT_EXPIRY },
+      { expiresIn: JWT_EXPIRY }
     );
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the JWT token, please try again",
-      500,
-    );
-    return next(error);
+    return next(new HttpError("Something went wrong while fetching the JWT token, please try again", 500));
   }
-  res.status(201).json({
+
+  res.status(200).json({
     userId: student.id,
     email: student.email,
     role: student.role,
@@ -304,21 +226,18 @@ const updateImageById = async (req, res, next) => {
   try {
     student = await Student.findById(id);
   } catch (err) {
-    const error = new HttpError("Something wrong while fetching the student");
-    return next(error);
+    return next(new HttpError("Something went wrong while fetching the student", 500));
   }
   if (!student) {
-    const error = new HttpError("Student not found");
-    return next(error);
+    return next(new HttpError("Student not found", 404));
   }
   student.image = req.file.path;
   try {
     await student.save();
   } catch (err) {
-    const error = new HttpError("Error occured while saving the student");
-    return next(error);
+    return next(new HttpError("Error occurred while saving the student", 500));
   }
-  res.status(201).json({ message: "Student updated successfully" });
+  res.status(200).json({ message: "Student updated successfully" });
 };
 
 const deleteStudentById = async (req, res, next) => {
@@ -327,30 +246,26 @@ const deleteStudentById = async (req, res, next) => {
   try {
     student = await Student.findOne({ _id: id });
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the data, please try again",
-      500,
-    );
-    return next(error);
+    return next(new HttpError("Something went wrong while fetching the data, please try again", 500));
   }
   if (!student) {
-    const error = new HttpError("Student not found, please try again", 500);
-    return next(error);
+    return next(new HttpError("Student not found, please try again", 404));
   }
+
   const imagePath = student.image;
   try {
     await student.deleteOne();
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while deleting the student, please try again",
-      500,
-    );
-    return next(error);
+    return next(new HttpError("Something went wrong while deleting the student, please try again", 500));
   }
-  fs.unlink(imagePath, (err) => {
-    console.log(err);
-  });
+
   res.status(200).json({ message: "Student successfully deleted" });
+
+  if (imagePath) {
+    fs.unlink(imagePath, (err) => {
+      if (err) console.log("Image cleanup error:", err);
+    });
+  }
 };
 
 exports.createStudent = createStudent;

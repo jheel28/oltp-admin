@@ -11,10 +11,13 @@ const TestingPlatformHome = () => {
     if (accepted) {
       navigate(`/student/testingscreen/${id}`);
     } else {
-      message.warning("Please accept the guidelines to start the test.");
+      message.warning({
+        content: "Please accept the guidelines to start the test.",
+        duration: 2,
+        key: "accept-warning",
+      });
     }
   };
-
   return (
     <div className="text-black flex h-screen flex-col items-center justify-between bg-gray-100">
       <div className="mt-8">
@@ -68,8 +71,7 @@ const TestingPlatformHome = () => {
         </div>
       </div>
       <div className="mb-4 flex w-full justify-between px-4">
-        <div className="flex items-center">
-        </div>
+        <div className="flex items-center"></div>
         <button
           onClick={handleStartTest}
           className={`rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700 ${

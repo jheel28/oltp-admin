@@ -1,14 +1,13 @@
-import BatchTable from "./components/BatchTable";
+import CategoryManager from "./components/CategoryManager";
 
-const ManageBatches = () => {
-
+const ManageCategories = () => {
   return (
     <div className="mt-3 grid h-full grid-cols-1 gap-5 xl:grid-cols-2 2xl:grid-cols-3">
       <div className="col-span-1 h-fit w-full xl:col-span-1 2xl:col-span-3">
-        <BatchTable />
+        <CategoryManager />
       </div>
     </div>
   );
 };
 
-export default ManageBatches;
+export default ManageCategories;

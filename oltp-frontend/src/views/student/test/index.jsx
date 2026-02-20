@@ -2,8 +2,6 @@ import TestCard from "./components/TestCard";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "components/Auth-context";
 import TopCreatorTable from "../marketplace/components/TableTopCreators";
-import { tableColumnsTopCreators } from "../marketplace/variables/tableColumnsTopCreators";
-import tableDataTopCreators from "../marketplace/variables/tableDataTopCreators.json";
 import Banner1 from "views/admin/marketplace/components/Banner";
 
 const Marketplace = () => {
@@ -115,11 +113,7 @@ const Marketplace = () => {
 
       {/* right side section */}
       <div className="col-span-1 h-full w-full rounded-xl 2xl:col-span-1">
-        <TopCreatorTable
-          extra="mb-1"
-          tableData={tableDataTopCreators}
-          columnsData={tableColumnsTopCreators}
-        />
+        <TopCreatorTable />
       </div>
     </div>
   );

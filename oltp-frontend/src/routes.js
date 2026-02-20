@@ -8,6 +8,10 @@ import ManageTests from "views/admin/manage_tests";
 import AdminSettings from "views/admin/settings";
 import ManageQuestionPaper from "views/admin/manage_question_papers";
 import SuperResult from "views/admin/results";
+import CategoryManager from "views/admin/manage_categories/components/CategoryManager";
+import ResultsAnalytics from "views/admin/results/components/ResultsAnalytics";
+
+import SignIn from "views/auth/SignIn";
 
 // Icon Imports
 import { IoDocumentsSharp, IoDocuments } from "react-icons/io5";
@@ -16,6 +20,8 @@ import {
   MdHome,
   MdManageAccounts,
   MdPerson,
+  MdCategory,
+  MdBarChart,
   MdSettings,
 } from "react-icons/md";
 import { AuthContext } from "components/Auth-context";
@@ -30,11 +36,10 @@ const LogoutCard = ({ onConfirm }) => {
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
   const handleLogout = () => {
-    // Call the auth.logout() function
     auth.logout();
     message.success("Logged out Successfully");
     setTimeout(() => {
-      navigate("/auth/admin-login");
+      navigate("/auth/sign-in?role=admin");
     }, 200);
     onConfirm();
   };
@@ -70,6 +75,13 @@ const routes = [
     secondary: true,
   },
   {
+    name: "Manage Categories",
+    layout: "/admin",
+    path: "manage-categories",
+    icon: <MdCategory className="h-6 w-6" />,
+    component: <CategoryManager />,
+  },
+  {
     name: "Manage Students",
     layout: "/admin",
     path: "manage-students",
@@ -101,6 +113,14 @@ const routes = [
     secondary: true,
   },
   {
+    name: "Results Analytics",
+    layout: "/admin",
+    path: "results-analytics",
+    icon: <MdBarChart className="h-6 w-6" />,
+    component: <ResultsAnalytics />,
+    secondary: false,
+  },
+  {
     name: "Profile",
     layout: "/admin",
     path: "profile",
@@ -122,7 +142,6 @@ const routes = [
     component: (
       <LogoutCard
         onConfirm={() => {
-          // Handle logout logic here
           console.log("Logout confirmed");
         }}
       />

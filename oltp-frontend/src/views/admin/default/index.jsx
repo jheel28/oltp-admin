@@ -1,6 +1,4 @@
 import MiniCalendar from "components/calendar/MiniCalendar";
-import WeeklyRevenue from "views/admin/default/components/WeeklyRevenue";
-import TotalSpent from "views/admin/default/components/TotalSpent";
 import PieChartCard from "views/admin/default/components/PieChartCard";
 import { IoMdHome } from "react-icons/io";
 import { IoDocuments } from "react-icons/io5";
@@ -10,8 +8,6 @@ import { FaUsers } from "react-icons/fa";
 import Widget from "components/widget/Widget";
 import Banner1 from "../marketplace/components/Banner";
 import TopCreatorTable from "../marketplace/components/TableTopCreators";
-import { tableColumnsTopCreators } from "../marketplace/variables/tableColumnsTopCreators";
-import tableDataTopCreators from "views/admin/marketplace/variables/tableDataTopCreators.json";
 import { useEffect, useState } from "react";
 
 const Dashboard = () => {
@@ -29,7 +25,7 @@ const Dashboard = () => {
         const data = await response.json();
         setStudents(data.students);
       } catch (err) {
-        console.error("Error fetching students:", err.message);
+        console.error("Error fetching students: " + err.message);
       }
     };
     fetchStudents();
@@ -71,11 +67,7 @@ const Dashboard = () => {
           <Banner1 />
         </div>
         {/* <MiniCalendar /> */}
-        <TopCreatorTable
-          extra="mb-1"
-          tableData={tableDataTopCreators}
-          columnsData={tableColumnsTopCreators}
-        />
+        <TopCreatorTable />
       </div>
       {/* Card widget */}
 

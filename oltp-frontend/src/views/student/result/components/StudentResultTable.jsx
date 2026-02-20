@@ -1,12 +1,11 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
-import { FaBackward, FaDownload } from "react-icons/fa";
+import React, { useContext, useEffect, useState } from "react";
+import { FaDownload } from "react-icons/fa";
 import Card from "components/card";
 import Button from "components/button";
 import { AuthContext } from "components/Auth-context";
 import { useParams } from "react-router-dom";
 
 const StudentResultsTable = () => {
-  const [showTestDetails, setShowTestDetails] = useState(false);
   const [student, setStudent] = useState({});
   const [score, setScore] = useState({});
   const [questions, setQuestions] = useState([]);

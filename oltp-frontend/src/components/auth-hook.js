@@ -1,31 +1,35 @@
 import { useState, useCallback, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
 
 let logoutTimer;
 
 export const useAuth = () => {
-  const [token, setToken] = useState(false);
-  const [tokenExpirationDate, setTokenExpirationDate] = useState();
-  const [userId, setUserId] = useState(false);
+  const [token, setToken] = useState(null);
+  const [tokenExpirationDate, setTokenExpirationDate] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [role, setRole] = useState(null);
-  const [email, setEmail] = useState(false);
+  const [email, setEmail] = useState(null);
+  // Tracks whether the initial localStorage check has completed.
+  const [initialized, setInitialized] = useState(false);
+
   const login = useCallback((userId, token, email, role) => {
     setUserId(userId);
     setToken(token);
     setEmail(email);
     setRole(role);
-    console.log(role);
-    const tokenExpirationDate = new Date(
-      new Date().getTime() + 1000 * 60 * 60 * 24 * 7
-    );
-    setTokenExpirationDate(tokenExpirationDate);
+
+    const decoded = jwtDecode(token);
+    const expiration = new Date(decoded.exp * 1000);
+    setTokenExpirationDate(expiration);
+
     localStorage.setItem(
       "userData",
       JSON.stringify({
-        userId: userId,
-        token: token,
-        email: email,
-        role: role,
-        expiration: tokenExpirationDate.toISOString(),
+        userId,
+        token,
+        email,
+        role,
+        expiration: expiration.toISOString(),
       })
     );
   }, []);
@@ -41,14 +45,19 @@ export const useAuth = () => {
 
   useEffect(() => {
     if (token && tokenExpirationDate) {
-      const remainingTime =
-        tokenExpirationDate.getTime() - new Date().getTime();
-      logoutTimer = setTimeout(logout, remainingTime);
+      const remaining = tokenExpirationDate.getTime() - new Date().getTime();
+      if (remaining <= 0) {
+        logout();
+        return;
+      }
+      logoutTimer = setTimeout(logout, remaining);
     } else {
       clearTimeout(logoutTimer);
     }
+    return () => clearTimeout(logoutTimer);
   }, [token, logout, tokenExpirationDate]);
 
+  // Runs once on mount to rehydrate from localStorage.
   useEffect(() => {
     const storedData = JSON.parse(localStorage.getItem("userData"));
     if (
@@ -59,14 +68,11 @@ export const useAuth = () => {
       storedData.role &&
       new Date(storedData.expiration) > new Date()
     ) {
-      login(
-        storedData.userId,
-        storedData.token,
-        storedData.email,
-        storedData.role
-      );
+      login(storedData.userId, storedData.token, storedData.email, storedData.role);
     }
+    // Signal that the initialisation check is done regardless of outcome.
+    setInitialized(true);
   }, [login]);
 
-  return { login, logout, userId, token, email, role };
+  return { login, logout, userId, token, email, role, initialized };
 };

@@ -27,7 +27,7 @@ const Navbar = (props) => {
         const data = await response.json();
         setAdmin(data.admin);
       } catch (err) {
-        message.error("Error fetching admin data:", err.message);
+        message.error("Error fetching admin data: " + err.message);
       }
     };
     fetchAdmin();

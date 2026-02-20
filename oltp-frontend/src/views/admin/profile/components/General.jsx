@@ -28,7 +28,7 @@ const General = ({ adminData, onUpdate, onBack }) => {
         setAdmin(data.admin);
         setEditedData(data.admin);
       } catch (err) {
-        message.error("Error fetching admin data:", err.message);
+        message.error("Error fetching admin data: " + err.message);
       }
     };
     fetchAdmin();

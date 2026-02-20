@@ -18,7 +18,6 @@ const createQuestionPaper = async (req, res, next) => {
     category,
     difficulty,
     subjects,
-    keySheet,
   } = req.body;
 
   let existingQuestionPaper;
@@ -27,16 +26,25 @@ const createQuestionPaper = async (req, res, next) => {
       questionPaperId: questionPaperId,
     });
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching data, please try again",
-      500
+    return next(
+      new HttpError(
+        "Something went wrong while fetching data, please try again",
+        500,
+      ),
     );
-    return next(error);
   }
   if (existingQuestionPaper) {
-    const error = new HttpError("The question paper already exists", 500);
-    return next(error);
+    return next(new HttpError("The question paper already exists", 422));
   }
+
+  const parsedSubjects = Array.isArray(subjects)
+    ? subjects
+    : typeof subjects === "string" && subjects.length > 0
+      ? subjects
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [];
 
   const createdQuestionPaper = new QuestionPaper({
     questionPaperId,
@@ -44,35 +52,41 @@ const createQuestionPaper = async (req, res, next) => {
     noOfQuestions,
     category,
     difficulty,
-    subjects,
+    subjects: parsedSubjects,
   });
   if (req.file) {
     createdQuestionPaper.keySheet = req.file.path;
   }
+
   try {
-    createdQuestionPaper.save();
+    await createdQuestionPaper.save();
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while saving the question paper, please try again",
-      500
+    return next(
+      new HttpError(
+        "Something went wrong while saving the question paper, please try again",
+        500,
+      ),
     );
-    return next(error);
   }
+
   res.status(201).json({ questionPaper: createdQuestionPaper });
 };
+
 const getAllQuestionPapers = async (req, res, next) => {
   let questionPapers;
   try {
     questionPapers = await QuestionPaper.find({});
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the data, please try again",
-      500
+    return next(
+      new HttpError(
+        "Something went wrong while fetching the data, please try again",
+        500,
+      ),
     );
-    return next(error);
   }
   res.status(200).json({ questionPapers: questionPapers });
 };
+
 const getQuestionPaperByQuestionPaperId = async (req, res, next) => {
   const questionPaperId = req.params.questionPaperId;
   let questionPaper;
@@ -81,102 +95,117 @@ const getQuestionPaperByQuestionPaperId = async (req, res, next) => {
       questionPaperId: questionPaperId,
     });
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the data, please try again",
-      500
+    return next(
+      new HttpError(
+        "Something went wrong while fetching the data, please try again",
+        500,
+      ),
     );
-    return next(error);
+  }
+  if (!questionPaper) {
+    return next(new HttpError("Question paper not found", 404));
   }
   res.status(200).json({ questionPaper: questionPaper });
 };
+
 const getQuestionPaperById = async (req, res, next) => {
   const id = req.params.id;
   let questionPaper;
   try {
-    questionPaper = await QuestionPaper.findOne({
-      _id: id,
-    });
+    questionPaper = await QuestionPaper.findOne({ _id: id });
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the data, please try again",
-      500
+    return next(
+      new HttpError(
+        "Something went wrong while fetching the data, please try again",
+        500,
+      ),
     );
-    return next(error);
   }
-  res.status(200).json({ QuestionPaper: questionPaper });
+  if (!questionPaper) {
+    return next(new HttpError("Question paper not found", 404));
+  }
+  res.status(200).json({ questionPaper: questionPaper });
 };
+
 const updateQuestionPaperById = async (req, res, next) => {
   const id = req.params.id;
-  const { questions, answers, score, noOfQuestions, category, difficulty, subjects } =
-    req.body;
+  const { score, noOfQuestions, category, difficulty, subjects } = req.body;
+
   let questionPaper;
   try {
     questionPaper = await QuestionPaper.findOne({ _id: id });
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the data, please try again",
-      500
+    return next(
+      new HttpError(
+        "Something went wrong while fetching the data, please try again",
+        500,
+      ),
     );
-    return next(error);
   }
   if (!questionPaper) {
-    const error = new HttpError(
-      "Question paper not found, please try again",
-      500
+    return next(
+      new HttpError("Question paper not found, please try again", 404),
     );
-    return next(error);
   }
 
-  questionPaper.score = score ? score : questionPaper.score;
-  questionPaper.noOfQuestions = noOfQuestions
-    ? noOfQuestions
-    : questionPaper.noOfQuestions;
-  questionPaper.category = category ? category : questionPaper.category;
-  questionPaper.difficulty = difficulty
-    ? difficulty
-    : questionPaper.difficulty;
-  questionPaper.subjects = subjects ? subjects : questionPaper.subjects;
+  if (score !== undefined) questionPaper.score = score;
+  if (noOfQuestions !== undefined) questionPaper.noOfQuestions = noOfQuestions;
+  if (category !== undefined) questionPaper.category = category;
+  if (difficulty !== undefined) questionPaper.difficulty = difficulty;
+  if (subjects !== undefined) {
+    questionPaper.subjects = Array.isArray(subjects)
+      ? subjects
+      : subjects
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+  }
+
   try {
     await questionPaper.save();
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while saving the question paper please try again",
-      500
+    return next(
+      new HttpError(
+        "Something went wrong while saving the question paper, please try again",
+        500,
+      ),
     );
-    return next(error);
   }
+
   res.status(200).json({ updatedQuestionPaper: questionPaper });
 };
+
 const deleteQuestionPaperById = async (req, res, next) => {
   const id = req.params.id;
   let questionPaper;
   try {
     questionPaper = await QuestionPaper.findOne({ _id: id });
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the data, please try again",
-      500
+    return next(
+      new HttpError(
+        "Something went wrong while fetching the data, please try again",
+        500,
+      ),
     );
-    return next(error);
   }
   if (!questionPaper) {
-    const error = new HttpError(
-      "Question paper not found, please try again",
-      500
+    return next(
+      new HttpError("Question paper not found, please try again", 404),
     );
-    return next(error);
   }
   try {
     await questionPaper.deleteOne();
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while deleting the question paper, please try again",
-      500
+    return next(
+      new HttpError(
+        "Something went wrong while deleting the question paper, please try again",
+        500,
+      ),
     );
-    return next(error);
   }
   res.status(200).json({ message: "The question paper deleted successfully" });
 };
+
 exports.createQuestionPaper = createQuestionPaper;
 exports.getAllQuestionPapers = getAllQuestionPapers;
 exports.getQuestionPaperById = getQuestionPaperById;

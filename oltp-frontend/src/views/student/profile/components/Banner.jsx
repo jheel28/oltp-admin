@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import avatar from "assets/img/avatars/avatar11.png";
 import banner from "assets/img/profile/banner.png";
 import Card from "components/card";
 import { AuthContext } from "components/Auth-context";
@@ -22,7 +21,7 @@ const Banner = () => {
         const data = await response.json();
         setStudent(data.student);
       } catch (err) {
-        message.error("Error fetching student data:", err.message);
+        message.error("Error fetching student data: " + err.message);
       }
     };
     fetchStudent();

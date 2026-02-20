@@ -5,12 +5,9 @@ const questionControllers = require("../Controllers/Question-Controllers");
 const imageUpload = require("../Middleware/image-upload");
 const checkAuth = require("../Middleware/check-auth");
 
-router.get("/get/all/questions", questionControllers.getAllQuestions);
-router.get(
-  "/get/questions/byquestionpaperid/:questionPaperId",
-  questionControllers.getQuestionsByQuestionPaperId,
-);
-router.get("/get/question/byid/:id", questionControllers.getQuestionById);
+router.get("/get/all/questions",                                        checkAuth(["Admin", "Student"]), questionControllers.getAllQuestions);
+router.get("/get/questions/byquestionpaperid/:questionPaperId",         checkAuth(["Admin", "Student"]), questionControllers.getQuestionsByQuestionPaperId);
+router.get("/get/question/byid/:id",                                    checkAuth(["Admin", "Student"]), questionControllers.getQuestionById);
 
 router.post(
   "/create/question",

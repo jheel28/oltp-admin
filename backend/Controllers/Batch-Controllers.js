@@ -75,7 +75,7 @@ const updateBatchById = async (req, res, next) => {
   }
   batch.batchName = batchName ? batchName : batch.batchName;
   try {
-    batch.save();
+    await batch.save();
   } catch (err) {
     const error = new HttpError(
       "Something went wrong while updating the batch, please try again",
