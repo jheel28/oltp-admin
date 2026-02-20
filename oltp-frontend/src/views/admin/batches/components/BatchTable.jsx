@@ -1,11 +1,13 @@
 import React, { useContext, useEffect, useMemo, useState, useCallback } from "react";
-import { FaTrashAlt, FaPencilAlt, FaCheck, FaTimes, FaCodeBranch, FaDownload } from "react-icons/fa";
+import { FaTrashAlt, FaPencilAlt, FaCheck, FaTimes, FaCodeBranch, FaDownload, FaLock } from "react-icons/fa";
 import { MdSearch } from "react-icons/md";
 import Card from "components/card";
 import AddBatchForm from "./AddBatchForm";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { Modal, message } from "antd";
+import { Modal, message, Tooltip } from "antd";
 import { AuthContext } from "components/Auth-context";
+
+const DEFAULT_BATCH = "Default";
 
 const BatchTable = () => {
   const auth = useContext(AuthContext);
@@ -65,6 +67,8 @@ const BatchTable = () => {
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
 
+  const selectablePaginated = paginated.filter((b) => b.batchName !== DEFAULT_BATCH);
+
   const toggleSelect = (id) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -74,10 +78,10 @@ const BatchTable = () => {
   };
 
   const toggleAll = () => {
-    if (selectedIds.size === paginated.length) {
+    if (selectedIds.size === selectablePaginated.length) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(paginated.map((b) => b._id)));
+      setSelectedIds(new Set(selectablePaginated.map((b) => b._id)));
     }
   };
 
@@ -102,21 +106,26 @@ const BatchTable = () => {
           body: JSON.stringify({ batchName: editingName.trim() }),
         }
       );
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Failed");
+      }
       message.success("Batch renamed");
       setEditingId(null);
       fetchAll();
-    } catch {
-      message.error("Failed to rename batch");
+    } catch (err) {
+      message.error(err.message || "Failed to rename batch");
     }
   };
 
   const deleteBatch = async (id) => {
-    const count = studentCountMap[batches.find((b) => b._id === id)?.batchName] || 0;
+    const batch = batches.find((b) => b._id === id);
+    const count = studentCountMap[batch?.batchName] || 0;
     Modal.confirm({
       title: count > 0
-        ? `This batch has ${count} student(s). Delete anyway?`
+        ? `This batch has ${count} student(s). They will be moved to the Default batch.`
         : "Delete this batch?",
+      content: count > 0 ? "The batch will be deleted and all its students reassigned to Default." : null,
       icon: <ExclamationCircleOutlined />,
       okText: "Delete",
       okType: "danger",
@@ -127,12 +136,15 @@ const BatchTable = () => {
             `${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/delete/batch/byid/${id}`,
             { method: "DELETE", headers: { Authorization: "Bearer " + auth.token } }
           );
-          if (!res.ok) throw new Error();
+          if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.message || "Failed");
+          }
           message.success("Batch deleted");
           setSelectedIds((prev) => { const n = new Set(prev); n.delete(id); return n; });
           fetchAll();
-        } catch {
-          message.error("Failed to delete batch");
+        } catch (err) {
+          message.error(err.message || "Failed to delete batch");
         }
       },
     });
@@ -145,7 +157,10 @@ const BatchTable = () => {
       return b && (studentCountMap[b.batchName] || 0) > 0;
     });
     Modal.confirm({
-      title: `Delete ${ids.length} batch(es)?${withStudents.length > 0 ? ` (${withStudents.length} have students)` : ""}`,
+      title: `Delete ${ids.length} batch(es)?`,
+      content: withStudents.length > 0
+        ? `${withStudents.length} batch(es) have students who will be moved to the Default batch.`
+        : "This action cannot be undone.",
       icon: <ExclamationCircleOutlined />,
       okText: "Delete All",
       okType: "danger",
@@ -193,7 +208,7 @@ const BatchTable = () => {
         `${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/delete/batch/byid/${mergeSource}`,
         { method: "DELETE", headers: { Authorization: "Bearer " + auth.token } }
       );
-      message.success(`Merged ${srcStudents.length} student(s) into "${tgtBatch?.batchName}" and deleted source batch`);
+      message.success(`Merged ${srcStudents.length} student(s) into "${tgtBatch?.batchName}"`);
       setShowMerge(false);
       setMergeSource("");
       setMergeTarget("");
@@ -286,7 +301,7 @@ const BatchTable = () => {
                 <th className="pb-3 pr-4 text-left w-8">
                   <input
                     type="checkbox"
-                    checked={paginated.length > 0 && selectedIds.size === paginated.length}
+                    checked={selectablePaginated.length > 0 && selectedIds.size === selectablePaginated.length}
                     onChange={toggleAll}
                     className="rounded"
                   />
@@ -305,35 +320,60 @@ const BatchTable = () => {
                 </tr>
               ) : (
                 paginated.map((batch) => {
+                  const isDefault = batch.batchName === DEFAULT_BATCH;
                   const count = studentCountMap[batch.batchName] || 0;
-                  const isEditing = editingId === batch._id;
+                  const isEditingRow = editingId === batch._id;
                   const isSelected = selectedIds.has(batch._id);
                   return (
                     <tr
                       key={batch._id}
-                      className={`border-b border-gray-100 dark:border-navy-700 transition-colors ${isSelected ? "bg-blue-50 dark:bg-navy-800" : "hover:bg-gray-50 dark:hover:bg-navy-800"}`}
+                      className={`border-b border-gray-100 dark:border-navy-700 transition-colors ${
+                        isDefault
+                          ? "bg-amber-50 dark:bg-navy-750"
+                          : isSelected
+                          ? "bg-blue-50 dark:bg-navy-800"
+                          : "hover:bg-gray-50 dark:hover:bg-navy-800"
+                      }`}
                     >
                       <td className="py-3 pr-4">
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleSelect(batch._id)}
-                          className="rounded"
-                        />
+                        {isDefault ? (
+                          <span className="block w-4" />
+                        ) : (
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleSelect(batch._id)}
+                            className="rounded"
+                          />
+                        )}
                       </td>
                       <td className="py-3 pr-6">
-                        {isEditing ? (
-                          <input
-                            type="text"
-                            value={editingName}
-                            onChange={(e) => setEditingName(e.target.value)}
-                            onKeyDown={(e) => { if (e.key === "Enter") saveEdit(batch._id); if (e.key === "Escape") cancelEdit(); }}
-                            autoFocus
-                            className="px-2 py-1 text-sm rounded border border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-navy-700 dark:text-white w-48"
-                          />
-                        ) : (
-                          <span className="text-sm font-bold text-navy-700 dark:text-white">{batch.batchName}</span>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {isEditingRow ? (
+                            <input
+                              type="text"
+                              value={editingName}
+                              onChange={(e) => setEditingName(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") saveEdit(batch._id);
+                                if (e.key === "Escape") cancelEdit();
+                              }}
+                              autoFocus
+                              className="px-2 py-1 text-sm rounded border border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-navy-700 dark:text-white w-48"
+                            />
+                          ) : (
+                            <span className="text-sm font-bold text-navy-700 dark:text-white">
+                              {batch.batchName}
+                            </span>
+                          )}
+                          {isDefault && (
+                            <Tooltip title="This batch is protected. It cannot be renamed or deleted. Students from deleted batches are automatically moved here.">
+                              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold cursor-help">
+                                <FaLock className="h-2.5 w-2.5" /> Protected
+                              </span>
+                            </Tooltip>
+                          )}
+                        </div>
                       </td>
                       <td className="py-3 pr-6">
                         <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${count > 0 ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-500"}`}>
@@ -341,27 +381,27 @@ const BatchTable = () => {
                         </span>
                       </td>
                       <td className="py-3">
-                        <div className="flex items-center gap-2">
-                          {isEditing ? (
-                            <>
-                              <button onClick={() => saveEdit(batch._id)} className="p-1.5 rounded bg-green-500 text-white hover:bg-green-600">
-                                <FaCheck className="h-3 w-3" />
-                              </button>
-                              <button onClick={cancelEdit} className="p-1.5 rounded bg-gray-400 text-white hover:bg-gray-500">
-                                <FaTimes className="h-3 w-3" />
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <button onClick={() => startEdit(batch)} className="p-1.5 rounded bg-blue-500 text-white hover:bg-blue-600">
-                                <FaPencilAlt className="h-3 w-3" />
-                              </button>
-                              <button onClick={() => deleteBatch(batch._id)} className="p-1.5 rounded bg-red-500 text-white hover:bg-red-600">
-                                <FaTrashAlt className="h-3 w-3" />
-                              </button>
-                            </>
-                          )}
-                        </div>
+                        {isDefault ? (
+                          <span className="text-xs text-gray-400 italic">No actions available</span>
+                        ) : isEditingRow ? (
+                          <div className="flex items-center gap-2">
+                            <button onClick={() => saveEdit(batch._id)} className="p-1.5 rounded bg-green-500 text-white hover:bg-green-600">
+                              <FaCheck className="h-3 w-3" />
+                            </button>
+                            <button onClick={cancelEdit} className="p-1.5 rounded bg-gray-400 text-white hover:bg-gray-500">
+                              <FaTimes className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <button onClick={() => startEdit(batch)} className="p-1.5 rounded bg-blue-500 text-white hover:bg-blue-600">
+                              <FaPencilAlt className="h-3 w-3" />
+                            </button>
+                            <button onClick={() => deleteBatch(batch._id)} className="p-1.5 rounded bg-red-500 text-white hover:bg-red-600">
+                              <FaTrashAlt className="h-3 w-3" />
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   );
@@ -407,7 +447,7 @@ const BatchTable = () => {
             className="w-full border rounded px-3 py-2 text-sm dark:bg-navy-700"
           >
             <option value="">Select source...</option>
-            {batches.map((b) => (
+            {batches.filter((b) => b.batchName !== DEFAULT_BATCH).map((b) => (
               <option key={b._id} value={b._id}>{b.batchName} ({studentCountMap[b.batchName] || 0} students)</option>
             ))}
           </select>

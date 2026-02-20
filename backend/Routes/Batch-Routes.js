@@ -9,18 +9,33 @@ router.post(
   "/create/batch",
   checkAuth("Admin"),
   [
-    check("batchName").isLength({ min: 2, max: 255 }),
+    check("batchName")
+      .trim()
+      .notEmpty()
+      .withMessage("Batch name is required")
+      .isLength({ min: 2, max: 255 })
+      .withMessage("Batch name must be between 2 and 255 characters"),
   ],
-  batchControllers.createBatch
+  batchControllers.createBatch,
 );
 router.patch(
   "/update/batch/byid/:id",
   checkAuth("Admin"),
-  batchControllers.updateBatchById
+  [
+    check("batchName")
+      .optional()
+      .trim()
+      .notEmpty()
+      .withMessage("Batch name cannot be empty")
+      .isLength({ min: 2, max: 255 })
+      .withMessage("Batch name must be between 2 and 255 characters"),
+  ],
+  batchControllers.updateBatchById,
 );
 router.delete(
   "/delete/batch/byid/:id",
   checkAuth("Admin"),
-  batchControllers.deleteBatchById
+  batchControllers.deleteBatchById,
 );
+
 module.exports = router;

@@ -28,7 +28,7 @@ const createStudent = async (req, res, next) => {
 
   let existingStudent;
   try {
-    existingStudent = await Student.findOne({ email: email });
+    existingStudent = await Student.findOne({ email });
   } catch (err) {
     return next(new HttpError("Something went wrong while fetching the data, please try again", 500));
   }
@@ -72,7 +72,7 @@ const createStudent = async (req, res, next) => {
     userId: createdStudent.id,
     email: createdStudent.email,
     role: createdStudent.role,
-    token: token,
+    token,
   });
 };
 
@@ -83,7 +83,7 @@ const getAllStudents = async (req, res, next) => {
   } catch (err) {
     return next(new HttpError("Something went wrong while fetching the data, please try again", 500));
   }
-  res.json({ students: students });
+  res.json({ students });
 };
 
 const getStudentById = async (req, res, next) => {
@@ -97,7 +97,7 @@ const getStudentById = async (req, res, next) => {
   if (!student) {
     return next(new HttpError("Student not found", 404));
   }
-  res.json({ student: student });
+  res.json({ student });
 };
 
 const login = async (req, res, next) => {
@@ -105,7 +105,7 @@ const login = async (req, res, next) => {
 
   let existingStudent;
   try {
-    existingStudent = await Student.findOne({ email: email });
+    existingStudent = await Student.findOne({ email });
   } catch (err) {
     return next(new HttpError("Something went wrong while fetching the data, please try again", 500));
   }
@@ -113,11 +113,11 @@ const login = async (req, res, next) => {
     return next(new HttpError("Invalid email, please try again", 401));
   }
 
-  let isValidPassword = false;
+  let isValidPassword;
   try {
     isValidPassword = await bcrypt.compare(password, existingStudent.password);
   } catch (err) {
-    return next(new HttpError("Something went wrong while verification of the password, please try again", 500));
+    return next(new HttpError("Something went wrong while verifying the password, please try again", 500));
   }
   if (!isValidPassword) {
     return next(new HttpError("Invalid credentials, please try again", 401));
@@ -131,14 +131,14 @@ const login = async (req, res, next) => {
       { expiresIn: JWT_EXPIRY }
     );
   } catch (err) {
-    return next(new HttpError("Something went wrong while fetching the JWT token, please try again", 500));
+    return next(new HttpError("Something went wrong while creating the JWT token, please try again", 500));
   }
 
   res.status(200).json({
     userId: existingStudent.id,
     email: existingStudent.email,
     role: existingStudent.role,
-    token: token,
+    token,
   });
 };
 
@@ -153,7 +153,7 @@ const updateStudentById = async (req, res, next) => {
 
   const id = req.params.id;
   const {
-    firstName, lastName, password, fatherName, motherName,
+    firstName, lastName, email, password, fatherName, motherName,
     phoneNumber, alternateNumber, studentId, admissionDate,
     batch, address, pincode, state, country,
   } = req.body;
@@ -168,8 +168,21 @@ const updateStudentById = async (req, res, next) => {
     return next(new HttpError("Student not found, please try again", 404));
   }
 
+  if (email && email !== student.email) {
+    let emailTaken;
+    try {
+      emailTaken = await Student.findOne({ email });
+    } catch (err) {
+      return next(new HttpError("Something went wrong while checking email, please try again", 500));
+    }
+    if (emailTaken) {
+      return next(new HttpError("This email is already in use by another account", 422));
+    }
+    student.email = email;
+  }
+
   let updatedPassword;
-  if (password == null) {
+  if (password == null || password === "") {
     updatedPassword = student.password;
   } else {
     try {
@@ -209,14 +222,14 @@ const updateStudentById = async (req, res, next) => {
       { expiresIn: JWT_EXPIRY }
     );
   } catch (err) {
-    return next(new HttpError("Something went wrong while fetching the JWT token, please try again", 500));
+    return next(new HttpError("Something went wrong while creating the JWT token, please try again", 500));
   }
 
   res.status(200).json({
     userId: student.id,
     email: student.email,
     role: student.role,
-    token: token,
+    token,
   });
 };
 
@@ -231,13 +244,64 @@ const updateImageById = async (req, res, next) => {
   if (!student) {
     return next(new HttpError("Student not found", 404));
   }
+  if (!req.file) {
+    return next(new HttpError("No image was uploaded", 400));
+  }
   student.image = req.file.path;
   try {
     await student.save();
   } catch (err) {
     return next(new HttpError("Error occurred while saving the student", 500));
   }
-  res.status(200).json({ message: "Student updated successfully" });
+  res.status(200).json({ message: "Student image updated successfully" });
+};
+
+const updatePasswordByEmail = async (req, res, next) => {
+  const email = req.params.email;
+  const { password, newPassword } = req.body;
+
+  if (!password || !newPassword) {
+    return next(new HttpError("Current password and new password are required", 422));
+  }
+  if (newPassword.length < 6) {
+    return next(new HttpError("New password must be at least 6 characters", 422));
+  }
+
+  let student;
+  try {
+    student = await Student.findOne({ email });
+  } catch (err) {
+    return next(new HttpError("Something went wrong while fetching the data, please try again", 500));
+  }
+  if (!student) {
+    return next(new HttpError("No account found with this email", 404));
+  }
+
+  let isValidPassword;
+  try {
+    isValidPassword = await bcrypt.compare(password, student.password);
+  } catch (err) {
+    return next(new HttpError("Something went wrong while verifying the password, please try again", 500));
+  }
+  if (!isValidPassword) {
+    return next(new HttpError("Current password is incorrect", 401));
+  }
+
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(newPassword, 12);
+  } catch (err) {
+    return next(new HttpError("Something went wrong while encrypting the password, please try again", 500));
+  }
+
+  student.password = hashedPassword;
+  try {
+    await student.save();
+  } catch (err) {
+    return next(new HttpError("Something went wrong while updating the password, please try again", 500));
+  }
+
+  res.status(200).json({ message: "Password updated successfully" });
 };
 
 const deleteStudentById = async (req, res, next) => {
@@ -274,4 +338,5 @@ exports.getStudentById = getStudentById;
 exports.login = login;
 exports.updateImageById = updateImageById;
 exports.updateStudentById = updateStudentById;
+exports.updatePasswordByEmail = updatePasswordByEmail;
 exports.deleteStudentById = deleteStudentById;

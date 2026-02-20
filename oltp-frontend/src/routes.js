@@ -1,19 +1,15 @@
 import React, { useContext } from "react";
 
-// Admin Imports
 import MainDashboard from "views/admin/default";
-import Profile from "views/admin/profile";
+import AdminProfile from "views/admin/profile";
 import ManageStudents from "views/admin/manage_students";
 import ManageTests from "views/admin/manage_tests";
-import AdminSettings from "views/admin/settings";
 import ManageQuestionPaper from "views/admin/manage_question_papers";
 import SuperResult from "views/admin/results";
 import CategoryManager from "views/admin/manage_categories/components/CategoryManager";
 import ResultsAnalytics from "views/admin/results/components/ResultsAnalytics";
+import Batch from "views/admin/batches";
 
-import SignIn from "views/auth/SignIn";
-
-// Icon Imports
 import { IoDocumentsSharp, IoDocuments } from "react-icons/io5";
 import {
   MdGroups,
@@ -22,15 +18,12 @@ import {
   MdPerson,
   MdCategory,
   MdBarChart,
-  MdSettings,
 } from "react-icons/md";
+import { TbReportAnalytics } from "react-icons/tb";
 import { AuthContext } from "components/Auth-context";
 import { Button, Card, message } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
-
-import Batch from "views/admin/batches";
 import { useNavigate } from "react-router-dom";
-import { TbReportAnalytics } from "react-icons/tb";
 
 const LogoutCard = ({ onConfirm }) => {
   const auth = useContext(AuthContext);
@@ -57,6 +50,7 @@ const LogoutCard = ({ onConfirm }) => {
     </Card>
   );
 };
+
 const routes = [
   {
     name: "Dashboard",
@@ -65,7 +59,6 @@ const routes = [
     icon: <MdHome className="h-6 w-6" />,
     component: <MainDashboard />,
   },
-
   {
     name: "Manage Batches",
     layout: "/admin",
@@ -118,21 +111,13 @@ const routes = [
     path: "results-analytics",
     icon: <MdBarChart className="h-6 w-6" />,
     component: <ResultsAnalytics />,
-    secondary: false,
   },
   {
     name: "Profile",
     layout: "/admin",
     path: "profile",
     icon: <MdPerson className="h-6 w-6" />,
-    component: <Profile />,
-  },
-  {
-    name: "Settings",
-    layout: "/admin",
-    path: "settings",
-    icon: <MdSettings className="h-6 w-6" />,
-    component: <AdminSettings />,
+    component: <AdminProfile />,
   },
   {
     name: "Logout",
@@ -140,12 +125,9 @@ const routes = [
     layout: "/admin",
     icon: <LogoutOutlined className="h-6 w-6" />,
     component: (
-      <LogoutCard
-        onConfirm={() => {
-          console.log("Logout confirmed");
-        }}
-      />
+      <LogoutCard onConfirm={() => {}} />
     ),
   },
 ];
+
 export default routes;

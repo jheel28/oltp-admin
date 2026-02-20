@@ -2,20 +2,20 @@ import React, { useContext } from "react";
 
 import StudentMainDashboard from "views/student/default";
 import UpcomingTests from "views/student/test";
+import StudentProfile from "views/student/profile";
+import Result from "views/student/result";
+
 import { IoDocumentsSharp } from "react-icons/io5";
-import ProfileOverview from "views/student/profile";
-import { MdHome, MdPerson, MdSettings, MdAssessment } from "react-icons/md";
+import { MdHome, MdPerson, MdAssessment } from "react-icons/md";
 import { AuthContext } from "components/Auth-context";
 import { Button, Card, message } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import StudentSettings from "views/student/settings";
-import Result from "views/student/result";
+
 const LogoutCard = ({ onConfirm }) => {
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
   const handleLogout = () => {
-    // Call the auth.logout() function
     auth.logout();
     message.success("Logged out Successfully");
     setTimeout(() => {
@@ -37,9 +37,10 @@ const LogoutCard = ({ onConfirm }) => {
     </Card>
   );
 };
+
 const routes = [
   {
-    name: "Student Main Dashboard",
+    name: "Dashboard",
     layout: "/student",
     path: "default",
     icon: <MdHome className="h-6 w-6" />,
@@ -65,28 +66,15 @@ const routes = [
     layout: "/student",
     path: "profile",
     icon: <MdPerson className="h-6 w-6" />,
-    component: <ProfileOverview />,
+    component: <StudentProfile />,
   },
-  {
-    name: "Settings",
-    layout: "/student",
-    path: "settings",
-    icon: <MdSettings className="h-6 w-6" />,
-    component: <StudentSettings />,
-  },
-
   {
     name: "Logout",
     path: "logout",
     layout: "/student",
     icon: <LogoutOutlined className="h-6 w-6" />,
-    component: (
-      <LogoutCard
-        onConfirm={() => {
-          console.log("Logout confirmed");
-        }}
-      />
-    ),
+    component: <LogoutCard onConfirm={() => {}} />,
   },
 ];
+
 export default routes;

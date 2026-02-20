@@ -15,16 +15,21 @@ const createAdmin = async (req, res, next) => {
       errors: errors.array(),
     });
   }
+
   const { firstName, lastName, email, password, mobile } = req.body;
 
   let existingAdmin;
   try {
-    existingAdmin = await Admin.findOne({ email: email });
+    existingAdmin = await Admin.findOne({ email });
   } catch (err) {
     return next(new HttpError("Something went wrong fetching the data, please try again", 500));
   }
   if (existingAdmin) {
     return next(new HttpError("Email already exists, please try again", 422));
+  }
+
+  if (!req.files || !req.files["image"] || req.files["image"].length === 0) {
+    return next(new HttpError("No image was uploaded.", 400));
   }
 
   let hashedPassword;
@@ -34,20 +39,16 @@ const createAdmin = async (req, res, next) => {
     return next(new HttpError("Something went wrong while encrypting the password, please try again", 500));
   }
 
-  if (!req.files || !req.files["image"] || req.files["image"].length === 0) {
-    return next(new HttpError("No image was uploaded.", 400));
-  }
-  const image = req.files["image"][0].path;
-
   const createdAdmin = new Admin({
     firstName,
     lastName,
     email,
     password: hashedPassword,
-    image,
+    image: req.files["image"][0].path,
     role: "Admin",
     mobile,
   });
+
   try {
     await createdAdmin.save();
   } catch (err) {
@@ -69,7 +70,7 @@ const createAdmin = async (req, res, next) => {
     userId: createdAdmin.id,
     email: createdAdmin.email,
     role: createdAdmin.role,
-    token: token,
+    token,
   });
 };
 
@@ -80,7 +81,7 @@ const getAllAdmins = async (req, res, next) => {
   } catch (err) {
     return next(new HttpError("Something went wrong while fetching the data, please try again", 500));
   }
-  res.json({ admins: admins });
+  res.json({ admins });
 };
 
 const getAdminById = async (req, res, next) => {
@@ -94,7 +95,7 @@ const getAdminById = async (req, res, next) => {
   if (!admin) {
     return next(new HttpError("Admin not found", 404));
   }
-  res.json({ admin: admin });
+  res.json({ admin });
 };
 
 const login = async (req, res, next) => {
@@ -102,7 +103,7 @@ const login = async (req, res, next) => {
 
   let existingAdmin;
   try {
-    existingAdmin = await Admin.findOne({ email: email });
+    existingAdmin = await Admin.findOne({ email });
   } catch (err) {
     return next(new HttpError("Something went wrong while verification of the admin, please try again", 500));
   }
@@ -110,7 +111,7 @@ const login = async (req, res, next) => {
     return next(new HttpError("Invalid email, please try again", 401));
   }
 
-  let isValidPassword = false;
+  let isValidPassword;
   try {
     isValidPassword = await bcrypt.compare(password, existingAdmin.password);
   } catch (err) {
@@ -135,7 +136,7 @@ const login = async (req, res, next) => {
     userId: existingAdmin.id,
     email: existingAdmin.email,
     role: existingAdmin.role,
-    token: token,
+    token,
   });
 };
 
@@ -146,7 +147,7 @@ const updateAdminById = async (req, res, next) => {
   }
 
   const id = req.params.id;
-  const { firstName, lastName, password, mobile } = req.body;
+  const { firstName, lastName, email, mobile } = req.body;
 
   let admin;
   try {
@@ -158,22 +159,22 @@ const updateAdminById = async (req, res, next) => {
     return next(new HttpError("No admin found, please try again", 404));
   }
 
-  let updatedPassword;
-  if (password == null) {
-    updatedPassword = admin.password;
-  } else {
+  if (email && email !== admin.email) {
+    let emailTaken;
     try {
-      updatedPassword = await bcrypt.hash(password, 12);
+      emailTaken = await Admin.findOne({ email });
     } catch (err) {
-      return next(new HttpError("Something went wrong while encrypting the password, please try again", 500));
+      return next(new HttpError("Something went wrong while checking email, please try again", 500));
     }
+    if (emailTaken) {
+      return next(new HttpError("This email is already in use by another account", 422));
+    }
+    admin.email = email;
   }
 
   if (firstName !== undefined) admin.firstName = firstName;
   if (lastName !== undefined) admin.lastName = lastName;
   if (mobile !== undefined) admin.mobile = mobile;
-  admin.password = updatedPassword;
-  admin.role = "Admin";
   if (req.files && req.files["image"] && req.files["image"].length > 0) {
     admin.image = req.files["image"][0].path;
   }
@@ -199,7 +200,7 @@ const updateAdminById = async (req, res, next) => {
     userId: admin.id,
     email: admin.email,
     role: admin.role,
-    token: token,
+    token,
   });
 };
 
@@ -214,13 +215,64 @@ const updateImageById = async (req, res, next) => {
   if (!admin) {
     return next(new HttpError("Admin not found", 404));
   }
+  if (!req.file) {
+    return next(new HttpError("No image was uploaded", 400));
+  }
   admin.image = req.file.path;
   try {
     await admin.save();
   } catch (err) {
     return next(new HttpError("Error occurred while saving the admin", 500));
   }
-  res.status(200).json({ message: "Admin updated successfully" });
+  res.status(200).json({ message: "Admin image updated successfully" });
+};
+
+const updatePasswordByEmail = async (req, res, next) => {
+  const email = req.params.email;
+  const { password, newPassword } = req.body;
+
+  if (!password || !newPassword) {
+    return next(new HttpError("Current password and new password are required", 422));
+  }
+  if (newPassword.length < 6) {
+    return next(new HttpError("New password must be at least 6 characters", 422));
+  }
+
+  let admin;
+  try {
+    admin = await Admin.findOne({ email });
+  } catch (err) {
+    return next(new HttpError("Something went wrong while fetching the data, please try again", 500));
+  }
+  if (!admin) {
+    return next(new HttpError("No account found with this email", 404));
+  }
+
+  let isValidPassword;
+  try {
+    isValidPassword = await bcrypt.compare(password, admin.password);
+  } catch (err) {
+    return next(new HttpError("Something went wrong while verifying the password, please try again", 500));
+  }
+  if (!isValidPassword) {
+    return next(new HttpError("Current password is incorrect", 401));
+  }
+
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(newPassword, 12);
+  } catch (err) {
+    return next(new HttpError("Something went wrong while encrypting the password, please try again", 500));
+  }
+
+  admin.password = hashedPassword;
+  try {
+    await admin.save();
+  } catch (err) {
+    return next(new HttpError("Something went wrong while updating the password, please try again", 500));
+  }
+
+  res.status(200).json({ message: "Password updated successfully" });
 };
 
 const deleteAdmin = async (req, res, next) => {
@@ -257,4 +309,5 @@ exports.getAllAdmins = getAllAdmins;
 exports.login = login;
 exports.updateAdminById = updateAdminById;
 exports.updateImageById = updateImageById;
+exports.updatePasswordByEmail = updatePasswordByEmail;
 exports.deleteAdmin = deleteAdmin;

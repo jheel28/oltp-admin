@@ -107,7 +107,6 @@ const Dashboard = () => {
       {/* Charts */}
 
       <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
-        {/* <TotalSpent /> */}
         <PieChartCard className="md:grid-cols-2" />
         <MiniCalendar className="md:grid-cols-2" />
       </div>
