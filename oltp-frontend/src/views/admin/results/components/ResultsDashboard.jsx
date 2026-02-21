@@ -1,0 +1,422 @@
+import React, { useContext, useEffect, useMemo, useState, useCallback } from "react";
+import { MdSearch, MdDownload, MdRefresh, MdBarChart, MdTableChart } from "react-icons/md";
+import Card from "components/card";
+import { message } from "antd";
+import { AuthContext } from "components/Auth-context";
+
+const BAR_COLORS = [
+  "#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6",
+  "#EC4899", "#14B8A6", "#F97316", "#6366F1", "#84CC16",
+];
+
+const StatCard = ({ label, value, color, sub }) => (
+  <Card extra="p-4">
+    <p className="text-xs text-gray-400 mb-1">{label}</p>
+    <p className={`text-2xl font-extrabold ${color}`}>{value}</p>
+    {sub && <p className="text-[11px] text-gray-400 mt-0.5">{sub}</p>}
+  </Card>
+);
+
+const MiniBar = ({ label, value, max, color, sub }) => (
+  <div className="flex items-center gap-3">
+    <span className="w-28 text-xs text-gray-500 dark:text-gray-400 truncate text-right flex-shrink-0">{label}</span>
+    <div className="flex-1 h-4 rounded-full bg-gray-100 dark:bg-navy-700 overflow-hidden">
+      <div
+        className="h-full rounded-full transition-all duration-700"
+        style={{ width: `${max > 0 ? (Number(value) / max) * 100 : 0}%`, backgroundColor: color }}
+      />
+    </div>
+    <span className="w-12 text-xs font-bold text-navy-700 dark:text-white text-right flex-shrink-0">
+      {typeof value === "number" ? value.toFixed(1) : value}
+    </span>
+  </div>
+);
+
+const BarChart = ({ data, max }) => (
+  <div className="flex items-end justify-around gap-1 h-28 pb-1">
+    {data.map(({ label, value, color }) => (
+      <div key={label} className="flex flex-col items-center gap-1 flex-1">
+        <span className="text-[10px] font-bold text-navy-700 dark:text-white">{value}</span>
+        <div className="w-full bg-gray-100 dark:bg-navy-700 rounded-t" style={{ height: "80px" }}>
+          <div
+            className="w-full rounded-t transition-all duration-700"
+            style={{
+              height: `${max > 0 ? (value / max) * 80 : 0}px`,
+              backgroundColor: color || "#3B82F6",
+              marginTop: "auto",
+            }}
+          />
+        </div>
+        <span className="text-[9px] text-gray-400 text-center leading-tight">{label}</span>
+      </div>
+    ))}
+  </div>
+);
+
+const PAGE_SIZE = 15;
+
+const ResultsDashboard = () => {
+  const auth = useContext(AuthContext);
+  const [scores, setScores] = useState([]);
+  const [tests, setTests] = useState([]);
+  const [batches, setBatches] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeView, setActiveView] = useState("analytics");
+
+  const [search, setSearch] = useState("");
+  const [batchFilter, setBatchFilter] = useState("All");
+  const [testFilter, setTestFilter] = useState("All");
+  const [page, setPage] = useState(0);
+
+  const fetchAll = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [sRes, tRes, bRes] = await Promise.all([
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/all/scores`, {
+          headers: { Authorization: "Bearer " + auth.token },
+        }),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/all/tests`),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/get/all/batches`),
+      ]);
+      const sData = await sRes.json();
+      const tData = await tRes.json();
+      const bData = await bRes.json();
+      setScores(sData.scores || []);
+      setTests(tData.tests || []);
+      setBatches(bData.batches || []);
+    } catch {
+      message.error("Failed to load results data");
+    } finally {
+      setLoading(false);
+    }
+  }, [auth.token]);
+
+  useEffect(() => { fetchAll(); }, [fetchAll]);
+
+  const filtered = useMemo(() => {
+    let list = scores;
+    if (batchFilter !== "All") list = list.filter((s) => s.batch === batchFilter);
+    if (testFilter !== "All") list = list.filter((s) => s.testId === testFilter || s.testName === testFilter);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(
+        (s) =>
+          s.studentName?.toLowerCase().includes(q) ||
+          s.studentId?.toLowerCase().includes(q) ||
+          s.testName?.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [scores, batchFilter, testFilter, search]);
+
+  const stats = useMemo(() => {
+    if (!filtered.length) return null;
+    const marks = filtered.map((s) => Number(s.marksObtained) || 0);
+    const total = marks.reduce((a, b) => a + b, 0);
+    const avg = total / marks.length;
+    const max = Math.max(...marks);
+    const min = Math.min(...marks);
+    const passed = filtered.filter((s) => s.passed).length;
+
+    const distribution = [0, 0, 0, 0, 0];
+    filtered.forEach((s) => {
+      const pct = s.totalMarks > 0 ? (Number(s.marksObtained) / s.totalMarks) * 100 : 0;
+      distribution[Math.min(Math.floor(pct / 20), 4)]++;
+    });
+
+    const byTest = {};
+    filtered.forEach((s) => {
+      const key = s.testName || s.testId || "Unknown";
+      if (!byTest[key]) byTest[key] = { count: 0, total: 0, passed: 0 };
+      byTest[key].count++;
+      byTest[key].total += Number(s.marksObtained) || 0;
+      if (s.passed) byTest[key].passed++;
+    });
+    const testBreakdown = Object.entries(byTest)
+      .map(([name, d]) => ({ name, count: d.count, avg: d.total / d.count, passed: d.passed }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 8);
+
+    const byBatch = {};
+    filtered.forEach((s) => {
+      const key = s.batch || "Unassigned";
+      if (!byBatch[key]) byBatch[key] = { count: 0, total: 0 };
+      byBatch[key].count++;
+      byBatch[key].total += Number(s.marksObtained) || 0;
+    });
+    const batchBreakdown = Object.entries(byBatch)
+      .map(([name, d]) => ({ name, count: d.count, avg: d.total / d.count }))
+      .sort((a, b) => b.avg - a.avg)
+      .slice(0, 6);
+
+    return { avg, max, min, passed, distribution, testBreakdown, batchBreakdown };
+  }, [filtered]);
+
+  const paginated = useMemo(() => filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE), [filtered, page]);
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const distMax = stats ? Math.max(...stats.distribution, 1) : 1;
+
+  const exportCSV = () => {
+    const rows = [["Student", "Student ID", "Test", "Batch", "Marks", "Total", "%", "Result", "Date"]];
+    filtered.forEach((s) => {
+      const pct = s.totalMarks > 0 ? ((Number(s.marksObtained) / s.totalMarks) * 100).toFixed(1) : "";
+      rows.push([s.studentName, s.studentId, s.testName, s.batch || "", s.marksObtained, s.totalMarks, pct, s.passed ? "Pass" : "Fail", s.createdAt?.split("T")[0] || ""]);
+    });
+    const csv = rows.map((r) => r.map((c) => `"${c ?? ""}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "results.csv";
+    a.click();
+  };
+
+  return (
+    <div className="space-y-4">
+      <Card extra="w-full p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-bold text-navy-700 dark:text-white">Results Dashboard</h2>
+            <p className="text-xs text-gray-400 mt-0.5">{scores.length} total attempts across {tests.length} tests</p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="relative">
+              <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                type="text"
+                placeholder="Search student, test..."
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+                className="pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
+              />
+            </div>
+            <select
+              value={batchFilter}
+              onChange={(e) => { setBatchFilter(e.target.value); setPage(0); }}
+              className="py-2 px-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none"
+            >
+              <option value="All">All Batches</option>
+              {batches.map((b) => <option key={b._id} value={b.batchName}>{b.batchName}</option>)}
+            </select>
+            <select
+              value={testFilter}
+              onChange={(e) => { setTestFilter(e.target.value); setPage(0); }}
+              className="py-2 px-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none"
+            >
+              <option value="All">All Tests</option>
+              {tests.map((t) => <option key={t._id} value={t.testName || t.testId}>{t.testName || t.testId}</option>)}
+            </select>
+            <button onClick={fetchAll} className="p-2 rounded-lg border border-gray-200 dark:border-navy-600 text-gray-500 hover:bg-gray-50 dark:hover:bg-navy-700 transition">
+              <MdRefresh className="h-4 w-4" />
+            </button>
+            <button onClick={exportCSV} className="flex items-center gap-1 px-3 py-2 text-sm rounded-lg bg-green-500 text-white hover:bg-green-600 transition">
+              <MdDownload className="h-4 w-4" /> Export
+            </button>
+          </div>
+        </div>
+
+        <div className="flex gap-1 mt-4 border-b border-gray-100 dark:border-navy-700">
+          {[
+            { id: "analytics", label: "Analytics", icon: MdBarChart },
+            { id: "table", label: "All Results", icon: MdTableChart },
+          ].map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveView(id)}
+              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium border-b-2 transition -mb-px
+                ${activeView === id
+                  ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                  : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"}`}
+            >
+              <Icon className="h-4 w-4" />
+              {label}
+              {id === "table" && <span className="ml-1 text-[10px] bg-gray-100 dark:bg-navy-700 text-gray-500 px-1.5 py-0.5 rounded-full">{filtered.length}</span>}
+            </button>
+          ))}
+        </div>
+      </Card>
+
+      {loading ? (
+        <Card extra="w-full p-16 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3 text-gray-400">
+            <div className="h-8 w-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+            <span className="text-sm">Loading results...</span>
+          </div>
+        </Card>
+      ) : (
+        <>
+          {activeView === "analytics" && (
+            <>
+              {!stats ? (
+                <Card extra="w-full p-16 flex items-center justify-center text-gray-400">
+                  <p className="text-sm">No results match the current filters</p>
+                </Card>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <StatCard label="Total Attempts" value={filtered.length} color="text-blue-600" />
+                    <StatCard label="Average Score" value={stats.avg.toFixed(1)} color="text-purple-600"
+                      sub={`Min: ${stats.min} · Max: ${stats.max}`} />
+                    <StatCard label="Highest Score" value={stats.max} color="text-green-600" />
+                    <StatCard label="Pass Rate" value={`${filtered.length > 0 ? ((stats.passed / filtered.length) * 100).toFixed(0) : 0}%`}
+                      color="text-amber-600" sub={`${stats.passed} of ${filtered.length} passed`} />
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <Card extra="p-4">
+                      <h3 className="text-sm font-bold text-navy-700 dark:text-white mb-4">Score Distribution</h3>
+                      <BarChart
+                        data={stats.distribution.map((v, i) => ({
+                          label: `${i * 20}–${(i + 1) * 20}%`,
+                          value: v,
+                          color: ["#EF4444", "#F97316", "#F59E0B", "#84CC16", "#10B981"][i],
+                        }))}
+                        max={distMax}
+                      />
+                    </Card>
+
+                    {stats.batchBreakdown.length > 0 && (
+                      <Card extra="p-4">
+                        <h3 className="text-sm font-bold text-navy-700 dark:text-white mb-4">Avg Score by Batch</h3>
+                        <div className="space-y-2.5">
+                          {stats.batchBreakdown.map((b, i) => (
+                            <MiniBar
+                              key={b.name}
+                              label={b.name}
+                              value={b.avg}
+                              max={Math.max(...stats.batchBreakdown.map((x) => x.avg), 1)}
+                              color={BAR_COLORS[i % BAR_COLORS.length]}
+                            />
+                          ))}
+                        </div>
+                      </Card>
+                    )}
+                  </div>
+
+                  {stats.testBreakdown.length > 0 && (
+                    <Card extra="p-4">
+                      <h3 className="text-sm font-bold text-navy-700 dark:text-white mb-4">Test Performance Summary</h3>
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b border-gray-200 dark:border-navy-600">
+                              {["Test", "Attempts", "Avg Score", "Passed", "Pass Rate"].map((h) => (
+                                <th key={h} className={`pb-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider ${h === "Test" ? "text-left" : "text-right"}`}>{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {stats.testBreakdown.map((t, i) => (
+                              <tr key={t.name} className="border-b border-gray-100 dark:border-navy-700">
+                                <td className="py-2.5 text-sm font-medium text-navy-700 dark:text-white">
+                                  <div className="flex items-center gap-2">
+                                    <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: BAR_COLORS[i % BAR_COLORS.length] }} />
+                                    <span className="truncate max-w-[200px]">{t.name}</span>
+                                  </div>
+                                </td>
+                                <td className="py-2.5 text-right text-sm text-gray-500">{t.count}</td>
+                                <td className="py-2.5 text-right text-sm font-bold text-navy-700 dark:text-white">{t.avg.toFixed(1)}</td>
+                                <td className="py-2.5 text-right text-sm text-green-600">{t.passed}</td>
+                                <td className="py-2.5 text-right">
+                                  <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold
+                                    ${t.count > 0 && (t.passed / t.count) >= 0.6 ? "bg-green-100 text-green-700"
+                                      : t.count > 0 && (t.passed / t.count) >= 0.4 ? "bg-amber-100 text-amber-700"
+                                      : "bg-red-100 text-red-600"}`}>
+                                    {t.count > 0 ? `${((t.passed / t.count) * 100).toFixed(0)}%` : "—"}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </Card>
+                  )}
+                </>
+              )}
+            </>
+          )}
+
+          {activeView === "table" && (
+            <Card extra="w-full p-4">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200 dark:border-navy-600">
+                      {["Student", "Test", "Batch", "Score", "%", "Result", "Date"].map((h) => (
+                        <th key={h} className={`pb-2.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider ${["Score", "%"].includes(h) ? "text-right" : h === "Result" ? "text-center" : "text-left"} pr-4`}>
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginated.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="py-16 text-center text-gray-400 text-sm">No results found</td>
+                      </tr>
+                    ) : (
+                      paginated.map((s, i) => {
+                        const pct = s.totalMarks > 0 ? ((Number(s.marksObtained) / s.totalMarks) * 100).toFixed(1) : null;
+                        return (
+                          <tr key={s._id || i} className="border-b border-gray-50 dark:border-navy-700 hover:bg-gray-50 dark:hover:bg-navy-800 transition">
+                            <td className="py-2.5 pr-4">
+                              <p className="text-sm font-medium text-navy-700 dark:text-white">{s.studentName || "—"}</p>
+                              <p className="text-[11px] text-gray-400">{s.studentId}</p>
+                            </td>
+                            <td className="py-2.5 pr-4 text-sm text-gray-600 dark:text-gray-300 max-w-[180px] truncate">{s.testName || s.testId}</td>
+                            <td className="py-2.5 pr-4">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400">
+                                {s.batch || "—"}
+                              </span>
+                            </td>
+                            <td className="py-2.5 pr-4 text-right text-sm font-bold text-navy-700 dark:text-white">
+                              {s.marksObtained}<span className="text-gray-400 font-normal">/{s.totalMarks}</span>
+                            </td>
+                            <td className="py-2.5 pr-4 text-right text-sm text-gray-500">{pct ? `${pct}%` : "—"}</td>
+                            <td className="py-2.5 pr-4 text-center">
+                              <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${s.passed ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+                                {s.passed ? "Pass" : "Fail"}
+                              </span>
+                            </td>
+                            <td className="py-2.5 text-[11px] text-gray-400">{s.createdAt?.split("T")[0] || "—"}</td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {totalPages > 1 && (
+                <div className="mt-4 flex items-center justify-between pt-4 border-t border-gray-100 dark:border-navy-700">
+                  <p className="text-xs text-gray-400">
+                    Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filtered.length)} of {filtered.length}
+                  </p>
+                  <div className="flex gap-1">
+                    {[
+                      { label: "«", action: () => setPage(0), disabled: page === 0 },
+                      { label: "‹", action: () => setPage((p) => p - 1), disabled: page === 0 },
+                      { label: "›", action: () => setPage((p) => p + 1), disabled: page >= totalPages - 1 },
+                      { label: "»", action: () => setPage(totalPages - 1), disabled: page >= totalPages - 1 },
+                    ].map(({ label, action, disabled }) => (
+                      <button
+                        key={label}
+                        onClick={action}
+                        disabled={disabled}
+                        className="px-2.5 py-1 text-sm rounded border border-gray-200 dark:border-navy-600 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-navy-700 transition"
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Card>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+
+export default ResultsDashboard;

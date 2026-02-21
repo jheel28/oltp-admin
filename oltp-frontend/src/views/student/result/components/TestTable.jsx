@@ -6,24 +6,20 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
-import StudentResultsTable from "./StudentResultTable";
 import { AuthContext } from "components/Auth-context";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 
 const TestsTable = () => {
-  const [selectedStudent, setSelectedStudent] = useState(null);
-  const [selectedTest, setSelectedTest] = useState(null); 
-  const [showResultPage, setShowResultPage] = useState(false);
   const [scores, setScores] = useState([]);
   const [tests, setTests] = useState([]);
   const [student, setStudent] = useState({});
   const navigate = useNavigate();
   const auth = useContext(AuthContext);
+
   useEffect(() => {
     const fetchScores = async () => {
       try {
-        // Fetch the student information
         const studentResponse = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/student/byid/${auth.userId}`
         );
@@ -33,9 +29,8 @@ const TestsTable = () => {
         const studentData = await studentResponse.json();
         setStudent(studentData.student);
 
-        // Fetch the scores for the authenticated user (assuming it's the same as the student)
         const scoreResponse = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/attempted/tests/bystudentId/${student.studentId}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/attempted/tests/bystudentid/${studentData.student.studentId}`
         );
         if (!scoreResponse.ok) {
           throw new Error(`HTTP error! Status: ${scoreResponse.status}`);
@@ -43,7 +38,6 @@ const TestsTable = () => {
         const scoreData = await scoreResponse.json();
         setScores(scoreData.tests);
 
-        // Fetch all tests
         const testResponse = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/all/tests`
         );
@@ -57,11 +51,12 @@ const TestsTable = () => {
       }
     };
     fetchScores();
-  }, [student.studentId]);
+  }, [auth.userId]);
 
-  const handleViewResults = (testId, questionPaperId) => {
-    navigate(`result-page/${testId}/${questionPaperId}`);
+  const handleViewResults = (testId, paperId) => {
+    navigate(`result-page/${testId}/${paperId}`);
   };
+
   const data = useMemo(() => {
     if (!scores || !tests) return [];
 
@@ -70,16 +65,13 @@ const TestsTable = () => {
       scoreTestIds.includes(test.testId)
     );
 
-    // Map the filtered tests with corresponding scores
-    const mappedData = filteredTests.map((test) => {
+    return filteredTests.map((test) => {
       const score = scores.find((s) => s.testId === test.testId);
       return {
         ...test,
-        marks: score ? score.marks : null, // Include marks attribute
+        marksObtained: score ? score.marksObtained : null,
       };
     });
-
-    return mappedData;
   }, [scores, tests]);
 
   const columns = useMemo(
@@ -89,21 +81,20 @@ const TestsTable = () => {
         accessor: "testId",
       },
       {
-        Header: "Exam Name",
-        accessor: "examName",
+        Header: "Test Name",
+        accessor: "testName",
       },
       {
         Header: "Marks",
-        accessor: "marks",
+        accessor: "marksObtained",
       },
-
       {
         Header: "Max Marks",
-        accessor: "score",
+        accessor: "totalMarks",
       },
       {
-        Header: "Question Paper ID",
-        accessor: "questionPaperId",
+        Header: "Paper ID",
+        accessor: "paperId",
       },
       {
         Header: "Date",
@@ -118,7 +109,7 @@ const TestsTable = () => {
             onClick={() =>
               handleViewResults(
                 row.original.testId,
-                row.original.questionPaperId
+                row.original.paperId
               )
             }
           >
@@ -126,15 +117,6 @@ const TestsTable = () => {
           </button>
         ),
       },
-      // {
-      //   Header: "Delete",
-      //   accessor: "deleteButton",
-      //   Cell: () => (
-      //     <button className="rounded-full bg-red-500 px-4 py-2 text-white hover:bg-red-700">
-      //       <FaTrashAlt />
-      //     </button>
-      //   ),
-      // },
     ],
     []
   );
@@ -162,104 +144,85 @@ const TestsTable = () => {
     gotoPage,
     nextPage,
     previousPage,
-    setPageSize,
-    state: { pageIndex, pageSize },
+    state: { pageIndex },
   } = tableInstance;
 
   return (
     <Card extra={"w-full pb-10 p-4 h-full"}>
-      <>
-        {showResultPage ? (
-          <StudentResultsTable
-            student={selectedStudent}
-            test={selectedTest}
-            setShowResultPage={setShowResultPage}
-          />
-        ) : (
-          <>
-            <header className="relative flex items-center justify-between">
-              <div className="text-xl font-bold text-navy-700 dark:text-white">
-                Tests Results
-              </div>
-            </header>
-            <div>
-              <div className="mt-8 overflow-x-scroll xl:overflow-x-hidden">
-                <table {...getTableProps()} className="w-full">
-                  <thead>
-                    {headerGroups.map((headerGroup, index) => (
-                      <tr {...headerGroup.getHeaderGroupProps()} key={index}>
-                        {headerGroup.headers.map((column, index) => (
-                          <th
-                            {...column.getHeaderProps(
-                              column.getSortByToggleProps()
-                            )}
-                            key={index}
-                            className="border-b border-gray-200 pb-[10px] pr-14 text-start dark:!border-navy-700"
-                          >
-                            <div className="flex w-full justify-between pr-10 text-xs tracking-wide text-gray-600">
-                              {column.render("Header")}
-                            </div>
-                          </th>
-                        ))}
-                      </tr>
+      <header className="relative flex items-center justify-between">
+        <div className="text-xl font-bold text-navy-700 dark:text-white">
+          Tests Results
+        </div>
+      </header>
+      <div>
+        <div className="mt-8 overflow-x-scroll xl:overflow-x-hidden">
+          <table {...getTableProps()} className="w-full">
+            <thead>
+              {headerGroups.map((headerGroup, index) => (
+                <tr {...headerGroup.getHeaderGroupProps()} key={index}>
+                  {headerGroup.headers.map((column, index) => (
+                    <th
+                      {...column.getHeaderProps(
+                        column.getSortByToggleProps()
+                      )}
+                      key={index}
+                      className="border-b border-gray-200 pb-[10px] pr-14 text-start dark:!border-navy-700"
+                    >
+                      <div className="flex w-full justify-between pr-10 text-xs tracking-wide text-gray-600">
+                        {column.render("Header")}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody {...getTableBodyProps()}>
+              {page.map((row, index) => {
+                prepareRow(row);
+                return (
+                  <tr {...row.getRowProps()} key={index}>
+                    {row.cells.map((cell, index) => (
+                      <td
+                        className="pb-[20px] pt-[14px] sm:text-[14px]"
+                        {...cell.getCellProps()}
+                        key={index}
+                      >
+                        {cell.render("Cell")}
+                      </td>
                     ))}
-                  </thead>
-                  <tbody {...getTableBodyProps()}>
-                    {page.map((row, index) => {
-                      prepareRow(row);
-                      return (
-                        <tr {...row.getRowProps()} key={index}>
-                          {row.cells.map((cell, index) => (
-                            <td
-                              className="pb-[20px] pt-[14px] sm:text-[14px]"
-                              {...cell.getCellProps()}
-                              key={index}
-                            >
-                              {cell.render("Cell")}
-                            </td>
-                          ))}
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
 
-              <div className="mt-4 flex justify-between">
-                <div>
-                  <button
-                    onClick={() => gotoPage(0)}
-                    disabled={!canPreviousPage}
-                  >
-                    {"<<"}
-                  </button>{" "}
-                  <button
-                    onClick={() => previousPage()}
-                    disabled={!canPreviousPage}
-                  >
-                    {"<"}
-                  </button>{" "}
-                  <button onClick={() => nextPage()} disabled={!canNextPage}>
-                    {">"}
-                  </button>{" "}
-                  <button
-                    onClick={() => gotoPage(pageCount - 1)}
-                    disabled={!canNextPage}
-                  >
-                    {">>"}
-                  </button>{" "}
-                </div>
-                <div>
-                  Page{" "}
-                  <strong>
-                    {pageIndex + 1} of {pageOptions.length}
-                  </strong>{" "}
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-      </>
+        <div className="mt-4 flex justify-between">
+          <div>
+            <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+              {"<<"}
+            </button>{" "}
+            <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+              {"<"}
+            </button>{" "}
+            <button onClick={() => nextPage()} disabled={!canNextPage}>
+              {">"}
+            </button>{" "}
+            <button
+              onClick={() => gotoPage(pageCount - 1)}
+              disabled={!canNextPage}
+            >
+              {">>"}
+            </button>{" "}
+          </div>
+          <div>
+            Page{" "}
+            <strong>
+              {pageIndex + 1} of {pageOptions.length}
+            </strong>{" "}
+          </div>
+        </div>
+      </div>
     </Card>
   );
 };

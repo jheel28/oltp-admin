@@ -5,33 +5,24 @@ import { message } from "antd";
 const TestCard = ({ test, isActive }) => {
   const navigate = useNavigate();
 
-const handleStartExam = async () => {
-  if (!isActive) return;
+  const handleStartExam = async () => {
+    if (!isActive) return;
 
-  const elem = document.documentElement;
+    const elem = document.documentElement;
 
-  try {
-    if (!document.fullscreenElement) {
-      await elem.requestFullscreen();
+    try {
+      if (!document.fullscreenElement) {
+        await elem.requestFullscreen();
+      }
+    } catch (err) {
+      message.error({
+        content: "Fullscreen permission denied. Please allow fullscreen for the exam.",
+        duration: 3,
+        key: "fullscreen-error"
+      });
     }
-  } catch (err) {
-    message.error({
-      content: "Fullscreen permission denied. Please allow fullscreen for the exam.",
-      duration: 3,
-      key: "fullscreen-error"
-    });
-  }
 
-  navigate(`/student/test/${test._id}`);
-};
-
-  const getDifficultyColor = (difficulty) => {
-    switch (difficulty) {
-      case "Easy": return "bg-green-100 text-green-800";
-      case "Medium": return "bg-orange-100 text-orange-800";
-      case "Hard": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
+    navigate(`/student/test/${test._id}`);
   };
 
   return (
@@ -39,15 +30,12 @@ const handleStartExam = async () => {
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-xl font-bold text-navy-700 dark:text-white leading-tight">
-            {test.examName}
+            {test.testName}
           </h3>
           <p className="text-sm font-medium text-gray-500 mt-1 italic">
             {test.course}
           </p>
         </div>
-        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getDifficultyColor(test.difficulty)}`}>
-          {test.difficulty || "Medium"}
-        </span>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-6">
@@ -62,10 +50,10 @@ const handleStartExam = async () => {
         </div>
         <div className="flex flex-col">
           <span className="text-sm font-bold text-navy-700 dark:text-white">
-            {test.course} {test.subjects ? `| ${test.subjects}` : ""}
+            {test.course}
           </span>
           <span className="mt-1 text-sm font-medium text-gray-600">
-            {test.examName}
+            {test.testName}
           </span>
         </div>
       </div>

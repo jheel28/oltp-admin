@@ -34,7 +34,7 @@ const Marketplace = () => {
 
         if (studentData.student && studentData.student.studentId) {
           const scoreResponse = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/attempted/tests/bystudentId/${studentData.student.studentId}`
+            `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/attempted/tests/bystudentid/${studentData.student.studentId}`
           );
 
           if (!scoreResponse.ok) {
@@ -59,16 +59,13 @@ const Marketplace = () => {
       (attemptedTest) => attemptedTest.testId === test.testId
     );
 
-    // Use case-insensitive comparison and trim for safety
     const isSameBatch =
       student.batch?.trim().toLowerCase() ===
       test.batchName?.trim().toLowerCase();
 
-    // Construct end time Date object
     const endTime = new Date(`${test.date} ${test.endTime}`);
     const currentTime = new Date();
 
-    // Show tests that have not yet ended
     const isTestNotExpired = currentTime <= endTime;
 
     return !isTestAttempted && isSameBatch && isTestNotExpired;
@@ -77,17 +74,14 @@ const Marketplace = () => {
   return (
     <div className="mt-3 grid h-full grid-cols-1 gap-5 xl:grid-cols-2 2xl:grid-cols-3">
       <div className="col-span-1 h-fit w-full xl:col-span-1 2xl:col-span-2">
-        {/* NFt Banner */}
         <Banner1 />
 
-        {/* NFt Header */}
         <div className="mb-4 mt-5 flex flex-col justify-between px-4 md:flex-row md:items-center">
           <h4 className="ml-1 text-2xl font-bold text-navy-700 dark:text-white">
             Exam
           </h4>
         </div>
 
-        {/* NFTs trending card */}
         <div className="mt-8 flex flex-wrap gap-4">
           {filteredTests.length > 0 ? (
             filteredTests.map((test) => (
@@ -111,7 +105,6 @@ const Marketplace = () => {
         </div>
       </div>
 
-      {/* right side section */}
       <div className="col-span-1 h-full w-full rounded-xl 2xl:col-span-1">
         <TopCreatorTable />
       </div>

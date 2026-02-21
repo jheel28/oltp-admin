@@ -46,20 +46,30 @@ const FeedbackScreen = () => {
     const fetchDetails = async () => {
       setLoading(true);
       try {
+        const studentRes = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/student/byid/${auth.userId}`,
+          { headers: { Authorization: "Bearer " + auth.token } }
+        );
+        const studentData = await studentRes.json();
+        const studentId = studentData.student?.studentId;
+
+        if (!studentId) {
+          setLoading(false);
+          return;
+        }
+
         const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/score/bystudentid/${auth.userId}`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/scores/bystudentid/${studentId}`,
           { headers: { Authorization: "Bearer " + auth.token } }
         );
         const data = await res.json();
         const scores = data.scores || [];
-        // Get most recent
         const latest = scores.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
         setLatestScore(latest);
 
-        // Fetch question details if available
-        if (latest?.questionPaperId) {
+        if (latest?.paperId) {
           const qRes = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/beta/question/get/questions/byquestionpaperid/${latest.questionPaperId}`
+            `${process.env.REACT_APP_BACKEND_URL}/api/beta/question/get/questions/bypaperid/${latest.paperId}`
           );
           const qData = await qRes.json();
           setQuestions(qData.questions || []);
@@ -77,14 +87,14 @@ const FeedbackScreen = () => {
 
   const correct = questionResults.filter((q) => {
     const chosen = q.chosenAnswer;
-    const correct = q.correctAnswer;
+    const correctAns = q.correctAnswer;
     if (chosen === null || chosen === undefined) return false;
-    if (Array.isArray(correct)) {
+    if (Array.isArray(correctAns)) {
       const ca = Array.isArray(chosen) ? chosen : [chosen];
-      return ca.length === correct.length && ca.every((v) => correct.includes(v));
+      return ca.length === correctAns.length && ca.every((v) => correctAns.includes(v));
     }
     const ca = Array.isArray(chosen) ? chosen : [chosen];
-    return ca.includes(correct);
+    return ca.includes(correctAns);
   }).length;
 
   const unanswered = questionResults.filter((q) =>
@@ -96,14 +106,12 @@ const FeedbackScreen = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
       <div className="bg-[#1a2744] px-6 py-4 text-white text-center">
         <div className="text-lg font-black">Exam Completed</div>
         <div className="text-xs text-blue-300">{latestScore?.testName || "Your Results"}</div>
       </div>
 
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-8 space-y-5">
-        {/* Main score card */}
         <Card extra="p-8 text-center">
           <div className="relative inline-flex items-center justify-center mb-4">
             <CircleProgress value={percentage} size={140} stroke={12} color={grade.color} />
@@ -140,7 +148,6 @@ const FeedbackScreen = () => {
           )}
         </Card>
 
-        {/* Detailed breakdown toggle */}
         {questionResults.length > 0 && questions.length > 0 && (
           <Card extra="p-5">
             <button
@@ -213,7 +220,6 @@ const FeedbackScreen = () => {
           </Card>
         )}
 
-        {/* Navigation */}
         <div className="grid grid-cols-2 gap-3">
           <button onClick={() => navigate("/student/default")}
             className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50 shadow-sm">

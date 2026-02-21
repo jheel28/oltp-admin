@@ -1,14 +1,11 @@
-import TestsTable from "./components/TestTable";
-import UniversityTable from "./components/UniversityTable";
+import ResultsDashboard from "./components/ResultsDashboard";
 
-const Tables = () => {
+const Results = () => {
   return (
-    <div className="mt-5">
-    <div className="w-full">
-      <TestsTable/>
+    <div className="mt-3">
+      <ResultsDashboard />
     </div>
-  </div>
   );
 };
 
-export default Tables;
+export default Results;

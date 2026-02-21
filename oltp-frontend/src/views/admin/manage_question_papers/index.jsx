@@ -1,13 +1,19 @@
-import QuestionTable from "./components/questionPaperTable";
+import { Route, Routes } from "react-router-dom";
+import QuestionPaperTable from "./components/QuestionPaperTable";
+import QuestionPaperBuilder from "./components/QuestionPaperBuilder";
+import QuestionManagerPage from "./components/QuestionManagerPage";
 
-const ManageTests = () => {
+const ManageQuestionPapers = () => {
   return (
-    <div className="mt-3 grid h-full grid-cols-1 gap-5 xl:grid-cols-2 2xl:grid-cols-3">
-      <div className="col-span-1 h-fit w-full xl:col-span-1 2xl:col-span-3">
-        <QuestionTable />
-      </div>
+    <div className="mt-3 space-y-4">
+      <Routes>
+        <Route index element={<QuestionPaperTable />} />
+        <Route path="create" element={<QuestionPaperBuilder mode="create" />} />
+        <Route path="edit/:id" element={<QuestionPaperBuilder mode="edit" />} />
+        <Route path=":paperId/questions" element={<QuestionManagerPage />} />
+      </Routes>
     </div>
   );
 };
 
-export default ManageTests;
+export default ManageQuestionPapers;

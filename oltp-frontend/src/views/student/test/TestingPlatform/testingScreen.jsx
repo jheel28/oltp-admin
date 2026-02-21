@@ -223,9 +223,7 @@ const InstructionsScreen = ({ test, student, onBegin }) => {
           <div className="text-lg font-black tracking-tight">
             Online Examination Portal
           </div>
-          <div className="text-xs text-blue-300">
-            {test?.examName || test?.testName}
-          </div>
+          <div className="text-xs text-blue-300">{test?.testName}</div>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -253,7 +251,7 @@ const InstructionsScreen = ({ test, student, onBegin }) => {
               ["Batch", student?.batch],
               ["Test Name", test?.testName],
               ["Duration", test?.duration ? `${test.duration} min` : "—"],
-              ["Total Marks", test?.totalMarks || test?.score || "—"],
+              ["Total Marks", test?.totalMarks || "—"],
             ].map(([label, value]) => (
               <div key={label}>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
@@ -423,7 +421,7 @@ const TestingScreen = () => {
     (overrides = {}) => {
       if (!test) return;
       saveState(test.testId, {
-        questionPaperId: test.questionPaperId,
+        paperId: test.paperId,
         answers: overrides.answers ?? answers,
         questionStates: overrides.questionStates ?? questionStates,
         currentQuestion: overrides.currentQuestion ?? currentQuestion,
@@ -462,14 +460,14 @@ const TestingScreen = () => {
         const endTs = parseEndTimestamp(fetchedTest);
         setEndTimestamp(endTs);
         const questionsRes = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/question/get/questions/byquestionpaperid/${fetchedTest.questionPaperId}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/beta/question/get/questions/bypaperid/${fetchedTest.paperId}`
         );
         const questionsData = await questionsRes.json();
         const qs = questionsData.questions || [];
         setQuestions(qs);
         setSections(buildSections(qs));
         const saved = loadState(fetchedTest.testId);
-        if (saved && saved.questionPaperId === fetchedTest.questionPaperId) {
+        if (saved && saved.paperId === fetchedTest.paperId) {
           if (endTs && Date.now() > endTs) {
             setAnswers(saved.answers || Array(qs.length).fill(null));
             setQuestionStates(saved.questionStates || Array(qs.length).fill(0));
@@ -500,7 +498,7 @@ const TestingScreen = () => {
       }
     };
     load();
-  }, [id, auth.userId, parseEndTimestamp]);
+  }, [id, auth.userId]);
 
   useEffect(() => {
     if (phase === "autosubmit" && !submitCalledRef.current) {
@@ -811,7 +809,7 @@ const TestingScreen = () => {
       setSubmitting(true);
       clearInterval(saveTimerRef.current);
       const score = calculateScore();
-      const maxscore = test.score || test.totalMarks;
+      const totalMarks = test.totalMarks;
       try {
         const res = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/create/score`,
@@ -822,11 +820,11 @@ const TestingScreen = () => {
               Authorization: "Bearer " + auth.token,
             },
             body: JSON.stringify({
-              marks: score,
+              marksObtained: score,
               studentId: student.studentId,
               testId: test.testId,
-              questionPaperId: test.questionPaperId,
-              maxscore,
+              paperId: test.paperId,
+              totalMarks,
               questions: questions.map((q, i) => ({
                 questionId: q._id,
                 correctAnswer: q.correctOption,
@@ -843,7 +841,7 @@ const TestingScreen = () => {
             : "Test submitted successfully.",
           key: "submit-success",
         });
-        navigate(`/student/feedbackscreen/${score}/${maxscore}`);
+        navigate(`/student/feedbackscreen/${score}/${totalMarks}`);
       } catch (err) {
         message.error({
           content: `Submission failed. Please try again. ${err?.message || ""}`,
@@ -1054,7 +1052,7 @@ const TestingScreen = () => {
         <div className="z-30 flex flex-none items-center justify-between bg-[#1a2744] px-4 py-2.5 shadow-lg">
           <div className="min-w-0">
             <div className="truncate text-sm font-black text-white">
-              {test?.testName || test?.examName}
+              {test?.testName}
             </div>
             <div className="text-[10px] text-blue-300">
               {test?.category} {test?.subject ? `· ${test.subject}` : ""}

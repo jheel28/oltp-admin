@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FaDownload } from "react-icons/fa";
 import Card from "components/card";
-import Button from "components/button";
 import { AuthContext } from "components/Auth-context";
 import { useParams } from "react-router-dom";
 
@@ -11,7 +9,7 @@ const StudentResultsTable = () => {
   const [questions, setQuestions] = useState([]);
   const [questionPaper, setQuestionPaper] = useState({});
   const auth = useContext(AuthContext);
-  const { testId, questionPaperId } = useParams();
+  const { testId, paperId } = useParams();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,7 +24,7 @@ const StudentResultsTable = () => {
         setStudent(studentData.student);
 
         const scoreResponse = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/attempted/tests/bystudentIdandtestId/${studentData.student.studentId}/${testId}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/score/bytestid/${testId}/studentid/${studentData.student.studentId}`
         );
         if (!scoreResponse.ok) {
           throw new Error(`HTTP error! Status: ${scoreResponse.status}`);
@@ -35,15 +33,16 @@ const StudentResultsTable = () => {
         setScore(scoreData.score);
 
         const questionsResponse = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/question/get/questions/byquestionpaperid/${questionPaperId}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/beta/question/get/questions/bypaperid/${paperId}`
         );
         if (!questionsResponse.ok) {
           throw new Error(`HTTP error! Status: ${questionsResponse.status}`);
         }
         const questionsData = await questionsResponse.json();
         setQuestions(questionsData.questions);
+
         const questionPaperResponse = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/questionpaper/get/questionpaper/byquestionpaperid/${questionPaperId}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/beta/questionpaper/get/questionpaper/bypaperid/${paperId}`
         );
         if (!questionPaperResponse.ok) {
           throw new Error(
@@ -51,28 +50,13 @@ const StudentResultsTable = () => {
           );
         }
         const questionPaperData = await questionPaperResponse.json();
-        console.log(questionPaperData);
         setQuestionPaper(questionPaperData.questionPaper);
       } catch (err) {
         console.error("Error fetching data:", err);
       }
     };
     fetchData();
-  }, [auth.userId]);
-  const handleDownloadKeySheet = () => {
-    if (questionPaper && questionPaper.keySheet) {
-      console.log(questionPaper.keySheet);
-      const keySheetUrl = `${process.env.REACT_APP_BACKEND_URL}/${questionPaper.keySheet}`;
-      console.log(keySheetUrl);
-      const link = document.createElement("a");
-      link.href = keySheetUrl;
-      link.download = questionPaper.keySheet;
-      link.target = "_blank";
-      link.click();
-    } else {
-      console.error("Key sheet filename not available");
-    }
-  };
+  }, [auth.userId, testId, paperId]);
 
   const renderOptions = (questionId) => {
     if (!score || !score.questions || !score.questions.length === 0)
@@ -132,7 +116,6 @@ const StudentResultsTable = () => {
       </header>
       <div>
         <div className="mt-8 overflow-x-scroll xl:overflow-x-hidden">
-          {/* Display test details here */}
           <ul>
             {questions &&
               questions.map((question, index) => (
@@ -145,6 +128,7 @@ const StudentResultsTable = () => {
                       <div className="mb-6 rounded border bg-gray-300 p-2 font-bold dark:text-gray-800">
                         <img
                           src={`${process.env.REACT_APP_BACKEND_URL}/${question.questionImage}`}
+                          alt="question"
                         />
                       </div>
                     )}
@@ -154,17 +138,6 @@ const StudentResultsTable = () => {
               ))}
           </ul>
         </div>
-
-        {/* Download button for key sheet */}
-        {questionPaper.keySheet && (
-          <div className="mt-4">
-            <Button
-              label={"Download Key Sheet"}
-              icon={<FaDownload />}
-              onClick={handleDownloadKeySheet}
-            />
-          </div>
-        )}
       </div>
     </Card>
   );

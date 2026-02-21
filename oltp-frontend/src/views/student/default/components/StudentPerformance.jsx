@@ -3,16 +3,15 @@ import Card from "components/card";
 import LineChart from "components/charts/LineChart";
 
 const StudentPerformance = ({ tests = [], attemptedScores = [] }) => {
-  // Map attempted scores to chart data
   const chartData = attemptedScores
     .map((score) => {
       const testInfo = tests.find((t) => t.testId === score.testId);
       if (!testInfo) return null;
 
-      const percentage = Math.round((score.marks / (score.maxscore || 100)) * 100);
+      const percentage = Math.round((score.marksObtained / (score.totalMarks || 100)) * 100);
       return {
         date: new Date(testInfo.date),
-        testName: testInfo.testTitle || `Test ${testInfo.testId}`,
+        testName: testInfo.testName || `Test ${testInfo.testId}`,
         score: percentage,
       };
     })

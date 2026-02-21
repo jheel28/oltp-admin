@@ -7,7 +7,6 @@ import { AuthContext } from "components/Auth-context";
 import FetchInterceptor from "components/FetchInterceptor";
 import { BeatLoader } from "react-spinners";
 import LandingPage from "views/LandingPage";
-import TestingPlatformHome from "views/student/test/TestingPlatform/testingPlatformHome";
 import TestingScreen from "views/student/test/TestingPlatform/testingScreen";
 import FeedbackScreen from "views/student/test/TestingPlatform/feedbackScreen";
 import SignIn from "views/auth/SignIn";
@@ -42,10 +41,9 @@ const App = () => {
     routes = (
       <Routes>
         <Route path="student/*" element={<StudentLayout />} />
-        <Route path="student/test/:id" element={<TestingPlatformHome />} />
-        <Route path="student/testingscreen/:id" element={<TestingScreen />} />
+        <Route path="student/test/:id" element={<TestingScreen />} />
         <Route
-          path="student/result/result-page/:testId/:questionPaperId"
+          path="student/result/result-page/:testId/:paperId"
           element={<StudentResultsTable />}
         />
         <Route

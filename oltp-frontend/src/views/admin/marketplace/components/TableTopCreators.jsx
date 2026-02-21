@@ -1,5 +1,4 @@
 import Card from "components/card";
-import Progress from "components/progress";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   useGlobalFilter,
@@ -8,7 +7,7 @@ import {
   useTable,
 } from "react-table";
 
-function TopCreatorTable(props) {
+function TopCreatorTable() {
   const [students, setStudents] = useState([]);
   const [scores, setScores] = useState([]);
   useEffect(() => {
@@ -30,15 +29,13 @@ function TopCreatorTable(props) {
         }
         const scoresData = await scoresResponse.json();
 
-        // Calculate total scores for each student
         const studentsWithTotalScores = studentsData.students.map((student) => {
           const studentScores = scoresData.scores.filter(
             (score) => score.studentId === student.studentId
           );
 
-          // Convert marks from string to number and sum them up
           const totalScore = studentScores.reduce(
-            (acc, curr) => acc + parseInt(curr.marks, 10),
+            (acc, curr) => acc + parseInt(curr.marksObtained, 10),
             0
           );
 
@@ -98,7 +95,6 @@ function TopCreatorTable(props) {
 
   return (
     <Card extra={"h-[350px] w-full"}>
-      {/* Top Creator Header */}
       <div className="flex h-fit w-full items-center justify-between rounded-t-2xl bg-white px-4 pb-[20px] pt-4 shadow-2xl shadow-gray-100 dark:!bg-navy-700 dark:shadow-none">
         <h4 className="text-lg font-bold text-navy-700 dark:text-white">
           Top Students
@@ -108,7 +104,6 @@ function TopCreatorTable(props) {
         </button>
       </div>
 
-      {/* Top Creator Heading */}
       <div className="w-full overflow-x-scroll px-4 md:overflow-x-hidden">
         <table
           {...getTableProps()}
@@ -122,7 +117,7 @@ function TopCreatorTable(props) {
                     {...column.getHeaderProps(column.getSortByToggleProps())}
                     key={index}
                   >
-                    <div className="flex items-center justify-between  pb-2 pt-4 text-start uppercase tracking-wide text-gray-600 sm:text-xs lg:text-xs">
+                    <div className="flex items-center justify-between pb-2 pt-4 text-start uppercase tracking-wide text-gray-600 sm:text-xs lg:text-xs">
                       {column.render("Header")}
                     </div>
                   </th>
@@ -156,15 +151,9 @@ function TopCreatorTable(props) {
                       );
                     } else if (cell.column.Header === "Total Score") {
                       data = (
-                        <p className="text-md font-bold  dark:text-white">
+                        <p className="text-md font-bold dark:text-white">
                           {cell.value}
                         </p>
-                      );
-                    } else if (cell.column.Header === "Total Score") {
-                      data = (
-                        <div className="mx-2 flex font-bold">
-                          <Progress width="w-16" value={cell.value} />
-                        </div>
                       );
                     }
                     return (

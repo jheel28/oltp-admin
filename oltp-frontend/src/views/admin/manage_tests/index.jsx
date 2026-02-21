@@ -1,12 +1,15 @@
+import { Route, Routes } from "react-router-dom";
 import TestTable from "./components/testTable";
-
+import TestFormWizard from "./components/TestFormWizard";
 
 const ManageTests = () => {
   return (
-    <div className="mt-3 grid h-full grid-cols-1 gap-5 xl:grid-cols-2 2xl:grid-cols-3">
-      <div className="col-span-1 h-fit w-full xl:col-span-1 2xl:col-span-3">
-        <TestTable />
-      </div>
+    <div className="mt-3">
+      <Routes>
+        <Route index element={<TestTable />} />
+        <Route path="create" element={<TestFormWizard mode="create" />} />
+        <Route path="edit/:id" element={<TestFormWizard mode="edit" />} />
+      </Routes>
     </div>
   );
 };
