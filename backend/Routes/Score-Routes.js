@@ -1,48 +1,39 @@
 const express = require("express");
 const { check } = require("express-validator");
 const router = express.Router();
-const scoreControllers = require("../Controllers/Score-Controllers");
+const ctrl = require("../Controllers/Score-Controllers");
 const checkAuth = require("../Middleware/check-auth");
 
-router.get("/get/all/scores", scoreControllers.getAllScore);
+router.get("/get/all/scores", checkAuth("Admin"), ctrl.getAllScores);
+router.get("/get/scores/bystudentid/:studentId", ctrl.getScoresByStudentId);
+router.get("/get/scores/bytestid/:testId", ctrl.getScoresByTestId);
 router.get(
-  "/get/scores/bystudentId/:studentId",
-  scoreControllers.getScoreByStudentId,
+  "/get/score/bytestid/:testId/studentid/:studentId",
+  ctrl.getScoreByTestAndStudent,
 );
 router.get(
-  "/get/attempted/tests/bystudentId/:studentId",
-  scoreControllers.getAttemptedTestsByStudentId,
+  "/get/attempted/tests/bystudentid/:studentId",
+  ctrl.getAttemptedTestsByStudentId,
 );
-router.get(
-  "/get/attempted/tests/bystudentIdandtestId/:studentId/:testId",
-  scoreControllers.getScoreByTestIdAndStudentId,
-);
-router.get("/get/scores/bytestId/:testId", scoreControllers.getScoreByTestId);
 
 router.post(
   "/create/score",
   checkAuth("Student"),
   [
-    check("studentId").isLength({ min: 1, max: 255 }),
-    check("testId").isNumeric().isLength({ min: 1, max: 255 }),
-    check("marks").notEmpty(),
-    check("maxscore").notEmpty(),
-    check("questions").isArray().withMessage("Questions must be an array"),
-    check("questions.*.questionId")
-      .notEmpty()
-      .withMessage("Question ID is required"),
-    check("questions.*.correctAnswer")
-      .notEmpty()
-      .withMessage("Correct answer is required"),
-    check("questions.*.chosenAnswer").optional(),
+    check("testId").notEmpty(),
+    check("studentId").notEmpty(),
+    check("paperId").notEmpty(),
+    check("marksObtained").isNumeric(),
+    check("totalMarks").isNumeric(),
+    check("questions").isArray(),
   ],
-  scoreControllers.createScore,
+  ctrl.createScore,
 );
 
 router.delete(
-  "/delete/score/bytestId/:testId",
+  "/delete/scores/bytestid/:testId",
   checkAuth("Admin"),
-  scoreControllers.deleteScoreByTestId,
+  ctrl.deleteScoresByTestId,
 );
 
 module.exports = router;

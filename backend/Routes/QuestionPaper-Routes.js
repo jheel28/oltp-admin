@@ -1,46 +1,42 @@
 const express = require("express");
 const router = express.Router();
 const { check } = require("express-validator");
-const questionPaperControllers = require("../Controllers/QuestionPaper-Controllers");
+const ctrl = require("../Controllers/QuestionPaper-Controllers");
 const checkAuth = require("../Middleware/check-auth");
-const imageUpload = require("../Middleware/image-upload");
 
+router.get("/get/all/questionpapers", ctrl.getAllQuestionPapers);
+router.get("/get/questionpaper/byid/:id", ctrl.getQuestionPaperById);
 router.get(
-  "/get/all/questionpapers",
-  questionPaperControllers.getAllQuestionPapers,
+  "/get/questionpaper/bypaperid/:paperId",
+  ctrl.getQuestionPaperByPaperId,
 );
-router.get(
-  "/get/questionpaper/byquestionpaperid/:questionPaperId",
-  questionPaperControllers.getQuestionPaperByQuestionPaperId,
-);
-router.get(
-  "/get/questionpaper/byid/:id",
-  questionPaperControllers.getQuestionPaperById,
-);
+router.get("/get/questionpaper/summary/:paperId", ctrl.getQuestionPaperSummary);
 
 router.post(
   "/create/questionpaper",
   checkAuth("Admin"),
-  imageUpload.single("keySheet"),
   [
-    check("questionPaperId").isLength({ min: 1, max: 255 }),
-    check("score").isNumeric().notEmpty(),
-    check("noOfQuestions").isNumeric().notEmpty(),
+    check("paperId").isLength({ min: 1, max: 255 }),
+    check("paperName").isLength({ min: 1, max: 255 }),
     check("category").isLength({ min: 1, max: 255 }),
   ],
-  questionPaperControllers.createQuestionPaper,
+  ctrl.createQuestionPaper,
 );
 
 router.patch(
   "/update/questionpaper/byid/:id",
   checkAuth("Admin"),
-  questionPaperControllers.updateQuestionPaperById,
+  ctrl.updateQuestionPaperById,
 );
-
+router.patch(
+  "/sync/questionpaper/totals/:id",
+  checkAuth("Admin"),
+  ctrl.syncPaperTotals,
+);
 router.delete(
   "/delete/questionpaper/byid/:id",
   checkAuth("Admin"),
-  questionPaperControllers.deleteQuestionPaperById,
+  ctrl.deleteQuestionPaperById,
 );
 
 module.exports = router;

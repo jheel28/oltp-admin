@@ -12,26 +12,19 @@ router.post(
   "/create/test",
   checkAuth("Admin"),
   [
-    check("batchName").isLength({ min: 1, max: 255 }),
     check("testId").isLength({ min: 1, max: 255 }),
-    check("score").isLength({ min: 1, max: 255 }),
-    check("course").isLength({ min: 1, max: 255 }),
-    check("examName").isLength({ min: 1, max: 255 }),
-    check("questionPaperId").isLength({ min: 1, max: 255 }),
+    check("testName").isLength({ min: 1, max: 255 }),
+    check("paperId").isLength({ min: 1, max: 255 }),
+    check("batchName").isLength({ min: 1, max: 255 }),
+    check("date").notEmpty(),
+    check("startTime").notEmpty(),
+    check("endTime").notEmpty(),
+    check("duration").isNumeric(),
   ],
-  testControllers.createTest,
+  testControllers.createTest
 );
 
-router.patch(
-  "/update/test/byid/:id",
-  checkAuth("Admin"),
-  testControllers.updateTestById,
-);
-
-router.delete(
-  "/delete/test/byid/:id",
-  checkAuth("Admin"),
-  testControllers.deleteTestById,
-);
+router.patch("/update/test/byid/:id", checkAuth("Admin"), testControllers.updateTestById);
+router.delete("/delete/test/byid/:id", checkAuth("Admin"), testControllers.deleteTestById);
 
 module.exports = router;

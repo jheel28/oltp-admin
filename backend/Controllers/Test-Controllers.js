@@ -4,193 +4,175 @@ const Test = require("../Models/Test");
 
 const createTest = async (req, res, next) => {
   const errors = validationResult(req);
-
   if (!errors.isEmpty()) {
-    return res.status(422).json({
-      message: "Invalid inputs passed, please try again",
-      errors: errors.array,
-    });
-  }
-  const {
-    batchName,
-    testId,
-    score,
-    course,
-    examName,
-    date,
-    startTime,
-    endTime,
-    questionPaperId,
-    subjects,
-    difficulty,
-    duration,
-  } = req.body;
-  let existingTest;
-  try {
-    existingTest = await Test.findOne({ testId: testId });
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the data, please try again",
-      500,
-    );
-    return next(error);
-  }
-  if (existingTest) {
-    const error = new HttpError(
-      "The test already exists, please try again",
-      500,
-    );
-    return next(error);
-  }
-  const createdTest = new Test({
-    batchName,
-    testId,
-    score,
-    course,
-    examName,
-    questionPaperId,
-    date,
-    startTime,
-    endTime,
-    subjects,
-    difficulty,
-    duration,
-  });
-  try {
-    await createdTest.save();
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while creating the test, please try again",
-      500,
-    );
-    return next(error);
-  }
-  res.status(201).json({ test: createdTest });
-};
-const getAllTests = async (req, res, next) => {
-  let tests;
-  try {
-    tests = await Test.find({});
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the data, please try again",
-      500,
-    );
-    return next(error);
-  }
-  res.status(200).json({ tests: tests });
-};
-const getTestByTestId = async (req, res, next) => {
-  const testId = req.params.testId;
-  let test;
-  try {
-    test = await Test.findOne({ testId: testId });
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the data, please try again",
-      500,
-    );
-    return next(error);
-  }
-  res.status(200).json({ test: test });
-};
-const getTestById = async (req, res, next) => {
-  const id = req.params.id;
-  let test;
-  try {
-    test = await Test.findOne({ _id: id });
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the data, please try again",
-      500,
-    );
-    return next(error);
-  }
-  res.status(200).json({ test: test });
-};
-const updateTestById = async (req, res, next) => {
-  const id = req.params.id;
-  let test;
-  const {
-    batchName,
-    testId,
-    score,
-    course,
-    examName,
-    questionPaperId,
-    date,
-    startTime,
-    endTime,
-    subjects,
-    difficulty,
-    duration,
-  } = req.body;
-  try {
-    test = await Test.findOne({ _id: id });
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the data, please try again",
-      500,
-    );
-    return next(error);
+    return res
+      .status(422)
+      .json({
+        message: "Invalid inputs passed, please try again",
+        errors: errors.array(),
+      });
   }
 
-  test.batchName = batchName !== undefined ? batchName : test.batchName;
-  test.score = score !== undefined ? score : test.score;
-  test.course = course !== undefined ? course : test.course;
-  test.examName = examName !== undefined ? examName : test.examName;
-  test.testId = testId !== undefined ? testId : test.testId;
-  test.date = date !== undefined ? date : test.date;
-  test.startTime = startTime !== undefined ? startTime : test.startTime;
-  test.endTime = endTime !== undefined ? endTime : test.endTime;
-  test.questionPaperId =
-    questionPaperId !== undefined ? questionPaperId : test.questionPaperId;
-  test.subjects = subjects !== undefined ? subjects : test.subjects;
-  test.difficulty = difficulty !== undefined ? difficulty : test.difficulty;
-  test.duration = duration !== undefined ? duration : test.duration;
+  const {
+    testId,
+    testName,
+    paperId,
+    batchName,
+    course,
+    date,
+    startTime,
+    endTime,
+    duration,
+    isPublished,
+  } = req.body;
+
+  let existing;
+  try {
+    existing = await Test.findOne({ testId });
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong while checking for duplicates", 500),
+    );
+  }
+  if (existing)
+    return next(new HttpError("A test with this ID already exists", 422));
+
+  const test = new Test({
+    testId,
+    testName,
+    paperId,
+    batchName,
+    course: course || "",
+    date,
+    startTime,
+    endTime,
+    duration: Number(duration),
+    isPublished: isPublished === true || isPublished === "true",
+  });
 
   try {
     await test.save();
   } catch (err) {
-    console.error("Error saving test:", err);
-    const error = new HttpError(
-      "Something went wrong while updating the data, please try again",
-      500,
+    return next(
+      new HttpError("Something went wrong while creating the test", 500),
     );
-    return next(error);
   }
-  res.status(201).json({ test: test });
+
+  res.status(201).json({ test });
 };
-const deleteTestById = async (req, res, next) => {
-  const id = req.params.id;
+
+const getAllTests = async (req, res, next) => {
+  let tests;
+  try {
+    tests = await Test.find({}).sort({ createdAt: -1 });
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong while fetching tests", 500),
+    );
+  }
+  res.status(200).json({ tests });
+};
+
+const getTestByTestId = async (req, res, next) => {
+  const { testId } = req.params;
   let test;
   try {
-    test = await Test.findOne({ _id: id });
+    test = await Test.findOne({ testId });
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while fetching the data, please try again",
-      500,
+    return next(
+      new HttpError("Something went wrong while fetching the test", 500),
     );
-    return next(error);
   }
-  if (!test) {
-    const error = new HttpError("Test not found, please try again", 500);
-    return next(error);
-  }
-  try {
-    test.deleteOne();
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong while deleting the test, please try again",
-      500,
-    );
-    return next(error);
-  }
-  res.status(200).json({ message: "Test successfully deleted" });
+  if (!test) return next(new HttpError("Test not found", 404));
+  res.status(200).json({ test });
 };
+
+const getTestById = async (req, res, next) => {
+  const { id } = req.params;
+  let test;
+  try {
+    test = await Test.findById(id);
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong while fetching the test", 500),
+    );
+  }
+  if (!test) return next(new HttpError("Test not found", 404));
+  res.status(200).json({ test });
+};
+
+const updateTestById = async (req, res, next) => {
+  const { id } = req.params;
+  let test;
+  try {
+    test = await Test.findById(id);
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong while fetching the test", 500),
+    );
+  }
+  if (!test) return next(new HttpError("Test not found", 404));
+
+  const {
+    testName,
+    paperId,
+    batchName,
+    course,
+    date,
+    startTime,
+    endTime,
+    duration,
+    isPublished,
+  } = req.body;
+
+  if (testName !== undefined) test.testName = testName;
+  if (paperId !== undefined) test.paperId = paperId;
+  if (batchName !== undefined) test.batchName = batchName;
+  if (course !== undefined) test.course = course;
+  if (date !== undefined) test.date = date;
+  if (startTime !== undefined) test.startTime = startTime;
+  if (endTime !== undefined) test.endTime = endTime;
+  if (duration !== undefined) test.duration = Number(duration);
+  if (isPublished !== undefined)
+    test.isPublished = isPublished === true || isPublished === "true";
+
+  try {
+    await test.save();
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong while updating the test", 500),
+    );
+  }
+
+  res.status(200).json({ test });
+};
+
+const deleteTestById = async (req, res, next) => {
+  const { id } = req.params;
+  let test;
+  try {
+    test = await Test.findById(id);
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong while fetching the test", 500),
+    );
+  }
+  if (!test) return next(new HttpError("Test not found", 404));
+
+  try {
+    await test.deleteOne();
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong while deleting the test", 500),
+    );
+  }
+
+  res.status(200).json({ message: "Test deleted successfully" });
+};
+
 exports.createTest = createTest;
 exports.getAllTests = getAllTests;
-exports.getTestById = getTestById;
 exports.getTestByTestId = getTestByTestId;
+exports.getTestById = getTestById;
 exports.updateTestById = updateTestById;
 exports.deleteTestById = deleteTestById;
