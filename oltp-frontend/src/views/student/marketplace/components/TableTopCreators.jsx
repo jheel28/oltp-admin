@@ -1,6 +1,7 @@
 import Card from "components/card";
 import Progress from "components/progress";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { AuthContext } from "components/Auth-context";
 import {
   useGlobalFilter,
   usePagination,
@@ -9,9 +10,11 @@ import {
 } from "react-table";
 
 function TopCreatorTable(props) {
+  const auth = useContext(AuthContext);
   const [students, setStudents] = useState([]);
   const [scores, setScores] = useState([]);
   useEffect(() => {
+    if (auth.role !== "Admin") return;
     const fetchData = async () => {
       try {
         const studentsResponse = await fetch(

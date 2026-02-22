@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useMemo, useState, useCallback } from "react";
-import { FaTrashAlt, FaDownload } from "react-icons/fa";
+import { FaTrashAlt, FaDownload, FaEdit } from "react-icons/fa";
 import { MdSearch } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 import Card from "components/card";
-import AddTestForm from "./QuizForm";
+import AddTestForm from "./TestFormWizard";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Modal, message } from "antd";
 import { AuthContext } from "components/Auth-context";
@@ -16,13 +17,29 @@ const STATUS_COLORS = {
 
 const getTestStatus = (test) => {
   const now = new Date();
-  if (!test.isActive) return "inactive";
-  if (test.startDate && new Date(test.startDate) > now) return "upcoming";
-  if (test.endDate && new Date(test.endDate) < now) return "expired";
+  if (!test.isPublished) return "inactive";
+
+  const parseDT = (d, t) => {
+    if (!d || !t) return null;
+    const parts = d.split(/[-/]/).map(Number);
+    let year, month, day;
+    if (parts[0] > 1000) [year, month, day] = parts;
+    else if (parts[2] > 1000) [day, month, year] = parts;
+    else [year, month, day] = parts;
+    const [h, m] = t.split(":").map(Number);
+    return new Date(year, month - 1, day, h, m, 0);
+  };
+
+  const startDt = parseDT(test.date, test.startTime);
+  const endDt = parseDT(test.date, test.endTime);
+
+  if (startDt && startDt > now) return "upcoming";
+  if (endDt && endDt < now) return "expired";
   return "active";
 };
 
 const TestTable = () => {
+  const navigate = useNavigate();
   const auth = useContext(AuthContext);
   const [tests, setTests] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -270,9 +287,22 @@ const TestTable = () => {
                         </span>
                       </td>
                       <td className="py-3">
-                        <button onClick={() => handleDelete(test._id)} className="p-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600">
-                          <FaTrashAlt className="h-3 w-3" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => navigate(`/admin/manage-tests/edit/${test._id}`)}
+                            className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100"
+                            title="Edit test"
+                          >
+                            <FaEdit className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(test._id)}
+                            className="p-1.5 rounded-lg bg-red-50 text-white hover:bg-red-600"
+                            title="Delete test"
+                          >
+                            <FaTrashAlt className="h-3 w-3" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

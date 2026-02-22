@@ -6,12 +6,17 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
+import { AuthContext } from "components/Auth-context";
+import { useContext } from "react";
 
 function TopCreatorTable() {
   const [students, setStudents] = useState([]);
   const [scores, setScores] = useState([]);
+  const auth = useContext(AuthContext);
+
   useEffect(() => {
     const fetchData = async () => {
+      if (auth.role !== "Admin") return;
       try {
         const studentsResponse = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/all/students`

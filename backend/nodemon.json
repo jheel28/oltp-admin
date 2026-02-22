@@ -5,6 +5,6 @@
     "DB_NAME": "VirtualOffice",
     "JWT_KEY": "ERP_The_Correct_Steps",
     "REDIS_PASSWORD": "4444",
-    "MONGOURL": "mongodb+srv://vardhanallapuram1_db_user:qd57WQbvTgkNPAkw@correct.poxthp4.mongodb.net/testseries?appName=correct"
+    "MONGOURL": "mongodb://localhost:27017/testseries"
   }
 }

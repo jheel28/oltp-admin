@@ -23,7 +23,7 @@ export function Links(props) {
         route.layout === "/student"
       ) {
         return (
-          <Link key={index} to={route.layout + "/" + route.path}>
+          <Link key={index} to={route.layout + "/" + route.path.replace("/*", "")}>
             <div className="relative mb-3 flex hover:cursor-pointer">
               <li
                 className="my-[3px] flex cursor-pointer items-center px-8"

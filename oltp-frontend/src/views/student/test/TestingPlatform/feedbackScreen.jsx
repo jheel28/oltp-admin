@@ -85,20 +85,31 @@ const FeedbackScreen = () => {
 
   const questionResults = latestScore?.questions || [];
 
-  const correct = questionResults.filter((q) => {
-    const chosen = q.chosenAnswer;
-    const correctAns = q.correctAnswer;
+  const correct = questionResults.filter((qr) => {
+    const q = questions.find((x) => x._id === qr.questionId);
+    const chosen = qr.chosenAnswer;
+    const correctAns = qr.correctAnswer;
     if (chosen === null || chosen === undefined) return false;
+
     if (Array.isArray(correctAns)) {
       const ca = Array.isArray(chosen) ? chosen : [chosen];
-      return ca.length === correctAns.length && ca.every((v) => correctAns.includes(v));
+      if (ca.length !== correctAns.length) return false;
+      return ca.every((val) => {
+        if (correctAns.includes(val)) return true;
+        if (q?.options[val] && correctAns.includes(q.options[val].text))
+          return true;
+        return false;
+      });
     }
-    const ca = Array.isArray(chosen) ? chosen : [chosen];
-    return ca.includes(correctAns);
+
+    if (String(chosen) === String(correctAns)) return true;
+    if (q?.options[chosen] && q.options[chosen].text === correctAns) return true;
+    return false;
   }).length;
 
   const unanswered = questionResults.filter((q) =>
-    q.chosenAnswer === null || q.chosenAnswer === undefined ||
+    q.chosenAnswer === null ||
+    q.chosenAnswer === undefined ||
     (Array.isArray(q.chosenAnswer) && q.chosenAnswer.length === 0)
   ).length;
 
@@ -172,10 +183,20 @@ const FeedbackScreen = () => {
                   if (!skipped) {
                     if (Array.isArray(correctAns)) {
                       const ca = Array.isArray(chosen) ? chosen : [chosen];
-                      isCorrect = ca.length === correctAns.length && ca.every((v) => correctAns.includes(v));
+                      isCorrect =
+                        ca.length === correctAns.length &&
+                        ca.every((val) => {
+                          if (correctAns.includes(val)) return true;
+                          if (q?.options[val] && correctAns.includes(q.options[val].text))
+                            return true;
+                          return false;
+                        });
                     } else {
-                      const ca = Array.isArray(chosen) ? chosen : [chosen];
-                      isCorrect = ca.includes(correctAns);
+                      if (String(chosen) === String(correctAns)) {
+                        isCorrect = true;
+                      } else if (q?.options[chosen] && q.options[chosen].text === correctAns) {
+                        isCorrect = true;
+                      }
                     }
                   }
                   const status = skipped ? "skipped" : isCorrect ? "correct" : "wrong";
@@ -225,7 +246,7 @@ const FeedbackScreen = () => {
             className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50 shadow-sm">
             <MdHome /> Dashboard
           </button>
-          <button onClick={() => navigate("/student/results")}
+          <button onClick={() => navigate("/student/result")}
             className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 shadow-lg shadow-blue-200">
             <MdOutlineBarChart /> View All Results
           </button>

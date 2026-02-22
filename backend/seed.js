@@ -13,7 +13,7 @@ const Score         = require("./Models/Score");
 
 const MONGO_URL =
   process.env.MONGOURL ||
-  "mongodb+srv://vardhanallapuram1_db_user:qd57WQbvTgkNPAkw@correct.poxthp4.mongodb.net/testseries?appName=correct";
+  "mongodb://localhost:27017/testseries";
 
 const BATCH_NAMES = [
   "Dronacharya - 2024",
@@ -49,82 +49,13 @@ async function main() {
   await mongoose.connect(MONGO_URL);
   console.log("Connected to MongoDB\n");
 
-  const existingAdmins = await Admin.find({}, "-password");
-  console.log(`=== Existing Admins (${existingAdmins.length}) — preserved ===`);
-  existingAdmins.forEach((a) => {
-    console.log(`  ID     : ${a._id}`);
-    console.log(`  Name   : ${a.firstName} ${a.lastName}`);
-    console.log(`  Email  : ${a.email}`);
-    console.log(`  Mobile : ${a.mobile}`);
-    console.log("  ---");
-  });
-
-  const existingStudentsSnapshot = await Student.find({});
-  console.log(`\n=== Existing Students (${existingStudentsSnapshot.length}) — re-batching ===`);
-  existingStudentsSnapshot.forEach((s, i) => {
-    const newBatch = BATCH_NAMES[i % BATCH_NAMES.length];
-    console.log(`  [${s.studentId || "no-id"}] ${s.firstName} ${s.lastName}`);
-    console.log(`    Email     : ${s.email}`);
-    console.log(`    Old Batch : ${s.batch || "(none)"}`);
-    console.log(`    New Batch : ${newBatch}`);
-    console.log("  ---");
-  });
-
-  console.log("\n=== Wiping non-admin collections ===");
-  await Student.deleteMany({});
-  await Batch.deleteMany({});
-  await Category.deleteMany({});
-  await QuestionPaper.deleteMany({});
-  await Question.deleteMany({});
-  await Test.deleteMany({});
-  await Score.deleteMany({});
-  console.log("Wiped: Student, Batch, Category, QuestionPaper, Question, Test, Score\n");
+  console.log("=== Insert-only mode (existing data is preserved) ===\n");
 
   const DEFAULT_PASSWORD = "Student@123";
   const hashedPassword = await bcrypt.hash(DEFAULT_PASSWORD, 12);
 
   const accuracyMap = {};
-  const EXISTING_ACCURACIES = [0.72, 0.58, 0.84, 0.46, 0.67, 0.79, 0.53, 0.91, 0.38, 0.70];
 
-  const reinsertDocs = existingStudentsSnapshot.map((s, i) => {
-    const newBatch = BATCH_NAMES[i % BATCH_NAMES.length];
-    const accuracy = EXISTING_ACCURACIES[i % EXISTING_ACCURACIES.length];
-    accuracyMap[s.email] = accuracy;
-    return {
-      firstName:       s.firstName,
-      lastName:        s.lastName,
-      fatherName:      s.fatherName || "",
-      motherName:      s.motherName || "",
-      phoneNumber:     s.phoneNumber,
-      alternateNumber: s.alternateNumber,
-      role:            s.role || "Student",
-      image:           s.image || "uploads/images/default.jpg",
-      email:           s.email,
-      password:        s.password,
-      studentId:       s.studentId || `EXIST-${i + 1}`,
-      admissionDate:   s.admissionDate || "2024-01-01",
-      batch:           newBatch,
-      address:         s.address || "N/A",
-      pincode:         s.pincode || "000000",
-      state:           s.state || "N/A",
-      country:         s.country || "India",
-    };
-  });
-
-  const reinsertedStudents =
-    reinsertDocs.length > 0 ? await Student.insertMany(reinsertDocs) : [];
-
-  if (reinsertedStudents.length > 0) {
-    console.log(
-      `Re-inserted ${reinsertedStudents.length} existing students (passwords unchanged):`
-    );
-    reinsertedStudents.forEach((s) => {
-      console.log(
-        `  [${s.studentId}] ${s.firstName} ${s.lastName.padEnd(14)} → ${s.batch.padEnd(22)} accuracy: ${(accuracyMap[s.email] * 100).toFixed(0)}%`
-      );
-    });
-    console.log();
-  }
 
   const seededStudentData = [
     { firstName: "Arjun",   lastName: "Mehta",      fatherName: "Rajesh Mehta",     motherName: "Sunita Mehta",      phoneNumber: "9876543210", alternateNumber: "9123456780", studentId: "TCS-2024-001", admissionDate: "2024-06-01", batch: "Dronacharya - 2024", address: "12 Nehru Nagar, Sector 5",        pincode: "302001", state: "Rajasthan",     country: "India", email: "arjun.mehta@student.tcs.com",     accuracy: 0.82 },
@@ -153,12 +84,13 @@ async function main() {
     { firstName: "Elena",   lastName: "Vasquez",    fatherName: "Miguel Vasquez",     motherName: "Carmen Vasquez",    phoneNumber: "9854332211", alternateNumber: "9754332211", studentId: "TCS-2025-012", admissionDate: "2025-02-15", batch: "Ramanujan - 2025",   address: "7 Kalyani Nagar, Airport Road",  pincode: "411006", state: "Maharashtra",   country: "India", email: "elena.vasquez@student.tcs.com",   accuracy: 0.53 },
   ];
 
+  // { ordered: false } skips duplicates instead of crashing — safe for teammates
   const seededStudents = await Student.insertMany(
     seededStudentData.map(({ accuracy, ...rest }) => {
       accuracyMap[rest.email] = accuracy;
       return { ...rest, password: hashedPassword, role: "Student", image: "uploads/images/default.jpg" };
     })
-  );
+  , { ordered: false });
 
   console.log(
     `Inserted ${seededStudents.length} seeded students (default password: ${DEFAULT_PASSWORD}):`
@@ -177,7 +109,7 @@ async function main() {
     { batchName: "Aryabhatta - 2025" },
     { batchName: "Ramanujan - 2025" },
     { batchName: "Default" },
-  ]);
+  ], { ordered: false }).catch(() => {});
   console.log("\nInserted 5 batches (including Default)");
 
   await Category.insertMany([
@@ -185,7 +117,7 @@ async function main() {
     { name: "JEE Advanced", subjects: ["Physics", "Chemistry", "Mathematics"], description: "Joint Entrance Examination - Advanced level preparation" },
     { name: "NEET",         subjects: ["Physics", "Chemistry", "Biology"],     description: "National Eligibility cum Entrance Test preparation" },
     { name: "Foundation",   subjects: ["Physics", "Chemistry", "Mathematics", "Biology"], description: "Foundation course for class 9th and 10th students" },
-  ]);
+  ], { ordered: false }).catch(() => {});
   console.log("Inserted 4 categories");
 
   const paperDefs = [
@@ -202,8 +134,9 @@ async function main() {
   ];
 
   const insertedPapers = await QuestionPaper.insertMany(
-    paperDefs.map((p) => ({ ...p, totalQuestions: 10, totalMarks: 40 }))
-  );
+    paperDefs.map((p) => ({ ...p, totalQuestions: 10, totalMarks: 40 })),
+    { ordered: false }
+  ).catch((e) => e.insertedDocs || []);
   console.log(`Inserted ${insertedPapers.length} question papers`);
 
   const questionDefs = [
@@ -318,7 +251,7 @@ async function main() {
     { paperId: "QP-FOUND-002", text: "Water loss through plant leaves:", type: "MCQ", options: [{ text: "Respiration" }, { text: "Photosynthesis" }, { text: "Transpiration" }, { text: "Osmosis" }], correctOption: "Transpiration", marksPositive: 4, marksNegative: 0, topic: "Plant Physiology", difficulty: "Medium" },
   ];
 
-  const questions = await Question.insertMany(questionDefs);
+  const questions = await Question.insertMany(questionDefs, { ordered: false }).catch((e) => e.insertedDocs || []);
   console.log(`Inserted ${questions.length} questions`);
 
   const testDefs = [
@@ -336,7 +269,7 @@ async function main() {
     { testId: "TEST-FOUND-003", testName: "Foundation Mid-Term Test",    paperId: "QP-FOUND-001",  batchName: "Ramanujan - 2025",   course: "Foundation",   date: "2025-03-10", startTime: "10:00", endTime: "11:40", duration: 100, isPublished: true },
   ];
 
-  const insertedTests = await Test.insertMany(testDefs);
+  const insertedTests = await Test.insertMany(testDefs, { ordered: false }).catch((e) => e.insertedDocs || []);
   console.log(`Inserted ${insertedTests.length} tests`);
 
   const batchTestMap = {
@@ -368,7 +301,7 @@ async function main() {
     questionsByPaper[q.paperId].push(q);
   });
 
-  const allStudents = [...reinsertedStudents, ...seededStudents];
+  const allStudents = [...seededStudents];
   const scoreInserts = [];
 
   for (const student of allStudents) {
@@ -422,7 +355,6 @@ async function main() {
 
   await Score.insertMany(scoreInserts);
   console.log(`\nInserted ${scoreInserts.length} score records`);
-  console.log(`  ${reinsertedStudents.length} existing students × up to 3 tests each`);
   console.log(`  ${seededStudents.length} seeded students × up to 3 tests each`);
 
   console.log("\n=== Seed complete ===");

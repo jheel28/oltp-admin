@@ -84,14 +84,32 @@ const Marketplace = () => {
 
         <div className="mt-8 flex flex-wrap gap-4">
           {filteredTests.length > 0 ? (
-            filteredTests.map((test) => (
-              <div
-                key={test.testId}
-                className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.33%-1.33rem)]"
-              >
-                <TestCard test={test} />
-              </div>
-            ))
+            filteredTests.map((test) => {
+              const parseTestDateTime = (dateStr, timeStr) => {
+                if (!dateStr || !timeStr) return new Date(0);
+                const parts = dateStr.split(/[-/]/).map(Number);
+                let year, month, day;
+                if (parts[0] > 1000) [year, month, day] = parts;
+                else if (parts[2] > 1000) [day, month, year] = parts;
+                else [year, month, day] = parts;
+                const [h, m] = timeStr.split(":").map(Number);
+                return new Date(year, month - 1, day, h, m, 0);
+              };
+
+              const startTime = parseTestDateTime(test.date, test.startTime);
+              const endTime = parseTestDateTime(test.date, test.endTime);
+              const currentTime = new Date();
+              const isActive = currentTime >= startTime && currentTime <= endTime;
+
+              return (
+                <div
+                  key={test.testId}
+                  className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.33%-1.33rem)]"
+                >
+                  <TestCard test={test} isActive={isActive} />
+                </div>
+              );
+            })
           ) : (
             <div className="w-full rounded-2xl bg-gray-50 py-20 text-center dark:bg-navy-800">
               <p className="font-bold text-gray-500">

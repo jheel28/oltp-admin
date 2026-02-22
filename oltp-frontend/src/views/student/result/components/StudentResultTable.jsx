@@ -76,30 +76,34 @@ const StudentResultsTable = () => {
       <div className="mb-4">
         Options:
         {question.options.map((option, optionIndex) => {
+          const isChosen = scoreQuestion.chosenAnswer == optionIndex;
+          const isCorrect =
+            scoreQuestion.correctAnswer == optionIndex ||
+            (question.options[optionIndex] &&
+              question.options[optionIndex].text ===
+                scoreQuestion.correctAnswer);
+
           return (
             <div
               key={optionIndex}
               className={`mb-2 rounded-lg border p-2 ${
-                scoreQuestion.chosenAnswer == optionIndex
-                  ? scoreQuestion.correctAnswer == optionIndex
+                isChosen
+                  ? isCorrect
                     ? "bg-green-200 dark:text-gray-800"
                     : "bg-red-200 dark:text-gray-800"
                   : "bg-gray-200 dark:text-gray-800"
               }`}
             >
               <strong>Option {optionIndex + 1}:</strong> {option.text}{" "}
-              {scoreQuestion.chosenAnswer == optionIndex &&
-                scoreQuestion.correctAnswer == optionIndex && (
-                  <span className="ml-2 text-green-600">Correct (Chosen)</span>
-                )}
-              {scoreQuestion.chosenAnswer == optionIndex &&
-                scoreQuestion.correctAnswer != optionIndex && (
-                  <span className="ml-2 text-red-600">Chosen</span>
-                )}
-              {scoreQuestion.chosenAnswer != optionIndex &&
-                scoreQuestion.correctAnswer == optionIndex && (
-                  <span className="ml-2 text-green-600">Correct</span>
-                )}
+              {isChosen && isCorrect && (
+                <span className="ml-2 text-green-600">Correct (Chosen)</span>
+              )}
+              {isChosen && !isCorrect && (
+                <span className="ml-2 text-red-600">Chosen</span>
+              )}
+              {!isChosen && isCorrect && (
+                <span className="ml-2 text-green-600">Correct</span>
+              )}
             </div>
           );
         })}

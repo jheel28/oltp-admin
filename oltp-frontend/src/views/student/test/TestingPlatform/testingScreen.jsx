@@ -384,8 +384,125 @@ const TestingScreen = () => {
   const [lastSaved, setLastSaved] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [numericalDraft, setNumericalDraft] = useState({});
+  const [paper, setPaper] = useState(null);
   const saveTimerRef = useRef(null);
   const submitCalledRef = useRef(false);
+
+  const calculateScore = useCallback(() => {
+    let score = 0;
+    const paperObj = paper || {};
+    const negFrac = parseFloat(paperObj.negativeFraction) || 0.25;
+    const marksEach = parseFloat(paperObj.marksPerQuestion) || 4;
+
+    questions.forEach((q, i) => {
+      const chosen = answers[i];
+      const correct = q.correctOption;
+      const marks = parseFloat(q.marksPositive) || marksEach;
+      const neg = parseFloat(q.marksNegative) || marks * negFrac;
+
+      if (
+        chosen === null ||
+        chosen === undefined ||
+        (Array.isArray(chosen) && chosen.length === 0)
+      ) {
+        return;
+      }
+
+      let isCorrect = false;
+      if (q.type === "Numerical") {
+        isCorrect =
+          String(chosen).trim() === String(correct).trim() ||
+          parseFloat(chosen) === parseFloat(correct);
+      } else if (Array.isArray(correct)) {
+        const chosenArr = Array.isArray(chosen) ? chosen : [chosen];
+        if (chosenArr.length === correct.length) {
+          isCorrect = chosenArr.every((c) => {
+            if (correct.includes(c)) return true;
+            if (q.options[c] && correct.includes(q.options[c].text)) return true;
+            return false;
+          });
+        }
+      } else {
+        // MCQ 
+        if (String(chosen) === String(correct)) {
+          isCorrect = true;
+        } else if (q.options[chosen] && q.options[chosen].text === correct) {
+          isCorrect = true;
+        }
+      }
+
+      if (isCorrect) {
+        score += marks;
+      } else if (paperObj.negativeMarking) {
+        score -= neg;
+      }
+    });
+    return Math.max(0, Math.round(score * 100) / 100);
+  }, [answers, questions, paper]);
+
+  const handleConfirmSubmit = useCallback(
+    async (auto = false) => {
+      if (!student || !test || !paper || submitting) return;
+      setSubmitting(true);
+      clearInterval(saveTimerRef.current);
+      const score = calculateScore();
+      const totalMarks = paper.totalMarks;
+      try {
+        const res = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/create/score`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + auth.token,
+            },
+            body: JSON.stringify({
+              marksObtained: score,
+              studentId: student.studentId,
+              testId: test.testId,
+              paperId: test.paperId,
+              totalMarks,
+              questions: questions.map((q, i) => ({
+                questionId: q._id,
+                correctAnswer: q.correctOption,
+                chosenAnswer: answers[i],
+              })),
+            }),
+          }
+        );
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.message || "Submission failed");
+        }
+        clearState(test.testId);
+        message.success({
+          content: auto
+            ? "Time up! Test auto-submitted."
+            : "Test submitted successfully.",
+          key: "submit-success",
+        });
+        navigate(`/student/feedbackscreen/${score}/${totalMarks}`);
+      } catch (err) {
+        message.error({
+          content: `Submission failed. ${err?.message || ""}`,
+          duration: 4,
+          key: "submit-fail",
+        });
+        setSubmitting(false);
+      }
+    },
+    [
+      student,
+      test,
+      paper,
+      submitting,
+      calculateScore,
+      auth.token,
+      answers,
+      questions,
+      navigate,
+    ]
+  );
 
   const parseEndTimestamp = (test) => {
     if (test.endDate) {
@@ -466,6 +583,13 @@ const TestingScreen = () => {
         const qs = questionsData.questions || [];
         setQuestions(qs);
         setSections(buildSections(qs));
+
+        const paperRes = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/beta/questionpaper/get/questionpaper/bypaperid/${fetchedTest.paperId}`
+        );
+        const paperData = await paperRes.json();
+        setPaper(paperData.questionPaper);
+
         const saved = loadState(fetchedTest.testId);
         if (saved && saved.paperId === fetchedTest.paperId) {
           if (endTs && Date.now() > endTs) {
@@ -499,6 +623,7 @@ const TestingScreen = () => {
     };
     load();
   }, [id, auth.userId]);
+
 
   useEffect(() => {
     if (phase === "autosubmit" && !submitCalledRef.current) {
@@ -693,11 +818,14 @@ const TestingScreen = () => {
       setQuestionStates((prev) => {
         const next = [...prev];
         const isMarked = next[qIdx] === 3 || next[qIdx] === 4;
-        next[qIdx] = isMarked ? 4 : 2;
+        const nextState = isMarked ? 4 : 2;
+        next[qIdx] = nextState;
         return next;
       });
+      // Explicitly persist on every answer choice
+      setTimeout(() => persistNow(), 0);
     },
-    [questions]
+    [questions, persistNow]
   );
 
   const handleClear = useCallback(() => {
@@ -758,110 +886,7 @@ const TestingScreen = () => {
       goToQuestion(currentQuestion + 1);
   }, [handleMark, currentQuestion, questions.length, goToQuestion]);
 
-  const calculateScore = useCallback(() => {
-    let score = 0;
-    const negFrac = parseFloat(test?.negativeFraction) || 1 / 3;
-    const marksEach = parseFloat(test?.marksPerQuestion) || 4;
-    questions.forEach((q, i) => {
-      const chosen = answers[i];
-      const correct = q.correctOption;
-      const marks = q.marks || marksEach;
-      if (
-        chosen === null ||
-        chosen === undefined ||
-        (Array.isArray(chosen) && chosen.length === 0)
-      )
-        return;
-      if (q.type === "Numerical") {
-        if (
-          String(chosen).trim() === String(correct).trim() ||
-          parseFloat(chosen) === parseFloat(correct)
-        ) {
-          score += marks;
-        } else if (test?.negativeMarking) {
-          score -= marks * negFrac;
-        }
-      } else if (Array.isArray(correct)) {
-        const chosenArr = Array.isArray(chosen) ? chosen : [chosen];
-        if (
-          chosenArr.length === correct.length &&
-          chosenArr.every((v) => correct.includes(v))
-        ) {
-          score += marks;
-        } else if (test?.negativeMarking) {
-          score -= marks * negFrac;
-        }
-      } else {
-        const chosenArr = Array.isArray(chosen) ? chosen : [chosen];
-        if (chosenArr.includes(correct)) {
-          score += marks;
-        } else if (test?.negativeMarking) {
-          score -= marks * negFrac;
-        }
-      }
-    });
-    return Math.max(0, Math.round(score * 100) / 100);
-  }, [answers, questions, test]);
 
-  const handleConfirmSubmit = useCallback(
-    async (auto = false) => {
-      if (!student || !test || submitting) return;
-      setSubmitting(true);
-      clearInterval(saveTimerRef.current);
-      const score = calculateScore();
-      const totalMarks = test.totalMarks;
-      try {
-        const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/create/score`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + auth.token,
-            },
-            body: JSON.stringify({
-              marksObtained: score,
-              studentId: student.studentId,
-              testId: test.testId,
-              paperId: test.paperId,
-              totalMarks,
-              questions: questions.map((q, i) => ({
-                questionId: q._id,
-                correctAnswer: q.correctOption,
-                chosenAnswer: answers[i],
-              })),
-            }),
-          }
-        );
-        if (!res.ok) throw new Error();
-        clearState(test.testId);
-        message.success({
-          content: auto
-            ? "Time up! Test auto-submitted."
-            : "Test submitted successfully.",
-          key: "submit-success",
-        });
-        navigate(`/student/feedbackscreen/${score}/${totalMarks}`);
-      } catch (err) {
-        message.error({
-          content: `Submission failed. Please try again. ${err?.message || ""}`,
-          duration: 4,
-          key: "submit-fail",
-        });
-        setSubmitting(false);
-      }
-    },
-    [
-      student,
-      test,
-      submitting,
-      calculateScore,
-      auth.token,
-      answers,
-      questions,
-      navigate,
-    ]
-  );
 
   const answeredCount = useMemo(
     () =>

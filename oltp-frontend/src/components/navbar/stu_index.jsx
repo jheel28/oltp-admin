@@ -14,6 +14,7 @@ const Navbar = (props) => {
   const auth = useContext(AuthContext);
   const [student, setStudent] = useState([]);
   useEffect(() => {
+    if (!auth.userId) return;
     const fetchStudent = async () => {
       try {
         const response = await fetch(
@@ -31,7 +32,7 @@ const Navbar = (props) => {
       }
     };
     fetchStudent();
-  }, []);
+  }, [auth.userId]);
   const handleSearch = (event) => {
     const searchText = event.target.value;
     if (onSearch) {
