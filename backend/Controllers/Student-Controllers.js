@@ -103,6 +103,10 @@ const getStudentById = async (req, res, next) => {
 const login = async (req, res, next) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return next(new HttpError("Email and password are required", 422));
+  }
+
   let existingStudent;
   try {
     existingStudent = await Student.findOne({ email });
@@ -206,7 +210,16 @@ const updateStudentById = async (req, res, next) => {
   if (country !== undefined) student.country = country;
   if (admissionDate !== undefined) student.admissionDate = admissionDate;
   student.password = updatedPassword;
-  if (req.file) student.image = req.file.path;
+
+  if (req.file) {
+    const oldImagePath = student.image;
+    student.image = req.file.path;
+    if (oldImagePath) {
+      fs.unlink(oldImagePath, (err) => {
+        if (err) console.log("Old image cleanup error:", err);
+      });
+    }
+  }
 
   try {
     await student.save();
@@ -247,11 +260,17 @@ const updateImageById = async (req, res, next) => {
   if (!req.file) {
     return next(new HttpError("No image was uploaded", 400));
   }
+  const oldImagePath = student.image;
   student.image = req.file.path;
   try {
     await student.save();
   } catch (err) {
     return next(new HttpError("Error occurred while saving the student", 500));
+  }
+  if (oldImagePath) {
+    fs.unlink(oldImagePath, (err) => {
+      if (err) console.log("Old image cleanup error:", err);
+    });
   }
   res.status(200).json({ message: "Student image updated successfully" });
 };

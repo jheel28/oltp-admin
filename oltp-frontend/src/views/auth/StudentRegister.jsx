@@ -11,6 +11,7 @@ const StudentRegister = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+  const [imageAttempted, setImageAttempted] = useState(false);
   const [batches, setBatches] = useState([]);
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -18,13 +19,16 @@ const StudentRegister = () => {
   useEffect(() => {
     const fetchBatches = async () => {
       try {
+        const backendUrl =
+          process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/get/all/batches`
+          `${backendUrl}/api/beta/batch/get/all/batches`
         );
+        if (!response.ok) throw new Error("Failed to fetch batches");
         const data = await response.json();
         setBatches(data.batches || []);
-      } catch (error) {
-        console.error("Error fetching batches:", error);
+      } catch (err) {
+        message.error("Could not load batches. Please refresh the page.");
       }
     };
     fetchBatches();
@@ -33,7 +37,13 @@ const StudentRegister = () => {
   const getStepFields = (step) => {
     switch (step) {
       case 0:
-        return ["firstName", "lastName", "email", "password"];
+        return [
+          "firstName",
+          "lastName",
+          "email",
+          "password",
+          "confirmPassword",
+        ];
       case 1:
         return ["studentId", "batch", "admissionDate"];
       case 2:
@@ -57,32 +67,36 @@ const StudentRegister = () => {
   const handlePrev = () => setCurrentStep((s) => s - 1);
 
   const onFinish = async (values) => {
+    if (!imageFile) {
+      setImageAttempted(true);
+      message.error("A profile photo is required. Please upload one.");
+      setCurrentStep(4);
+      return;
+    }
+
     setLoading(true);
     try {
       const formData = new FormData();
-      if (values.fatherNumber)
-        formData.append("phoneNumber", values.fatherNumber);
-      if (values.motherNumber)
-        formData.append("alternateNumber", values.motherNumber);
-      Object.entries(values).forEach(([key, value]) => {
-        if (
-          value !== undefined &&
-          value !== null &&
-          key !== "fatherNumber" &&
-          key !== "motherNumber"
-        ) {
-          formData.append(key, value);
-        }
-      });
-      if (!values.admissionDate) {
-        formData.append(
-          "admissionDate",
-          new Date().toISOString().split("T")[0]
-        );
-      }
-      if (imageFile) {
-        formData.append("image", imageFile);
-      }
+
+      formData.append("firstName", values.firstName);
+      formData.append("lastName", values.lastName);
+      formData.append("email", values.email);
+      formData.append("password", values.password);
+      formData.append("studentId", values.studentId);
+      formData.append("batch", values.batch);
+      formData.append(
+        "admissionDate",
+        values.admissionDate || new Date().toISOString().split("T")[0]
+      );
+      formData.append("address", values.address);
+      formData.append("pincode", values.pincode);
+      formData.append("state", values.state);
+      formData.append("country", values.country);
+      formData.append("fatherName", values.fatherName);
+      formData.append("motherName", values.motherName);
+      formData.append("phoneNumber", values.fatherNumber);
+      formData.append("alternateNumber", values.motherNumber);
+      formData.append("image", imageFile);
 
       const backendUrl =
         process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
@@ -124,7 +138,7 @@ const StudentRegister = () => {
                 <Step title="Academic" />
                 <Step title="Address" />
                 <Step title="Parents" />
-                <Step title="Finish" />
+                <Step title="Photo" />
               </Steps>
             </div>
 
@@ -157,7 +171,7 @@ const StudentRegister = () => {
                   label="Email"
                   rules={[
                     { required: true, message: "Required" },
-                    { type: "email", message: "Invalid email" },
+                    { type: "email", message: "Invalid email address" },
                   ]}
                 >
                   <Input
@@ -171,11 +185,33 @@ const StudentRegister = () => {
                   label="Password"
                   rules={[
                     { required: true, message: "Required" },
-                    { min: 6, message: "Min 6 characters" },
+                    { min: 6, message: "Minimum 6 characters" },
                   ]}
                 >
                   <Input.Password
                     placeholder="Min. 6 characters"
+                    size="large"
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="confirmPassword"
+                  label="Confirm Password"
+                  rules={[
+                    { required: true, message: "Required" },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue("password") === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(
+                          new Error("Passwords do not match")
+                        );
+                      },
+                    }),
+                  ]}
+                >
+                  <Input.Password
+                    placeholder="Repeat your password"
                     size="large"
                   />
                 </Form.Item>
@@ -202,7 +238,11 @@ const StudentRegister = () => {
                     ))}
                   </Select>
                 </Form.Item>
-                <Form.Item name="admissionDate" label="Admission Date">
+                <Form.Item
+                  name="admissionDate"
+                  label="Admission Date"
+                  rules={[{ required: true, message: "Required" }]}
+                >
                   <Input type="date" size="large" />
                 </Form.Item>
               </div>
@@ -211,7 +251,10 @@ const StudentRegister = () => {
                 <Form.Item
                   name="address"
                   label="Address"
-                  rules={[{ required: true, message: "Required" }]}
+                  rules={[
+                    { required: true, message: "Required" },
+                    { min: 2, message: "Too short" },
+                  ]}
                 >
                   <Input.TextArea placeholder="Full address" rows={3} />
                 </Form.Item>
@@ -221,13 +264,16 @@ const StudentRegister = () => {
                     label="Pincode"
                     rules={[
                       { required: true, message: "Required" },
-                      { len: 6, message: "6 digits" },
+                      { pattern: /^\d{6}$/, message: "Must be 6 digits" },
                     ]}
                   >
                     <Input
                       placeholder="6-digit pincode"
                       maxLength={6}
                       size="large"
+                      onKeyPress={(e) => {
+                        if (!/[0-9]/.test(e.key)) e.preventDefault();
+                      }}
                     />
                   </Form.Item>
                   <Form.Item
@@ -261,13 +307,16 @@ const StudentRegister = () => {
                     label="Father's Phone"
                     rules={[
                       { required: true, message: "Required" },
-                      { len: 10, message: "10 digits" },
+                      { pattern: /^\d{10}$/, message: "Must be 10 digits" },
                     ]}
                   >
                     <Input
                       placeholder="10-digit number"
                       maxLength={10}
                       size="large"
+                      onKeyPress={(e) => {
+                        if (!/[0-9]/.test(e.key)) e.preventDefault();
+                      }}
                     />
                   </Form.Item>
                 </div>
@@ -284,13 +333,16 @@ const StudentRegister = () => {
                     label="Mother's Phone"
                     rules={[
                       { required: true, message: "Required" },
-                      { len: 10, message: "10 digits" },
+                      { pattern: /^\d{10}$/, message: "Must be 10 digits" },
                     ]}
                   >
                     <Input
                       placeholder="10-digit number"
                       maxLength={10}
                       size="large"
+                      onKeyPress={(e) => {
+                        if (!/[0-9]/.test(e.key)) e.preventDefault();
+                      }}
                     />
                   </Form.Item>
                 </div>
@@ -299,28 +351,31 @@ const StudentRegister = () => {
               <div style={{ display: currentStep === 4 ? "block" : "none" }}>
                 <div className="mb-4">
                   <label className="mb-1 block text-sm font-medium text-navy-700 dark:text-white">
-                    Profile Photo{" "}
-                    <span className="text-gray-400">(optional)</span>
+                    Profile Photo <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="file"
-                    accept="image/*"
-                    onChange={(e) => setImageFile(e.target.files[0])}
+                    accept="image/png,image/jpeg,image/jpg"
+                    onChange={(e) => setImageFile(e.target.files[0] || null)}
                     className="w-full rounded-lg border border-gray-300 p-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white"
                   />
-                  {imageFile && (
+                  {imageFile ? (
                     <p className="mt-1 text-xs text-green-600">
                       Selected: {imageFile.name}
                     </p>
-                  )}
+                  ) : imageAttempted ? (
+                    <p className="mt-1 text-xs text-red-500">
+                      A profile photo is required
+                    </p>
+                  ) : null}
                 </div>
                 <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 dark:border-navy-600 dark:bg-navy-700">
                   <p className="text-sm font-semibold text-navy-700 dark:text-white">
                     Almost done!
                   </p>
                   <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Review your details, then click &quot;Create Account&quot;
-                    to complete registration.
+                    Upload your photo then click &quot;Create Account&quot; to
+                    complete registration.
                   </p>
                 </div>
               </div>

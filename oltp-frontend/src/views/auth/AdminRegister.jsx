@@ -9,8 +9,8 @@ const { Step } = Steps;
 const AdminRegister = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [logoFile, setLogoFile] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+  const [imageAttempted, setImageAttempted] = useState(false);
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
@@ -19,17 +19,8 @@ const AdminRegister = () => {
       case 0:
         return ["firstName", "lastName", "mobile"];
       case 1:
-        return [
-          "universityName",
-          "address",
-          "pincode",
-          "state",
-          "country",
-          "dateOfEstablishment",
-        ];
-      case 2:
         return [];
-      case 3:
+      case 2:
         return ["email", "password", "confirmPassword"];
       default:
         return [];
@@ -37,6 +28,13 @@ const AdminRegister = () => {
   };
 
   const handleNext = async () => {
+    if (currentStep === 1) {
+      setImageAttempted(true);
+      if (!imageFile) {
+        message.error("Please upload a profile image to continue");
+        return;
+      }
+    }
     try {
       await form.validateFields(getStepFields(currentStep));
       setCurrentStep((s) => s + 1);
@@ -52,25 +50,20 @@ const AdminRegister = () => {
       message.error("Passwords do not match");
       return;
     }
+    if (!imageFile) {
+      message.error("Please upload a profile image");
+      setCurrentStep(1);
+      return;
+    }
     setLoading(true);
     try {
       const formData = new FormData();
-      Object.entries(values).forEach(([key, value]) => {
-        if (
-          value !== undefined &&
-          value !== null &&
-          key !== "confirmPassword"
-        ) {
-          formData.append(key, value);
-        }
-      });
-      const uploadFile = imageFile || logoFile;
-      if (!uploadFile) {
-        message.error("Please upload a university logo or profile picture");
-        setLoading(false);
-        return;
-      }
-      formData.append("image", uploadFile);
+      formData.append("firstName", values.firstName);
+      formData.append("lastName", values.lastName);
+      formData.append("mobile", values.mobile);
+      formData.append("email", values.email);
+      formData.append("password", values.password);
+      formData.append("image", imageFile);
 
       const backendUrl =
         process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
@@ -111,9 +104,8 @@ const AdminRegister = () => {
 
             <div className="mb-8">
               <Steps current={currentStep} size="small" responsive={false}>
-                <Step title="Admin" />
-                <Step title="University" />
-                <Step title="Upload" />
+                <Step title="Personal" />
+                <Step title="Photo" />
                 <Step title="Account" />
               </Steps>
             </div>
@@ -130,14 +122,20 @@ const AdminRegister = () => {
                   <Form.Item
                     name="firstName"
                     label="First Name"
-                    rules={[{ required: true, message: "Required" }]}
+                    rules={[
+                      { required: true, message: "Required" },
+                      { min: 2, max: 255, message: "2–255 characters" },
+                    ]}
                   >
                     <Input placeholder="First name" size="large" />
                   </Form.Item>
                   <Form.Item
                     name="lastName"
                     label="Last Name"
-                    rules={[{ required: true, message: "Required" }]}
+                    rules={[
+                      { required: true, message: "Required" },
+                      { min: 2, max: 255, message: "2–255 characters" },
+                    ]}
                   >
                     <Input placeholder="Last name" size="large" />
                   </Form.Item>
@@ -147,131 +145,67 @@ const AdminRegister = () => {
                   label="Mobile Number"
                   rules={[
                     { required: true, message: "Required" },
-                    { len: 10, message: "Must be 10 digits" },
+                    {
+                      pattern: /^\d{10}$/,
+                      message: "Must be exactly 10 digits",
+                    },
                   ]}
                 >
                   <Input
                     placeholder="10-digit mobile number"
                     maxLength={10}
                     size="large"
+                    onKeyPress={(e) => {
+                      if (!/[0-9]/.test(e.key)) e.preventDefault();
+                    }}
                   />
                 </Form.Item>
               </div>
 
               <div style={{ display: currentStep === 1 ? "block" : "none" }}>
-                <Form.Item
-                  name="universityName"
-                  label="University / Institute Name"
-                  rules={[{ required: true, message: "Required" }]}
-                >
-                  <Input placeholder="e.g. Delhi University" size="large" />
-                </Form.Item>
-                <Form.Item
-                  name="address"
-                  label="Address"
-                  rules={[{ required: true, message: "Required" }]}
-                >
-                  <Input placeholder="Street address" size="large" />
-                </Form.Item>
-                <div className="grid grid-cols-2 gap-4">
-                  <Form.Item
-                    name="pincode"
-                    label="Pincode"
-                    rules={[
-                      { required: true, message: "Required" },
-                      { len: 6, message: "6 digits" },
-                    ]}
-                  >
-                    <Input
-                      placeholder="6-digit pincode"
-                      maxLength={6}
-                      size="large"
-                    />
-                  </Form.Item>
-                  <Form.Item
-                    name="state"
-                    label="State"
-                    rules={[{ required: true, message: "Required" }]}
-                  >
-                    <Input placeholder="State" size="large" />
-                  </Form.Item>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <Form.Item
-                    name="country"
-                    label="Country"
-                    rules={[{ required: true, message: "Required" }]}
-                  >
-                    <Input placeholder="Country" size="large" />
-                  </Form.Item>
-                  <Form.Item
-                    name="dateOfEstablishment"
-                    label="Established Date"
-                    rules={[{ required: true, message: "Required" }]}
-                  >
-                    <Input type="date" size="large" />
-                  </Form.Item>
+                <div className="mb-4">
+                  <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+                    Upload a profile picture for your admin account. This image
+                    will be shown on your profile.
+                  </p>
+                  <label className="mb-1 block text-sm font-medium text-navy-700 dark:text-white">
+                    Profile Picture <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg"
+                    onChange={(e) => setImageFile(e.target.files[0] || null)}
+                    className="w-full rounded-lg border border-gray-300 p-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+                  />
+                  {imageFile ? (
+                    <p className="mt-1 text-xs text-green-600">
+                      Selected: {imageFile.name}
+                    </p>
+                  ) : imageAttempted ? (
+                    <p className="mt-1 text-xs text-red-500">
+                      A profile image is required
+                    </p>
+                  ) : null}
                 </div>
               </div>
 
               <div style={{ display: currentStep === 2 ? "block" : "none" }}>
-                <div className="mb-4">
-                  <p className="mb-4 text-sm text-gray-500">
-                    Upload your institute logo (required) and optionally a
-                    personal profile photo. If both are provided, the profile
-                    photo takes priority.
-                  </p>
-                  <label className="mb-1 block text-sm font-medium text-navy-700 dark:text-white">
-                    University Logo <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setLogoFile(e.target.files[0])}
-                    className="w-full rounded-lg border border-gray-300 p-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white"
-                  />
-                  {logoFile && (
-                    <p className="mt-1 text-xs text-green-600">
-                      Selected: {logoFile.name}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-navy-700 dark:text-white">
-                    Admin Profile Picture{" "}
-                    <span className="text-gray-400">(optional)</span>
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setImageFile(e.target.files[0])}
-                    className="w-full rounded-lg border border-gray-300 p-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white"
-                  />
-                  {imageFile && (
-                    <p className="mt-1 text-xs text-green-600">
-                      Selected: {imageFile.name}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div style={{ display: currentStep === 3 ? "block" : "none" }}>
                 <Form.Item
                   name="email"
                   label="Email"
                   rules={[
                     { required: true, message: "Required" },
-                    { type: "email", message: "Invalid email" },
+                    { type: "email", message: "Invalid email address" },
                   ]}
                 >
-                  <Input placeholder="admin@university.edu" size="large" />
+                  <Input placeholder="admin@example.com" size="large" />
                 </Form.Item>
                 <Form.Item
                   name="password"
                   label="Password"
                   rules={[
                     { required: true, message: "Required" },
-                    { min: 6, message: "Min 6 characters" },
+                    { min: 6, message: "Minimum 6 characters" },
                   ]}
                 >
                   <Input.Password
@@ -313,7 +247,7 @@ const AdminRegister = () => {
                     Back
                   </button>
                 )}
-                {currentStep < 3 ? (
+                {currentStep < 2 ? (
                   <button
                     type="button"
                     onClick={handleNext}

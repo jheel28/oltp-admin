@@ -79,7 +79,6 @@ const Dashboard = () => {
         <div className="col-span-1 h-fit w-full xl:col-span-1 2xl:col-span-2">
           <Banner1 />
         </div>
-        <MiniCalendar value={calendarValue} onChange={setCalendarValue} exams={tests} />
         <TopCreatorTable />
       </div>
 

@@ -101,6 +101,10 @@ const getAdminById = async (req, res, next) => {
 const login = async (req, res, next) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return next(new HttpError("Email and password are required", 422));
+  }
+
   let existingAdmin;
   try {
     existingAdmin = await Admin.findOne({ email });
@@ -175,8 +179,15 @@ const updateAdminById = async (req, res, next) => {
   if (firstName !== undefined) admin.firstName = firstName;
   if (lastName !== undefined) admin.lastName = lastName;
   if (mobile !== undefined) admin.mobile = mobile;
+
   if (req.files && req.files["image"] && req.files["image"].length > 0) {
+    const oldImagePath = admin.image;
     admin.image = req.files["image"][0].path;
+    if (oldImagePath) {
+      fs.unlink(oldImagePath, (err) => {
+        if (err) console.log("Old image cleanup error:", err);
+      });
+    }
   }
 
   try {
@@ -218,11 +229,17 @@ const updateImageById = async (req, res, next) => {
   if (!req.file) {
     return next(new HttpError("No image was uploaded", 400));
   }
+  const oldImagePath = admin.image;
   admin.image = req.file.path;
   try {
     await admin.save();
   } catch (err) {
     return next(new HttpError("Error occurred while saving the admin", 500));
+  }
+  if (oldImagePath) {
+    fs.unlink(oldImagePath, (err) => {
+      if (err) console.log("Old image cleanup error:", err);
+    });
   }
   res.status(200).json({ message: "Admin image updated successfully" });
 };
