@@ -12,79 +12,72 @@ export default function Admin(props) {
   const [currentRoute, setCurrentRoute] = React.useState("Dashboard");
 
   React.useEffect(() => {
-    window.addEventListener("resize", () =>
-      window.innerWidth < 1200 ? setOpen(false) : setOpen(true)
-    );
+    const handleResize = () => {
+      if (window.innerWidth >= 1280) {
+        setOpen(true);
+      } else {
+        setOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
+
   React.useEffect(() => {
-    getActiveRoute(routes);
+    const found = routes.find((r) =>
+      location.pathname.includes(r.layout + "/" + r.path.replace("/*", ""))
+    );
+    if (found) setCurrentRoute(found.name);
   }, [location.pathname]);
 
-  const getActiveRoute = (routes) => {
-    let activeRoute = "Dashboard";
-    for (let i = 0; i < routes.length; i++) {
-      if (
-        window.location.href.indexOf(
-          routes[i].layout + "/" + routes[i].path
-        ) !== -1
-      ) {
-        setCurrentRoute(routes[i].name);
-      }
-    }
-    return activeRoute;
-  };
   const getActiveNavbar = (routes) => {
-    let activeNavbar = false;
     for (let i = 0; i < routes.length; i++) {
-      if (
-        window.location.href.indexOf(routes[i].layout + routes[i].path) !== -1
-      ) {
-        return routes[i].secondary;
+      if (location.pathname.includes(routes[i].layout + "/" + routes[i].path.replace("/*", ""))) {
+        return routes[i].secondary || false;
       }
     }
-    return activeNavbar;
-  };
-  const getRoutes = (routes) => {
-    return routes.map((prop, key) => {
-      if (prop.layout === "/admin") {
-        return (
-          <Route path={`/${prop.path}`} element={prop.component} key={key} />
-        );
-      } else {
-        return null;
-      }
-    });
+    return false;
   };
 
+  const getRoutes = (routes) =>
+    routes.map((prop, key) => {
+      if (prop.layout === "/admin") {
+        return <Route path={`/${prop.path}`} element={prop.component} key={key} />;
+      }
+      return null;
+    });
+
   document.documentElement.dir = "ltr";
+
   return (
     <div className="flex h-full w-full">
       <Sidebar open={open} onClose={() => setOpen(false)} />
-      <div className="h-full w-full bg-lightPrimary dark:!bg-navy-900">
-        <main
-          className={`mx-[12px] h-full flex-none transition-all md:pr-2 xl:ml-[313px]`}
-        >
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/30 xl:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+      <div className="h-full w-full bg-gray-50 dark:!bg-navy-900">
+        <main className="mx-[12px] h-full flex-none transition-all duration-300 md:pr-2 xl:ml-[260px]">
           <div className="h-full">
             <Navbar
               onOpenSidenav={() => setOpen(true)}
-              logoText={"Horizon UI Tailwind React"}
+              logoText={"The Correct Steps"}
               brandText={currentRoute}
               secondary={getActiveNavbar(routes)}
               {...rest}
             />
-            <div className="pt-5s mx-auto mb-auto h-full min-h-[84vh] p-2 md:pr-2">
+            <div className="mx-auto mb-auto h-full min-h-[84vh] p-2 md:pr-2">
               <Routes>
                 {getRoutes(routes)}
-
-                <Route
-                  path="/"
-                  element={<Navigate to="/admin/default" replace />}
-                />
+                <Route path="/" element={<Navigate to="/admin/default" replace />} />
               </Routes>
             </div>
-            <div className="p-3">
+            {/* <div className="p-3">
               <Footer />
-            </div>
+            </div> */}
           </div>
         </main>
       </div>

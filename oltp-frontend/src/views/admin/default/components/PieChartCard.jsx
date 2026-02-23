@@ -1,77 +1,102 @@
 import React, { useEffect, useState } from "react";
 import PieChart from "components/charts/PieChart";
 import Card from "components/card";
-import { message } from "antd";
+import { MdGroups } from "react-icons/md";
+
+const COLORS = ["#2563EB", "#3B82F6", "#60A5FA", "#93C5FD", "#64748B", "#94A3B8", "#1D4ED8", "#0EA5E9"];
 
 const PieChartCard = () => {
   const [students, setStudents] = useState([]);
 
   useEffect(() => {
-    const fetchStudents = async () => {
+    const fetch_ = async () => {
       try {
-        const response = await fetch(
+        const res = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/all/students`
         );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status ${response.status}`);
-        }
-        const data = await response.json();
-        setStudents(data.students);
-      } catch (err) {
-        message.error("Error fetching students: " + err.message);
-      }
+        if (!res.ok) return;
+        const data = await res.json();
+        setStudents(data.students || []);
+      } catch (_) {}
     };
-    fetchStudents();
+    fetch_();
   }, []);
-  // Create an object to store the count of students in each batch
+
   const batchCounts = {};
-
-  // Iterate through the students array to count the students in each batch
-  students.forEach((student) => {
-    const { batch } = student;
-
-    if (batchCounts[batch]) {
-      batchCounts[batch]++;
-    } else {
-      batchCounts[batch] = 1;
-    }
+  students.forEach(({ batch }) => {
+    if (batch) batchCounts[batch] = (batchCounts[batch] || 0) + 1;
   });
-
-  // Extract batch names and counts for the pie chart options
   const labels = Object.keys(batchCounts);
   const seriesData = Object.values(batchCounts);
 
-  // Pie chart options with batch names as labels
-  const pieChartOptions = {
-    labels: labels,
-    // Add other options as needed
+  const pieOptions = {
+    labels,
+    colors: COLORS,
+    legend: { show: false },
+    dataLabels: { enabled: false },
+    stroke: { width: 0 },
+    chart: { type: "donut" },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: "65%",
+          labels: {
+            show: true,
+            total: {
+              show: true,
+              label: "Students",
+              fontSize: "12px",
+              fontWeight: "700",
+              color: "#64748B",
+              formatter: () => students.length,
+            },
+          },
+        },
+      },
+    },
   };
 
   return (
-    <Card extra="rounded-[20px] p-3">
-      <div className="flex flex-row justify-between px-3 pt-2">
-        <div>
-          <h4 className="text-lg font-bold text-navy-700 dark:text-white">
-            Students by Batch
-          </h4>
-        </div>
+    <Card extra="rounded-xl p-4">
+      <div className="mb-3 flex items-center gap-2">
+        <MdGroups className="h-5 w-5 text-blue-600" />
+        <h4 className="text-sm font-bold text-gray-800 dark:text-white">Students by Batch</h4>
       </div>
 
-      <div className="mb-auto flex h-[220px] w-full items-center justify-center">
-        <PieChart options={pieChartOptions} series={seriesData} />
+      <div className="flex h-[170px] w-full items-center justify-center">
+        {seriesData.length > 0 ? (
+          <PieChart options={pieOptions} series={seriesData} />
+        ) : (
+          <p className="text-sm text-gray-400">No data</p>
+        )}
       </div>
 
-      <div className="flex flex-col justify-center gap-2 px-3 py-2">
-        {/* Render batch names and student counts */}
-        {labels.map((batch, index) => (
-          <div key={index} className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="mr-2 h-2 w-2 rounded-full bg-brand-500" />
-              <p className="text-sm font-normal text-gray-600">{batch}</p>
+      <div className="mt-3 flex flex-col gap-2">
+        {labels.map((batch, i) => (
+          <div key={i} className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div
+                className="h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: COLORS[i % COLORS.length] }}
+              />
+              <p className="max-w-[130px] truncate text-xs font-medium text-gray-600 dark:text-gray-400">
+                {batch}
+              </p>
             </div>
-            <p className="text-sm font-normal text-gray-600">
-              {batchCounts[batch]}
-            </p>
+            <div className="flex items-center gap-2">
+              <div className="h-1 w-14 overflow-hidden rounded-full bg-gray-100 dark:bg-navy-700">
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${students.length > 0 ? (batchCounts[batch] / students.length) * 100 : 0}%`,
+                    backgroundColor: COLORS[i % COLORS.length],
+                  }}
+                />
+              </div>
+              <span className="w-4 text-right text-xs font-semibold text-gray-700 dark:text-white">
+                {batchCounts[batch]}
+              </span>
+            </div>
           </div>
         ))}
       </div>

@@ -36,9 +36,9 @@ export default function Auth() {
                   </Routes>
                 </div>
 
-                <div className="mt-8 pb-4">
+                {/* <div className="mt-8 pb-4">
                   <Footer />
-                </div>
+                </div> */}
               </div>
 
               {/* Logo section on the right - absolute positioned */}
