@@ -8,17 +8,174 @@ import {
 } from "react-icons/md";
 import { IoTrophyOutline } from "react-icons/io5";
 
+const BACKEND = process.env.REACT_APP_BACKEND_URL;
+
 const CircleProgress = ({ value, size = 120, stroke = 10, color }) => {
   const r = (size - stroke) / 2;
   const circ = 2 * Math.PI * r;
   const offset = circ - (value / 100) * circ;
   return (
     <svg width={size} height={size} className="-rotate-90">
-      <circle cx={size / 2} cy={size / 2} r={r} stroke="#E5E7EB" strokeWidth={stroke} fill="none" />
-      <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={stroke} fill="none"
+      <circle cx={size/2} cy={size/2} r={r} stroke="#E5E7EB" strokeWidth={stroke} fill="none" />
+      <circle
+        cx={size/2} cy={size/2} r={r} stroke={color} strokeWidth={stroke} fill="none"
         strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
-        style={{ transition: "stroke-dashoffset 1s ease" }} />
+        style={{ transition: "stroke-dashoffset 1s ease" }}
+      />
     </svg>
+  );
+};
+
+/** Determine if a question result is correct, considering all types */
+const isResultCorrect = (qr, question) => {
+  const chosen = qr.chosenAnswer;
+  const correct = qr.correctAnswer;
+  if (chosen === null || chosen === undefined) return false;
+
+  if (question?.type === "NAT" || (correct && typeof correct === "object" && !Array.isArray(correct))) {
+    const val = parseFloat(chosen);
+    const cObj = correct;
+    if (cObj?.min != null && cObj?.max != null) {
+      return !isNaN(val) && val >= parseFloat(cObj.min) && val <= parseFloat(cObj.max);
+    }
+    return String(chosen) === String(correct);
+  }
+
+  if (Array.isArray(correct)) {
+    const chosenArr = (Array.isArray(chosen) ? chosen : [chosen]).map(Number);
+    const correctArr = correct.map(Number);
+    return (
+      chosenArr.length === correctArr.length &&
+      chosenArr.every((c) => correctArr.includes(c))
+    );
+  }
+
+  const chosenVal = Array.isArray(chosen) ? chosen[0] : chosen;
+  return String(chosenVal) === String(correct);
+};
+
+const isSkipped = (qr) =>
+  qr.chosenAnswer === null ||
+  qr.chosenAnswer === undefined ||
+  (Array.isArray(qr.chosenAnswer) && qr.chosenAnswer.length === 0);
+
+const QuestionReview = ({ qr, question, index }) => {
+  const skipped = isSkipped(qr);
+  const correct = !skipped && isResultCorrect(qr, question);
+  const status = skipped ? "skipped" : correct ? "correct" : "wrong";
+
+  const statusStyle = {
+    correct: "border-green-200 bg-green-50",
+    wrong: "border-red-200 bg-red-50",
+    skipped: "border-gray-200 bg-gray-50",
+  }[status];
+
+  const badge = {
+    correct: "bg-green-500 text-white",
+    wrong: "bg-red-500 text-white",
+    skipped: "bg-gray-300 text-gray-600",
+  }[status];
+
+  const statusPill = {
+    correct: "bg-green-100 text-green-700",
+    wrong: "bg-red-100 text-red-600",
+    skipped: "bg-gray-100 text-gray-500",
+  }[status];
+
+  const chosen = qr.chosenAnswer;
+  const correctAns = qr.correctAnswer;
+
+  const chosenIdxArr = Array.isArray(chosen)
+    ? chosen.map(Number)
+    : chosen !== null && chosen !== undefined
+    ? [Number(chosen)] : [];
+
+  const correctIdxArr = Array.isArray(correctAns)
+    ? correctAns.map(Number)
+    : correctAns !== null && correctAns !== undefined && typeof correctAns !== "object"
+    ? [Number(correctAns)] : [];
+
+  const isNAT = question?.type === "NAT" || (correctAns && typeof correctAns === "object" && !Array.isArray(correctAns));
+
+  return (
+    <div className={`rounded-xl border p-3 ${statusStyle}`}>
+      <div className="flex items-start gap-3">
+        <span className={`flex-shrink-0 h-6 w-6 rounded-full text-xs font-black flex items-center justify-center ${badge}`}>
+          {index + 1}
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-medium text-gray-700 leading-relaxed">
+            {question?.text || `Question ${index + 1}`}
+          </p>
+
+          {question?.questionImage && (
+            <img
+              src={`${BACKEND}/${question.questionImage}`}
+              alt="question"
+              className="mt-1.5 max-h-24 max-w-[180px] object-contain rounded-lg border border-gray-200 bg-gray-50"
+            />
+          )}
+
+          {/* NAT answer display */}
+          {isNAT && (
+            <div className="mt-2 text-xs text-gray-600">
+              {skipped ? (
+                <span className="text-gray-400 italic">Not answered</span>
+              ) : (
+                <span>Your answer: <strong>{String(chosen)}</strong></span>
+              )}
+              {!correct && !skipped && correctAns && typeof correctAns === "object" && (
+                <span className="ml-2 text-blue-600">
+                  · Correct range: <strong>{correctAns.min} – {correctAns.max}</strong>
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* MCQ/MSQ options */}
+          {!isNAT && question?.options?.length > 0 && (
+            <div className="mt-2 space-y-1">
+              {question.options.map((opt, oi) => {
+                const isChosenOpt = chosenIdxArr.includes(oi);
+                const isCorrectOpt = correctIdxArr.includes(oi);
+                const cls =
+                  isChosenOpt && isCorrectOpt ? "border-green-400 bg-green-100" :
+                  isChosenOpt ? "border-red-400 bg-red-100" :
+                  isCorrectOpt && !skipped ? "border-green-300 bg-green-50" :
+                  isCorrectOpt && skipped ? "border-blue-300 bg-blue-50" :
+                  "border-gray-200 bg-white";
+
+                return (
+                  <div key={oi} className={`flex items-start gap-2 rounded-lg border px-2 py-1.5 text-[11px] ${cls}`}>
+                    <span className="font-black flex-shrink-0 text-gray-500 w-4">
+                      {String.fromCharCode(65 + oi)}.
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-gray-700">{opt.text}</span>
+                      {opt.image && (
+                        <img
+                          src={`${BACKEND}/${opt.image}`}
+                          alt=""
+                          className="mt-1.5 max-h-16 max-w-[120px] object-contain rounded border border-gray-200"
+                        />
+                      )}
+                    </div>
+                    <span className="ml-auto flex-shrink-0 text-[10px] font-bold">
+                      {isChosenOpt && isCorrectOpt && <span className="text-green-700">✓ Chosen</span>}
+                      {isChosenOpt && !isCorrectOpt && <span className="text-red-600">✗ Chosen</span>}
+                      {!isChosenOpt && isCorrectOpt && <span className="text-green-700">✓ Correct</span>}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+        <span className={`flex-shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${statusPill}`}>
+          {status}
+        </span>
+      </div>
+    </div>
   );
 };
 
@@ -36,7 +193,8 @@ const FeedbackScreen = () => {
   const total = parseFloat(maxscore) || 0;
   const percentage = total > 0 ? Math.round((earned / total) * 100) : 0;
 
-  const grade = percentage >= 90 ? { label: "Exceptional", color: "#10B981" } :
+  const grade =
+    percentage >= 90 ? { label: "Exceptional", color: "#10B981" } :
     percentage >= 75 ? { label: "Excellent", color: "#3B82F6" } :
     percentage >= 60 ? { label: "Good", color: "#8B5CF6" } :
     percentage >= 40 ? { label: "Average", color: "#F59E0B" } :
@@ -47,35 +205,30 @@ const FeedbackScreen = () => {
       setLoading(true);
       try {
         const studentRes = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/student/byid/${auth.userId}`,
+          `${BACKEND}/api/v1/student/get/student/byid/${auth.userId}`,
           { headers: { Authorization: "Bearer " + auth.token } }
         );
-        const studentData = await studentRes.json();
-        const studentId = studentData.student?.studentId;
+        const { student } = await studentRes.json();
+        if (!student?.studentId) { setLoading(false); return; }
 
-        if (!studentId) {
-          setLoading(false);
-          return;
-        }
-
-        const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/v1/score/get/scores/bystudentid/${studentId}`,
+        const scoresRes = await fetch(
+          `${BACKEND}/api/v1/score/get/scores/bystudentid/${student.studentId}`,
           { headers: { Authorization: "Bearer " + auth.token } }
         );
-        const data = await res.json();
-        const scores = data.scores || [];
-        const latest = scores.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+        const { scores = [] } = await scoresRes.json();
+        const latest = [...scores].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
         setLatestScore(latest);
 
         if (latest?.paperId) {
           const qRes = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/v1/question/get/questions/bypaperid/${latest.paperId}`
+            `${BACKEND}/api/v1/question/get/questions/bypaperid/${latest.paperId}`,
+            { headers: { Authorization: "Bearer " + auth.token } }
           );
-          const qData = await qRes.json();
-          setQuestions(qData.questions || []);
+          const { questions: qs = [] } = await qRes.json();
+          setQuestions(qs);
         }
-      } catch {
-        // Fail silently — we still show score from URL params
+      } catch (err) {
+        console.error("FeedbackScreen fetch error:", err);
       } finally {
         setLoading(false);
       }
@@ -86,33 +239,10 @@ const FeedbackScreen = () => {
   const questionResults = latestScore?.questions || [];
 
   const correct = questionResults.filter((qr) => {
-    const q = questions.find((x) => x._id === qr.questionId);
-    const chosen = qr.chosenAnswer;
-    const correctAns = qr.correctAnswer;
-    if (chosen === null || chosen === undefined) return false;
-
-    if (Array.isArray(correctAns)) {
-      const ca = Array.isArray(chosen) ? chosen : [chosen];
-      if (ca.length !== correctAns.length) return false;
-      return ca.every((val) => {
-        if (correctAns.includes(val)) return true;
-        if (q?.options[val] && correctAns.includes(q.options[val].text))
-          return true;
-        return false;
-      });
-    }
-
-    if (String(chosen) === String(correctAns)) return true;
-    if (q?.options[chosen] && q.options[chosen].text === correctAns) return true;
-    return false;
+    const q = questions.find((x) => String(x._id) === String(qr.questionId));
+    return !isSkipped(qr) && isResultCorrect(qr, q);
   }).length;
-
-  const unanswered = questionResults.filter((q) =>
-    q.chosenAnswer === null ||
-    q.chosenAnswer === undefined ||
-    (Array.isArray(q.chosenAnswer) && q.chosenAnswer.length === 0)
-  ).length;
-
+  const unanswered = questionResults.filter(isSkipped).length;
   const wrong = questionResults.length - correct - unanswered;
 
   return (
@@ -123,6 +253,7 @@ const FeedbackScreen = () => {
       </div>
 
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-8 space-y-5">
+        {/* Score card */}
         <Card extra="p-8 text-center">
           <div className="relative inline-flex items-center justify-center mb-4">
             <CircleProgress value={percentage} size={140} stroke={12} color={grade.color} />
@@ -131,15 +262,15 @@ const FeedbackScreen = () => {
             </div>
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-black mb-4"
-            style={{ backgroundColor: grade.color + "20", color: grade.color }}>
-            {percentage >= 60 ? <IoTrophyOutline /> : null}
+          <div
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-black mb-4"
+            style={{ backgroundColor: grade.color + "20", color: grade.color }}
+          >
+            {percentage >= 60 && <IoTrophyOutline />}
             {grade.label}
           </div>
 
-          <h2 className="text-2xl font-black text-navy-700 mb-1">
-            {earned} / {total}
-          </h2>
+          <h2 className="text-2xl font-black text-navy-700 mb-1">{earned} / {total}</h2>
           <p className="text-sm text-gray-400">marks obtained</p>
 
           {questionResults.length > 0 && (
@@ -159,7 +290,8 @@ const FeedbackScreen = () => {
           )}
         </Card>
 
-        {questionResults.length > 0 && questions.length > 0 && (
+        {/* Question-wise analysis */}
+        {questionResults.length > 0 && (
           <Card extra="p-5">
             <button
               onClick={() => setShowDetails((v) => !v)}
@@ -171,83 +303,36 @@ const FeedbackScreen = () => {
               <span className="text-xs font-bold text-blue-500">{showDetails ? "Hide" : "Show"}</span>
             </button>
 
-            {showDetails && (
-              <div className="mt-4 space-y-2">
+            {showDetails && !loading && (
+              <div className="mt-4 space-y-3">
                 {questionResults.map((qr, i) => {
-                  const q = questions.find((x) => x._id === qr.questionId);
-                  const chosen = qr.chosenAnswer;
-                  const correctAns = qr.correctAnswer;
-                  const skipped = chosen === null || chosen === undefined ||
-                    (Array.isArray(chosen) && chosen.length === 0);
-                  let isCorrect = false;
-                  if (!skipped) {
-                    if (Array.isArray(correctAns)) {
-                      const ca = Array.isArray(chosen) ? chosen : [chosen];
-                      isCorrect =
-                        ca.length === correctAns.length &&
-                        ca.every((val) => {
-                          if (correctAns.includes(val)) return true;
-                          if (q?.options[val] && correctAns.includes(q.options[val].text))
-                            return true;
-                          return false;
-                        });
-                    } else {
-                      if (String(chosen) === String(correctAns)) {
-                        isCorrect = true;
-                      } else if (q?.options[chosen] && q.options[chosen].text === correctAns) {
-                        isCorrect = true;
-                      }
-                    }
-                  }
-                  const status = skipped ? "skipped" : isCorrect ? "correct" : "wrong";
-                  const statusStyle = {
-                    correct: "border-green-200 bg-green-50",
-                    wrong: "border-red-200 bg-red-50",
-                    skipped: "border-gray-200 bg-gray-50",
-                  }[status];
-                  const badge = {
-                    correct: "bg-green-500 text-white",
-                    wrong: "bg-red-500 text-white",
-                    skipped: "bg-gray-300 text-gray-600",
-                  }[status];
-
+                  const question = questions.find((x) => String(x._id) === String(qr.questionId));
                   return (
-                    <div key={i} className={`rounded-xl border p-3 ${statusStyle}`}>
-                      <div className="flex items-start gap-3">
-                        <span className={`flex-shrink-0 h-6 w-6 rounded-full text-xs font-black flex items-center justify-center ${badge}`}>
-                          {i + 1}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-gray-700 leading-relaxed">
-                            {q?.text || `Question ${i + 1}`}
-                          </p>
-                          {!skipped && !isCorrect && (
-                            <p className="text-[10px] text-red-600 mt-1 font-bold">
-                              Correct: Option {Array.isArray(correctAns) ? correctAns.map((v) => String.fromCharCode(65 + v)).join(", ") : String.fromCharCode(65 + correctAns)}
-                            </p>
-                          )}
-                        </div>
-                        <span className={`flex-shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                          status === "correct" ? "bg-green-100 text-green-700" :
-                          status === "wrong" ? "bg-red-100 text-red-600" :
-                          "bg-gray-100 text-gray-500"
-                        }`}>{status}</span>
-                      </div>
-                    </div>
+                    <QuestionReview key={i} qr={qr} question={question} index={i} />
                   );
                 })}
+              </div>
+            )}
+            {showDetails && loading && (
+              <div className="mt-4 flex items-center justify-center py-8">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
               </div>
             )}
           </Card>
         )}
 
+        {/* Navigation */}
         <div className="grid grid-cols-2 gap-3">
-          <button onClick={() => navigate("/student/default")}
-            className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50 shadow-sm">
+          <button
+            onClick={() => navigate("/student/default")}
+            className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50 shadow-sm"
+          >
             <MdHome /> Dashboard
           </button>
-          <button onClick={() => navigate("/student/result")}
-            className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 shadow-lg shadow-blue-200">
+          <button
+            onClick={() => navigate("/student/result")}
+            className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 shadow-lg shadow-blue-200"
+          >
             <MdOutlineBarChart /> View All Results
           </button>
         </div>

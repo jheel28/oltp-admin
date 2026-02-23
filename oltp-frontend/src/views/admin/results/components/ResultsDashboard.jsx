@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useMemo, useState, useCallback } from "react";
-import { MdSearch, MdDownload, MdRefresh, MdBarChart, MdTableChart } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
+import { MdSearch, MdDownload, MdRefresh, MdBarChart, MdTableChart, MdLiveTv, MdEdit, MdDelete, MdClose } from "react-icons/md";
 import Card from "components/card";
 import { message } from "antd";
 import { AuthContext } from "components/Auth-context";
 
 const BAR_COLORS = [
-  "#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6",
-  "#EC4899", "#14B8A6", "#F97316", "#6366F1", "#84CC16",
+  "#3B82F6","#10B981","#F59E0B","#EF4444","#8B5CF6",
+  "#EC4899","#14B8A6","#F97316","#6366F1","#84CC16",
 ];
 
 const StatCard = ({ label, value, color, sub }) => (
@@ -17,16 +18,14 @@ const StatCard = ({ label, value, color, sub }) => (
   </Card>
 );
 
-const MiniBar = ({ label, value, max, color, sub }) => (
+const MiniBar = ({ label, value, max, color }) => (
   <div className="flex items-center gap-3">
-    <span className="w-28 text-xs text-gray-500 dark:text-gray-400 truncate text-right flex-shrink-0">{label}</span>
-    <div className="flex-1 h-4 rounded-full bg-gray-100 dark:bg-navy-700 overflow-hidden">
-      <div
-        className="h-full rounded-full transition-all duration-700"
-        style={{ width: `${max > 0 ? (Number(value) / max) * 100 : 0}%`, backgroundColor: color }}
-      />
+    <span className="w-28 text-xs text-gray-500 truncate text-right flex-shrink-0">{label}</span>
+    <div className="flex-1 h-4 rounded-full bg-gray-100 overflow-hidden">
+      <div className="h-full rounded-full transition-all duration-700"
+        style={{ width: `${max > 0 ? (Number(value) / max) * 100 : 0}%`, backgroundColor: color }} />
     </div>
-    <span className="w-12 text-xs font-bold text-navy-700 dark:text-white text-right flex-shrink-0">
+    <span className="w-12 text-xs font-bold text-navy-700 text-right flex-shrink-0">
       {typeof value === "number" ? value.toFixed(1) : value}
     </span>
   </div>
@@ -36,16 +35,10 @@ const BarChart = ({ data, max }) => (
   <div className="flex items-end justify-around gap-1 h-28 pb-1">
     {data.map(({ label, value, color }) => (
       <div key={label} className="flex flex-col items-center gap-1 flex-1">
-        <span className="text-[10px] font-bold text-navy-700 dark:text-white">{value}</span>
-        <div className="w-full bg-gray-100 dark:bg-navy-700 rounded-t" style={{ height: "80px" }}>
-          <div
-            className="w-full rounded-t transition-all duration-700"
-            style={{
-              height: `${max > 0 ? (value / max) * 80 : 0}px`,
-              backgroundColor: color || "#3B82F6",
-              marginTop: "auto",
-            }}
-          />
+        <span className="text-[10px] font-bold text-navy-700">{value}</span>
+        <div className="w-full bg-gray-100 rounded-t" style={{ height: "80px" }}>
+          <div className="w-full rounded-t transition-all duration-700"
+            style={{ height: `${max > 0 ? (value / max) * 80 : 0}px`, backgroundColor: color, marginTop: "auto" }} />
         </div>
         <span className="text-[9px] text-gray-400 text-center leading-tight">{label}</span>
       </div>
@@ -57,24 +50,27 @@ const PAGE_SIZE = 15;
 
 const ResultsDashboard = () => {
   const auth = useContext(AuthContext);
+  const navigate = useNavigate();
   const [scores, setScores] = useState([]);
   const [tests, setTests] = useState([]);
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeView, setActiveView] = useState("analytics");
-
   const [search, setSearch] = useState("");
   const [batchFilter, setBatchFilter] = useState("All");
   const [testFilter, setTestFilter] = useState("All");
   const [page, setPage] = useState(0);
 
+  // Edit Modal State
+  const [editScoreData, setEditScoreData] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
       const [sRes, tRes, bRes] = await Promise.all([
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/score/get/all/scores`, {
-          headers: { Authorization: "Bearer " + auth.token },
-        }),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/score/get/all/scores`,
+          { headers: { Authorization: "Bearer " + auth.token } }),
         fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/test/get/all/tests`),
         fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/get/all/batches`),
       ]);
@@ -93,17 +89,61 @@ const ResultsDashboard = () => {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
+  // Handle Delete Single Score
+  const handleDeleteScore = async (scoreId) => {
+    if (!window.confirm("Are you sure you want to delete this result? This cannot be undone.")) return;
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/score/delete/single/${scoreId}`, {
+        method: "DELETE",
+        headers: { Authorization: "Bearer " + auth.token },
+      });
+      if (!response.ok) throw new Error("Failed to delete score");
+      message.success("Score deleted successfully");
+      setScores((prev) => prev.filter((s) => s._id !== scoreId));
+    } catch (err) {
+      message.error("Error deleting score");
+    }
+  };
+
+  // Handle Edit Submission
+  const submitScoreEdit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/score/update/${editScoreData._id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + auth.token,
+        },
+        body: JSON.stringify({
+          marksObtained: editScoreData.marksObtained,
+          passed: editScoreData.passed,
+        }),
+      });
+      
+      if (!response.ok) throw new Error("Failed to update score");
+      
+      const resData = await response.json();
+      message.success("Score updated successfully");
+      
+      // Update local state so it reflects immediately
+      setScores((prev) => prev.map((s) => (s._id === editScoreData._id ? resData.score : s)));
+      setIsEditModalOpen(false);
+    } catch (err) {
+      message.error("Error updating score");
+    }
+  };
+
   const filtered = useMemo(() => {
     let list = scores;
     if (batchFilter !== "All") list = list.filter((s) => s.batch === batchFilter);
     if (testFilter !== "All") list = list.filter((s) => s.testId === testFilter || s.testName === testFilter);
     if (search.trim()) {
       const q = search.toLowerCase();
-      list = list.filter(
-        (s) =>
-          s.studentName?.toLowerCase().includes(q) ||
-          s.studentId?.toLowerCase().includes(q) ||
-          s.testName?.toLowerCase().includes(q)
+      list = list.filter((s) =>
+        s.studentName?.toLowerCase().includes(q) ||
+        s.studentId?.toLowerCase().includes(q) ||
+        s.testName?.toLowerCase().includes(q)
       );
     }
     return list;
@@ -126,16 +166,15 @@ const ResultsDashboard = () => {
 
     const byTest = {};
     filtered.forEach((s) => {
-      const key = s.testName || s.testId || "Unknown";
-      if (!byTest[key]) byTest[key] = { count: 0, total: 0, passed: 0 };
+      const key = s.testId || "unknown";
+      if (!byTest[key]) byTest[key] = { name: s.testName || s.testId, count: 0, total: 0, passed: 0, testId: key };
       byTest[key].count++;
       byTest[key].total += Number(s.marksObtained) || 0;
       if (s.passed) byTest[key].passed++;
     });
-    const testBreakdown = Object.entries(byTest)
-      .map(([name, d]) => ({ name, count: d.count, avg: d.total / d.count, passed: d.passed }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 8);
+    const testBreakdown = Object.values(byTest)
+      .map((d) => ({ ...d, avg: d.total / d.count }))
+      .sort((a, b) => b.count - a.count).slice(0, 8);
 
     const byBatch = {};
     filtered.forEach((s) => {
@@ -146,8 +185,7 @@ const ResultsDashboard = () => {
     });
     const batchBreakdown = Object.entries(byBatch)
       .map(([name, d]) => ({ name, count: d.count, avg: d.total / d.count }))
-      .sort((a, b) => b.avg - a.avg)
-      .slice(0, 6);
+      .sort((a, b) => b.avg - a.avg).slice(0, 6);
 
     return { avg, max, min, passed, distribution, testBreakdown, batchBreakdown };
   }, [filtered]);
@@ -165,13 +203,12 @@ const ResultsDashboard = () => {
     const csv = rows.map((r) => r.map((c) => `"${c ?? ""}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "results.csv";
-    a.click();
+    a.href = URL.createObjectURL(blob); a.download = "results.csv"; a.click();
   };
 
   return (
     <div className="space-y-4">
+      {/* Search & Filters Header */}
       <Card extra="w-full p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -181,31 +218,21 @@ const ResultsDashboard = () => {
           <div className="flex items-center gap-2 flex-wrap">
             <div className="relative">
               <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <input
-                type="text"
-                placeholder="Search student, test..."
-                value={search}
+              <input type="text" placeholder="Search..." value={search}
                 onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-                className="pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
-              />
+                className="pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-48" />
             </div>
-            <select
-              value={batchFilter}
-              onChange={(e) => { setBatchFilter(e.target.value); setPage(0); }}
-              className="py-2 px-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none"
-            >
+            <select value={batchFilter} onChange={(e) => { setBatchFilter(e.target.value); setPage(0); }}
+              className="py-2 px-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none">
               <option value="All">All Batches</option>
               {batches.map((b) => <option key={b._id} value={b.batchName}>{b.batchName}</option>)}
             </select>
-            <select
-              value={testFilter}
-              onChange={(e) => { setTestFilter(e.target.value); setPage(0); }}
-              className="py-2 px-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none"
-            >
+            <select value={testFilter} onChange={(e) => { setTestFilter(e.target.value); setPage(0); }}
+              className="py-2 px-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none">
               <option value="All">All Tests</option>
-              {tests.map((t) => <option key={t._id} value={t.testName || t.testId}>{t.testName || t.testId}</option>)}
+              {tests.map((t) => <option key={t._id} value={t.testId}>{t.testName || t.testId}</option>)}
             </select>
-            <button onClick={fetchAll} className="p-2 rounded-lg border border-gray-200 dark:border-navy-600 text-gray-500 hover:bg-gray-50 dark:hover:bg-navy-700 transition">
+            <button onClick={fetchAll} className="p-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition">
               <MdRefresh className="h-4 w-4" />
             </button>
             <button onClick={exportCSV} className="flex items-center gap-1 px-3 py-2 text-sm rounded-lg bg-green-500 text-white hover:bg-green-600 transition">
@@ -214,22 +241,17 @@ const ResultsDashboard = () => {
           </div>
         </div>
 
+        {/* View Tabs */}
         <div className="flex gap-1 mt-4 border-b border-gray-100 dark:border-navy-700">
           {[
             { id: "analytics", label: "Analytics", icon: MdBarChart },
             { id: "table", label: "All Results", icon: MdTableChart },
           ].map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setActiveView(id)}
-              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium border-b-2 transition -mb-px
-                ${activeView === id
-                  ? "border-blue-500 text-blue-600 dark:text-blue-400"
-                  : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"}`}
-            >
-              <Icon className="h-4 w-4" />
-              {label}
-              {id === "table" && <span className="ml-1 text-[10px] bg-gray-100 dark:bg-navy-700 text-gray-500 px-1.5 py-0.5 rounded-full">{filtered.length}</span>}
+            <button key={id} onClick={() => setActiveView(id)}
+              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium border-b-2 transition -mb-px ${
+                activeView === id ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
+              <Icon className="h-4 w-4" /> {label}
+              {id === "table" && <span className="ml-1 text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">{filtered.length}</span>}
             </button>
           ))}
         </div>
@@ -239,7 +261,7 @@ const ResultsDashboard = () => {
         <Card extra="w-full p-16 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3 text-gray-400">
             <div className="h-8 w-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
-            <span className="text-sm">Loading results...</span>
+            <span className="text-sm">Loading results…</span>
           </div>
         </Card>
       ) : (
@@ -254,8 +276,7 @@ const ResultsDashboard = () => {
                 <>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <StatCard label="Total Attempts" value={filtered.length} color="text-blue-600" />
-                    <StatCard label="Average Score" value={stats.avg.toFixed(1)} color="text-purple-600"
-                      sub={`Min: ${stats.min} · Max: ${stats.max}`} />
+                    <StatCard label="Average Score" value={stats.avg.toFixed(1)} color="text-purple-600" sub={`Min: ${stats.min} · Max: ${stats.max}`} />
                     <StatCard label="Highest Score" value={stats.max} color="text-green-600" />
                     <StatCard label="Pass Rate" value={`${filtered.length > 0 ? ((stats.passed / filtered.length) * 100).toFixed(0) : 0}%`}
                       color="text-amber-600" sub={`${stats.passed} of ${filtered.length} passed`} />
@@ -263,29 +284,20 @@ const ResultsDashboard = () => {
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <Card extra="p-4">
-                      <h3 className="text-sm font-bold text-navy-700 dark:text-white mb-4">Score Distribution</h3>
-                      <BarChart
-                        data={stats.distribution.map((v, i) => ({
-                          label: `${i * 20}–${(i + 1) * 20}%`,
-                          value: v,
-                          color: ["#EF4444", "#F97316", "#F59E0B", "#84CC16", "#10B981"][i],
-                        }))}
-                        max={distMax}
-                      />
+                      <h3 className="text-sm font-bold text-navy-700 mb-4">Score Distribution</h3>
+                      <BarChart data={stats.distribution.map((v, i) => ({
+                        label: `${i * 20}–${(i + 1) * 20}%`, value: v,
+                        color: ["#EF4444","#F97316","#F59E0B","#84CC16","#10B981"][i],
+                      }))} max={distMax} />
                     </Card>
-
                     {stats.batchBreakdown.length > 0 && (
                       <Card extra="p-4">
-                        <h3 className="text-sm font-bold text-navy-700 dark:text-white mb-4">Avg Score by Batch</h3>
+                        <h3 className="text-sm font-bold text-navy-700 mb-4">Avg Score by Batch</h3>
                         <div className="space-y-2.5">
                           {stats.batchBreakdown.map((b, i) => (
-                            <MiniBar
-                              key={b.name}
-                              label={b.name}
-                              value={b.avg}
+                            <MiniBar key={b.name} label={b.name} value={b.avg}
                               max={Math.max(...stats.batchBreakdown.map((x) => x.avg), 1)}
-                              color={BAR_COLORS[i % BAR_COLORS.length]}
-                            />
+                              color={BAR_COLORS[i % BAR_COLORS.length]} />
                           ))}
                         </div>
                       </Card>
@@ -294,35 +306,43 @@ const ResultsDashboard = () => {
 
                   {stats.testBreakdown.length > 0 && (
                     <Card extra="p-4">
-                      <h3 className="text-sm font-bold text-navy-700 dark:text-white mb-4">Test Performance Summary</h3>
+                      <h3 className="text-sm font-bold text-navy-700 mb-4">Test Performance Summary</h3>
                       <div className="overflow-x-auto">
                         <table className="w-full">
                           <thead>
-                            <tr className="border-b border-gray-200 dark:border-navy-600">
-                              {["Test", "Attempts", "Avg Score", "Passed", "Pass Rate"].map((h) => (
+                            <tr className="border-b border-gray-200">
+                              {["Test", "Attempts", "Avg Score", "Passed", "Pass Rate", "Live Monitor"].map((h) => (
                                 <th key={h} className={`pb-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider ${h === "Test" ? "text-left" : "text-right"}`}>{h}</th>
                               ))}
                             </tr>
                           </thead>
                           <tbody>
                             {stats.testBreakdown.map((t, i) => (
-                              <tr key={t.name} className="border-b border-gray-100 dark:border-navy-700">
-                                <td className="py-2.5 text-sm font-medium text-navy-700 dark:text-white">
+                              <tr key={t.testId} className="border-b border-gray-100">
+                                <td className="py-2.5 text-sm font-medium text-navy-700">
                                   <div className="flex items-center gap-2">
                                     <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: BAR_COLORS[i % BAR_COLORS.length] }} />
                                     <span className="truncate max-w-[200px]">{t.name}</span>
                                   </div>
                                 </td>
                                 <td className="py-2.5 text-right text-sm text-gray-500">{t.count}</td>
-                                <td className="py-2.5 text-right text-sm font-bold text-navy-700 dark:text-white">{t.avg.toFixed(1)}</td>
+                                <td className="py-2.5 text-right text-sm font-bold text-navy-700">{t.avg.toFixed(1)}</td>
                                 <td className="py-2.5 text-right text-sm text-green-600">{t.passed}</td>
                                 <td className="py-2.5 text-right">
-                                  <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold
-                                    ${t.count > 0 && (t.passed / t.count) >= 0.6 ? "bg-green-100 text-green-700"
-                                      : t.count > 0 && (t.passed / t.count) >= 0.4 ? "bg-amber-100 text-amber-700"
-                                      : "bg-red-100 text-red-600"}`}>
+                                  <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                                    t.count > 0 && (t.passed / t.count) >= 0.6 ? "bg-green-100 text-green-700" :
+                                    t.count > 0 && (t.passed / t.count) >= 0.4 ? "bg-amber-100 text-amber-700" :
+                                    "bg-red-100 text-red-600"}`}>
                                     {t.count > 0 ? `${((t.passed / t.count) * 100).toFixed(0)}%` : "—"}
                                   </span>
+                                </td>
+                                <td className="py-2.5 text-right">
+                                  <button
+                                    onClick={() => navigate(`/admin/results/live/${t.testId}`)}
+                                    className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-50 text-blue-600 text-[11px] font-bold hover:bg-blue-100 transition"
+                                  >
+                                    <MdLiveTv className="h-3 w-3" /> Monitor
+                                  </button>
                                 </td>
                               </tr>
                             ))}
@@ -341,9 +361,9 @@ const ResultsDashboard = () => {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-200 dark:border-navy-600">
-                      {["Student", "Test", "Batch", "Score", "%", "Result", "Date"].map((h) => (
-                        <th key={h} className={`pb-2.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider ${["Score", "%"].includes(h) ? "text-right" : h === "Result" ? "text-center" : "text-left"} pr-4`}>
+                    <tr className="border-b border-gray-200">
+                      {["Student", "Test", "Batch", "Score", "%", "Result", "Date", "Actions"].map((h) => (
+                        <th key={h} className={`pb-2.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider ${["Score", "%"].includes(h) ? "text-right" : h === "Result" || h === "Actions" ? "text-center" : "text-left"} pr-4`}>
                           {h}
                         </th>
                       ))}
@@ -351,25 +371,21 @@ const ResultsDashboard = () => {
                   </thead>
                   <tbody>
                     {paginated.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="py-16 text-center text-gray-400 text-sm">No results found</td>
-                      </tr>
+                      <tr><td colSpan={8} className="py-16 text-center text-gray-400 text-sm">No results found</td></tr>
                     ) : (
                       paginated.map((s, i) => {
                         const pct = s.totalMarks > 0 ? ((Number(s.marksObtained) / s.totalMarks) * 100).toFixed(1) : null;
                         return (
-                          <tr key={s._id || i} className="border-b border-gray-50 dark:border-navy-700 hover:bg-gray-50 dark:hover:bg-navy-800 transition">
+                          <tr key={s._id || i} className="border-b border-gray-50 hover:bg-gray-50 transition">
                             <td className="py-2.5 pr-4">
-                              <p className="text-sm font-medium text-navy-700 dark:text-white">{s.studentName || "—"}</p>
+                              <p className="text-sm font-medium text-navy-700">{s.studentName || "—"}</p>
                               <p className="text-[11px] text-gray-400">{s.studentId}</p>
                             </td>
-                            <td className="py-2.5 pr-4 text-sm text-gray-600 dark:text-gray-300 max-w-[180px] truncate">{s.testName || s.testId}</td>
+                            <td className="py-2.5 pr-4 text-sm text-gray-600 max-w-[180px] truncate">{s.testName || s.testId}</td>
                             <td className="py-2.5 pr-4">
-                              <span className="px-2 py-0.5 rounded-full text-[10px] bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400">
-                                {s.batch || "—"}
-                              </span>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] bg-indigo-100 text-indigo-700">{s.batch || "—"}</span>
                             </td>
-                            <td className="py-2.5 pr-4 text-right text-sm font-bold text-navy-700 dark:text-white">
+                            <td className="py-2.5 pr-4 text-right text-sm font-bold text-navy-700">
                               {s.marksObtained}<span className="text-gray-400 font-normal">/{s.totalMarks}</span>
                             </td>
                             <td className="py-2.5 pr-4 text-right text-sm text-gray-500">{pct ? `${pct}%` : "—"}</td>
@@ -379,6 +395,24 @@ const ResultsDashboard = () => {
                               </span>
                             </td>
                             <td className="py-2.5 text-[11px] text-gray-400">{s.createdAt?.split("T")[0] || "—"}</td>
+                            
+                            {/* NEW ACTIONS COLUMN */}
+                            <td className="py-2.5 text-center">
+                              <div className="flex items-center justify-center gap-2">
+                                <button
+                                  onClick={() => { setEditScoreData(s); setIsEditModalOpen(true); }}
+                                  className="p-1 rounded text-blue-500 hover:bg-blue-50 transition" title="Edit Result"
+                                >
+                                  <MdEdit className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteScore(s._id)}
+                                  className="p-1 rounded text-red-500 hover:bg-red-50 transition" title="Delete Result"
+                                >
+                                  <MdDelete className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </td>
                           </tr>
                         );
                       })
@@ -386,12 +420,9 @@ const ResultsDashboard = () => {
                   </tbody>
                 </table>
               </div>
-
               {totalPages > 1 && (
-                <div className="mt-4 flex items-center justify-between pt-4 border-t border-gray-100 dark:border-navy-700">
-                  <p className="text-xs text-gray-400">
-                    Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filtered.length)} of {filtered.length}
-                  </p>
+                <div className="mt-4 flex items-center justify-between pt-4 border-t border-gray-100">
+                  <p className="text-xs text-gray-400">Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filtered.length)} of {filtered.length}</p>
                   <div className="flex gap-1">
                     {[
                       { label: "«", action: () => setPage(0), disabled: page === 0 },
@@ -399,12 +430,8 @@ const ResultsDashboard = () => {
                       { label: "›", action: () => setPage((p) => p + 1), disabled: page >= totalPages - 1 },
                       { label: "»", action: () => setPage(totalPages - 1), disabled: page >= totalPages - 1 },
                     ].map(({ label, action, disabled }) => (
-                      <button
-                        key={label}
-                        onClick={action}
-                        disabled={disabled}
-                        className="px-2.5 py-1 text-sm rounded border border-gray-200 dark:border-navy-600 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-navy-700 transition"
-                      >
+                      <button key={label} onClick={action} disabled={disabled}
+                        className="px-2.5 py-1 text-sm rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50 transition">
                         {label}
                       </button>
                     ))}
@@ -414,6 +441,59 @@ const ResultsDashboard = () => {
             </Card>
           )}
         </>
+      )}
+
+      {/* Edit Score Modal Overlay */}
+      {isEditModalOpen && editScoreData && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm p-4">
+          <Card extra="w-full max-w-sm p-5 relative shadow-xl">
+            <button onClick={() => setIsEditModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+              <MdClose className="h-5 w-5" />
+            </button>
+            <h2 className="text-lg font-bold text-navy-700 mb-4">Edit Result</h2>
+            
+            <div className="mb-4 text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+              <p><span className="font-semibold">Student:</span> {editScoreData.studentName}</p>
+              <p><span className="font-semibold">Test:</span> {editScoreData.testName || editScoreData.testId}</p>
+              <p><span className="font-semibold">Total Marks:</span> {editScoreData.totalMarks}</p>
+            </div>
+
+            <form onSubmit={submitScoreEdit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-600 mb-1">Marks Obtained</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  required
+                  value={editScoreData.marksObtained}
+                  onChange={(e) => setEditScoreData({ ...editScoreData, marksObtained: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editScoreData.passed}
+                    onChange={(e) => setEditScoreData({ ...editScoreData, passed: e.target.checked })}
+                    className="rounded text-blue-500 focus:ring-blue-500"
+                  />
+                  Mark as Passed
+                </label>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg transition">
+                  Cancel
+                </button>
+                <button type="submit" className="px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition font-medium">
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </Card>
+        </div>
       )}
     </div>
   );

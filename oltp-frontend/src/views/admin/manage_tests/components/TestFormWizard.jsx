@@ -5,7 +5,6 @@ import { message } from "antd";
 import { AuthContext } from "components/Auth-context";
 import {
   MdArrowBack, MdArrowForward, MdSave, MdCheck,
-  MdSchedule, MdGroup, MdAssignment, MdPublish,
 } from "react-icons/md";
 
 const STEPS = ["Test Details", "Schedule", "Review & Publish"];
@@ -47,123 +46,28 @@ const Field = ({ label, required, children, hint }) => (
 
 const inputCls = "w-full px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition";
 
-const PaperSummaryCard = ({ paperId }) => {
-  const [summary, setSummary] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [notFound, setNotFound] = useState(false);
-
-  useEffect(() => {
-    if (!paperId?.trim()) { setSummary(null); setNotFound(false); return; }
-    const timer = setTimeout(async () => {
-      setLoading(true);
-      setNotFound(false);
-      try {
-        const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/v1/questionpaper/get/questionpaper/summary/${paperId.trim()}`
-        );
-        if (res.status === 404) { setNotFound(true); setSummary(null); return; }
-        const data = await res.json();
-        setSummary(data.summary);
-      } catch {
-        setSummary(null);
-      } finally {
-        setLoading(false);
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [paperId]);
-
-  if (!paperId?.trim()) return null;
-
-  if (loading) {
-    return (
-      <div className="mt-2 p-3 rounded-lg border border-gray-200 dark:border-navy-600 flex items-center gap-2 text-gray-400 text-xs">
-        <div className="h-4 w-4 rounded-full border border-blue-400 border-t-transparent animate-spin" />
-        Looking up paper...
-      </div>
-    );
-  }
-
-  if (notFound) {
-    return (
-      <div className="mt-2 p-3 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-500 text-xs flex items-center gap-2">
-        <span className="font-bold">!</span> No paper found with ID "{paperId}"
-      </div>
-    );
-  }
-
-  if (!summary) return null;
-
-  const diffBreakdown = summary.difficultyBreakdown || {};
-  const typeBreakdown = summary.typeBreakdown || {};
-  const isReadyForTest = summary.questionsLoaded >= summary.totalQuestions;
-
-  return (
-    <div className={`mt-2 rounded-xl border p-4 transition-all ${isReadyForTest
-      ? "border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/10"
-      : "border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/10"}`}>
-      <div className="flex items-start justify-between mb-3">
-        <div>
-          <p className="text-sm font-bold text-navy-700 dark:text-white">{summary.paperName}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{summary.category} · {(summary.subjects || []).join(", ") || "All subjects"}</p>
-        </div>
-        <div className="flex items-center gap-1.5">
-          {isReadyForTest ? (
-            <span className="flex items-center gap-1 text-[10px] font-bold bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">
-              <MdCheck className="h-3 w-3" /> Ready
-            </span>
-          ) : (
-            <span className="text-[10px] font-bold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full">
-              {summary.questionsLoaded}/{summary.totalQuestions} questions loaded
-            </span>
-          )}
-          {!summary.isActive && (
-            <span className="text-[10px] font-bold bg-red-100 text-red-500 px-2 py-0.5 rounded-full">Inactive</span>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-4 gap-3 mb-3">
-        {[
-          { label: "Questions", value: summary.totalQuestions },
-          { label: "Total Marks", value: summary.totalMarks },
-          { label: "Marks/Q", value: summary.marksPerQuestion },
-          { label: "Neg. Marking", value: summary.negativeMarking ? `−${summary.negativeFraction}` : "Off" },
-        ].map(({ label, value }) => (
-          <div key={label} className="text-center">
-            <p className="text-base font-bold text-navy-700 dark:text-white">{value}</p>
-            <p className="text-[10px] text-gray-400">{label}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 text-[11px]">
-        <div>
-          <p className="font-semibold text-gray-400 uppercase tracking-wider mb-1">By Difficulty</p>
-          <div className="flex gap-2 flex-wrap">
-            {Object.entries(diffBreakdown).map(([k, v]) => v > 0 && (
-              <span key={k} className={`px-1.5 py-0.5 rounded font-medium
-                ${k === "Easy" ? "bg-green-100 text-green-600" : k === "Medium" ? "bg-amber-100 text-amber-600" : "bg-red-100 text-red-600"}`}>
-                {k}: {v}
-              </span>
-            ))}
-          </div>
-        </div>
-        <div>
-          <p className="font-semibold text-gray-400 uppercase tracking-wider mb-1">By Type</p>
-          <div className="flex gap-2 flex-wrap">
-            {Object.entries(typeBreakdown).map(([k, v]) => v > 0 && (
-              <span key={k} className={`px-1.5 py-0.5 rounded font-medium
-                ${k === "MCQ" ? "bg-blue-100 text-blue-600" : k === "MSQ" ? "bg-indigo-100 text-indigo-600" : "bg-violet-100 text-violet-600"}`}>
-                {k}: {v}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+const formatTime = (d) => {
+  if (isNaN(d.getTime())) return "";
+  const h = String(d.getHours()).padStart(2, "0");
+  const m = String(d.getMinutes()).padStart(2, "0");
+  return `${h}:${m}`;
 };
+
+const PaperInfoCard = ({ paper }) => (
+  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 rounded-xl bg-blue-50 dark:bg-navy-800 border border-blue-100 dark:border-navy-600">
+    {[
+      ["Category", paper.category || "—"],
+      ["Subject(s)", paper.subjects?.length ? paper.subjects.join(", ") : "—"],
+      ["Total Marks", paper.totalMarks ?? "—"],
+      ["Questions", paper.totalQuestions ?? "—"],
+    ].map(([label, value]) => (
+      <div key={label}>
+        <p className="text-[10px] font-semibold text-blue-500 dark:text-blue-400 uppercase tracking-wider mb-0.5">{label}</p>
+        <p className="text-sm font-medium text-navy-700 dark:text-white truncate">{value}</p>
+      </div>
+    ))}
+  </div>
+);
 
 const TestFormWizard = ({ mode = "create" }) => {
   const auth = useContext(AuthContext);
@@ -176,12 +80,15 @@ const TestFormWizard = ({ mode = "create" }) => {
   const [loadingTest, setLoadingTest] = useState(mode === "edit");
   const [submitting, setSubmitting] = useState(false);
 
+  const [isValidatingPaper, setIsValidatingPaper] = useState(false);
+  const [paperStatus, setPaperStatus] = useState(null);
+  const [paperDetails, setPaperDetails] = useState(null);
+
   const [form, setForm] = useState({
     testId: "",
     testName: "",
     paperId: "",
     batchName: "",
-    course: "",
     date: "",
     startTime: "",
     endTime: "",
@@ -220,12 +127,18 @@ const TestFormWizard = ({ mode = "create" }) => {
             testName: t.testName || "",
             paperId: t.paperId || "",
             batchName: t.batchName || "",
-            course: t.course || "",
             date: t.date || "",
             startTime: t.startTime || "",
             endTime: t.endTime || "",
             duration: t.duration?.toString() || "180",
             isPublished: t.isPublished || false,
+          });
+          setPaperStatus("valid");
+          setPaperDetails({
+            category: t.category || "",
+            subjects: t.subjects || [],
+            totalMarks: t.totalMarks ?? 0,
+            totalQuestions: t.totalQuestions ?? 0,
           });
         }
       } catch {
@@ -237,9 +150,71 @@ const TestFormWizard = ({ mode = "create" }) => {
     fetchTest();
   }, [id, mode, auth.token]);
 
+  useEffect(() => {
+    if (!form.paperId?.trim()) {
+      setPaperStatus(null);
+      setPaperDetails(null);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setIsValidatingPaper(true);
+      try {
+        const res = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/questionpaper/get/questionpaper/bypaperid/${form.paperId.trim()}`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          const p = data.questionPaper;
+          setPaperStatus("valid");
+          setPaperDetails({
+            category: p.category || "",
+            subjects: p.subjects || [],
+            totalMarks: p.totalMarks ?? 0,
+            totalQuestions: p.totalQuestions ?? 0,
+          });
+        } else {
+          setPaperStatus("invalid");
+          setPaperDetails(null);
+        }
+      } catch {
+        setPaperStatus("invalid");
+        setPaperDetails(null);
+      } finally {
+        setIsValidatingPaper(false);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [form.paperId]);
+
   const handleChange = useCallback((e) => {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    const val = type === "checkbox" ? checked : value;
+
+    setForm((prev) => {
+      let nextForm = { ...prev, [name]: val };
+
+      try {
+        if (name === "startTime" && nextForm.duration && val) {
+          const start = new Date(`1970-01-01T${val}:00`);
+          start.setMinutes(start.getMinutes() + Number(nextForm.duration));
+          nextForm.endTime = formatTime(start);
+        } else if (name === "duration" && nextForm.startTime && val) {
+          const start = new Date(`1970-01-01T${nextForm.startTime}:00`);
+          start.setMinutes(start.getMinutes() + Number(val));
+          nextForm.endTime = formatTime(start);
+        } else if (name === "endTime" && nextForm.startTime && val) {
+          const start = new Date(`1970-01-01T${nextForm.startTime}:00`);
+          const end = new Date(`1970-01-01T${val}:00`);
+          let diffMins = (end - start) / 60000;
+          if (diffMins < 0) diffMins += 24 * 60;
+          nextForm.duration = String(diffMins);
+        }
+      } catch (err) {
+        console.error("Time synchronization error", err);
+      }
+
+      return nextForm;
+    });
   }, []);
 
   const validateStep = (s) => {
@@ -247,13 +222,22 @@ const TestFormWizard = ({ mode = "create" }) => {
       if (mode === "create" && !form.testId.trim()) { message.warning("Test ID is required"); return false; }
       if (!form.testName.trim()) { message.warning("Test name is required"); return false; }
       if (!form.paperId.trim()) { message.warning("Question Paper ID is required"); return false; }
+      if (paperStatus !== "valid") { message.warning("A valid Question Paper ID is required to proceed"); return false; }
       if (!form.batchName) { message.warning("Batch is required"); return false; }
     }
+
     if (s === 1) {
       if (!form.date) { message.warning("Date is required"); return false; }
       if (!form.startTime) { message.warning("Start time is required"); return false; }
       if (!form.endTime) { message.warning("End time is required"); return false; }
-      if (!form.duration) { message.warning("Duration is required"); return false; }
+      if (!form.duration || Number(form.duration) <= 0) { message.warning("A valid duration is required"); return false; }
+
+      const selectedDateTime = new Date(`${form.date}T${form.startTime}`);
+      const now = new Date();
+      if (selectedDateTime < now) {
+        message.warning("The start date and time cannot be in the past.");
+        return false;
+      }
     }
     return true;
   };
@@ -270,7 +254,6 @@ const TestFormWizard = ({ mode = "create" }) => {
         testName: form.testName.trim(),
         paperId: form.paperId.trim(),
         batchName: form.batchName,
-        course: form.course,
         date: form.date,
         startTime: form.startTime,
         endTime: form.endTime,
@@ -334,25 +317,45 @@ const TestFormWizard = ({ mode = "create" }) => {
             </Field>
           </div>
 
-          <Field label="Question Paper ID" required hint="Enter the Paper ID and a summary will load automatically">
-            <input type="text" name="paperId" value={form.paperId} onChange={handleChange}
-              placeholder="e.g. NEET-2024-PHY" className={inputCls} />
-            <PaperSummaryCard paperId={form.paperId} />
+          <Field label="Question Paper ID" required hint="Must be an existing Paper ID to proceed">
+            <div className="relative">
+              <input
+                type="text"
+                name="paperId"
+                value={form.paperId}
+                onChange={handleChange}
+                placeholder="e.g. NEET-2024-PHY"
+                className={`${inputCls} pr-24`}
+              />
+              <div className="absolute right-3 top-2 flex items-center h-full">
+                {isValidatingPaper && (
+                  <span className="text-xs text-blue-500 font-medium">Checking...</span>
+                )}
+                {!isValidatingPaper && paperStatus === "valid" && (
+                  <span className="flex items-center gap-1 text-[11px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded">
+                    <MdCheck className="h-3 w-3" /> Exists
+                  </span>
+                )}
+                {!isValidatingPaper && paperStatus === "invalid" && (
+                  <span className="text-[11px] font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded">
+                    Not Found
+                  </span>
+                )}
+              </div>
+            </div>
           </Field>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Batch" required>
-              <select name="batchName" value={form.batchName} onChange={handleChange}
-                disabled={loadingMeta} className={inputCls}>
-                <option value="">{loadingMeta ? "Loading..." : "Select batch..."}</option>
-                {batches.map((b) => <option key={b._id} value={b.batchName}>{b.batchName}</option>)}
-              </select>
-            </Field>
-            <Field label="Course / Exam Name">
-              <input type="text" name="course" value={form.course} onChange={handleChange}
-                placeholder="e.g. NEET, JEE Main" className={inputCls} />
-            </Field>
-          </div>
+          {paperStatus === "valid" && paperDetails && (
+            <PaperInfoCard paper={paperDetails} />
+          )}
+
+          <Field label="Batch" required>
+            <select name="batchName" value={form.batchName} onChange={handleChange}
+              disabled={loadingMeta} className={inputCls}>
+              <option value="">{loadingMeta ? "Loading..." : "Select batch..."}</option>
+              {batches.map((b) => <option key={b._id} value={b.batchName}>{b.batchName}</option>)}
+            </select>
+          </Field>
         </div>
       )}
 
@@ -369,9 +372,9 @@ const TestFormWizard = ({ mode = "create" }) => {
               <input type="time" name="endTime" value={form.endTime} onChange={handleChange} className={inputCls} />
             </Field>
           </div>
-          <Field label="Duration (minutes)" required>
+          <Field label="Duration (minutes)" required hint="Changing duration automatically updates End Time">
             <input type="number" name="duration" value={form.duration} onChange={handleChange}
-              min="10" placeholder="e.g. 180" className={inputCls + " w-40"} />
+              min="1" placeholder="e.g. 180" className={inputCls + " w-40"} />
           </Field>
         </div>
       )}
@@ -400,8 +403,11 @@ const TestFormWizard = ({ mode = "create" }) => {
               ["Test ID", form.testId || "—"],
               ["Test Name", form.testName],
               ["Question Paper", form.paperId],
+              ["Category", paperDetails?.category || "—"],
+              ["Subject(s)", paperDetails?.subjects?.length ? paperDetails.subjects.join(", ") : "—"],
+              ["Total Marks", paperDetails?.totalMarks ?? "—"],
+              ["Questions", paperDetails?.totalQuestions ?? "—"],
               ["Batch", form.batchName],
-              ["Course", form.course || "—"],
               ["Date", form.date],
               ["Time", `${form.startTime} — ${form.endTime}`],
               ["Duration", `${form.duration} minutes`],
@@ -411,11 +417,6 @@ const TestFormWizard = ({ mode = "create" }) => {
                 <span className="text-sm font-medium text-navy-700 dark:text-white">{value}</span>
               </div>
             ))}
-          </div>
-
-          <div className="rounded-xl border border-gray-200 dark:border-navy-600 p-4">
-            <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Linked Paper Validation</p>
-            <PaperSummaryCard paperId={form.paperId} />
           </div>
         </div>
       )}

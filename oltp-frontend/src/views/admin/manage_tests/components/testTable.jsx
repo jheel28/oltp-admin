@@ -77,14 +77,23 @@ const TestTable = () => {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
+  const getSubjectDisplay = (test) => {
+    if (Array.isArray(test.subjects) && test.subjects.length > 0) return test.subjects.join(", ");
+    return "—";
+  };
+
   const filtered = useMemo(() => {
     let list = tests;
     if (catFilter !== "All") list = list.filter((t) => t.category === catFilter);
-    if (batchFilter !== "All") list = list.filter((t) => t.batch === batchFilter || (Array.isArray(t.batches) && t.batches.includes(batchFilter)));
+    if (batchFilter !== "All") list = list.filter((t) => t.batchName === batchFilter);
     if (statusFilter !== "All") list = list.filter((t) => getTestStatus(t) === statusFilter);
     if (search.trim()) {
       const q = search.toLowerCase();
-      list = list.filter((t) => t.testName?.toLowerCase().includes(q) || t.subject?.toLowerCase().includes(q));
+      list = list.filter((t) =>
+        t.testName?.toLowerCase().includes(q) ||
+        t.category?.toLowerCase().includes(q) ||
+        (Array.isArray(t.subjects) && t.subjects.some((s) => s.toLowerCase().includes(q)))
+      );
     }
     return list;
   }, [tests, search, catFilter, batchFilter, statusFilter]);
@@ -142,11 +151,16 @@ const TestTable = () => {
   };
 
   const exportCSV = () => {
-    const rows = [["Test Name", "Category", "Subject", "Duration (min)", "Total Marks", "Status", "Batch"]];
+    const rows = [["Test Name", "Category", "Subject(s)", "Duration (min)", "Total Marks", "Total Questions", "Status", "Batch"]];
     filtered.forEach((t) => rows.push([
-      t.testName, t.category || "", t.subject || "",
-      t.duration || "", t.totalMarks || "",
-      getTestStatus(t), t.batch || (t.batches || []).join("; "),
+      t.testName,
+      t.category || "",
+      Array.isArray(t.subjects) ? t.subjects.join("; ") : "",
+      t.duration || "",
+      t.totalMarks ?? "",
+      t.totalQuestions ?? "",
+      getTestStatus(t),
+      t.batchName || "",
     ]));
     const csv = rows.map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
@@ -217,7 +231,7 @@ const TestTable = () => {
           <button onClick={exportCSV} className="px-3 py-2 text-sm rounded-lg bg-green-500 text-white hover:bg-green-600 flex items-center gap-1">
             <FaDownload className="h-3 w-3" /> Export
           </button>
-          <button onClick={() => setShowAddForm(true)} className="px-3 py-2 text-sm rounded-lg bg-blue-500 text-white hover:bg-blue-600">
+          <button onClick={() => navigate("/admin/manage-tests/create")} className="px-3 py-2 text-sm rounded-lg bg-blue-500 text-white hover:bg-blue-600">
             + Add Test
           </button>
           <select
@@ -242,9 +256,10 @@ const TestTable = () => {
                 </th>
                 <th className="pb-3 pr-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Test Name</th>
                 <th className="pb-3 pr-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Category</th>
-                <th className="pb-3 pr-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Subject</th>
+                <th className="pb-3 pr-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Subject(s)</th>
                 <th className="pb-3 pr-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Duration</th>
                 <th className="pb-3 pr-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Marks</th>
+                <th className="pb-3 pr-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Questions</th>
                 <th className="pb-3 pr-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Status</th>
                 <th className="pb-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Actions</th>
               </tr>
@@ -252,7 +267,7 @@ const TestTable = () => {
             <tbody>
               {paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-gray-400 text-sm">
+                  <td colSpan={9} className="py-12 text-center text-gray-400 text-sm">
                     No tests match your filters
                   </td>
                 </tr>
@@ -267,19 +282,22 @@ const TestTable = () => {
                       </td>
                       <td className="py-3 pr-6">
                         <p className="text-sm font-bold text-navy-700 dark:text-white">{test.testName}</p>
-                        {test.batch && <p className="text-xs text-gray-400">{test.batch}</p>}
+                        {test.batchName && <p className="text-xs text-gray-400">{test.batchName}</p>}
                       </td>
                       <td className="py-3 pr-6">
                         <span className="text-sm text-gray-600 dark:text-gray-300">{test.category || "—"}</span>
                       </td>
                       <td className="py-3 pr-6">
-                        <span className="text-sm text-gray-600 dark:text-gray-300">{test.subject || "—"}</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-300">{getSubjectDisplay(test)}</span>
                       </td>
                       <td className="py-3 pr-6">
                         <span className="text-sm text-gray-600 dark:text-gray-300">{test.duration ? `${test.duration} min` : "—"}</span>
                       </td>
                       <td className="py-3 pr-6">
-                        <span className="text-sm text-gray-600 dark:text-gray-300">{test.totalMarks || "—"}</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-300">{test.totalMarks ?? "—"}</span>
+                      </td>
+                      <td className="py-3 pr-6">
+                        <span className="text-sm text-gray-600 dark:text-gray-300">{test.totalQuestions ?? "—"}</span>
                       </td>
                       <td className="py-3 pr-6">
                         <span className={`px-2.5 py-1 rounded-full text-xs font-bold capitalize ${STATUS_COLORS[status]}`}>
@@ -297,7 +315,7 @@ const TestTable = () => {
                           </button>
                           <button
                             onClick={() => handleDelete(test._id)}
-                            className="p-1.5 rounded-lg bg-red-50 text-white hover:bg-red-600"
+                            className="p-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100"
                             title="Delete test"
                           >
                             <FaTrashAlt className="h-3 w-3" />

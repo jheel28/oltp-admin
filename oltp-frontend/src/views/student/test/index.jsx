@@ -1,7 +1,7 @@
 import TestCard from "./components/TestCard";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "components/Auth-context";
-import TopCreatorTable from "../marketplace/components/TableTopCreators";
+// import TopCreatorTable from "../marketplace/components/TableTopCreators";
 import Banner1 from "views/admin/marketplace/components/Banner";
 
 const Marketplace = () => {
@@ -123,9 +123,9 @@ const Marketplace = () => {
         </div>
       </div>
 
-      <div className="col-span-1 h-full w-full rounded-xl 2xl:col-span-1">
+      {/* <div className="col-span-1 h-full w-full rounded-xl 2xl:col-span-1">
         <TopCreatorTable />
-      </div>
+      </div> */}
     </div>
   );
 };

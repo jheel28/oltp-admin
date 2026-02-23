@@ -15,6 +15,16 @@ router.get(
   "/get/attempted/tests/bystudentid/:studentId",
   ctrl.getAttemptedTestsByStudentId,
 );
+router.get(
+  "/get/leaderboard/bytestid/:testId",
+  checkAuth(["Admin", "Student"]),
+  ctrl.getLeaderboardByTestId,
+);
+router.get(
+  "/get/live/status/:testId",
+  checkAuth("Admin"),
+  ctrl.getLiveTestStatus,
+);
 
 router.post(
   "/create/score",
@@ -34,6 +44,18 @@ router.delete(
   "/delete/scores/bytestid/:testId",
   checkAuth("Admin"),
   ctrl.deleteScoresByTestId,
+);
+
+router.patch(
+  "/update/:scoreId",
+  checkAuth("Admin"),
+  ctrl.updateScore
+);
+
+router.delete(
+  "/delete/single/:scoreId",
+  checkAuth("Admin"),
+  ctrl.deleteSingleScore
 );
 
 module.exports = router;

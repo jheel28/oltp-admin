@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Card from "components/card";
 import { message } from "antd";
 import { AuthContext } from "components/Auth-context";
 import {
-  MdAdd, MdDelete, MdArrowBack, MdSave, MdInfo,
+  MdAdd, MdDelete, MdArrowBack, MdSave, MdImage, MdClose,
   MdCheckBox, MdRadioButtonChecked, MdCalculate,
 } from "react-icons/md";
 import { FaTrashAlt, FaEdit, FaPlus } from "react-icons/fa";
@@ -12,14 +12,14 @@ import { FaTrashAlt, FaEdit, FaPlus } from "react-icons/fa";
 const inputCls = "w-full px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition";
 
 const TYPE_META = {
-  MCQ: { icon: MdRadioButtonChecked, label: "MCQ", desc: "Single correct answer", color: "blue" },
-  MSQ: { icon: MdCheckBox, label: "MSQ", desc: "Multiple correct answers", color: "indigo" },
-  NAT: { icon: MdCalculate, label: "NAT", desc: "Numerical answer type", color: "violet" },
+  MCQ: { icon: MdRadioButtonChecked, label: "MCQ", desc: "Single correct", color: "blue" },
+  MSQ: { icon: MdCheckBox, label: "MSQ", desc: "Multiple correct", color: "indigo" },
+  NAT: { icon: MdCalculate, label: "NAT", desc: "Numerical type", color: "violet" },
 };
 
-const emptyOption = () => ({ text: "" });
+const emptyOption = () => ({ text: "", imageFile: null, imagePreview: null, existingImage: null, clearImage: false });
 
-const defaultForm = {
+const defaultForm = () => ({
   text: "",
   type: "MCQ",
   options: [emptyOption(), emptyOption(), emptyOption(), emptyOption()],
@@ -31,7 +31,61 @@ const defaultForm = {
   marksNegative: "",
   topic: "",
   difficulty: "Medium",
+  questionImageFile: null,
+  questionImagePreview: null,
+  existingQuestionImage: null,
+  clearQuestionImage: false,
+});
+
+const ImagePickerButton = ({ onSelect }) => {
+  const ref = useRef();
+  return (
+    <>
+      <input
+        ref={ref}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          if (file.size > 5 * 1024 * 1024) {
+            message.error("Image must be under 5 MB");
+            return;
+          }
+          const preview = URL.createObjectURL(file);
+          onSelect(file, preview);
+          e.target.value = "";
+        }}
+      />
+      <button
+        type="button"
+        onClick={() => ref.current?.click()}
+        className="flex items-center gap-1 text-xs text-blue-500 hover:text-blue-600 transition px-2 py-1 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100"
+      >
+        <MdImage className="h-3.5 w-3.5" /> Upload image
+      </button>
+    </>
+  );
 };
+
+const ImagePreview = ({ src, onClear, label = "Image" }) => (
+  <div className="mt-1.5 flex items-start gap-2">
+    <img
+      src={src}
+      alt={label}
+      className="h-24 max-w-[180px] object-contain rounded-lg border border-gray-200 dark:border-navy-600 bg-gray-50 dark:bg-navy-700"
+    />
+    <button
+      type="button"
+      onClick={onClear}
+      className="p-1 rounded-full bg-red-100 text-red-500 hover:bg-red-200 transition flex-shrink-0"
+      title="Remove image"
+    >
+      <MdClose className="h-3.5 w-3.5" />
+    </button>
+  </div>
+);
 
 const QuestionManagerPage = () => {
   const auth = useContext(AuthContext);
@@ -43,19 +97,20 @@ const QuestionManagerPage = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState(defaultForm);
+  const [form, setForm] = useState(defaultForm());
   const [submitting, setSubmitting] = useState(false);
+
+  const BACKEND = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     const init = async () => {
       setLoading(true);
       try {
         const [paperRes, qRes] = await Promise.all([
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/questionpaper/get/questionpaper/bypaperid/${paperId}`),
-          fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/v1/question/get/questions/bypaperid/${paperId}`,
-            { headers: { Authorization: "Bearer " + auth.token } }
-          ),
+          fetch(`${BACKEND}/api/v1/questionpaper/get/questionpaper/bypaperid/${paperId}`),
+          fetch(`${BACKEND}/api/v1/question/get/questions/bypaperid/${paperId}`, {
+            headers: { Authorization: "Bearer " + auth.token },
+          }),
         ]);
         const paperData = await paperRes.json();
         const qData = await qRes.json();
@@ -68,10 +123,18 @@ const QuestionManagerPage = () => {
       }
     };
     init();
-  }, [paperId, auth.token]);
+  }, [paperId, auth.token, BACKEND]);
+
+  const refreshPaper = async () => {
+    try {
+      const res = await fetch(`${BACKEND}/api/v1/questionpaper/get/questionpaper/bypaperid/${paperId}`);
+      const data = await res.json();
+      if (data.questionPaper) setPaper(data.questionPaper);
+    } catch (_) {}
+  };
 
   const openCreate = () => {
-    setForm(defaultForm);
+    setForm(defaultForm());
     setEditingId(null);
     setShowForm(true);
   };
@@ -80,7 +143,15 @@ const QuestionManagerPage = () => {
     setForm({
       text: q.text || "",
       type: q.type || "MCQ",
-      options: q.options?.length ? q.options.map((o) => ({ text: o.text || "" })) : [emptyOption(), emptyOption(), emptyOption(), emptyOption()],
+      options: q.options?.length
+        ? q.options.map((o) => ({
+            text: o.text || "",
+            imageFile: null,
+            imagePreview: null,
+            existingImage: o.image || null,
+            clearImage: false,
+          }))
+        : [emptyOption(), emptyOption(), emptyOption(), emptyOption()],
       correctOption: q.correctOption?.toString() || "",
       correctOptions: q.correctOptions || [],
       natMin: q.natMin?.toString() || "",
@@ -89,24 +160,50 @@ const QuestionManagerPage = () => {
       marksNegative: q.marksNegative != null ? q.marksNegative.toString() : "",
       topic: q.topic || "",
       difficulty: q.difficulty || "Medium",
+      questionImageFile: null,
+      questionImagePreview: null,
+      existingQuestionImage: q.questionImage || null,
+      clearQuestionImage: false,
     });
     setEditingId(q._id);
     setShowForm(true);
   };
 
+  const setF = (updater) => setForm((prev) => typeof updater === "function" ? updater(prev) : { ...prev, ...updater });
+
   const handleOptionChange = (i, value) => {
-    setForm((prev) => {
+    setF((prev) => {
       const opts = [...prev.options];
-      opts[i] = { text: value };
+      opts[i] = { ...opts[i], text: value };
       return { ...prev, options: opts };
     });
   };
 
-  const addOption = () => setForm((prev) => ({ ...prev, options: [...prev.options, emptyOption()] }));
-  const removeOption = (i) => setForm((prev) => ({ ...prev, options: prev.options.filter((_, idx) => idx !== i) }));
+  const handleOptionImageSelect = (i, file, preview) => {
+    setF((prev) => {
+      const opts = [...prev.options];
+      opts[i] = { ...opts[i], imageFile: file, imagePreview: preview, clearImage: false };
+      return { ...prev, options: opts };
+    });
+  };
+
+  const handleOptionImageClear = (i) => {
+    setF((prev) => {
+      const opts = [...prev.options];
+      const hadExisting = !!opts[i].existingImage;
+      opts[i] = { ...opts[i], imageFile: null, imagePreview: null, clearImage: hadExisting };
+      return { ...prev, options: opts };
+    });
+  };
+
+  const addOption = () => setF((prev) => ({ ...prev, options: [...prev.options, emptyOption()] }));
+
+  const removeOption = (i) => {
+    setF((prev) => ({ ...prev, options: prev.options.filter((_, idx) => idx !== i) }));
+  };
 
   const toggleMSQOption = (i) => {
-    setForm((prev) => {
+    setF((prev) => {
       const co = prev.correctOptions.includes(i)
         ? prev.correctOptions.filter((x) => x !== i)
         : [...prev.correctOptions, i];
@@ -122,33 +219,53 @@ const QuestionManagerPage = () => {
 
     setSubmitting(true);
     try {
-      const payload = {
-        paperId,
-        text: form.text.trim(),
-        type: form.type,
-        options: form.type !== "NAT" ? form.options.filter((o) => o.text.trim()) : [],
-        correctOption: form.type === "MCQ" ? form.correctOption : undefined,
-        correctOptions: form.type === "MSQ" ? JSON.stringify(form.correctOptions) : undefined,
-        natMin: form.type === "NAT" ? form.natMin : undefined,
-        natMax: form.type === "NAT" ? form.natMax : undefined,
-        marksPositive: form.marksPositive !== "" ? form.marksPositive : undefined,
-        marksNegative: form.marksNegative !== "" ? form.marksNegative : undefined,
-        topic: form.topic,
-        difficulty: form.difficulty,
-      };
+      const fd = new FormData();
+      fd.append("paperId", paperId);
+      fd.append("text", form.text.trim());
+      fd.append("type", form.type);
+      fd.append("topic", form.topic);
+      fd.append("difficulty", form.difficulty);
 
-      const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([, v]) => v !== undefined));
-      cleanPayload.options = JSON.stringify(cleanPayload.options || []);
+      if (form.marksPositive !== "") fd.append("marksPositive", form.marksPositive);
+      if (form.marksNegative !== "") fd.append("marksNegative", form.marksNegative);
+
+      if (form.type === "MCQ") fd.append("correctOption", form.correctOption);
+      if (form.type === "MSQ") fd.append("correctOptions", JSON.stringify(form.correctOptions));
+      if (form.type === "NAT") {
+        fd.append("natMin", form.natMin);
+        fd.append("natMax", form.natMax);
+      }
+
+      const filteredOptions = form.type !== "NAT"
+        ? form.options.map((o) => ({
+            text: o.text,
+            image: o.existingImage || undefined,
+            clearImage: o.clearImage || undefined,
+          }))
+        : [];
+      fd.append("options", JSON.stringify(filteredOptions));
+
+      if (form.questionImageFile) {
+        fd.append("questionImage", form.questionImageFile);
+      } else if (form.clearQuestionImage) {
+        fd.append("clearQuestionImage", "true");
+      }
+
+      form.options.forEach((opt, i) => {
+        if (opt.imageFile) {
+          fd.append(`optionImage_${i}`, opt.imageFile);
+        }
+      });
 
       const url = editingId
-        ? `${process.env.REACT_APP_BACKEND_URL}/api/v1/question/update/question/byid/${editingId}`
-        : `${process.env.REACT_APP_BACKEND_URL}/api/v1/question/create/question`;
+        ? `${BACKEND}/api/v1/question/update/question/byid/${editingId}`
+        : `${BACKEND}/api/v1/question/create/question`;
       const method = editingId ? "PATCH" : "POST";
 
       const res = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json", Authorization: "Bearer " + auth.token },
-        body: JSON.stringify({ ...cleanPayload, options: payload.options }),
+        headers: { Authorization: "Bearer " + auth.token },
+        body: fd,
       });
       if (!res.ok) throw new Error((await res.json()).message || "Error");
       const data = await res.json();
@@ -159,12 +276,7 @@ const QuestionManagerPage = () => {
         setQuestions((prev) => [...prev, data.question]);
       }
 
-      const paperRes = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/v1/questionpaper/get/questionpaper/bypaperid/${paperId}`
-      );
-      const paperData = await paperRes.json();
-      if (paperData.questionPaper) setPaper(paperData.questionPaper);
-
+      await refreshPaper();
       message.success(editingId ? "Question updated" : "Question added");
       setShowForm(false);
     } catch (err) {
@@ -176,24 +288,22 @@ const QuestionManagerPage = () => {
 
   const handleDelete = async (qId) => {
     try {
-      const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/v1/question/delete/question/byid/${qId}`,
-        { method: "DELETE", headers: { Authorization: "Bearer " + auth.token } }
-      );
+      const res = await fetch(`${BACKEND}/api/v1/question/delete/question/byid/${qId}`, {
+        method: "DELETE",
+        headers: { Authorization: "Bearer " + auth.token },
+      });
       if (!res.ok) throw new Error();
       setQuestions((prev) => prev.filter((q) => q._id !== qId));
-
-      const paperRes = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/v1/questionpaper/get/questionpaper/bypaperid/${paperId}`
-      );
-      const paperData = await paperRes.json();
-      if (paperData.questionPaper) setPaper(paperData.questionPaper);
-
+      await refreshPaper();
       message.success("Question deleted");
     } catch {
       message.error("Failed to delete question");
     }
   };
+
+  const questionImageSrc = form.questionImagePreview
+    || (form.existingQuestionImage && !form.clearQuestionImage
+      ? `${BACKEND}/${form.existingQuestionImage}` : null);
 
   if (loading) {
     return (
@@ -247,11 +357,11 @@ const QuestionManagerPage = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               {Object.entries(TYPE_META).map(([t, meta]) => (
                 <button
                   key={t}
-                  onClick={() => setForm((prev) => ({ ...prev, type: t }))}
+                  onClick={() => setF({ type: t })}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition
                     ${form.type === t
                       ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
@@ -270,56 +380,100 @@ const QuestionManagerPage = () => {
               </label>
               <textarea
                 value={form.text}
-                onChange={(e) => setForm((prev) => ({ ...prev, text: e.target.value }))}
+                onChange={(e) => setF({ text: e.target.value })}
                 rows={3}
                 placeholder="Enter the question..."
                 className={inputCls + " resize-none"}
               />
+              <div className="mt-2 flex items-center gap-3">
+                {!questionImageSrc && (
+                  <ImagePickerButton
+                    onSelect={(file, preview) =>
+                      setF({ questionImageFile: file, questionImagePreview: preview, clearQuestionImage: false })
+                    }
+                  />
+                )}
+                {questionImageSrc && (
+                  <ImagePreview
+                    src={questionImageSrc}
+                    label="Question image"
+                    onClear={() =>
+                      setF((prev) => ({
+                        ...prev,
+                        questionImageFile: null,
+                        questionImagePreview: null,
+                        clearQuestionImage: !!prev.existingQuestionImage,
+                      }))
+                    }
+                  />
+                )}
+              </div>
             </div>
 
             {form.type !== "NAT" && (
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Options {form.type === "MSQ" && <span className="text-indigo-400 normal-case">(select all correct)</span>}
+                    Options{" "}
+                    {form.type === "MSQ" && <span className="text-indigo-400 normal-case font-normal">(check all correct)</span>}
                   </label>
                   <button onClick={addOption} className="flex items-center gap-1 text-xs text-blue-500 hover:text-blue-600 transition">
                     <MdAdd className="h-3.5 w-3.5" /> Add option
                   </button>
                 </div>
-                <div className="space-y-2">
-                  {form.options.map((opt, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      {form.type === "MCQ" ? (
-                        <input
-                          type="radio"
-                          name="correctOption"
-                          checked={form.correctOption === i.toString()}
-                          onChange={() => setForm((prev) => ({ ...prev, correctOption: i.toString() }))}
-                          className="h-4 w-4 text-blue-500"
-                        />
-                      ) : (
-                        <input
-                          type="checkbox"
-                          checked={form.correctOptions.includes(i)}
-                          onChange={() => toggleMSQOption(i)}
-                          className="h-4 w-4 text-indigo-500"
-                        />
-                      )}
-                      <input
-                        type="text"
-                        value={opt.text}
-                        onChange={(e) => handleOptionChange(i, e.target.value)}
-                        placeholder={`Option ${String.fromCharCode(65 + i)}`}
-                        className={inputCls + " flex-1"}
-                      />
-                      {form.options.length > 2 && (
-                        <button onClick={() => removeOption(i)} className="p-1.5 text-red-400 hover:text-red-500 transition">
-                          <MdDelete className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
+                <div className="space-y-3">
+                  {form.options.map((opt, i) => {
+                    const optImgSrc = opt.imagePreview
+                      || (opt.existingImage && !opt.clearImage
+                        ? `${BACKEND}/${opt.existingImage}` : null);
+                    return (
+                      <div key={i} className="rounded-xl border border-gray-100 dark:border-navy-700 p-3">
+                        <div className="flex items-center gap-2">
+                          {form.type === "MCQ" ? (
+                            <input
+                              type="radio"
+                              name="correctOption"
+                              checked={form.correctOption === i.toString()}
+                              onChange={() => setF({ correctOption: i.toString() })}
+                              className="h-4 w-4 text-blue-500 flex-shrink-0"
+                            />
+                          ) : (
+                            <input
+                              type="checkbox"
+                              checked={form.correctOptions.includes(i)}
+                              onChange={() => toggleMSQOption(i)}
+                              className="h-4 w-4 text-indigo-500 flex-shrink-0"
+                            />
+                          )}
+                          <input
+                            type="text"
+                            value={opt.text}
+                            onChange={(e) => handleOptionChange(i, e.target.value)}
+                            placeholder={`Option ${String.fromCharCode(65 + i)}`}
+                            className={inputCls + " flex-1"}
+                          />
+                          {form.options.length > 2 && (
+                            <button onClick={() => removeOption(i)} className="p-1.5 text-red-400 hover:text-red-500 transition flex-shrink-0">
+                              <MdDelete className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+                        <div className="mt-2 pl-6">
+                          {!optImgSrc ? (
+                            <ImagePickerButton
+                              onSelect={(file, preview) => handleOptionImageSelect(i, file, preview)}
+                            />
+                          ) : (
+                            <ImagePreview
+                              src={optImgSrc}
+                              label={`Option ${String.fromCharCode(65 + i)} image`}
+                              onClear={() => handleOptionImageClear(i)}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -331,7 +485,7 @@ const QuestionManagerPage = () => {
                     Min Acceptable Value <span className="text-red-400">*</span>
                   </label>
                   <input type="number" step="any" value={form.natMin}
-                    onChange={(e) => setForm((prev) => ({ ...prev, natMin: e.target.value }))}
+                    onChange={(e) => setF({ natMin: e.target.value })}
                     placeholder="e.g. 9.8" className={inputCls} />
                 </div>
                 <div>
@@ -339,7 +493,7 @@ const QuestionManagerPage = () => {
                     Max Acceptable Value <span className="text-red-400">*</span>
                   </label>
                   <input type="number" step="any" value={form.natMax}
-                    onChange={(e) => setForm((prev) => ({ ...prev, natMax: e.target.value }))}
+                    onChange={(e) => setF({ natMax: e.target.value })}
                     placeholder="e.g. 10.2" className={inputCls} />
                 </div>
               </div>
@@ -347,33 +501,29 @@ const QuestionManagerPage = () => {
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-gray-100 dark:border-navy-700">
               <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                  +Marks Override
-                </label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">+Marks Override</label>
                 <input type="number" step="0.5" value={form.marksPositive}
-                  onChange={(e) => setForm((prev) => ({ ...prev, marksPositive: e.target.value }))}
+                  onChange={(e) => setF({ marksPositive: e.target.value })}
                   placeholder={`Default (${paper?.marksPerQuestion ?? "paper"})`}
                   className={inputCls} />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                  −Marks Override
-                </label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">−Marks Override</label>
                 <input type="number" step="0.25" value={form.marksNegative}
-                  onChange={(e) => setForm((prev) => ({ ...prev, marksNegative: e.target.value }))}
+                  onChange={(e) => setF({ marksNegative: e.target.value })}
                   placeholder={`Default (${paper?.negativeFraction ?? "paper"})`}
                   className={inputCls} />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Topic</label>
                 <input type="text" value={form.topic}
-                  onChange={(e) => setForm((prev) => ({ ...prev, topic: e.target.value }))}
+                  onChange={(e) => setF({ topic: e.target.value })}
                   placeholder="e.g. Mechanics" className={inputCls} />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Difficulty</label>
                 <select value={form.difficulty}
-                  onChange={(e) => setForm((prev) => ({ ...prev, difficulty: e.target.value }))}
+                  onChange={(e) => setF({ difficulty: e.target.value })}
                   className={inputCls}>
                   {["Easy", "Medium", "Hard"].map((d) => <option key={d} value={d}>{d}</option>)}
                 </select>
@@ -430,7 +580,7 @@ const QuestionManagerPage = () => {
                   <span className="text-xs font-bold text-blue-600">{idx + 1}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide
                       ${q.type === "MCQ" ? "bg-blue-100 text-blue-600" :
                         q.type === "MSQ" ? "bg-indigo-100 text-indigo-600" :
@@ -451,19 +601,36 @@ const QuestionManagerPage = () => {
                       </span>
                     )}
                     {q.topic && <span className="text-[10px] text-gray-400">{q.topic}</span>}
+                    {q.questionImage && (
+                      <span className="text-[10px] bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                        <MdImage className="h-2.5 w-2.5" /> img
+                      </span>
+                    )}
                   </div>
                   <p className="text-sm text-navy-700 dark:text-white line-clamp-2">{q.text}</p>
+                  {q.questionImage && (
+                    <img
+                      src={`${BACKEND}/${q.questionImage}`}
+                      alt="question"
+                      className="mt-1.5 h-16 max-w-[120px] object-contain rounded-lg border border-gray-100"
+                    />
+                  )}
                   {q.type !== "NAT" && q.options?.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-1.5">
-                      {q.options.map((o, oi) => (
-                        <span key={oi} className={`text-[11px] px-2 py-0.5 rounded
-                          ${(q.type === "MCQ" && q.correctOption === oi.toString()) ||
-                            (q.type === "MSQ" && q.correctOptions?.includes(oi))
-                            ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-medium"
-                            : "bg-gray-100 dark:bg-navy-700 text-gray-500"}`}>
-                          {String.fromCharCode(65 + oi)}. {o.text}
-                        </span>
-                      ))}
+                      {q.options.map((o, oi) => {
+                        const isCorrect =
+                          (q.type === "MCQ" && q.correctOption === oi.toString()) ||
+                          (q.type === "MSQ" && q.correctOptions?.includes(oi));
+                        return (
+                          <span key={oi} className={`text-[11px] px-2 py-0.5 rounded inline-flex items-center gap-1
+                            ${isCorrect
+                              ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-medium"
+                              : "bg-gray-100 dark:bg-navy-700 text-gray-500"}`}>
+                            {String.fromCharCode(65 + oi)}. {o.text}
+                            {o.image && <MdImage className="h-2.5 w-2.5 opacity-60" />}
+                          </span>
+                        );
+                      })}
                     </div>
                   )}
                   {q.type === "NAT" && (

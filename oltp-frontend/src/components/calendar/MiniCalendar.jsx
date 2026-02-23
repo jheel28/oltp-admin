@@ -8,20 +8,34 @@ import "assets/css/MiniCalendar.css";
 const MiniCalendar = (props) => {
   const { value, onChange, exams } = props;
 
-  // Function to add a dot if there are exams on that day
   const tileContent = ({ date, view }) => {
-    if (view === 'month' && exams) {
-      // Use local date parts to avoid UTC shifting
+    if (view === "month" && exams) {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, "0");
       const day = String(date.getDate()).padStart(2, "0");
-      const dateStr = `${year}-${month}-${day}`;
+      const calendarDateStr = `${year}-${month}-${day}`;
 
-      const hasExams = exams.some(exam => exam.date === dateStr);
+      const hasExams = exams.some((exam) => {
+        if (!exam.date) return false;
+
+        const parts = exam.date.split(/[-/]/).map(Number);
+        let eYear, eMonth, eDay;
+
+        if (parts[0] > 1000) [eYear, eMonth, eDay] = parts;
+        else if (parts[2] > 1000) [eDay, eMonth, eYear] = parts;
+        else [eYear, eMonth, eDay] = parts;
+
+        const normalizedExamDate = `${eYear}-${String(eMonth).padStart(
+          2,
+          "0"
+        )}-${String(eDay).padStart(2, "0")}`;
+
+        return normalizedExamDate === calendarDateStr;
+      });
 
       if (hasExams) {
         return (
-          <div className="flex justify-center items-center mt-1">
+          <div className="mt-1 flex items-center justify-center">
             <div className="h-1.5 w-1.5 rounded-full bg-blue-500"></div>
           </div>
         );
@@ -29,7 +43,6 @@ const MiniCalendar = (props) => {
     }
     return null;
   };
-
   return (
     <Card extra="flex w-full h-full flex-col px-3 py-3">
       <Calendar

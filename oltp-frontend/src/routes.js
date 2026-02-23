@@ -11,8 +11,12 @@ import Batch from "views/admin/batches";
 
 import { IoDocumentsSharp, IoDocuments } from "react-icons/io5";
 import {
-  MdGroups, MdHome, MdManageAccounts, MdPerson,
-  MdCategory, MdBarChart,
+  MdGroups,
+  MdHome,
+  MdManageAccounts,
+  MdPerson,
+  MdCategory,
+  MdBarChart,
 } from "react-icons/md";
 import { AuthContext } from "components/Auth-context";
 import { Button, Card, message } from "antd";
@@ -31,7 +35,11 @@ const LogoutCard = ({ onConfirm }) => {
   return (
     <Card
       title="Logout Confirmation"
-      extra={<Button type="primary" danger onClick={handleLogout}>Logout</Button>}
+      extra={
+        <Button type="primary" danger onClick={handleLogout}>
+          Logout
+        </Button>
+      }
       style={{ marginTop: "100px" }}
     >
       <p>Are you sure you want to logout?</p>
@@ -88,7 +96,7 @@ const routes = [
   {
     name: "Results",
     layout: "/admin",
-    path: "results",
+    path: "results/*",
     icon: <MdBarChart className="h-6 w-6" />,
     component: <Results />,
   },
