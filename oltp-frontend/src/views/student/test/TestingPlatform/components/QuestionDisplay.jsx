@@ -1,7 +1,21 @@
 import React from "react";
 import { MdOutlineBookmarkAdd, MdOutlineBookmark } from "react-icons/md";
 
-const BACKEND = process.env.REACT_APP_BACKEND_URL;
+const BACKEND = (process.env.REACT_APP_BACKEND_URL || "").replace(/\/+$/, "");
+
+// Normalises any stored file path into a full absolute URL.
+// Handles: null/undefined, already-absolute URLs, relative paths,
+// Windows backslash paths (e.g. uploads\images\file.jpg).
+const imgSrc = (p) => {
+  if (p === null || p === undefined || p === "") return null;
+  const n = String(p)
+    .replace(/\\/g, "/")   // backslash → forward slash
+    .replace(/^\/+/, "");  // strip leading slashes
+  if (n.startsWith("http://") || n.startsWith("https://")) return n;
+  const url = `${BACKEND}/${n}`;
+  console.debug("[imgSrc] resolved:", url);
+  return url;
+};
 
 const TYPE_LABELS = {
   MCQ: { label: "Single Correct", cls: "border-gray-200 bg-gray-50 text-gray-600" },
@@ -32,33 +46,44 @@ const OptionItem = ({ opt, optIdx, isDrafted, isSaved, onSelect }) => {
     badgeText = "Saved";
   }
 
-  const indicatorCls = isSaved && isDrafted
-    ? "border-green-500 bg-green-500 text-white"
-    : isDrafted
-    ? "border-blue-400 bg-blue-400 text-white"
-    : isSaved
-    ? "border-green-400 bg-green-400 text-white"
-    : "border-gray-300 bg-gray-50 text-gray-400 group-hover:border-blue-300";
+  const indicatorCls =
+    isSaved && isDrafted
+      ? "border-green-500 bg-green-500 text-white"
+      : isDrafted
+      ? "border-blue-400 bg-blue-400 text-white"
+      : isSaved
+      ? "border-green-400 bg-green-400 text-white"
+      : "border-gray-300 bg-gray-50 text-gray-400 group-hover:border-blue-300";
+
+  const src = imgSrc(opt.image);
 
   return (
     <div
       onClick={() => onSelect(optIdx)}
       className={`group flex cursor-pointer items-start gap-4 rounded-xl border-2 px-4 py-3.5 transition-all duration-150 ${cls}`}
     >
-      <div className={`mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border-2 text-xs font-black transition-all ${indicatorCls}`}>
+      <div
+        className={`mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border-2 text-xs font-black transition-all ${indicatorCls}`}
+      >
         {String.fromCharCode(65 + optIdx)}
       </div>
       <div className="min-w-0 flex-1">
         {opt.text && (
-          <span className={`text-sm font-semibold leading-relaxed ${labelCls}`}>{opt.text}</span>
+          <span className={`text-sm font-semibold leading-relaxed ${labelCls}`}>
+            {opt.text}
+          </span>
         )}
-        {opt.image && (
+        {src && (
           <div className="mt-2">
             <img
-              src={`${BACKEND}/${opt.image}`}
+              src={src}
               alt={`Option ${String.fromCharCode(65 + optIdx)}`}
-              className="max-h-40 max-w-full rounded-lg border border-gray-100 object-contain"
+              className="max-h-40 max-w-full rounded-lg border border-gray-100 object-contain bg-gray-50"
               draggable={false}
+              onError={(e) => {
+                console.warn("[QuestionDisplay] Option image failed:", src);
+                e.currentTarget.style.display = "none";
+              }}
             />
           </div>
         )}
@@ -87,20 +112,22 @@ const QuestionDisplay = ({
 
   const typeInfo = TYPE_LABELS[question.type] || TYPE_LABELS.MCQ;
 
-  // Normalise saved answer to array for comparison
   const savedArr = Array.isArray(savedAnswer)
     ? savedAnswer
     : savedAnswer !== null && savedAnswer !== undefined
-    ? [savedAnswer] : [];
+    ? [savedAnswer]
+    : [];
 
   const draftArr = Array.isArray(currentDraft)
     ? currentDraft
     : currentDraft !== null && currentDraft !== undefined
-    ? [currentDraft] : [];
+    ? [currentDraft]
+    : [];
+
+  const qImgSrc = imgSrc(question.questionImage);
 
   return (
     <div className="mx-auto max-w-3xl">
-      {/* Question meta row */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-black text-gray-400">
@@ -138,7 +165,6 @@ const QuestionDisplay = ({
         </button>
       </div>
 
-      {/* Question body */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         <p
           className="mb-5 text-sm font-bold leading-relaxed text-gray-800"
@@ -147,57 +173,71 @@ const QuestionDisplay = ({
           {question.text}
         </p>
 
-        {question.questionImage && (
+        {qImgSrc && (
           <div className="mb-5 flex justify-center rounded-xl border border-gray-100 bg-gray-50 p-3">
             <img
-              src={`${BACKEND}/${question.questionImage}`}
+              src={qImgSrc}
               alt="Question"
               className="max-h-72 max-w-full rounded-lg object-contain"
               draggable={false}
+              onError={(e) => {
+                console.warn("[QuestionDisplay] Question image failed:", qImgSrc);
+                e.currentTarget.parentElement.style.display = "none";
+              }}
             />
           </div>
         )}
 
-        {/* NAT input */}
         {question.type === "NAT" && (
           <div className="space-y-2">
             <p className="text-xs font-bold uppercase tracking-wider text-gray-400">
-              Enter numerical answer
-              {question.natMin != null && question.natMax != null &&
-                ` (acceptable range: ${question.natMin} – ${question.natMax})`}
+              Enter your numerical answer
             </p>
             <input
               type="number"
               step="any"
               inputMode="decimal"
               placeholder="Type your numerical answer here"
-              value={currentDraft !== null && currentDraft !== undefined ? currentDraft : ""}
+              value={
+                currentDraft !== null && currentDraft !== undefined
+                  ? currentDraft
+                  : ""
+              }
               onChange={(e) => onDraftSelect(e.target.value)}
               className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 p-4 text-xl font-black text-navy-700 outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
             />
             {savedAnswer !== null && savedAnswer !== undefined && (
               <p className="text-xs text-gray-500">
-                Currently saved: <strong>{savedAnswer}</strong>
-                {hasDraft && currentDraft !== null && currentDraft !== undefined && currentDraft !== savedAnswer && (
-                  <span className="ml-2 text-orange-500">(Draft: {currentDraft})</span>
-                )}
+                Currently saved:{" "}
+                <strong className="text-green-600">{savedAnswer}</strong>
+                {hasDraft &&
+                  currentDraft !== null &&
+                  currentDraft !== undefined &&
+                  currentDraft !== savedAnswer && (
+                    <span className="ml-2 text-orange-500">
+                      (Draft: {currentDraft})
+                    </span>
+                  )}
               </p>
             )}
-            <p className="text-[10px] text-gray-400">Click Save & Next to record this answer.</p>
+            <p className="text-[10px] text-gray-400">
+              Click Save & Next to record this answer.
+            </p>
           </div>
         )}
 
-        {/* MCQ / MSQ options */}
         {question.type !== "NAT" && (
           <div className="space-y-2.5">
             {(question.options || []).map((opt, optIdx) => {
-              const isDrafted = question.type === "MSQ"
-                ? draftArr.map(Number).includes(optIdx)
-                : Number(currentDraft) === optIdx;
+              const isDrafted =
+                question.type === "MSQ"
+                  ? draftArr.map(Number).includes(optIdx)
+                  : Number(currentDraft) === optIdx;
 
-              const isSaved = question.type === "MSQ"
-                ? savedArr.map(Number).includes(optIdx)
-                : Number(savedAnswer) === optIdx;
+              const isSaved =
+                question.type === "MSQ"
+                  ? savedArr.map(Number).includes(optIdx)
+                  : Number(savedAnswer) === optIdx;
 
               return (
                 <OptionItem

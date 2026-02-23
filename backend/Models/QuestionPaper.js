@@ -19,6 +19,7 @@ const questionPaperSchema = new Schema(
     marksPerQuestion: { type: Number, default: 4 },
     negativeMarking: { type: Boolean, default: false },
     negativeFraction: { type: Number, default: 0.25 },
+    passingPercentage: { type: Number, default: 35 },
     isActive: { type: Boolean, default: true },
     description: { type: String, default: "" },
   },

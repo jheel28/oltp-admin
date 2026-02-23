@@ -2,23 +2,32 @@ import React from "react";
 import { MdLock } from "react-icons/md";
 import { STATUS } from "../hooks/useExamState";
 
-const BACKEND = process.env.REACT_APP_BACKEND_URL;
+const BACKEND = (process.env.REACT_APP_BACKEND_URL || "").replace(/\/+$/, "");
+
+const imgSrc = (p) => {
+  if (!p) return null;
+  const n = String(p).replace(/\\/g, "/").replace(/^\/+/, "");
+  if (n.startsWith("http://") || n.startsWith("https://")) return n;
+  return `${BACKEND}/${n}`;
+};
 
 const QuestionPalette = ({
   student, sections, statuses, currentIdx, hasDraft,
   activeSection, onGoTo, onSetSection, onEndTest,
   stats,
 }) => {
+  const studentImg = imgSrc(student?.image);
+
   return (
     <div className="hidden w-72 flex-shrink-0 flex-col overflow-hidden border-l border-gray-200 bg-white lg:flex xl:w-80">
-      {/* Student info */}
       <div className="flex items-center gap-3 border-b border-gray-100 bg-gray-50 px-4 py-3">
-        {student?.image && (
+        {studentImg && (
           <img
-            src={`${BACKEND}/${student.image}`}
+            src={studentImg}
             alt=""
             className="h-10 w-10 flex-shrink-0 rounded-xl border-2 border-blue-100 object-cover"
             draggable={false}
+            onError={(e) => { e.currentTarget.style.display = "none"; }}
           />
         )}
         <div className="min-w-0">
@@ -32,7 +41,6 @@ const QuestionPalette = ({
         <MdLock className="ml-auto flex-shrink-0 text-green-500" />
       </div>
 
-      {/* Summary stats */}
       <div className="grid grid-cols-3 border-b border-gray-100">
         {[
           { v: stats.answered, l: "Saved", c: "text-green-600 bg-green-50" },
@@ -46,7 +54,6 @@ const QuestionPalette = ({
         ))}
       </div>
 
-      {/* Question grid */}
       <div className="flex-1 overflow-y-auto px-4 py-3">
         {sections.map((sec, si) => (
           <div key={si} className={si > 0 ? "mt-4" : ""}>
@@ -84,7 +91,6 @@ const QuestionPalette = ({
         ))}
       </div>
 
-      {/* End test button */}
       <div className="border-t border-gray-100 p-4">
         <div className="mb-3 flex items-center justify-between text-xs text-gray-400">
           <span>Not visited: {stats.notVisited}</span>

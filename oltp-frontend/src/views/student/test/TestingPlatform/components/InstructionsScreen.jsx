@@ -2,7 +2,14 @@ import React, { useState } from "react";
 import { MdOutlineVerifiedUser } from "react-icons/md";
 import { STATUS } from "../hooks/useExamState";
 
-const BACKEND = process.env.REACT_APP_BACKEND_URL;
+const BACKEND = (process.env.REACT_APP_BACKEND_URL || "").replace(/\/+$/, "");
+
+const imgSrc = (p) => {
+  if (!p) return null;
+  const n = String(p).replace(/\\/g, "/").replace(/^\/+/, "");
+  if (n.startsWith("http://") || n.startsWith("https://")) return n;
+  return `${BACKEND}/${n}`;
+};
 
 const InstructionsScreen = ({ test, student, onBegin }) => {
   const [agreed, setAgreed] = useState(false);
@@ -28,6 +35,8 @@ const InstructionsScreen = ({ test, student, onBegin }) => {
     "MSQ questions allow multiple selections — all correct options must be chosen for full marks.",
   ];
 
+  const studentImg = imgSrc(student?.image);
+
   return (
     <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-navy-900">
       <div className="flex items-center justify-between bg-[#1a2744] px-6 py-3 text-white shadow">
@@ -38,13 +47,13 @@ const InstructionsScreen = ({ test, student, onBegin }) => {
       </div>
 
       <div className="mx-auto w-full max-w-4xl flex-1 space-y-4 px-4 py-6">
-        {/* Student info card */}
         <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow">
-          {student?.image && (
+          {studentImg && (
             <img
-              src={`${BACKEND}/${student.image}`}
+              src={studentImg}
               alt="student"
               className="h-16 w-16 rounded-xl border-2 border-blue-100 object-cover"
+              onError={(e) => { e.currentTarget.style.display = "none"; }}
             />
           )}
           <div className="grid flex-1 grid-cols-2 gap-3 text-sm sm:grid-cols-3">
@@ -57,7 +66,6 @@ const InstructionsScreen = ({ test, student, onBegin }) => {
           </div>
         </div>
 
-        {/* Instructions */}
         <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow">
           <h2 className="mb-4 flex items-center gap-2 text-base font-black text-navy-700">
             <MdOutlineVerifiedUser className="text-blue-600" /> General Instructions
@@ -74,7 +82,6 @@ const InstructionsScreen = ({ test, student, onBegin }) => {
           </div>
         </div>
 
-        {/* Legend */}
         <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow">
           <h2 className="mb-3 text-sm font-black text-navy-700">Question Status Legend</h2>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -91,7 +98,6 @@ const InstructionsScreen = ({ test, student, onBegin }) => {
           </div>
         </div>
 
-        {/* Agreement */}
         <div className="rounded-2xl border border-gray-200 bg-white p-4">
           <label className="flex cursor-pointer items-start gap-3">
             <input

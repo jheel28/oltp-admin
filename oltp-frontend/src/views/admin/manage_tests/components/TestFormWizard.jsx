@@ -6,8 +6,10 @@ import { AuthContext } from "components/Auth-context";
 import {
   MdArrowBack, MdArrowForward, MdSave, MdCheck,
 } from "react-icons/md";
+import { AiOutlineCalculator } from "react-icons/ai";
+import { MdWaterDrop } from "react-icons/md";
 
-const STEPS = ["Test Details", "Schedule", "Review & Publish"];
+const STEPS = ["Test Details", "Schedule", "Settings & Publish"];
 
 const StepIndicator = ({ current }) => (
   <div className="flex items-center gap-0 mb-8">
@@ -41,6 +43,33 @@ const Field = ({ label, required, children, hint }) => (
     </label>
     {children}
     {hint && <p className="text-[11px] text-gray-400 mt-1">{hint}</p>}
+  </div>
+);
+
+const ToggleRow = ({ icon, title, hint, name, checked, onChange }) => (
+  <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-navy-600">
+    <div className="flex items-center gap-3">
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-navy-700 text-gray-500">
+        {icon}
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-navy-700 dark:text-white">{title}</p>
+        <p className="text-xs text-gray-400 mt-0.5">{hint}</p>
+      </div>
+    </div>
+    <label className="relative inline-flex items-center cursor-pointer ml-4">
+      <input
+        type="checkbox"
+        name={name}
+        checked={checked}
+        onChange={onChange}
+        className="sr-only peer"
+      />
+      <div className="w-11 h-6 bg-gray-200 peer-checked:bg-green-500 rounded-full transition after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5 dark:bg-navy-600" />
+      <span className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300 w-16">
+        {checked ? "On" : "Off"}
+      </span>
+    </label>
   </div>
 );
 
@@ -93,7 +122,10 @@ const TestFormWizard = ({ mode = "create" }) => {
     startTime: "",
     endTime: "",
     duration: "180",
+    passingPercentage: "35",
     isPublished: false,
+    allowCalculator: true,
+    allowWatermark: true,
   });
 
   useEffect(() => {
@@ -131,7 +163,10 @@ const TestFormWizard = ({ mode = "create" }) => {
             startTime: t.startTime || "",
             endTime: t.endTime || "",
             duration: t.duration?.toString() || "180",
+            passingPercentage: t.passingPercentage?.toString() || "35",
             isPublished: t.isPublished || false,
+            allowCalculator: t.allowCalculator !== false,
+            allowWatermark: t.allowWatermark !== false,
           });
           setPaperStatus("valid");
           setPaperDetails({
@@ -232,6 +267,12 @@ const TestFormWizard = ({ mode = "create" }) => {
       if (!form.endTime) { message.warning("End time is required"); return false; }
       if (!form.duration || Number(form.duration) <= 0) { message.warning("A valid duration is required"); return false; }
 
+      const passPct = Number(form.passingPercentage);
+      if (isNaN(passPct) || passPct < 0 || passPct > 100) {
+        message.warning("Passing percentage must be between 0 and 100");
+        return false;
+      }
+
       const selectedDateTime = new Date(`${form.date}T${form.startTime}`);
       const now = new Date();
       if (selectedDateTime < now) {
@@ -258,7 +299,10 @@ const TestFormWizard = ({ mode = "create" }) => {
         startTime: form.startTime,
         endTime: form.endTime,
         duration: Number(form.duration),
+        passingPercentage: Number(form.passingPercentage),
         isPublished: form.isPublished,
+        allowCalculator: form.allowCalculator,
+        allowWatermark: form.allowWatermark,
       };
 
       const url = mode === "create"
@@ -372,28 +416,56 @@ const TestFormWizard = ({ mode = "create" }) => {
               <input type="time" name="endTime" value={form.endTime} onChange={handleChange} className={inputCls} />
             </Field>
           </div>
-          <Field label="Duration (minutes)" required hint="Changing duration automatically updates End Time">
-            <input type="number" name="duration" value={form.duration} onChange={handleChange}
-              min="1" placeholder="e.g. 180" className={inputCls + " w-40"} />
-          </Field>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Duration (minutes)" required hint="Changing duration automatically updates End Time">
+              <input type="number" name="duration" value={form.duration} onChange={handleChange}
+                min="1" placeholder="e.g. 180" className={inputCls} />
+            </Field>
+            <Field label="Passing Percentage (%)" required hint="Minimum score required to pass (e.g. 35 means 35%)">
+              <input
+                type="number"
+                name="passingPercentage"
+                value={form.passingPercentage}
+                onChange={handleChange}
+                min="0"
+                max="100"
+                placeholder="e.g. 35"
+                className={inputCls}
+              />
+            </Field>
+          </div>
         </div>
       )}
 
       {step === 2 && (
-        <div className="space-y-5">
-          <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-navy-600">
-            <div>
-              <p className="text-sm font-semibold text-navy-700 dark:text-white">Publish Test</p>
-              <p className="text-xs text-gray-400 mt-0.5">Published tests are visible and accessible to students</p>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" name="isPublished" checked={form.isPublished} onChange={handleChange} className="sr-only peer" />
-              <div className="w-11 h-6 bg-gray-200 peer-checked:bg-green-500 rounded-full transition after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5 dark:bg-navy-600" />
-              <span className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                {form.isPublished ? "Published" : "Draft"}
-              </span>
-            </label>
-          </div>
+        <div className="space-y-4">
+          <ToggleRow
+            icon={<span className="font-bold text-xs">PUB</span>}
+            title="Publish Test"
+            hint="Published tests are visible and accessible to students"
+            name="isPublished"
+            checked={form.isPublished}
+            onChange={handleChange}
+          />
+
+          <ToggleRow
+            icon={<AiOutlineCalculator className="h-4 w-4" />}
+            title="Allow Calculator"
+            hint="Students will have access to a built-in calculator during the exam"
+            name="allowCalculator"
+            checked={form.allowCalculator}
+            onChange={handleChange}
+          />
+
+          <ToggleRow
+            icon={<MdWaterDrop className="h-4 w-4" />}
+            title="Enable Watermark"
+            hint="Watermarks Student ID and Test ID across the exam screen to deter cheating"
+            name="allowWatermark"
+            checked={form.allowWatermark}
+            onChange={handleChange}
+          />
 
           <div className="rounded-xl border border-gray-200 dark:border-navy-600 divide-y divide-gray-100 dark:divide-navy-600 overflow-hidden">
             <div className="px-4 py-3 bg-gray-50 dark:bg-navy-800">
@@ -411,6 +483,9 @@ const TestFormWizard = ({ mode = "create" }) => {
               ["Date", form.date],
               ["Time", `${form.startTime} — ${form.endTime}`],
               ["Duration", `${form.duration} minutes`],
+              ["Passing Percentage", `${form.passingPercentage}%`],
+              ["Calculator", form.allowCalculator ? "Allowed" : "Disabled"],
+              ["Watermark", form.allowWatermark ? "Enabled" : "Disabled"],
             ].map(([label, value]) => (
               <div key={label} className="flex items-center justify-between px-4 py-2.5">
                 <span className="text-xs text-gray-500 dark:text-gray-400">{label}</span>

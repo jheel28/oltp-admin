@@ -54,6 +54,11 @@ const buildSections = (qs) => {
   return keys.map((k) => ({ name: k, indices: map[k] }));
 };
 
+const padArray = (arr, len, fill) =>
+  Array.from({ length: len }, (_, i) =>
+    arr && i < arr.length && arr[i] !== undefined ? arr[i] : fill
+  );
+
 const TestingScreen = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -66,7 +71,7 @@ const TestingScreen = () => {
   const [sections, setSections] = useState([]);
   const [activeSection, setActiveSection] = useState(0);
   const [endTimestamp, setEndTimestamp] = useState(null);
-  const [phase, setPhase] = useState("loading"); // loading|instructions|exam|submit|autosubmit|error
+  const [phase, setPhase] = useState("loading");
   const [restored, setRestored] = useState(false);
   const [showCalc, setShowCalc] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
@@ -75,26 +80,33 @@ const TestingScreen = () => {
   const submitCalledRef = useRef(false);
   const saveTimerRef = useRef(null);
 
-  // Exam answer state
   const exam = useExamAnswers(questions.length || 0);
 
   const allowCalculator = test?.allowCalculator !== false;
   const allowWatermark = test?.allowWatermark !== false;
 
-  // Persist to localStorage
+  // Prefer test-level passingPercentage, then paper-level, then default 35
+  const passingFraction = (() => {
+    if (test?.passingPercentage != null && test.passingPercentage > 0)
+      return test.passingPercentage / 100;
+    if (paper?.passingPercentage != null)
+      return paper.passingPercentage / 100;
+    return 0.35;
+  })();
+
   const persistNow = useCallback(() => {
-    if (!test) return;
+    if (!test || !questions.length) return;
+    const len = questions.length;
     saveState(test.testId, {
       paperId: test.paperId,
-      answers: exam.answers,
-      statuses: exam.statuses,
+      answers: padArray(exam.answers, len, null),
+      statuses: padArray(exam.statuses, len, 0),
       currentIdx: exam.currentIdx,
       endTimestamp,
     });
     setLastSaved(Date.now());
-  }, [test, exam.answers, exam.statuses, exam.currentIdx, endTimestamp]);
+  }, [test, questions.length, exam.answers, exam.statuses, exam.currentIdx, endTimestamp]);
 
-  // Auto-submit on time expire or violations
   const handleAutoSubmit = useCallback(() => {
     if (!submitCalledRef.current) {
       submitCalledRef.current = true;
@@ -105,43 +117,28 @@ const TestingScreen = () => {
   const { violations, isFullscreen, toggleFullscreen, markSubmitFired } =
     useProctoring({
       phase,
+      testId: test?.testId,
       onAutoSubmit: handleAutoSubmit,
       onPersist: persistNow,
     });
 
   const {
-    timeLeft,
-    isUrgent,
-    isWarning,
-    formatTime,
-    warned30,
-    warned5,
-    setWarned30,
-    setWarned5,
+    timeLeft, isUrgent, isWarning, formatTime,
+    warned30, warned5, setWarned30, setWarned5,
   } = useTimer({ endTimestamp, phase, onExpire: handleAutoSubmit });
 
-  // Timer warnings
   useEffect(() => {
     if (timeLeft === null) return;
     if (timeLeft <= 1800 && timeLeft > 1795 && !warned30) {
-      message.warning({
-        content: "30 minutes remaining!",
-        duration: 4,
-        key: "warn-30",
-      });
+      message.warning({ content: "30 minutes remaining!", duration: 4, key: "warn-30" });
       setWarned30(true);
     }
     if (timeLeft <= 300 && timeLeft > 295 && !warned5) {
-      message.warning({
-        content: "Only 5 minutes remaining!",
-        duration: 5,
-        key: "warn-5",
-      });
+      message.warning({ content: "Only 5 minutes remaining!", duration: 5, key: "warn-5" });
       setWarned5(true);
     }
   }, [timeLeft, warned30, warned5, setWarned30, setWarned5]);
 
-  // Auto-save every 10s during exam
   useEffect(() => {
     if (phase !== "exam" || !test) return;
     persistNow();
@@ -150,12 +147,11 @@ const TestingScreen = () => {
     return () => clearInterval(saveTimerRef.current);
   }, [exam.answers, exam.statuses, exam.currentIdx, phase, test, persistNow]);
 
-  // Build final submission payload
   const buildSubmission = useCallback(() => {
     const totalMarks = paper?.totalMarks ?? 0;
     let marksObtained = 0;
     const questionPayload = questions.map((q, i) => {
-      const chosen = exam.answers[i];
+      const chosen = exam.answers[i] ?? null;
       const correctAnswer = getCorrectAnswer(q);
       const marksAwarded = scoreQuestion(q, chosen, paper);
       marksObtained += marksAwarded;
@@ -168,17 +164,16 @@ const TestingScreen = () => {
       };
     });
     marksObtained = Math.max(0, Math.round(marksObtained * 100) / 100);
-
     return {
       testId: test.testId,
       studentId: student.studentId,
       paperId: test.paperId,
       marksObtained,
       totalMarks,
-      passed: totalMarks > 0 ? marksObtained / totalMarks >= 0.35 : false,
+      passed: totalMarks > 0 ? marksObtained / totalMarks >= passingFraction : false,
       questions: questionPayload,
     };
-  }, [questions, exam.answers, paper, test, student]);
+  }, [questions, exam.answers, paper, test, student, passingFraction]);
 
   const handleConfirmSubmit = useCallback(
     async (auto = false) => {
@@ -197,22 +192,16 @@ const TestingScreen = () => {
           },
           body: JSON.stringify(payload),
         });
-
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
           throw new Error(err.message || `Server error ${res.status}`);
         }
-
         clearState(test.testId);
         message.success({
-          content: auto
-            ? "Time up! Test auto-submitted."
-            : "Test submitted successfully.",
+          content: auto ? "Time up! Test auto-submitted." : "Test submitted successfully.",
           key: "submit-success",
         });
-        navigate(
-          `/student/feedbackscreen/${payload.marksObtained}/${payload.totalMarks}`
-        );
+        navigate(`/student/feedbackscreen/${payload.marksObtained}/${payload.totalMarks}`);
       } catch (err) {
         console.error("Submission error:", err);
         message.error({
@@ -223,25 +212,13 @@ const TestingScreen = () => {
         setSubmitting(false);
       }
     },
-    [
-      student,
-      test,
-      submitting,
-      buildSubmission,
-      auth.token,
-      navigate,
-      markSubmitFired,
-    ]
+    [student, test, submitting, buildSubmission, auth.token, navigate, markSubmitFired]
   );
 
-  // Auto-submit trigger
   useEffect(() => {
-    if (phase === "autosubmit" && !submitting) {
-      handleConfirmSubmit(true);
-    }
+    if (phase === "autosubmit" && !submitting) handleConfirmSubmit(true);
   }, [phase, submitting, handleConfirmSubmit]);
 
-  // Initial data load
   useEffect(() => {
     const load = async () => {
       try {
@@ -264,9 +241,7 @@ const TestingScreen = () => {
         const [qRes, paperRes] = await Promise.all([
           fetch(
             `${BACKEND}/api/v1/question/get/questions/bypaperid/${fetchedTest.paperId}`,
-            {
-              headers: { Authorization: "Bearer " + auth.token },
-            }
+            { headers: { Authorization: "Bearer " + auth.token } }
           ),
           fetch(
             `${BACKEND}/api/v1/questionpaper/get/questionpaper/bypaperid/${fetchedTest.paperId}`
@@ -279,39 +254,32 @@ const TestingScreen = () => {
         setSections(buildSections(qs));
         setPaper(questionPaper);
 
-        // Restore or fresh start
         const saved = loadState(fetchedTest.testId);
+
         if (
           saved &&
           saved.paperId === fetchedTest.paperId &&
-          saved.answers?.length === qs.length
+          Array.isArray(saved.answers)
         ) {
+          const len = qs.length;
+          const paddedAnswers = padArray(saved.answers, len, null);
+          const paddedStatuses = padArray(saved.statuses, len, 0);
           if (endTs && Date.now() > endTs) {
-            // Expired while away — auto-submit
-            exam.restore(
-              saved.answers,
-              saved.statuses || Array(qs.length).fill(0),
-              0
-            );
+            exam.restore(paddedAnswers, paddedStatuses, 0);
             setPhase("autosubmit");
             return;
           }
-          exam.restore(
-            saved.answers,
-            saved.statuses || Array(qs.length).fill(0),
-            saved.currentIdx || 0
-          );
+          exam.restore(paddedAnswers, paddedStatuses, saved.currentIdx || 0);
           setRestored(true);
           setPhase("exam");
         } else {
+          // No valid prior session: clear stale data and show instructions
+          clearState(fetchedTest.testId);
           setPhase("instructions");
         }
       } catch (err) {
         console.error("Load error:", err);
-        message.error({
-          content: `Error loading exam: ${err?.message || ""}`,
-          key: "load-error",
-        });
+        message.error({ content: `Error loading exam: ${err?.message || ""}`, key: "load-error" });
         setPhase("error");
       }
     };
@@ -319,19 +287,13 @@ const TestingScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, auth.userId, auth.token]);
 
-  // ─── Handlers ────────────────────────────────────────────────────────────────
   const currentQ = questions[exam.currentIdx];
-  const isMarked =
-    exam.statuses[exam.currentIdx] === 3 ||
-    exam.statuses[exam.currentIdx] === 4;
+  const isMarked = exam.statuses[exam.currentIdx] === 3 || exam.statuses[exam.currentIdx] === 4;
 
   const handleDraftSelect = useCallback(
     (value) => {
       if (!currentQ) return;
-      exam.updateDraft(
-        currentQ.type,
-        currentQ.type === "NAT" ? value : Number(value)
-      );
+      exam.updateDraft(currentQ.type, currentQ.type === "NAT" ? value : Number(value));
     },
     [exam, currentQ]
   );
@@ -341,12 +303,12 @@ const TestingScreen = () => {
     if (exam.currentIdx < questions.length - 1) exam.goTo(exam.currentIdx + 1);
   }, [exam, questions.length]);
 
-  const handleMarkNext = useCallback(() => {
+  const handleMarkSaveNext = useCallback(() => {
+    exam.commitDraft();
     exam.toggleMark();
     if (exam.currentIdx < questions.length - 1) exam.goTo(exam.currentIdx + 1);
   }, [exam, questions.length]);
 
-  // ─── Render phases ────────────────────────────────────────────────────────────
   if (phase === "loading" || phase === "autosubmit") {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4 bg-gray-100">
@@ -362,13 +324,8 @@ const TestingScreen = () => {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-100">
         <div className="max-w-sm rounded-2xl bg-white p-8 text-center shadow">
-          <p className="mb-4 text-lg font-bold text-red-500">
-            Failed to load exam
-          </p>
-          <button
-            onClick={() => navigate("/student/default")}
-            className="rounded-xl bg-blue-600 px-5 py-2 font-bold text-white"
-          >
+          <p className="mb-4 text-lg font-bold text-red-500">Failed to load exam</p>
+          <button onClick={() => navigate("/student/default")} className="rounded-xl bg-blue-600 px-5 py-2 font-bold text-white">
             Back to Dashboard
           </button>
         </div>
@@ -381,7 +338,10 @@ const TestingScreen = () => {
       <InstructionsScreen
         test={test}
         student={student}
+        paper={paper}
         onBegin={() => {
+          // Wipe any stale localStorage for this test before a fresh attempt starts
+          clearState(test.testId);
           setPhase("exam");
           document.documentElement.requestFullscreen?.().catch(() => {});
         }}
@@ -403,7 +363,6 @@ const TestingScreen = () => {
     );
   }
 
-  // ─── Main exam UI ─────────────────────────────────────────────────────────────
   const examContent = (
     <div className="flex h-screen select-none flex-col overflow-hidden bg-gray-100 text-navy-700">
       <ExamHeader
@@ -426,9 +385,7 @@ const TestingScreen = () => {
       )}
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Left: question area */}
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          {/* Section tabs */}
           {sections.length > 1 && (
             <div className="flex flex-none gap-0 overflow-x-auto border-b border-gray-200 bg-white">
               {sections.map((sec, i) => {
@@ -438,10 +395,7 @@ const TestingScreen = () => {
                 return (
                   <button
                     key={i}
-                    onClick={() => {
-                      setActiveSection(i);
-                      exam.goTo(sec.indices[0]);
-                    }}
+                    onClick={() => { setActiveSection(i); exam.goTo(sec.indices[0]); }}
                     className={`flex-shrink-0 border-b-2 px-5 py-2.5 text-xs font-bold transition-all ${
                       activeSection === i
                         ? "border-blue-600 bg-blue-50 text-blue-600"
@@ -458,7 +412,6 @@ const TestingScreen = () => {
             </div>
           )}
 
-          {/* Question content */}
           <div className="flex-1 overflow-y-auto px-4 py-5 pb-24">
             <QuestionDisplay
               question={currentQ}
@@ -477,22 +430,16 @@ const TestingScreen = () => {
             currentIdx={exam.currentIdx}
             totalQuestions={questions.length}
             allowCalculator={allowCalculator}
-            onPrev={() => {
-              if (exam.currentIdx > 0) exam.goTo(exam.currentIdx - 1);
-            }}
-            onNext={() => {
-              if (exam.currentIdx < questions.length - 1)
-                exam.goTo(exam.currentIdx + 1);
-            }}
+            isMarked={isMarked}
+            onPrev={() => { if (exam.currentIdx > 0) exam.goTo(exam.currentIdx - 1); }}
             onSaveNext={handleSaveNext}
-            onMarkNext={handleMarkNext}
+            onMarkSaveNext={handleMarkSaveNext}
             onClear={exam.clearDraft}
             onEndTest={() => setPhase("submit")}
             onToggleCalc={() => setShowCalc((v) => !v)}
           />
         </div>
 
-        {/* Right: palette sidebar */}
         <QuestionPalette
           student={student}
           sections={sections}
@@ -507,9 +454,7 @@ const TestingScreen = () => {
         />
       </div>
 
-      {allowCalculator && showCalc && (
-        <Calculator onClose={() => setShowCalc(false)} />
-      )}
+      {allowCalculator && showCalc && <Calculator onClose={() => setShowCalc(false)} />}
 
       <MobileBar
         allowCalculator={allowCalculator}
@@ -521,18 +466,13 @@ const TestingScreen = () => {
 
   return allowWatermark ? (
     <Watermark
-      content={`${student?.studentId || ""} — ${test?.testId || ""}`}
-      gap={[140, 140]}
-      offset={[70, 70]}
-      rotate={-15}
-      fontSize={11}
-      fontColor="rgba(0,0,0,0.04)"
+      content={[`${student?.studentId || ""}`, `${test?.testId || ""}`]}
+      gap={[160, 100]} offset={[80, 50]} rotate={-15}
+      fontSize={12} fontColor="rgba(0,0,0,0.06)" zIndex={9}
     >
       {examContent}
     </Watermark>
-  ) : (
-    examContent
-  );
+  ) : examContent;
 };
 
 export default TestingScreen;

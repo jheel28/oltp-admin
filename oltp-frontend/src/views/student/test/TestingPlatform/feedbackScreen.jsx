@@ -8,7 +8,14 @@ import {
 } from "react-icons/md";
 import { IoTrophyOutline } from "react-icons/io5";
 
-const BACKEND = process.env.REACT_APP_BACKEND_URL;
+const BACKEND = (process.env.REACT_APP_BACKEND_URL || "").replace(/\/+$/, "");
+
+const imgSrc = (p) => {
+  if (!p) return null;
+  const n = String(p).replace(/\\/g, "/").replace(/^\/+/, "");
+  if (n.startsWith("http://") || n.startsWith("https://")) return n;
+  return `${BACKEND}/${n}`;
+};
 
 const CircleProgress = ({ value, size = 120, stroke = 10, color }) => {
   const r = (size - stroke) / 2;
@@ -26,7 +33,6 @@ const CircleProgress = ({ value, size = 120, stroke = 10, color }) => {
   );
 };
 
-/** Determine if a question result is correct, considering all types */
 const isResultCorrect = (qr, question) => {
   const chosen = qr.chosenAnswer;
   const correct = qr.correctAnswer;
@@ -35,19 +41,15 @@ const isResultCorrect = (qr, question) => {
   if (question?.type === "NAT" || (correct && typeof correct === "object" && !Array.isArray(correct))) {
     const val = parseFloat(chosen);
     const cObj = correct;
-    if (cObj?.min != null && cObj?.max != null) {
+    if (cObj?.min != null && cObj?.max != null)
       return !isNaN(val) && val >= parseFloat(cObj.min) && val <= parseFloat(cObj.max);
-    }
     return String(chosen) === String(correct);
   }
 
   if (Array.isArray(correct)) {
     const chosenArr = (Array.isArray(chosen) ? chosen : [chosen]).map(Number);
     const correctArr = correct.map(Number);
-    return (
-      chosenArr.length === correctArr.length &&
-      chosenArr.every((c) => correctArr.includes(c))
-    );
+    return chosenArr.length === correctArr.length && chosenArr.every((c) => correctArr.includes(c));
   }
 
   const chosenVal = Array.isArray(chosen) ? chosen[0] : chosen;
@@ -87,15 +89,17 @@ const QuestionReview = ({ qr, question, index }) => {
 
   const chosenIdxArr = Array.isArray(chosen)
     ? chosen.map(Number)
-    : chosen !== null && chosen !== undefined
-    ? [Number(chosen)] : [];
+    : chosen !== null && chosen !== undefined ? [Number(chosen)] : [];
 
   const correctIdxArr = Array.isArray(correctAns)
     ? correctAns.map(Number)
     : correctAns !== null && correctAns !== undefined && typeof correctAns !== "object"
     ? [Number(correctAns)] : [];
 
-  const isNAT = question?.type === "NAT" || (correctAns && typeof correctAns === "object" && !Array.isArray(correctAns));
+  const isNAT = question?.type === "NAT" ||
+    (correctAns && typeof correctAns === "object" && !Array.isArray(correctAns));
+
+  const qImg = imgSrc(question?.questionImage);
 
   return (
     <div className={`rounded-xl border p-3 ${statusStyle}`}>
@@ -108,15 +112,15 @@ const QuestionReview = ({ qr, question, index }) => {
             {question?.text || `Question ${index + 1}`}
           </p>
 
-          {question?.questionImage && (
+          {qImg && (
             <img
-              src={`${BACKEND}/${question.questionImage}`}
+              src={qImg}
               alt="question"
               className="mt-1.5 max-h-24 max-w-[180px] object-contain rounded-lg border border-gray-200 bg-gray-50"
+              onError={(e) => { e.currentTarget.style.display = "none"; }}
             />
           )}
 
-          {/* NAT answer display */}
           {isNAT && (
             <div className="mt-2 text-xs text-gray-600">
               {skipped ? (
@@ -132,7 +136,6 @@ const QuestionReview = ({ qr, question, index }) => {
             </div>
           )}
 
-          {/* MCQ/MSQ options */}
           {!isNAT && question?.options?.length > 0 && (
             <div className="mt-2 space-y-1">
               {question.options.map((opt, oi) => {
@@ -145,6 +148,8 @@ const QuestionReview = ({ qr, question, index }) => {
                   isCorrectOpt && skipped ? "border-blue-300 bg-blue-50" :
                   "border-gray-200 bg-white";
 
+                const optImg = imgSrc(opt.image);
+
                 return (
                   <div key={oi} className={`flex items-start gap-2 rounded-lg border px-2 py-1.5 text-[11px] ${cls}`}>
                     <span className="font-black flex-shrink-0 text-gray-500 w-4">
@@ -152,11 +157,12 @@ const QuestionReview = ({ qr, question, index }) => {
                     </span>
                     <div className="min-w-0 flex-1">
                       <span className="text-gray-700">{opt.text}</span>
-                      {opt.image && (
+                      {optImg && (
                         <img
-                          src={`${BACKEND}/${opt.image}`}
+                          src={optImg}
                           alt=""
                           className="mt-1.5 max-h-16 max-w-[120px] object-contain rounded border border-gray-200"
+                          onError={(e) => { e.currentTarget.style.display = "none"; }}
                         />
                       )}
                     </div>
@@ -253,7 +259,6 @@ const FeedbackScreen = () => {
       </div>
 
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-8 space-y-5">
-        {/* Score card */}
         <Card extra="p-8 text-center">
           <div className="relative inline-flex items-center justify-center mb-4">
             <CircleProgress value={percentage} size={140} stroke={12} color={grade.color} />
@@ -290,7 +295,6 @@ const FeedbackScreen = () => {
           )}
         </Card>
 
-        {/* Question-wise analysis */}
         {questionResults.length > 0 && (
           <Card extra="p-5">
             <button
@@ -307,9 +311,7 @@ const FeedbackScreen = () => {
               <div className="mt-4 space-y-3">
                 {questionResults.map((qr, i) => {
                   const question = questions.find((x) => String(x._id) === String(qr.questionId));
-                  return (
-                    <QuestionReview key={i} qr={qr} question={question} index={i} />
-                  );
+                  return <QuestionReview key={i} qr={qr} question={question} index={i} />;
                 })}
               </div>
             )}
@@ -321,7 +323,6 @@ const FeedbackScreen = () => {
           </Card>
         )}
 
-        {/* Navigation */}
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => navigate("/student/default")}

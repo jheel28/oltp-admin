@@ -4,6 +4,8 @@ const { validationResult } = require("express-validator");
 const Question = require("../../Models/Question");
 const QuestionPaper = require("../../Models/QuestionPaper");
 
+const _normalizePath = (p) => (p ? p.replace(/\\/g, "/") : p);
+
 const _deleteFile = (filePath) => {
   if (!filePath) return;
   fs.unlink(filePath, (err) => {
@@ -15,11 +17,12 @@ const _deleteFile = (filePath) => {
 
 const _extractOptionImages = (files) => {
   const map = {};
-  if (!files) return map;
-  Object.keys(files).forEach((key) => {
-    const match = key.match(/^optionImage_(\d+)$/);
-    if (match && files[key]?.[0]) {
-      map[parseInt(match[1], 10)] = files[key][0].path;
+  if (!Array.isArray(files)) return map;
+  
+  files.forEach((file) => {
+    const match = file.fieldname.match(/^optionImage_(\d+)$/);
+    if (match) {
+      map[parseInt(match[1], 10)] = _normalizePath(file.path);
     }
   });
   return map;
@@ -64,7 +67,7 @@ const createQuestion = async (req, res, next) => {
   const optionImages = _extractOptionImages(req.files);
   parsedOptions = parsedOptions.map((opt, i) => ({
     text: opt.text || "",
-    image: optionImages[i] || opt.image || undefined,
+    image: optionImages[i] ? optionImages[i] : (opt.image ? _normalizePath(opt.image) : undefined),
   }));
 
   let parsedCorrectOptions = [];
@@ -92,8 +95,12 @@ const createQuestion = async (req, res, next) => {
     difficulty: difficulty || "Medium",
   });
 
-  if (req.files?.questionImage?.[0]) {
-    question.questionImage = req.files.questionImage[0].path;
+  const questionImgFile = Array.isArray(req.files) 
+    ? req.files.find(f => f.fieldname === "questionImage") 
+    : null;
+
+  if (questionImgFile) {
+    question.questionImage = _normalizePath(questionImgFile.path);
   }
 
   try {
@@ -181,7 +188,11 @@ const updateQuestionById = async (req, res, next) => {
         return { text: opt.text || "" };
       }
 
-      return { text: opt.text || "", image: opt.image || oldImage || undefined };
+      const resolvedImage = opt.image
+        ? _normalizePath(opt.image)
+        : (oldImage ? _normalizePath(oldImage) : undefined);
+
+      return { text: opt.text || "", image: resolvedImage };
     });
 
     const keptImages = new Set(parsedOptions.map((o) => o.image).filter(Boolean));
@@ -206,9 +217,13 @@ const updateQuestionById = async (req, res, next) => {
   if (topic !== undefined) question.topic = topic;
   if (difficulty !== undefined) question.difficulty = difficulty;
 
-  if (req.files?.questionImage?.[0]) {
+  const questionImgFile = Array.isArray(req.files) 
+    ? req.files.find(f => f.fieldname === "questionImage") 
+    : null;
+
+  if (questionImgFile) {
     if (question.questionImage) _deleteFile(question.questionImage);
-    question.questionImage = req.files.questionImage[0].path;
+    question.questionImage = _normalizePath(questionImgFile.path);
   } else if (clearQuestionImage === "true" || clearQuestionImage === true) {
     if (question.questionImage) _deleteFile(question.questionImage);
     question.questionImage = undefined;

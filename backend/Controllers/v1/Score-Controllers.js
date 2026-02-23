@@ -5,12 +5,6 @@ const Student = require("../../Models/Student");
 const Test = require("../../Models/Test");
 const QuestionPaper = require("../../Models/QuestionPaper");
 
-const _getCorrectAnswer = (q) => {
-  if (q.questionType === "MSQ") return q.correctOptions || [];
-  if (q.questionType === "NAT") return { min: q.natMin, max: q.natMax };
-  return q.correctOption;
-};
-
 const createScore = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -20,15 +14,7 @@ const createScore = async (req, res, next) => {
     });
   }
 
-  const {
-    testId,
-    studentId,
-    paperId,
-    marksObtained,
-    totalMarks,
-    passed,
-    questions,
-  } = req.body;
+  const { testId, studentId, paperId, marksObtained, totalMarks, passed, questions } = req.body;
 
   let studentName = "";
   let batch = "";
@@ -36,6 +22,7 @@ const createScore = async (req, res, next) => {
   let paperName = "";
   let category = "";
   let subjects = [];
+  let passingPercentage = 35;
 
   try {
     const student = await Student.findOne({ studentId });
@@ -56,12 +43,14 @@ const createScore = async (req, res, next) => {
       paperName = paper.paperName || paperId;
       category = paper.category || "";
       subjects = paper.subjects || [];
+      passingPercentage = paper.passingPercentage != null ? paper.passingPercentage : 35;
     }
   } catch (_) {}
 
   const marks = Number(marksObtained);
   const total = Number(totalMarks);
   const pct = total > 0 ? Math.round((marks / total) * 10000) / 100 : 0;
+  const passingThreshold = passingPercentage / 100;
 
   const score = new Score({
     testId,
@@ -76,7 +65,7 @@ const createScore = async (req, res, next) => {
     marksObtained: marks,
     totalMarks: total,
     percentage: pct,
-    passed: passed === true || passed === "true" || pct >= 35,
+    passed: passed === true || passed === "true" || (total > 0 && marks / total >= passingThreshold),
     questions: (questions || []).map((q) => ({
       questionId: q.questionId,
       questionType: q.questionType || "MCQ",
@@ -90,9 +79,7 @@ const createScore = async (req, res, next) => {
     await score.save();
   } catch (err) {
     console.error("Score save error:", err);
-    return next(
-      new HttpError("Something went wrong while saving the score", 500),
-    );
+    return next(new HttpError("Something went wrong while saving the score", 500));
   }
 
   res.status(201).json({ score });
@@ -103,9 +90,7 @@ const getAllScores = async (req, res, next) => {
   try {
     scores = await Score.find({}).sort({ createdAt: -1 });
   } catch (err) {
-    return next(
-      new HttpError("Something went wrong while fetching scores", 500),
-    );
+    return next(new HttpError("Something went wrong while fetching scores", 500));
   }
   res.status(200).json({ scores });
 };
@@ -116,9 +101,7 @@ const getScoresByStudentId = async (req, res, next) => {
   try {
     scores = await Score.find({ studentId }).sort({ createdAt: -1 });
   } catch (err) {
-    return next(
-      new HttpError("Something went wrong while fetching scores", 500),
-    );
+    return next(new HttpError("Something went wrong while fetching scores", 500));
   }
   res.status(200).json({ scores });
 };
@@ -129,9 +112,7 @@ const getScoresByTestId = async (req, res, next) => {
   try {
     scores = await Score.find({ testId }).sort({ createdAt: -1 });
   } catch (err) {
-    return next(
-      new HttpError("Something went wrong while fetching scores", 500),
-    );
+    return next(new HttpError("Something went wrong while fetching scores", 500));
   }
   res.status(200).json({ scores });
 };
@@ -142,9 +123,7 @@ const getScoreByTestAndStudent = async (req, res, next) => {
   try {
     score = await Score.findOne({ testId, studentId });
   } catch (err) {
-    return next(
-      new HttpError("Something went wrong while fetching the score", 500),
-    );
+    return next(new HttpError("Something went wrong while fetching the score", 500));
   }
   if (!score) return next(new HttpError("Score not found", 404));
   res.status(200).json({ score });
@@ -154,13 +133,9 @@ const getAttemptedTestsByStudentId = async (req, res, next) => {
   const { studentId } = req.params;
   let scores;
   try {
-    scores = await Score.find({ studentId }, "-questions").sort({
-      createdAt: -1,
-    });
+    scores = await Score.find({ studentId }, "-questions").sort({ createdAt: -1 });
   } catch (err) {
-    return next(
-      new HttpError("Something went wrong while fetching attempted tests", 500),
-    );
+    return next(new HttpError("Something went wrong while fetching attempted tests", 500));
   }
   res.status(200).json({ tests: scores });
 };
@@ -169,14 +144,9 @@ const getLeaderboardByTestId = async (req, res, next) => {
   const { testId } = req.params;
   let scores;
   try {
-    scores = await Score.find({ testId }, "-questions").sort({
-      marksObtained: -1,
-      createdAt: 1,
-    });
+    scores = await Score.find({ testId }, "-questions").sort({ marksObtained: -1, createdAt: 1 });
   } catch (err) {
-    return next(
-      new HttpError("Something went wrong while fetching leaderboard", 500),
-    );
+    return next(new HttpError("Something went wrong while fetching leaderboard", 500));
   }
   const leaderboard = scores.map((s, i) => ({
     rank: i + 1,
@@ -198,14 +168,13 @@ const getLiveTestStatus = async (req, res, next) => {
   try {
     scores = await Score.find({ testId }, "-questions").sort({ createdAt: -1 });
   } catch (err) {
-    return next(
-      new HttpError("Something went wrong while fetching live status", 500),
-    );
+    return next(new HttpError("Something went wrong while fetching live status", 500));
   }
   const submissions = scores.map((s) => ({
     studentId: s.studentId,
     studentName: s.studentName,
     batch: s.batch,
+    paperId: s.paperId,
     marksObtained: s.marksObtained,
     totalMarks: s.totalMarks,
     percentage: s.percentage,
@@ -221,16 +190,12 @@ const deleteScoresByTestId = async (req, res, next) => {
   try {
     result = await Score.deleteMany({ testId });
   } catch (err) {
-    return next(
-      new HttpError("Something went wrong while deleting scores", 500),
-    );
+    return next(new HttpError("Something went wrong while deleting scores", 500));
   }
   if (result.deletedCount === 0)
     return next(new HttpError("No scores found for this test", 404));
   res.status(200).json({ message: `Deleted ${result.deletedCount} score(s)` });
 };
-
-// ... existing code ...
 
 const updateScore = async (req, res, next) => {
   const { scoreId } = req.params;
@@ -240,9 +205,7 @@ const updateScore = async (req, res, next) => {
   try {
     score = await Score.findById(scoreId);
   } catch (err) {
-    return next(
-      new HttpError("Something went wrong, could not find score.", 500),
-    );
+    return next(new HttpError("Something went wrong, could not find score.", 500));
   }
   if (!score) return next(new HttpError("Score not found.", 404));
 
@@ -250,18 +213,14 @@ const updateScore = async (req, res, next) => {
   if (totalMarks !== undefined) score.totalMarks = Number(totalMarks);
   if (passed !== undefined) score.passed = passed === true || passed === "true";
 
-  // Recalculate percentage based on updated marks
   if (score.totalMarks > 0) {
-    score.percentage =
-      Math.round((score.marksObtained / score.totalMarks) * 10000) / 100;
+    score.percentage = Math.round((score.marksObtained / score.totalMarks) * 10000) / 100;
   }
 
   try {
     await score.save();
   } catch (err) {
-    return next(
-      new HttpError("Something went wrong while updating the score.", 500),
-    );
+    return next(new HttpError("Something went wrong while updating the score.", 500));
   }
 
   res.status(200).json({ score, message: "Score updated successfully" });
@@ -274,18 +233,14 @@ const deleteSingleScore = async (req, res, next) => {
   try {
     score = await Score.findById(scoreId);
   } catch (err) {
-    return next(
-      new HttpError("Something went wrong, could not find score.", 500),
-    );
+    return next(new HttpError("Something went wrong, could not find score.", 500));
   }
   if (!score) return next(new HttpError("Score not found.", 404));
 
   try {
     await score.deleteOne();
   } catch (err) {
-    return next(
-      new HttpError("Something went wrong while deleting the score.", 500),
-    );
+    return next(new HttpError("Something went wrong while deleting the score.", 500));
   }
 
   res.status(200).json({ message: "Score deleted successfully" });

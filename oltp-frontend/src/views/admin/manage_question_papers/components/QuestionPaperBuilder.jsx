@@ -11,6 +11,14 @@ import {
 import { FaTrashAlt, FaEdit, FaPlus } from "react-icons/fa";
 
 const BACKEND = process.env.REACT_APP_BACKEND_URL;
+
+const normImg = (p) => {
+  if (!p) return null;
+  const n = String(p).replace(/\\/g, "/").replace(/^\/+/, "");
+  if (n.startsWith("http://") || n.startsWith("https://")) return n;
+  return `${BACKEND}/${n}`;
+};
+
 const STEPS = ["Paper Details", "Marking Scheme", "Add Questions", "Settings & Review"];
 
 const TYPE_META = {
@@ -97,7 +105,9 @@ const ImagePickerButton = ({ onSelect }) => {
 const ImagePreview = ({ src, onClear, label = "Image" }) => (
   <div className="mt-1.5 flex items-start gap-2">
     <img src={src} alt={label}
-      className="h-24 max-w-[180px] object-contain rounded-lg border border-gray-200 dark:border-navy-600 bg-gray-50 dark:bg-navy-700" />
+      className="h-24 max-w-[180px] object-contain rounded-lg border border-gray-200 dark:border-navy-600 bg-gray-50 dark:bg-navy-700"
+      onError={(e) => { e.currentTarget.style.display = "none"; }}
+    />
     <button type="button" onClick={onClear}
       className="p-1 rounded-full bg-red-100 text-red-500 hover:bg-red-200 transition flex-shrink-0">
       <MdClose className="h-3.5 w-3.5" />
@@ -129,7 +139,7 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
     setF((p) => ({ ...p, correctOptions: p.correctOptions.includes(i) ? p.correctOptions.filter((x) => x !== i) : [...p.correctOptions, i] }));
 
   const qImgSrc = form.questionImagePreview
-    || (form.existingQuestionImage && !form.clearQuestionImage ? `${BACKEND}/${form.existingQuestionImage}` : null);
+    || (form.existingQuestionImage && !form.clearQuestionImage ? normImg(form.existingQuestionImage) : null);
 
   const handleSubmit = async () => {
     if (!form.text.trim()) { message.warning("Question text is required"); return; }
@@ -189,6 +199,7 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
         <button onClick={onCancel} className="text-xs text-gray-400 hover:text-gray-600 transition">Cancel</button>
       </div>
 
+      {/* Type selector */}
       <div className="flex gap-2 flex-wrap">
         {Object.entries(TYPE_META).map(([t, meta]) => (
           <button key={t} onClick={() => setF({ type: t })}
@@ -203,6 +214,7 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
         ))}
       </div>
 
+      {/* Question text */}
       <div>
         <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
           Question Text <span className="text-red-400">*</span>
@@ -224,6 +236,7 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
         </div>
       </div>
 
+      {/* Options */}
       {form.type !== "NAT" && (
         <div>
           <div className="flex items-center justify-between mb-2">
@@ -237,7 +250,7 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
           </div>
           <div className="space-y-3">
             {form.options.map((opt, i) => {
-              const optImgSrc = opt.imagePreview || (opt.existingImage && !opt.clearImage ? `${BACKEND}/${opt.existingImage}` : null);
+              const optImgSrc = opt.imagePreview || (opt.existingImage && !opt.clearImage ? normImg(opt.existingImage) : null);
               return (
                 <div key={i} className="rounded-xl border border-gray-100 dark:border-navy-700 p-3">
                   <div className="flex items-center gap-2">
@@ -271,6 +284,7 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
         </div>
       )}
 
+      {/* NAT */}
       {form.type === "NAT" && (
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -286,6 +300,7 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
         </div>
       )}
 
+      {/* Marks / topic / difficulty */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-gray-100 dark:border-navy-700">
         <div>
           <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">+Marks Override</label>
@@ -457,6 +472,14 @@ const QuestionsStep = ({ paperId, paper, questions, setQuestions }) => {
                   )}
                 </div>
                 <p className="text-sm text-navy-700 dark:text-white line-clamp-2">{q.text}</p>
+                {q.questionImage && (
+                  <img
+                    src={normImg(q.questionImage)}
+                    alt="question"
+                    className="mt-1 h-16 max-w-[120px] object-contain rounded-lg border border-gray-100"
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                  />
+                )}
                 {q.type !== "NAT" && q.options?.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-1.5">
                     {q.options.map((o, oi) => {
@@ -512,11 +535,8 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
   const [savingPaper, setSavingPaper] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // Tracks the paper object on the server (null until first save in create mode)
   const [serverPaper, setServerPaper] = useState(null);
-  // True once the paper has been POSTed at least once
   const [paperPersistedOnce, setPaperPersistedOnce] = useState(mode === "edit");
-
   const [questions, setQuestions] = useState([]);
 
   const [form, setForm] = useState({
@@ -525,7 +545,6 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
     negativeFraction: "0.25", isActive: true, description: "",
   });
 
-  // Load categories + batches
   useEffect(() => {
     const fetchMeta = async () => {
       setLoadingMeta(true);
@@ -545,7 +564,6 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
     fetchMeta();
   }, []);
 
-  // Load existing paper in edit mode
   useEffect(() => {
     if (mode !== "edit" || !id) return;
     const fetchPaper = async () => {
@@ -607,8 +625,6 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
     return true;
   };
 
-  // Persist the paper to the backend.
-  // In create mode before first save: POST. Otherwise: PATCH.
   const persistPaper = async () => {
     const payload = {
       paperName: form.paperName.trim(),
@@ -651,8 +667,6 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
 
   const handleNext = async () => {
     if (!validateStep(step)) return;
-
-    // When advancing from Marking Scheme to Questions, save the paper first
     if (step === 1) {
       setSavingPaper(true);
       try {
@@ -665,7 +679,6 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
       }
       return;
     }
-
     setStep((s) => s + 1);
   };
 

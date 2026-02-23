@@ -9,6 +9,15 @@ import {
 } from "react-icons/md";
 import { FaTrashAlt, FaEdit, FaPlus } from "react-icons/fa";
 
+const BACKEND = process.env.REACT_APP_BACKEND_URL;
+
+const normImg = (p) => {
+  if (!p) return null;
+  const n = String(p).replace(/\\/g, "/").replace(/^\/+/, "");
+  if (n.startsWith("http://") || n.startsWith("https://")) return n;
+  return `${BACKEND}/${n}`;
+};
+
 const inputCls = "w-full px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition";
 
 const TYPE_META = {
@@ -75,6 +84,7 @@ const ImagePreview = ({ src, onClear, label = "Image" }) => (
       src={src}
       alt={label}
       className="h-24 max-w-[180px] object-contain rounded-lg border border-gray-200 dark:border-navy-600 bg-gray-50 dark:bg-navy-700"
+      onError={(e) => { e.currentTarget.style.display = "none"; }}
     />
     <button
       type="button"
@@ -100,8 +110,6 @@ const QuestionManagerPage = () => {
   const [form, setForm] = useState(defaultForm());
   const [submitting, setSubmitting] = useState(false);
 
-  const BACKEND = process.env.REACT_APP_BACKEND_URL;
-
   useEffect(() => {
     const init = async () => {
       setLoading(true);
@@ -123,7 +131,7 @@ const QuestionManagerPage = () => {
       }
     };
     init();
-  }, [paperId, auth.token, BACKEND]);
+  }, [paperId, auth.token]);
 
   const refreshPaper = async () => {
     try {
@@ -303,7 +311,7 @@ const QuestionManagerPage = () => {
 
   const questionImageSrc = form.questionImagePreview
     || (form.existingQuestionImage && !form.clearQuestionImage
-      ? `${BACKEND}/${form.existingQuestionImage}` : null);
+      ? normImg(form.existingQuestionImage) : null);
 
   if (loading) {
     return (
@@ -315,6 +323,7 @@ const QuestionManagerPage = () => {
 
   return (
     <div className="space-y-4">
+      {/* Header */}
       <Card extra="w-full p-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -345,6 +354,7 @@ const QuestionManagerPage = () => {
         </div>
       </Card>
 
+      {/* Form */}
       {showForm && (
         <Card extra="w-full p-5">
           <div className="flex items-center justify-between mb-5">
@@ -357,6 +367,7 @@ const QuestionManagerPage = () => {
           </div>
 
           <div className="space-y-4">
+            {/* Type selector */}
             <div className="flex gap-2 flex-wrap">
               {Object.entries(TYPE_META).map(([t, meta]) => (
                 <button
@@ -374,6 +385,7 @@ const QuestionManagerPage = () => {
               ))}
             </div>
 
+            {/* Question text */}
             <div>
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                 Question Text <span className="text-red-400">*</span>
@@ -410,6 +422,7 @@ const QuestionManagerPage = () => {
               </div>
             </div>
 
+            {/* Options */}
             {form.type !== "NAT" && (
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -425,7 +438,7 @@ const QuestionManagerPage = () => {
                   {form.options.map((opt, i) => {
                     const optImgSrc = opt.imagePreview
                       || (opt.existingImage && !opt.clearImage
-                        ? `${BACKEND}/${opt.existingImage}` : null);
+                        ? normImg(opt.existingImage) : null);
                     return (
                       <div key={i} className="rounded-xl border border-gray-100 dark:border-navy-700 p-3">
                         <div className="flex items-center gap-2">
@@ -478,6 +491,7 @@ const QuestionManagerPage = () => {
               </div>
             )}
 
+            {/* NAT */}
             {form.type === "NAT" && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -499,6 +513,7 @@ const QuestionManagerPage = () => {
               </div>
             )}
 
+            {/* Marks / topic / difficulty */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-gray-100 dark:border-navy-700">
               <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">+Marks Override</label>
@@ -530,6 +545,7 @@ const QuestionManagerPage = () => {
               </div>
             </div>
 
+            {/* Submit */}
             <div className="flex gap-2 pt-2">
               <button
                 onClick={handleSubmit}
@@ -550,6 +566,7 @@ const QuestionManagerPage = () => {
         </Card>
       )}
 
+      {/* Question list */}
       <Card extra="w-full p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-bold text-navy-700 dark:text-white">
@@ -610,9 +627,10 @@ const QuestionManagerPage = () => {
                   <p className="text-sm text-navy-700 dark:text-white line-clamp-2">{q.text}</p>
                   {q.questionImage && (
                     <img
-                      src={`${BACKEND}/${q.questionImage}`}
+                      src={normImg(q.questionImage)}
                       alt="question"
                       className="mt-1.5 h-16 max-w-[120px] object-contain rounded-lg border border-gray-100"
+                      onError={(e) => { e.currentTarget.style.display = "none"; }}
                     />
                   )}
                   {q.type !== "NAT" && q.options?.length > 0 && (

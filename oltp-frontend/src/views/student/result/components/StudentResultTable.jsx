@@ -6,6 +6,13 @@ import { MdArrowBack } from "react-icons/md";
 
 const BACKEND = process.env.REACT_APP_BACKEND_URL;
 
+const normImg = (p) => {
+  if (!p) return null;
+  const n = String(p).replace(/\\/g, "/").replace(/^\/+/, "");
+  if (n.startsWith("http://") || n.startsWith("https://")) return n;
+  return `${BACKEND}/${n}`;
+};
+
 const isCorrect = (scoreQ, question) => {
   const chosen = scoreQ.chosenAnswer;
   const correct = scoreQ.correctAnswer;
@@ -30,17 +37,20 @@ const OptionRow = ({ opt, oi, isChosenOpt, isCorrectOpt }) => {
   else if (isChosenOpt && !isCorrectOpt) cls = "bg-red-200 border border-red-400 dark:text-gray-800";
   else if (isCorrectOpt) cls = "bg-green-100 border border-green-300 dark:text-gray-800";
 
+  const optImgSrc = normImg(opt.image);
+
   return (
     <div className={`rounded-lg p-2.5 ${cls}`}>
       <div className="flex items-start gap-2">
         <span className="font-bold text-sm flex-shrink-0">{String.fromCharCode(65 + oi)}.</span>
         <div className="min-w-0 flex-1">
           <span className="text-sm">{opt.text}</span>
-          {opt.image && (
+          {optImgSrc && (
             <img
-              src={`${BACKEND}/${opt.image}`}
+              src={optImgSrc}
               alt=""
               className="mt-1.5 max-h-20 max-w-[140px] object-contain rounded-lg border border-gray-200 bg-gray-50"
+              onError={(e) => { e.currentTarget.style.display = "none"; }}
             />
           )}
         </div>
@@ -82,9 +92,10 @@ const QuestionResult = ({ question, scoreQ, index }) => {
     ? "border-green-200 bg-green-50"
     : "border-red-200 bg-red-50";
 
+  const qImgSrc = normImg(question?.questionImage);
+
   return (
     <li className={`rounded-xl border p-4 ${statusCls}`}>
-      {/* Question header */}
       <div className="mb-3 flex items-start justify-between gap-2">
         <div className="flex-1">
           <span className="text-[10px] font-bold uppercase text-gray-400 mr-2">Q{index + 1}</span>
@@ -108,11 +119,12 @@ const QuestionResult = ({ question, scoreQ, index }) => {
         </div>
       </div>
 
-      {question?.questionImage && (
+      {qImgSrc && (
         <img
-          src={`${BACKEND}/${question.questionImage}`}
+          src={qImgSrc}
           alt="question"
           className="mb-3 max-h-48 max-w-full object-contain rounded-lg border border-gray-200 bg-gray-50"
+          onError={(e) => { e.currentTarget.style.display = "none"; }}
         />
       )}
 

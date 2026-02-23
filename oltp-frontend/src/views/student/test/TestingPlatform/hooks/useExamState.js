@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 
 export const STATUS = {
   0: { bg: "bg-gray-100 text-gray-500 border-gray-300", label: "Not Visited" },
@@ -23,17 +23,14 @@ export const answersEqual = (a, b) => {
   return String(a) === String(b);
 };
 
-/** Canonical correct-answer value for each question type */
 export const getCorrectAnswer = (q) => {
   if (q.type === "MSQ") return (q.correctOptions || []).map(Number);
   if (q.type === "NAT") return { min: q.natMin, max: q.natMax };
-  // MCQ: normalise to number if possible
   const val = q.correctOption;
   const num = Number(val);
   return isNaN(num) ? val : num;
 };
 
-/** Score a single question given chosen answer and paper settings */
 export const scoreQuestion = (q, chosen, paper) => {
   const marksEach = parseFloat(paper?.marksPerQuestion) || 4;
   const marks = parseFloat(q.marksPositive) > 0 ? parseFloat(q.marksPositive) : marksEach;
@@ -54,7 +51,6 @@ export const scoreQuestion = (q, chosen, paper) => {
       chosenArr.length === correctArr.length &&
       chosenArr.every((c) => correctArr.includes(c));
   } else {
-    // MCQ — chosen may be a bare number or single-element array
     const chosenVal = Array.isArray(chosen) ? chosen[0] : chosen;
     isCorrect = String(chosenVal) === String(q.correctOption);
   }
@@ -70,32 +66,43 @@ export const useExamAnswers = (questionCount) => {
   const [statuses, setStatuses] = useState(() => Array(questionCount).fill(0));
   const [currentIdx, setCurrentIdx] = useState(0);
 
-  const currentDraft = drafts[currentIdx];
-  const savedAnswer = answers[currentIdx];
+  // When questions finish loading (count goes from 0 → N), properly size
+  // all arrays. This handles the async fetch in testingScreen.
+  const didInitRef = useRef(questionCount > 0);
+  useEffect(() => {
+    if (questionCount > 0 && !didInitRef.current) {
+      didInitRef.current = true;
+      setAnswers(Array(questionCount).fill(null));
+      setDrafts(Array(questionCount).fill(null));
+      setStatuses(Array(questionCount).fill(0));
+    }
+  }, [questionCount]);
+
+  const currentDraft = drafts[currentIdx] ?? null;
+  const savedAnswer = answers[currentIdx] ?? null;
   const hasDraft = !answersEqual(currentDraft, savedAnswer);
 
-  /** Restore from persisted state */
   const restore = useCallback((savedAnswers, savedStatuses, savedIdx) => {
     setAnswers(savedAnswers);
-    setDrafts(savedAnswers.map((a) => a)); // draft mirrors saved on restore
+    setDrafts(savedAnswers.map((a) => a));
     setStatuses(savedStatuses);
     setCurrentIdx(savedIdx || 0);
+    // Mark as initialized so the size-init effect above does not overwrite
+    didInitRef.current = true;
   }, []);
 
-  /** Update draft for current question */
   const updateDraft = useCallback((type, optIdx) => {
     setDrafts((prev) => {
       const next = [...prev];
-      const cur = prev[currentIdx];
+      const cur = prev[currentIdx] ?? null;
       if (type === "NAT") {
-        next[currentIdx] = optIdx; // raw string/number from input
+        next[currentIdx] = optIdx;
       } else if (type === "MSQ") {
         const arr = Array.isArray(cur) ? cur : [];
         next[currentIdx] = arr.includes(optIdx)
           ? arr.filter((x) => x !== optIdx)
           : [...arr, optIdx];
       } else {
-        // MCQ — store bare number (not array)
         next[currentIdx] = cur === optIdx ? null : optIdx;
       }
       return next;
@@ -106,9 +113,8 @@ export const useExamAnswers = (questionCount) => {
     setDrafts((prev) => { const n = [...prev]; n[currentIdx] = null; return n; });
   }, [currentIdx]);
 
-  /** Commit current draft → saved answer */
   const commitDraft = useCallback(() => {
-    const draft = drafts[currentIdx];
+    const draft = drafts[currentIdx] ?? null;
     setAnswers((prev) => {
       const n = [...prev];
       n[currentIdx] = answerIsEmpty(draft) ? null : draft;
@@ -124,17 +130,15 @@ export const useExamAnswers = (questionCount) => {
     return answerIsEmpty(draft) ? null : draft;
   }, [currentIdx, drafts]);
 
-  /** Navigate to a question, marking as "visited" if first time */
   const goTo = useCallback((idx) => {
     setCurrentIdx(idx);
     setStatuses((prev) => {
-      if (prev[idx] !== 0) return prev;
+      if (prev[idx] !== 0 && prev[idx] !== undefined) return prev;
       const n = [...prev]; n[idx] = 1; return n;
     });
-    // Sync draft to saved answer when switching
     setDrafts((prev) => {
       const n = [...prev];
-      n[idx] = answers[idx];
+      n[idx] = answers[idx] ?? null;
       return n;
     });
   }, [answers]);
@@ -154,7 +158,7 @@ export const useExamAnswers = (questionCount) => {
   const stats = useMemo(() => ({
     answered: answers.filter((a) => !answerIsEmpty(a)).length,
     marked: statuses.filter((s) => s === 3 || s === 4).length,
-    notVisited: statuses.filter((s) => s === 0).length,
+    notVisited: statuses.filter((s) => s === 0 || s === undefined).length,
     notAnswered: statuses.filter((s) => s === 1).length,
     answeredMarked: statuses.filter((s) => s === 4).length,
     markedOnly: statuses.filter((s) => s === 3).length,

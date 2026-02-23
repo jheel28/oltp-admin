@@ -1,11 +1,20 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-export const useProctoring = ({ phase, onAutoSubmit, onPersist }) => {
-  const [violations, setViolations] = useState(0);
+const violationsKey = (testId) => `oltp_violations_${testId}`;
+
+export const useProctoring = ({ phase, testId, onAutoSubmit, onPersist }) => {
+  const [violations, setViolations] = useState(() => {
+    if (!testId) return 0;
+    const saved = sessionStorage.getItem(violationsKey(testId));
+    return saved ? parseInt(saved, 10) : 0;
+  });
   const [isFullscreen, setIsFullscreen] = useState(false);
   const submitFiredRef = useRef(false);
 
-  // Fullscreen change listener
+  useEffect(() => {
+    if (testId) sessionStorage.setItem(violationsKey(testId), String(violations));
+  }, [violations, testId]);
+
   useEffect(() => {
     const onFSChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", onFSChange);
@@ -22,10 +31,8 @@ export const useProctoring = ({ phase, onAutoSubmit, onPersist }) => {
     } catch { /* user may deny */ }
   }, []);
 
-  // Tab-switch / visibility detection
   useEffect(() => {
     if (phase !== "exam") return;
-
     const onVisChange = () => {
       if (!document.hidden) return;
       onPersist?.();
@@ -38,12 +45,10 @@ export const useProctoring = ({ phase, onAutoSubmit, onPersist }) => {
         return next;
       });
     };
-
     document.addEventListener("visibilitychange", onVisChange);
     return () => document.removeEventListener("visibilitychange", onVisChange);
   }, [phase, onAutoSubmit, onPersist]);
 
-  // Block right-click & dangerous keyboard shortcuts during exam
   useEffect(() => {
     if (phase !== "exam") return;
     const noCtx = (e) => e.preventDefault();
@@ -59,7 +64,6 @@ export const useProctoring = ({ phase, onAutoSubmit, onPersist }) => {
     };
   }, [phase]);
 
-  // Warn before unload
   useEffect(() => {
     if (phase !== "exam") return;
     const onUnload = (e) => {
@@ -71,7 +75,10 @@ export const useProctoring = ({ phase, onAutoSubmit, onPersist }) => {
     return () => window.removeEventListener("beforeunload", onUnload);
   }, [phase, onPersist]);
 
-  const markSubmitFired = () => { submitFiredRef.current = true; };
+  const markSubmitFired = useCallback(() => {
+    submitFiredRef.current = true;
+    if (testId) sessionStorage.removeItem(violationsKey(testId));
+  }, [testId]);
 
   return { violations, isFullscreen, toggleFullscreen, markSubmitFired };
 };

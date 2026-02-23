@@ -20,6 +20,8 @@ const scoreRoutes = require("./Routes/v1/Score-Routes");
 const questionRoutes = require("./Routes/v1/Question-Routes");
 const categoryRoutes = require("./Routes/v1/Category-Routes");
 
+const allowedOrigin = process.env.CORS_ORIGIN || "http://localhost:3000";
+
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -29,7 +31,9 @@ app.use(
         imgSrc: [
           "'self'",
           "data:",
-          process.env.CORS_ORIGIN || "http://localhost:3000",
+          "blob:",
+          allowedOrigin,
+          process.env.BACKEND_URL || "http://localhost:5000",
         ],
         scriptSrc: ["'self'"],
         styleSrc: ["'self'", "https:", "'unsafe-inline'"],
@@ -39,19 +43,27 @@ app.use(
 );
 
 app.use(morgan("combined"));
-app.use(bodyParser.json({ limit: "2mb" }));
-app.use(
-  cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
-    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  }),
-);
+app.use(bodyParser.json({ limit: "10mb" }));
+
+const corsOptions = {
+  origin: allowedOrigin,
+  methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(mongoSanitize());
 
 app.use(
   "/uploads/images",
+  cors(corsOptions),
+  (req, res, next) => {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+    next();
+  },
   express.static(path.join(__dirname, "uploads", "images")),
 );
 

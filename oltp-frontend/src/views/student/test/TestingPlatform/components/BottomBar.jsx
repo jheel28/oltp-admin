@@ -1,35 +1,38 @@
 import React from "react";
 import { AiOutlineArrowLeft, AiOutlineArrowRight, AiOutlineCalculator } from "react-icons/ai";
+import { MdOutlineBookmarkAdd, MdBookmark } from "react-icons/md";
+import { IoCheckmarkCircleOutline } from "react-icons/io5";
+import { MdClear } from "react-icons/md";
 
 const BottomBar = ({
-  currentIdx, totalQuestions, allowCalculator,
-  onPrev, onNext, onSaveNext, onMarkNext, onClear, onEndTest, onToggleCalc,
+  currentIdx,
+  totalQuestions,
+  allowCalculator,
+  isMarked,
+  onPrev,
+  onSaveNext,
+  onMarkSaveNext,
+  onClear,
+  onToggleCalc,
 }) => {
   return (
     <div className="flex flex-none flex-wrap items-center justify-between gap-2 border-t border-gray-200 bg-white px-4 py-3 shadow-lg">
-      {/* Previous */}
-      <button
-        onClick={onPrev}
-        disabled={currentIdx === 0}
-        className="flex items-center gap-1.5 rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-200 disabled:opacity-40 transition"
-      >
-        <AiOutlineArrowLeft /> Previous
-      </button>
-
-      {/* Center actions */}
       <div className="flex items-center gap-2">
         <button
-          onClick={onClear}
-          className="rounded-xl border border-red-200 px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 transition"
+          onClick={onPrev}
+          disabled={currentIdx === 0}
+          className="flex items-center gap-1.5 rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-200 disabled:opacity-40 transition"
         >
-          Clear
+          <AiOutlineArrowLeft /> Prev
         </button>
+
         <button
-          onClick={onMarkNext}
-          className="rounded-xl border border-purple-300 px-4 py-2.5 text-sm font-bold text-purple-600 hover:bg-purple-50 transition"
+          onClick={onClear}
+          className="flex items-center gap-1.5 rounded-xl border border-red-200 px-3 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 transition"
         >
-          Mark & Next
+          <MdClear className="h-4 w-4" /> Clear
         </button>
+
         {allowCalculator && (
           <button
             onClick={onToggleCalc}
@@ -41,13 +44,33 @@ const BottomBar = ({
         )}
       </div>
 
-      {/* Save & Next */}
-      <button
-        onClick={onSaveNext}
-        className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-200 hover:bg-blue-700 transition"
-      >
-        Save & Next <AiOutlineArrowRight />
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={onMarkSaveNext}
+          title={isMarked ? "Unmark and save" : "Mark for review and save"}
+          className={`flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-bold transition shadow-sm ${
+            isMarked
+              ? "bg-purple-500 text-white hover:bg-purple-600 shadow-purple-200"
+              : "bg-amber-400 text-amber-950 hover:bg-amber-500"
+          }`}
+        >
+          {isMarked ? (
+            <MdBookmark className="h-4 w-4" />
+          ) : (
+            <MdOutlineBookmarkAdd className="h-4 w-4" />
+          )}
+          {isMarked ? "Marked" : "Mark & Save"}
+        </button>
+
+        <button
+          onClick={onSaveNext}
+          className="flex items-center gap-1.5 rounded-xl bg-green-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-green-200 hover:bg-green-600 transition"
+        >
+          <IoCheckmarkCircleOutline className="h-4 w-4" />
+          Save & Next
+          <AiOutlineArrowRight />
+        </button>
+      </div>
     </div>
   );
 };
@@ -55,11 +78,17 @@ const BottomBar = ({
 export const MobileBar = ({ allowCalculator, onToggleCalc, onEndTest }) => (
   <div className="fixed bottom-0 left-0 right-0 z-20 flex items-center justify-between gap-2 border-t border-gray-200 bg-white px-4 py-2 lg:hidden">
     {allowCalculator && (
-      <button onClick={onToggleCalc} className="rounded-lg border p-2 text-gray-500">
+      <button
+        onClick={onToggleCalc}
+        className="rounded-lg border border-gray-200 p-2 text-gray-500 hover:bg-gray-50"
+      >
         <AiOutlineCalculator />
       </button>
     )}
-    <button onClick={onEndTest} className="flex-1 rounded-xl bg-[#1a2744] py-2.5 text-sm font-black text-white">
+    <button
+      onClick={onEndTest}
+      className="flex-1 rounded-xl bg-[#1a2744] py-2.5 text-sm font-black text-white"
+    >
       End Test
     </button>
   </div>
