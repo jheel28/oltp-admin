@@ -36,7 +36,7 @@ export default function SignIn() {
       const backendUrl =
         process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
       const response = await fetch(
-        `${backendUrl}/api/beta/${roleFromUrl}/login`,
+        `${backendUrl}/api/v1/${roleFromUrl}/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

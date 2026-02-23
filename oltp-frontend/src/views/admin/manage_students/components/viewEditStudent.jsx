@@ -16,7 +16,7 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
     const fetchBatches = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/get/all/batches`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/get/all/batches`
         );
         const data = await response.json();
         setBatches(data.batches || []);
@@ -40,7 +40,7 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
       });
 
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/update/student/byid/${editedData._id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/update/student/byid/${editedData._id}`,
         {
           method: "PATCH",
           body: formData,

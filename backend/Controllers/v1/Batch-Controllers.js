@@ -1,7 +1,7 @@
-const HttpError = require("../Middleware/http-error");
+const HttpError = require("../../Middleware/http-error");
 const { validationResult } = require("express-validator");
-const Batch = require("../Models/Batch");
-const Student = require("../Models/Student");
+const Batch = require("../../Models/Batch");
+const Student = require("../../Models/Student");
 
 const DEFAULT_BATCH_NAME = "Default";
 

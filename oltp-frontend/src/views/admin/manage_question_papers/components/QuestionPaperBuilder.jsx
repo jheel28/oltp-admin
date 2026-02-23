@@ -87,8 +87,8 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
       setLoadingMeta(true);
       try {
         const [cRes, bRes] = await Promise.all([
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/category/get/all`),
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/get/all/batches`),
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/category/get/all`),
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/get/all/batches`),
         ]);
         const cData = await cRes.json();
         const bData = await bRes.json();
@@ -109,7 +109,7 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
       setLoadingPaper(true);
       try {
         const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/questionpaper/get/questionpaper/byid/${id}`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/questionpaper/get/questionpaper/byid/${id}`,
           { headers: { Authorization: "Bearer " + auth.token } }
         );
         const data = await res.json();
@@ -195,8 +195,8 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
       };
 
       const url = mode === "create"
-        ? `${process.env.REACT_APP_BACKEND_URL}/api/beta/questionpaper/create/questionpaper`
-        : `${process.env.REACT_APP_BACKEND_URL}/api/beta/questionpaper/update/questionpaper/byid/${id}`;
+        ? `${process.env.REACT_APP_BACKEND_URL}/api/v1/questionpaper/create/questionpaper`
+        : `${process.env.REACT_APP_BACKEND_URL}/api/v1/questionpaper/update/questionpaper/byid/${id}`;
       const method = mode === "create" ? "POST" : "PATCH";
 
       const res = await fetch(url, {

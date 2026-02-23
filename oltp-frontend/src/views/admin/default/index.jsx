@@ -20,7 +20,7 @@ const Dashboard = () => {
     const fetchStudents = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/all/students`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/all/students`
         );
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
@@ -33,7 +33,7 @@ const Dashboard = () => {
     const fetchTests = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/all/tests`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/test/get/all/tests`
         );
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
@@ -46,7 +46,7 @@ const Dashboard = () => {
     const fetchBatches = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/get/all/batches`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/get/all/batches`
         );
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();

@@ -72,11 +72,11 @@ const ResultsDashboard = () => {
     setLoading(true);
     try {
       const [sRes, tRes, bRes] = await Promise.all([
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/all/scores`, {
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/score/get/all/scores`, {
           headers: { Authorization: "Bearer " + auth.token },
         }),
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/all/tests`),
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/get/all/batches`),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/test/get/all/tests`),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/get/all/batches`),
       ]);
       const sData = await sRes.json();
       const tData = await tRes.json();

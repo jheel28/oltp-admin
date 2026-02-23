@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const { check } = require("express-validator");
-const ctrl = require("../Controllers/Question-Controllers");
-const imageUpload = require("../Middleware/image-upload");
-const checkAuth = require("../Middleware/check-auth");
+const ctrl = require("../../Controllers/v1/Question-Controllers");
+const imageUpload = require("../../Middleware/image-upload");
+const checkAuth = require("../../Middleware/check-auth");
 
 router.get(
   "/get/all/questions",

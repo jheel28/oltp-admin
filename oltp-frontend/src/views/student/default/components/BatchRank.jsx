@@ -12,8 +12,8 @@ const BatchRank = ({ studentId, batch }) => {
     const compute = async () => {
       try {
         const [studRes, scoreRes] = await Promise.all([
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/all/students`),
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/all/scores`),
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/all/students`),
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/score/get/all/scores`),
         ]);
         const studData = await studRes.json();
         const scoreData = await scoreRes.json();

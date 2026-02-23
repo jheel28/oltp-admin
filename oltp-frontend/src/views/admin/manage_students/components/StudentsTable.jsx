@@ -33,8 +33,8 @@ const StudentsTable = () => {
     setLoading(true);
     try {
       const [sRes, bRes] = await Promise.all([
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/all/students`),
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/get/all/batches`),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/all/students`),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/get/all/batches`),
       ]);
       const sData = await sRes.json();
       const bData = await bRes.json();
@@ -92,7 +92,7 @@ const StudentsTable = () => {
   const deleteStudent = async (id) => {
     try {
       const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/delete/student/byid/${id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/delete/student/byid/${id}`,
         { method: "DELETE", headers: { Authorization: "Bearer " + auth.token } }
       );
       if (!res.ok) throw new Error();
@@ -128,7 +128,7 @@ const StudentsTable = () => {
         try {
           await Promise.all(
             ids.map((id) =>
-              fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/student/delete/student/byid/${id}`, {
+              fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/student/delete/student/byid/${id}`, {
                 method: "DELETE",
                 headers: { Authorization: "Bearer " + auth.token },
               })

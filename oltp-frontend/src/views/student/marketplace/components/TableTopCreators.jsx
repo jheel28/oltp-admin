@@ -18,7 +18,7 @@ function TopCreatorTable(props) {
     const fetchData = async () => {
       try {
         const studentsResponse = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/all/students`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/all/students`
         );
         if (!studentsResponse.ok) {
           throw new Error(`HTTP error! Status:${studentsResponse.status}`);
@@ -26,7 +26,7 @@ function TopCreatorTable(props) {
         const studentsData = await studentsResponse.json();
 
         const scoresResponse = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/all/scores`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/score/get/all/scores`
         );
         if (!scoresResponse.ok) {
           throw new Error(`HTTP error! Status:${scoresResponse.status}`);

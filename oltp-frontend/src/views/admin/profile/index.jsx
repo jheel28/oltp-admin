@@ -32,7 +32,7 @@ const AdminProfile = () => {
   const fetchAdmin = async () => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/admin/get/admin/byid/${auth.userId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/admin/get/admin/byid/${auth.userId}`,
         { headers: { Authorization: "Bearer " + auth.token } }
       );
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
@@ -52,7 +52,7 @@ const AdminProfile = () => {
     setInfoLoading(true);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/admin/update/admin/byid/${admin._id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/admin/update/admin/byid/${admin._id}`,
         {
           method: "PATCH",
           headers: {
@@ -89,7 +89,7 @@ const AdminProfile = () => {
       const formData = new FormData();
       formData.append("image", profileImage);
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/admin/update/image/byid/${auth.userId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/admin/update/image/byid/${auth.userId}`,
         {
           method: "PATCH",
           body: formData,
@@ -127,7 +127,7 @@ const AdminProfile = () => {
     setPasswordLoading(true);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/admin/update/password/byemail/${auth.email}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/admin/update/password/byemail/${auth.email}`,
         {
           method: "PATCH",
           headers: {

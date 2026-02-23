@@ -10,7 +10,7 @@ const PieChartCard = () => {
     const fetchStudents = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/all/students`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/all/students`
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status ${response.status}`);

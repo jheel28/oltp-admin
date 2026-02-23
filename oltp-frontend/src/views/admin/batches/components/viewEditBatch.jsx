@@ -49,7 +49,7 @@ const ViewEditBatch = ({ batchData, onUpdate, onBack }) => {
   const onFinish = async (values) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/update/batch/byid/${editedData._id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/update/batch/byid/${editedData._id}`,
         {
           method: "PATCH",
           headers: {

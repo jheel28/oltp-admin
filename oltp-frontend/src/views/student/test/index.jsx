@@ -14,10 +14,10 @@ const Marketplace = () => {
     const fetchData = async () => {
       try {
         const testResponse = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/all/tests`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/test/get/all/tests`
         );
         const studentResponse = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/student/byid/${auth.userId}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/student/byid/${auth.userId}`
         );
 
         if (!testResponse.ok || !studentResponse.ok) {
@@ -34,7 +34,7 @@ const Marketplace = () => {
 
         if (studentData.student && studentData.student.studentId) {
           const scoreResponse = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/attempted/tests/bystudentid/${studentData.student.studentId}`
+            `${process.env.REACT_APP_BACKEND_URL}/api/v1/score/get/attempted/tests/bystudentid/${studentData.student.studentId}`
           );
 
           if (!scoreResponse.ok) {

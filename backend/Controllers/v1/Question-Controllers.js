@@ -1,7 +1,7 @@
-const HttpError = require("../Middleware/http-error");
+const HttpError = require("../../Middleware/http-error");
 const { validationResult } = require("express-validator");
-const Question = require("../Models/Question");
-const QuestionPaper = require("../Models/QuestionPaper");
+const Question = require("../../Models/Question");
+const QuestionPaper = require("../../Models/QuestionPaper");
 
 const _syncPaperTotals = async (paperId) => {
   const paper = await QuestionPaper.findOne({ paperId });

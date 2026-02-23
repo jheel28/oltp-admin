@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const testControllers = require("../Controllers/Test-Controllers");
 const { check } = require("express-validator");
-const checkAuth = require("../Middleware/check-auth");
+const testControllers = require("../../Controllers/v1/Test-Controllers");
+const checkAuth = require("../../Middleware/check-auth");
 
 router.get("/get/all/tests", testControllers.getAllTests);
 router.get("/get/test/bytestid/:testId", testControllers.getTestByTestId);

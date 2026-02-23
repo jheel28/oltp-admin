@@ -1,10 +1,10 @@
 const express = require("express");
 const { check } = require("express-validator");
 const router = express.Router();
-const studentControllers = require("../Controllers/Student-Controllers");
-const imageUpload = require("../Middleware/image-upload");
-const checkAuth = require("../Middleware/check-auth");
-const { loginRateLimiter } = require("../Middleware/rate-limiter");
+const studentControllers = require("../../Controllers/v1/Student-Controllers");
+const imageUpload = require("../../Middleware/image-upload");
+const checkAuth = require("../../Middleware/check-auth");
+const { loginRateLimiter } = require("../../Middleware/rate-limiter");
 
 router.get("/get/all/students",       checkAuth("Admin"),                studentControllers.getAllStudents);
 router.get("/get/student/byid/:id",   checkAuth(["Admin", "Student"]),   studentControllers.getStudentById);

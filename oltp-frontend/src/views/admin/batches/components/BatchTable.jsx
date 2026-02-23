@@ -30,8 +30,8 @@ const BatchTable = () => {
     setLoading(true);
     try {
       const [bRes, sRes] = await Promise.all([
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/get/all/batches`),
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/all/students`),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/get/all/batches`),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/all/students`),
       ]);
       const bData = await bRes.json();
       const sData = await sRes.json();
@@ -99,7 +99,7 @@ const BatchTable = () => {
     if (!editingName.trim()) { message.warning("Batch name cannot be empty"); return; }
     try {
       const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/update/batch/byid/${id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/update/batch/byid/${id}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json", Authorization: "Bearer " + auth.token },
@@ -133,7 +133,7 @@ const BatchTable = () => {
       onOk: async () => {
         try {
           const res = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/delete/batch/byid/${id}`,
+            `${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/delete/batch/byid/${id}`,
             { method: "DELETE", headers: { Authorization: "Bearer " + auth.token } }
           );
           if (!res.ok) {
@@ -169,7 +169,7 @@ const BatchTable = () => {
         try {
           await Promise.all(
             ids.map((id) =>
-              fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/delete/batch/byid/${id}`, {
+              fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/delete/batch/byid/${id}`, {
                 method: "DELETE",
                 headers: { Authorization: "Bearer " + auth.token },
               })
@@ -197,7 +197,7 @@ const BatchTable = () => {
       const srcStudents = students.filter((s) => s.batch === srcBatch?.batchName);
       await Promise.all(
         srcStudents.map((s) =>
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/student/update/student/byid/${s._id}`, {
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/student/update/student/byid/${s._id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json", Authorization: "Bearer " + auth.token },
             body: JSON.stringify({ batch: tgtBatch?.batchName }),
@@ -205,7 +205,7 @@ const BatchTable = () => {
         )
       );
       await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/delete/batch/byid/${mergeSource}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/delete/batch/byid/${mergeSource}`,
         { method: "DELETE", headers: { Authorization: "Bearer " + auth.token } }
       );
       message.success(`Merged ${srcStudents.length} student(s) into "${tgtBatch?.batchName}"`);

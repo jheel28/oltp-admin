@@ -51,9 +51,9 @@ const QuestionManagerPage = () => {
       setLoading(true);
       try {
         const [paperRes, qRes] = await Promise.all([
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/questionpaper/get/questionpaper/bypaperid/${paperId}`),
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/questionpaper/get/questionpaper/bypaperid/${paperId}`),
           fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/beta/question/get/questions/bypaperid/${paperId}`,
+            `${process.env.REACT_APP_BACKEND_URL}/api/v1/question/get/questions/bypaperid/${paperId}`,
             { headers: { Authorization: "Bearer " + auth.token } }
           ),
         ]);
@@ -141,8 +141,8 @@ const QuestionManagerPage = () => {
       cleanPayload.options = JSON.stringify(cleanPayload.options || []);
 
       const url = editingId
-        ? `${process.env.REACT_APP_BACKEND_URL}/api/beta/question/update/question/byid/${editingId}`
-        : `${process.env.REACT_APP_BACKEND_URL}/api/beta/question/create/question`;
+        ? `${process.env.REACT_APP_BACKEND_URL}/api/v1/question/update/question/byid/${editingId}`
+        : `${process.env.REACT_APP_BACKEND_URL}/api/v1/question/create/question`;
       const method = editingId ? "PATCH" : "POST";
 
       const res = await fetch(url, {
@@ -160,7 +160,7 @@ const QuestionManagerPage = () => {
       }
 
       const paperRes = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/questionpaper/get/questionpaper/bypaperid/${paperId}`
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/questionpaper/get/questionpaper/bypaperid/${paperId}`
       );
       const paperData = await paperRes.json();
       if (paperData.questionPaper) setPaper(paperData.questionPaper);
@@ -177,14 +177,14 @@ const QuestionManagerPage = () => {
   const handleDelete = async (qId) => {
     try {
       const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/question/delete/question/byid/${qId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/question/delete/question/byid/${qId}`,
         { method: "DELETE", headers: { Authorization: "Bearer " + auth.token } }
       );
       if (!res.ok) throw new Error();
       setQuestions((prev) => prev.filter((q) => q._id !== qId));
 
       const paperRes = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/questionpaper/get/questionpaper/bypaperid/${paperId}`
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/questionpaper/get/questionpaper/bypaperid/${paperId}`
       );
       const paperData = await paperRes.json();
       if (paperData.questionPaper) setPaper(paperData.questionPaper);

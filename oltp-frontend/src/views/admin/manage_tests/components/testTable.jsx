@@ -58,9 +58,9 @@ const TestTable = () => {
     setLoading(true);
     try {
       const [tRes, cRes, bRes] = await Promise.all([
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/all/tests`),
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/category/get/all`),
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/get/all/batches`),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/test/get/all/tests`),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/category/get/all`),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/get/all/batches`),
       ]);
       const tData = await tRes.json();
       const cData = await cRes.json();
@@ -101,7 +101,7 @@ const TestTable = () => {
 
   const deleteTest = async (id) => {
     try {
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/test/delete/test/byid/${id}`, {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/test/delete/test/byid/${id}`, {
         method: "DELETE",
         headers: { Authorization: "Bearer " + auth.token },
       });
@@ -130,7 +130,7 @@ const TestTable = () => {
       onOk: async () => {
         try {
           await Promise.all(ids.map((id) =>
-            fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/test/delete/test/byid/${id}`, {
+            fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/test/delete/test/byid/${id}`, {
               method: "DELETE", headers: { Authorization: "Bearer " + auth.token },
             })
           ));

@@ -20,7 +20,7 @@ const AddBatchForm = ({ onSubmit, onCancel }) => {
     setLoading(true);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/create/batch`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/create/batch`,
         {
           method: "POST",
           headers: {

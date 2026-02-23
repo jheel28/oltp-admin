@@ -15,7 +15,7 @@ const Sidebar = ({ open, onClose }) => {
     const fetchAdmin = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/admin/get/admin/byid/${auth.userId}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/admin/get/admin/byid/${auth.userId}`
         );
 
         if (!response.ok) {

@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { check } = require("express-validator");
-const ctrl = require("../Controllers/QuestionPaper-Controllers");
-const checkAuth = require("../Middleware/check-auth");
+const ctrl = require("../../Controllers/v1/QuestionPaper-Controllers");
+const checkAuth = require("../../Middleware/check-auth");
 
 router.get("/get/all/questionpapers", ctrl.getAllQuestionPapers);
 router.get("/get/questionpaper/byid/:id", ctrl.getQuestionPaperById);

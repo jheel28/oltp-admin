@@ -29,7 +29,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
     const fetchBatches = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/get/all/batches`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/get/all/batches`
         );
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
@@ -78,7 +78,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
       }
 
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/create/student`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/create/student`,
         {
           method: "POST",
           body: formDataToSend,

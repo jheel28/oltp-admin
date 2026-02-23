@@ -28,8 +28,8 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const [testResponse, studentResponse] = await Promise.all([
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/all/tests`),
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/student/byid/${auth.userId}`),
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/test/get/all/tests`),
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/student/byid/${auth.userId}`),
         ]);
 
         if (!testResponse.ok || !studentResponse.ok) {
@@ -44,7 +44,7 @@ const Dashboard = () => {
 
         if (studentData.student?.studentId) {
           const scoreResponse = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/attempted/tests/bystudentid/${studentData.student.studentId}`
+            `${process.env.REACT_APP_BACKEND_URL}/api/v1/score/get/attempted/tests/bystudentid/${studentData.student.studentId}`
           );
           if (scoreResponse.ok) {
             const scoreData = await scoreResponse.json();

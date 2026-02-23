@@ -16,7 +16,7 @@ const StudentSidebar = ({ open, onClose }) => {
     const fetchStudent = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/student/byid/${auth.userId}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/student/byid/${auth.userId}`
         );
 
         if (!response.ok) {

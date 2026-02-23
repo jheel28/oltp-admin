@@ -1,8 +1,8 @@
-const HttpError = require("../Middleware/http-error");
+const HttpError = require("../../Middleware/http-error");
 const { validationResult } = require("express-validator");
-const Score = require("../Models/Score");
-const Student = require("../Models/Student");
-const Test = require("../Models/Test");
+const Score = require("../../Models/Score");
+const Student = require("../../Models/Student");
+const Test = require("../../Models/Test");
 
 const createScore = async (req, res, next) => {
   const errors = validationResult(req);

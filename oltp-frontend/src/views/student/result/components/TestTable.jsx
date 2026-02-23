@@ -21,7 +21,7 @@ const TestsTable = () => {
     const fetchScores = async () => {
       try {
         const studentResponse = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/student/byid/${auth.userId}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/student/byid/${auth.userId}`
         );
         if (!studentResponse.ok) {
           throw new Error(`HTTP error! Status: ${studentResponse.status}`);
@@ -30,7 +30,7 @@ const TestsTable = () => {
         setStudent(studentData.student);
 
         const scoreResponse = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/attempted/tests/bystudentid/${studentData.student.studentId}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/score/get/attempted/tests/bystudentid/${studentData.student.studentId}`
         );
         if (!scoreResponse.ok) {
           throw new Error(`HTTP error! Status: ${scoreResponse.status}`);
@@ -39,7 +39,7 @@ const TestsTable = () => {
         setScores(scoreData.tests);
 
         const testResponse = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/all/tests`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/test/get/all/tests`
         );
         if (!testResponse.ok) {
           throw new Error(`HTTP error! Status: ${testResponse.status}`);

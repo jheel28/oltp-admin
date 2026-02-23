@@ -59,7 +59,7 @@ const PaperSummaryCard = ({ paperId }) => {
       setNotFound(false);
       try {
         const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/questionpaper/get/questionpaper/summary/${paperId.trim()}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/questionpaper/get/questionpaper/summary/${paperId.trim()}`
         );
         if (res.status === 404) { setNotFound(true); setSummary(null); return; }
         const data = await res.json();
@@ -192,7 +192,7 @@ const TestFormWizard = ({ mode = "create" }) => {
   useEffect(() => {
     const fetchMeta = async () => {
       try {
-        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/batch/get/all/batches`);
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/get/all/batches`);
         const data = await res.json();
         setBatches(data.batches || []);
       } catch {
@@ -209,7 +209,7 @@ const TestFormWizard = ({ mode = "create" }) => {
     const fetchTest = async () => {
       try {
         const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/test/byid/${id}`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/test/get/test/byid/${id}`,
           { headers: { Authorization: "Bearer " + auth.token } }
         );
         const data = await res.json();
@@ -279,8 +279,8 @@ const TestFormWizard = ({ mode = "create" }) => {
       };
 
       const url = mode === "create"
-        ? `${process.env.REACT_APP_BACKEND_URL}/api/beta/test/create/test`
-        : `${process.env.REACT_APP_BACKEND_URL}/api/beta/test/update/test/byid/${id}`;
+        ? `${process.env.REACT_APP_BACKEND_URL}/api/v1/test/create/test`
+        : `${process.env.REACT_APP_BACKEND_URL}/api/v1/test/update/test/byid/${id}`;
       const method = mode === "create" ? "POST" : "PATCH";
 
       const res = await fetch(url, {

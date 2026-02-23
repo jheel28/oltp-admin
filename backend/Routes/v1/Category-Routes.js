@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { check } = require("express-validator");
-const categoryControllers = require("../Controllers/Category-Controllers");
-const checkAuth = require("../Middleware/check-auth");
+const categoryControllers = require("../../Controllers/v1/Category-Controllers");
+const checkAuth = require("../../Middleware/check-auth");
 
 router.get("/get/all", categoryControllers.getAllCategories);
 router.get("/get/:id", categoryControllers.getCategoryById);

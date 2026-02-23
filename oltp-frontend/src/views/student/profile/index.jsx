@@ -50,7 +50,7 @@ const StudentProfile = () => {
   const fetchStudent = async () => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/student/byid/${auth.userId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/student/byid/${auth.userId}`,
         { headers: { Authorization: "Bearer " + auth.token } }
       );
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
@@ -77,7 +77,7 @@ const StudentProfile = () => {
       });
 
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/update/student/student/byid/${auth.userId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/update/student/student/byid/${auth.userId}`,
         {
           method: "PATCH",
           body: payload,
@@ -108,7 +108,7 @@ const StudentProfile = () => {
       const formData = new FormData();
       formData.append("image", profileImage);
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/update/image/byid/${auth.userId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/update/image/byid/${auth.userId}`,
         {
           method: "PATCH",
           body: formData,
@@ -146,7 +146,7 @@ const StudentProfile = () => {
     setPasswordLoading(true);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/update/password/byemail/${auth.email}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/update/password/byemail/${auth.email}`,
         {
           method: "PATCH",
           headers: {

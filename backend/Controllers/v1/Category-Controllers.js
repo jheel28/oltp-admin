@@ -1,6 +1,6 @@
-const HttpError = require("../Middleware/http-error");
+const HttpError = require("../../Middleware/http-error");
 const { validationResult } = require("express-validator");
-const Category = require("../Models/Category");
+const Category = require("../../Models/Category");
 
 const createCategory = async (req, res, next) => {
   const errors = validationResult(req);

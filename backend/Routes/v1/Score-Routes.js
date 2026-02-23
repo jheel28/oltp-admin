@@ -1,8 +1,8 @@
 const express = require("express");
 const { check } = require("express-validator");
 const router = express.Router();
-const ctrl = require("../Controllers/Score-Controllers");
-const checkAuth = require("../Middleware/check-auth");
+const ctrl = require("../../Controllers/v1/Score-Controllers");
+const checkAuth = require("../../Middleware/check-auth");
 
 router.get("/get/all/scores", checkAuth("Admin"), ctrl.getAllScores);
 router.get("/get/scores/bystudentid/:studentId", ctrl.getScoresByStudentId);

@@ -22,7 +22,7 @@ const StudentRegister = () => {
         const backendUrl =
           process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
         const response = await fetch(
-          `${backendUrl}/api/beta/batch/get/all/batches`
+          `${backendUrl}/api/v1/batch/get/all/batches`
         );
         if (!response.ok) throw new Error("Failed to fetch batches");
         const data = await response.json();
@@ -100,7 +100,7 @@ const StudentRegister = () => {
 
       const backendUrl =
         process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
-      const response = await fetch(`${backendUrl}/api/beta/student/signup`, {
+      const response = await fetch(`${backendUrl}/api/v1/student/signup`, {
         method: "POST",
         body: formData,
       });

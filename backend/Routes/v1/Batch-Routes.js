@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { check } = require("express-validator");
-const batchControllers = require("../Controllers/Batch-Controllers");
-const checkAuth = require("../Middleware/check-auth");
+const batchControllers = require("../../Controllers/v1/Batch-Controllers");
+const checkAuth = require("../../Middleware/check-auth");
 
 router.get("/get/all/batches", batchControllers.getAllBatches);
 router.post(

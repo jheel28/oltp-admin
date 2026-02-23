@@ -11,14 +11,14 @@ const mongoSanitize = require("express-mongo-sanitize");
 const path = require("path");
 
 const HttpError = require("./Middleware/http-error");
-const adminRoutes = require("./Routes/Admin-Routes");
-const studentRoutes = require("./Routes/Student-Routes");
-const batchRoutes = require("./Routes/Batch-Routes");
-const questionPaperRoutes = require("./Routes/QuestionPaper-Routes");
-const testRoutes = require("./Routes/Test-Routes");
-const scoreRoutes = require("./Routes/Score-Routes");
-const questionRoutes = require("./Routes/Question-Routes");
-const categoryRoutes = require("./Routes/Category-Routes");
+const adminRoutes = require("./Routes/v1/Admin-Routes");
+const studentRoutes = require("./Routes/v1/Student-Routes");
+const batchRoutes = require("./Routes/v1/Batch-Routes");
+const questionPaperRoutes = require("./Routes/v1/QuestionPaper-Routes");
+const testRoutes = require("./Routes/v1/Test-Routes");
+const scoreRoutes = require("./Routes/v1/Score-Routes");
+const questionRoutes = require("./Routes/v1/Question-Routes");
+const categoryRoutes = require("./Routes/v1/Category-Routes");
 
 app.use(
   helmet({
@@ -55,14 +55,14 @@ app.use(
   express.static(path.join(__dirname, "uploads", "images")),
 );
 
-app.use("/api/beta/admin", adminRoutes);
-app.use("/api/beta/student", studentRoutes);
-app.use("/api/beta/batch", batchRoutes);
-app.use("/api/beta/questionpaper", questionPaperRoutes);
-app.use("/api/beta/test", testRoutes);
-app.use("/api/beta/score", scoreRoutes);
-app.use("/api/beta/question", questionRoutes);
-app.use("/api/beta/category", categoryRoutes);
+app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/student", studentRoutes);
+app.use("/api/v1/batch", batchRoutes);
+app.use("/api/v1/questionpaper", questionPaperRoutes);
+app.use("/api/v1/test", testRoutes);
+app.use("/api/v1/score", scoreRoutes);
+app.use("/api/v1/question", questionRoutes);
+app.use("/api/v1/category", categoryRoutes);
 
 app.get("/", (req, res) => {
   return res.status(200).json({ message: "API running" });

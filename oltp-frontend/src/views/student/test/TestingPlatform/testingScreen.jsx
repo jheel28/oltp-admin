@@ -449,7 +449,7 @@ const TestingScreen = () => {
       const totalMarks = paper.totalMarks;
       try {
         const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/create/score`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/score/create/score`,
           {
             method: "POST",
             headers: {
@@ -562,10 +562,10 @@ const TestingScreen = () => {
       try {
         const [testRes, studentRes] = await Promise.all([
           fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/test/byid/${id}`
+            `${process.env.REACT_APP_BACKEND_URL}/api/v1/test/get/test/byid/${id}`
           ),
           fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/student/byid/${auth.userId}`
+            `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/student/byid/${auth.userId}`
           ),
         ]);
         const testData = await testRes.json();
@@ -577,7 +577,7 @@ const TestingScreen = () => {
         const endTs = parseEndTimestamp(fetchedTest);
         setEndTimestamp(endTs);
         const questionsRes = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/question/get/questions/bypaperid/${fetchedTest.paperId}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/question/get/questions/bypaperid/${fetchedTest.paperId}`
         );
         const questionsData = await questionsRes.json();
         const qs = questionsData.questions || [];
@@ -585,7 +585,7 @@ const TestingScreen = () => {
         setSections(buildSections(qs));
 
         const paperRes = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/questionpaper/get/questionpaper/bypaperid/${fetchedTest.paperId}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/questionpaper/get/questionpaper/bypaperid/${fetchedTest.paperId}`
         );
         const paperData = await paperRes.json();
         setPaper(paperData.questionPaper);

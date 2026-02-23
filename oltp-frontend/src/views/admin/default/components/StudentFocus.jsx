@@ -17,8 +17,8 @@ const StudentFocus = () => {
     const fetchBase = async () => {
       try {
         const [studRes, testRes] = await Promise.all([
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/all/students`),
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/test/get/all/tests`),
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/all/students`),
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/test/get/all/tests`),
         ]);
         const studData = await studRes.json();
         const testData = await testRes.json();
@@ -49,7 +49,7 @@ const StudentFocus = () => {
     setLoadingScores(true);
     try {
       const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/scores/bystudentid/${student.studentId}`
+        `${process.env.REACT_APP_BACKEND_URL}/api/v1/score/get/scores/bystudentid/${student.studentId}`
       );
       const data = await res.json();
       setStudentScores(data.scores || []);

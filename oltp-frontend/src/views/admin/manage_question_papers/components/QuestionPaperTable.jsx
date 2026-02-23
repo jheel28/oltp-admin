@@ -24,7 +24,7 @@ const QuestionPaperTable = () => {
     const fetch_ = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/questionpaper/get/all/questionpapers`);
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/questionpaper/get/all/questionpapers`);
         const data = await res.json();
         setPapers(data.questionPapers || []);
       } catch {
@@ -58,7 +58,7 @@ const QuestionPaperTable = () => {
       onOk: async () => {
         try {
           const res = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/beta/questionpaper/delete/questionpaper/byid/${paper._id}`,
+            `${process.env.REACT_APP_BACKEND_URL}/api/v1/questionpaper/delete/questionpaper/byid/${paper._id}`,
             { method: "DELETE", headers: { Authorization: "Bearer " + auth.token } }
           );
           if (!res.ok) throw new Error();

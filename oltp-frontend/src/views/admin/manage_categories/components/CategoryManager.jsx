@@ -33,7 +33,7 @@ const CategoryManager = () => {
   const fetchCategories = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/category/get/all`);
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/category/get/all`);
       const data = await res.json();
       setCategories(data.categories || []);
     } catch {
@@ -54,7 +54,7 @@ const CategoryManager = () => {
     if (!name) { message.warning("Category name is required"); return; }
     setAddingCat(true);
     try {
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/category/create`, {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/category/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + auth.token },
         body: JSON.stringify({ name, description: newCatDesc }),
@@ -75,7 +75,7 @@ const CategoryManager = () => {
   const saveEditCategory = async (id) => {
     if (!editingCatName.trim()) { message.warning("Name cannot be empty"); return; }
     try {
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/category/update/${id}`, {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/category/update/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + auth.token },
         body: JSON.stringify({ name: editingCatName.trim(), description: editingCatDesc }),
@@ -99,7 +99,7 @@ const CategoryManager = () => {
       cancelText: "Cancel",
       onOk: async () => {
         try {
-          const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/category/delete/${id}`, {
+          const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/category/delete/${id}`, {
             method: "DELETE",
             headers: { Authorization: "Bearer " + auth.token },
           });
@@ -118,7 +118,7 @@ const CategoryManager = () => {
     const subject = newSubjectName.trim();
     if (!subject) { message.warning("Subject name is required"); return; }
     try {
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/category/add-subject/${catId}`, {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/category/add-subject/${catId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + auth.token },
         body: JSON.stringify({ subject }),
@@ -143,7 +143,7 @@ const CategoryManager = () => {
       onOk: async () => {
         try {
           const res = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/beta/category/remove-subject/${catId}/${encodeURIComponent(subject)}`,
+            `${process.env.REACT_APP_BACKEND_URL}/api/v1/category/remove-subject/${catId}/${encodeURIComponent(subject)}`,
             { method: "DELETE", headers: { Authorization: "Bearer " + auth.token } }
           );
           if (!res.ok) throw new Error();
@@ -164,7 +164,7 @@ const CategoryManager = () => {
     if (!cat) return;
     const newSubjects = cat.subjects.map((s) => (s === oldSubject ? newName : s));
     try {
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/beta/category/update/${catId}`, {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/category/update/${catId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + auth.token },
         body: JSON.stringify({ subjects: newSubjects }),

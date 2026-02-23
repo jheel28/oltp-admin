@@ -47,7 +47,7 @@ const FeedbackScreen = () => {
       setLoading(true);
       try {
         const studentRes = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/student/get/student/byid/${auth.userId}`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/student/byid/${auth.userId}`,
           { headers: { Authorization: "Bearer " + auth.token } }
         );
         const studentData = await studentRes.json();
@@ -59,7 +59,7 @@ const FeedbackScreen = () => {
         }
 
         const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/beta/score/get/scores/bystudentid/${studentId}`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/v1/score/get/scores/bystudentid/${studentId}`,
           { headers: { Authorization: "Bearer " + auth.token } }
         );
         const data = await res.json();
@@ -69,7 +69,7 @@ const FeedbackScreen = () => {
 
         if (latest?.paperId) {
           const qRes = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/beta/question/get/questions/bypaperid/${latest.paperId}`
+            `${process.env.REACT_APP_BACKEND_URL}/api/v1/question/get/questions/bypaperid/${latest.paperId}`
           );
           const qData = await qRes.json();
           setQuestions(qData.questions || []);
