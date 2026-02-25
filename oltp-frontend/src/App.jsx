@@ -47,6 +47,10 @@ const App = () => {
           element={<StudentResultsTable />}
         />
         <Route
+          path="student/result/result-page/score/:scoreId"
+          element={<StudentResultsTable />}
+        />
+        <Route
           path="student/feedbackscreen/:score/:maxscore"
           element={<FeedbackScreen />}
         />

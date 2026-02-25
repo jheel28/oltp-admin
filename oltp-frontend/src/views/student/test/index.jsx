@@ -63,6 +63,11 @@ const Marketplace = () => {
       student.batch?.trim().toLowerCase() ===
       test.batchName?.trim().toLowerCase();
 
+    // Permanent tests never expire and can be retaken
+    if (test.isPermanent) {
+      return isSameBatch;
+    }
+
     const endTime = new Date(`${test.date} ${test.endTime}`);
     const currentTime = new Date();
 
@@ -96,10 +101,14 @@ const Marketplace = () => {
                 return new Date(year, month - 1, day, h, m, 0);
               };
 
-              const startTime = parseTestDateTime(test.date, test.startTime);
-              const endTime = parseTestDateTime(test.date, test.endTime);
-              const currentTime = new Date();
-              const isActive = currentTime >= startTime && currentTime <= endTime;
+              const isActive = test.isPermanent
+                ? true
+                : (() => {
+                    const startTime = parseTestDateTime(test.date, test.startTime);
+                    const endTime = parseTestDateTime(test.date, test.endTime);
+                    const currentTime = new Date();
+                    return currentTime >= startTime && currentTime <= endTime;
+                  })();
 
               return (
                 <div

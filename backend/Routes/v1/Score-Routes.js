@@ -5,6 +5,7 @@ const ctrl = require("../../Controllers/v1/Score-Controllers");
 const checkAuth = require("../../Middleware/check-auth");
 
 router.get("/get/all/scores", checkAuth("Admin"), ctrl.getAllScores);
+router.get("/get/score/byid/:scoreId", ctrl.getScoreById);
 router.get("/get/scores/bystudentid/:studentId", ctrl.getScoresByStudentId);
 router.get("/get/scores/bytestid/:testId", ctrl.getScoresByTestId);
 router.get(

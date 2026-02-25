@@ -85,6 +85,18 @@ const createScore = async (req, res, next) => {
   res.status(201).json({ score });
 };
 
+const getScoreById = async (req, res, next) => {
+  const { scoreId } = req.params;
+  let score;
+  try {
+    score = await Score.findById(scoreId);
+  } catch (err) {
+    return next(new HttpError("Something went wrong while fetching the score", 500));
+  }
+  if (!score) return next(new HttpError("Score not found", 404));
+  res.status(200).json({ score });
+};
+
 const getAllScores = async (req, res, next) => {
   let scores;
   try {
@@ -121,7 +133,8 @@ const getScoreByTestAndStudent = async (req, res, next) => {
   const { testId, studentId } = req.params;
   let score;
   try {
-    score = await Score.findOne({ testId, studentId });
+    const scores = await Score.find({ testId, studentId }).sort({ createdAt: -1 }).limit(1);
+    score = scores[0] || null;
   } catch (err) {
     return next(new HttpError("Something went wrong while fetching the score", 500));
   }
@@ -247,6 +260,7 @@ const deleteSingleScore = async (req, res, next) => {
 };
 
 exports.createScore = createScore;
+exports.getScoreById = getScoreById;
 exports.getAllScores = getAllScores;
 exports.getScoresByStudentId = getScoresByStudentId;
 exports.getScoresByTestId = getScoresByTestId;

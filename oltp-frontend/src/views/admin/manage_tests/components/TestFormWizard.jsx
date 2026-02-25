@@ -118,6 +118,7 @@ const TestFormWizard = ({ mode = "create" }) => {
     testName: "",
     paperId: "",
     batchName: "",
+    isPermanent: false,
     date: "",
     startTime: "",
     endTime: "",
@@ -159,6 +160,7 @@ const TestFormWizard = ({ mode = "create" }) => {
             testName: t.testName || "",
             paperId: t.paperId || "",
             batchName: t.batchName || "",
+            isPermanent: t.isPermanent || false,
             date: t.date || "",
             startTime: t.startTime || "",
             endTime: t.endTime || "",
@@ -262,21 +264,24 @@ const TestFormWizard = ({ mode = "create" }) => {
     }
 
     if (s === 1) {
-      if (!form.date) { message.warning("Date is required"); return false; }
-      if (!form.startTime) { message.warning("Start time is required"); return false; }
-      if (!form.endTime) { message.warning("End time is required"); return false; }
       if (!form.duration || Number(form.duration) <= 0) { message.warning("A valid duration is required"); return false; }
+
+      if (!form.isPermanent) {
+        if (!form.date) { message.warning("Date is required"); return false; }
+        if (!form.startTime) { message.warning("Start time is required"); return false; }
+        if (!form.endTime) { message.warning("End time is required"); return false; }
+
+        const selectedDateTime = new Date(`${form.date}T${form.startTime}`);
+        const now = new Date();
+        if (selectedDateTime < now) {
+          message.warning("The start date and time cannot be in the past.");
+          return false;
+        }
+      }
 
       const passPct = Number(form.passingPercentage);
       if (isNaN(passPct) || passPct < 0 || passPct > 100) {
         message.warning("Passing percentage must be between 0 and 100");
-        return false;
-      }
-
-      const selectedDateTime = new Date(`${form.date}T${form.startTime}`);
-      const now = new Date();
-      if (selectedDateTime < now) {
-        message.warning("The start date and time cannot be in the past.");
         return false;
       }
     }
@@ -295,9 +300,10 @@ const TestFormWizard = ({ mode = "create" }) => {
         testName: form.testName.trim(),
         paperId: form.paperId.trim(),
         batchName: form.batchName,
-        date: form.date,
-        startTime: form.startTime,
-        endTime: form.endTime,
+        isPermanent: form.isPermanent,
+        date: form.isPermanent ? "" : form.date,
+        startTime: form.isPermanent ? "" : form.startTime,
+        endTime: form.isPermanent ? "" : form.endTime,
         duration: Number(form.duration),
         passingPercentage: Number(form.passingPercentage),
         isPublished: form.isPublished,
@@ -405,20 +411,31 @@ const TestFormWizard = ({ mode = "create" }) => {
 
       {step === 1 && (
         <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Field label="Date" required>
-              <input type="date" name="date" value={form.date} onChange={handleChange} className={inputCls} />
-            </Field>
-            <Field label="Start Time" required>
-              <input type="time" name="startTime" value={form.startTime} onChange={handleChange} className={inputCls} />
-            </Field>
-            <Field label="End Time" required>
-              <input type="time" name="endTime" value={form.endTime} onChange={handleChange} className={inputCls} />
-            </Field>
-          </div>
+          <ToggleRow
+            icon={<span className="font-bold text-xs">∞</span>}
+            title="Permanent Test"
+            hint="Always available — students can take it anytime. Timer starts when they begin."
+            name="isPermanent"
+            checked={form.isPermanent}
+            onChange={handleChange}
+          />
+
+          {!form.isPermanent && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Field label="Date" required>
+                <input type="date" name="date" value={form.date} onChange={handleChange} className={inputCls} />
+              </Field>
+              <Field label="Start Time" required>
+                <input type="time" name="startTime" value={form.startTime} onChange={handleChange} className={inputCls} />
+              </Field>
+              <Field label="End Time" required>
+                <input type="time" name="endTime" value={form.endTime} onChange={handleChange} className={inputCls} />
+              </Field>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Duration (minutes)" required hint="Changing duration automatically updates End Time">
+            <Field label="Duration (minutes)" required hint={form.isPermanent ? "How long students have once they start" : "Changing duration automatically updates End Time"}>
               <input type="number" name="duration" value={form.duration} onChange={handleChange}
                 min="1" placeholder="e.g. 180" className={inputCls} />
             </Field>
@@ -480,8 +497,8 @@ const TestFormWizard = ({ mode = "create" }) => {
               ["Total Marks", paperDetails?.totalMarks ?? "—"],
               ["Questions", paperDetails?.totalQuestions ?? "—"],
               ["Batch", form.batchName],
-              ["Date", form.date],
-              ["Time", `${form.startTime} — ${form.endTime}`],
+              ["Permanent", form.isPermanent ? "Yes — Always Available" : "No"],
+              ...(form.isPermanent ? [] : [["Date", form.date], ["Time", `${form.startTime} — ${form.endTime}`]]),
               ["Duration", `${form.duration} minutes`],
               ["Passing Percentage", `${form.passingPercentage}%`],
               ["Calculator", form.allowCalculator ? "Allowed" : "Disabled"],

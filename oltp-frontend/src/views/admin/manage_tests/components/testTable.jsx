@@ -18,6 +18,7 @@ const STATUS_COLORS = {
 const getTestStatus = (test) => {
   const now = new Date();
   if (!test.isPublished) return "inactive";
+  if (test.isPermanent) return "active";
 
   const parseDT = (d, t) => {
     if (!d || !t) return null;

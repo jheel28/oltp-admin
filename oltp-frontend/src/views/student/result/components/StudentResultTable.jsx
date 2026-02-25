@@ -170,7 +170,7 @@ const StudentResultsTable = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const auth = useContext(AuthContext);
-  const { testId, paperId } = useParams();
+  const { testId, paperId, scoreId } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -184,22 +184,37 @@ const StudentResultsTable = () => {
         const { student: s } = await studentRes.json();
         setStudent(s);
 
-        const [scoreRes, questionsRes] = await Promise.all([
-          fetch(
+        let score;
+        if (scoreId) {
+          // Fetch specific score by its _id
+          const scoreRes = await fetch(
+            `${BACKEND}/api/v1/score/get/score/byid/${scoreId}`,
+            { headers: { Authorization: "Bearer " + auth.token } }
+          );
+          const data = await scoreRes.json();
+          score = data.score;
+        } else {
+          // Legacy: fetch by testId + studentId
+          const scoreRes = await fetch(
             `${BACKEND}/api/v1/score/get/score/bytestid/${testId}/studentid/${s.studentId}`,
             { headers: { Authorization: "Bearer " + auth.token } }
-          ),
-          fetch(
-            `${BACKEND}/api/v1/question/get/questions/bypaperid/${paperId}`,
-            { headers: { Authorization: "Bearer " + auth.token } }
-          ),
-        ]);
-
-        const { score } = await scoreRes.json();
-        const { questions: qs = [] } = await questionsRes.json();
+          );
+          const data = await scoreRes.json();
+          score = data.score;
+        }
 
         setScoreRecord(score);
-        setQuestions(qs);
+
+        // Fetch questions using paperId from score or from URL param
+        const pid = score?.paperId || paperId;
+        if (pid) {
+          const questionsRes = await fetch(
+            `${BACKEND}/api/v1/question/get/questions/bypaperid/${pid}`,
+            { headers: { Authorization: "Bearer " + auth.token } }
+          );
+          const { questions: qs = [] } = await questionsRes.json();
+          setQuestions(qs);
+        }
       } catch (err) {
         console.error("StudentResultsTable error:", err);
       } finally {
@@ -207,7 +222,7 @@ const StudentResultsTable = () => {
       }
     };
     fetchData();
-  }, [auth.userId, auth.token, testId, paperId]);
+  }, [auth.userId, auth.token, testId, paperId, scoreId]);
 
   if (loading) {
     return (

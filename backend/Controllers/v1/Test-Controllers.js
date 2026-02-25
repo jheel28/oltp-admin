@@ -32,8 +32,10 @@ const createTest = async (req, res, next) => {
 
   const {
     testId, testName, paperId, batchName, date, startTime, endTime,
-    duration, isPublished, allowCalculator, allowWatermark, description,
+    duration, isPermanent, isPublished, allowCalculator, allowWatermark, description,
   } = req.body;
+
+  const permanent = isPermanent === true || isPermanent === "true";
 
   let existing;
   try {
@@ -55,9 +57,10 @@ const createTest = async (req, res, next) => {
     subjects: bound.subjects,
     totalMarks: bound.totalMarks,
     totalQuestions: bound.totalQuestions,
-    date,
-    startTime,
-    endTime,
+    isPermanent: permanent,
+    date: permanent ? "" : date,
+    startTime: permanent ? "" : startTime,
+    endTime: permanent ? "" : endTime,
     duration: Number(duration),
     isPublished: isPublished === true || isPublished === "true",
     allowCalculator: allowCalculator === false || allowCalculator === "false" ? false : true,
@@ -120,14 +123,22 @@ const updateTestById = async (req, res, next) => {
 
   const {
     testName, paperId, batchName, date, startTime, endTime,
-    duration, isPublished, allowCalculator, allowWatermark, description,
+    duration, isPermanent, isPublished, allowCalculator, allowWatermark, description,
   } = req.body;
 
   if (testName !== undefined) test.testName = testName;
   if (batchName !== undefined) test.batchName = batchName;
-  if (date !== undefined) test.date = date;
-  if (startTime !== undefined) test.startTime = startTime;
-  if (endTime !== undefined) test.endTime = endTime;
+  if (isPermanent !== undefined)
+    test.isPermanent = isPermanent === true || isPermanent === "true";
+  if (test.isPermanent) {
+    test.date = "";
+    test.startTime = "";
+    test.endTime = "";
+  } else {
+    if (date !== undefined) test.date = date;
+    if (startTime !== undefined) test.startTime = startTime;
+    if (endTime !== undefined) test.endTime = endTime;
+  }
   if (duration !== undefined) test.duration = Number(duration);
   if (isPublished !== undefined)
     test.isPublished = isPublished === true || isPublished === "true";

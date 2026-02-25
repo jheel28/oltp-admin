@@ -232,12 +232,12 @@ const QuestionDisplay = ({
               const isDrafted =
                 question.type === "MSQ"
                   ? draftArr.map(Number).includes(optIdx)
-                  : Number(currentDraft) === optIdx;
+                  : currentDraft !== null && currentDraft !== undefined && Number(currentDraft) === optIdx;
 
               const isSaved =
                 question.type === "MSQ"
                   ? savedArr.map(Number).includes(optIdx)
-                  : Number(savedAnswer) === optIdx;
+                  : savedAnswer !== null && savedAnswer !== undefined && Number(savedAnswer) === optIdx;
 
               return (
                 <OptionItem

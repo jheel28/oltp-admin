@@ -41,12 +41,25 @@ const TestCard = ({ test, isActive }) => {
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="flex flex-col">
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Schedule</span>
-          <span className="text-sm font-bold text-navy-700 dark:text-white mt-1">
-            {test.date}
-          </span>
-          <span className="text-[11px] text-gray-500">
-            {test.startTime} - {test.endTime}
-          </span>
+          {test.isPermanent ? (
+            <>
+              <span className="text-sm font-bold text-green-600 mt-1">
+                ∞ Always Available
+              </span>
+              <span className="text-[11px] text-gray-500">
+                Duration: {test.duration} min
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="text-sm font-bold text-navy-700 dark:text-white mt-1">
+                {test.date}
+              </span>
+              <span className="text-[11px] text-gray-500">
+                {test.startTime} - {test.endTime}
+              </span>
+            </>
+          )}
         </div>
         <div className="flex flex-col">
           <span className="text-sm font-bold text-navy-700 dark:text-white">
