@@ -5,6 +5,9 @@ import { AuthContext } from "components/Auth-context";
 import { message } from "antd";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
+const avatarUrl = (name) =>
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "Student")}&background=4f46e5&color=fff&size=128&bold=true`;
+
 const FIELD_CONFIG = [
   { key: "studentId",       label: "Student ID",       readonly: true  },
   { key: "role",            label: "Role",             readonly: true  },
@@ -15,8 +18,8 @@ const FIELD_CONFIG = [
   { key: "lastName",        label: "Last Name",        required: true  },
   { key: "phoneNumber",     label: "Phone Number",     required: true  },
   { key: "alternateNumber", label: "Alternate Number", required: true  },
-  { key: "fatherName",      label: "Father's Name"                     },
-  { key: "motherName",      label: "Mother's Name"                     },
+  { key: "fatherName",      label: "Father's Name",    optional: true  },
+  { key: "motherName",      label: "Mother's Name",    optional: true  },
   { key: "address",         label: "Address",          required: true  },
   { key: "pincode",         label: "Pincode",          required: true  },
   { key: "state",           label: "State",            required: true  },
@@ -32,20 +35,11 @@ const StudentProfile = () => {
   const [imageLoading, setImageLoading] = useState(false);
   const [infoLoading, setInfoLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
-  const [passwords, setPasswords] = useState({
-    password: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const [showPassword, setShowPassword] = useState({
-    current: false,
-    new: false,
-    confirm: false,
-  });
+  const [passwords, setPasswords] = useState({ password: "", newPassword: "", confirmPassword: "" });
+  const [showPassword, setShowPassword] = useState({ current: false, new: false, confirm: false });
 
   const passwordsMatch =
-    passwords.newPassword !== "" &&
-    passwords.newPassword === passwords.confirmPassword;
+    passwords.newPassword !== "" && passwords.newPassword === passwords.confirmPassword;
 
   const fetchStudent = async () => {
     try {
@@ -62,9 +56,7 @@ const StudentProfile = () => {
     }
   };
 
-  useEffect(() => {
-    fetchStudent();
-  }, []);
+  useEffect(() => { fetchStudent(); }, []);
 
   const handleInfoUpdate = async () => {
     setInfoLoading(true);
@@ -78,15 +70,10 @@ const StudentProfile = () => {
 
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/update/student/student/byid/${auth.userId}`,
-        {
-          method: "PATCH",
-          body: payload,
-          headers: { Authorization: "Bearer " + auth.token },
-        }
+        { method: "PATCH", body: payload, headers: { Authorization: "Bearer " + auth.token } }
       );
 
       const data = await response.json();
-
       if (response.ok) {
         message.success("Profile updated successfully");
         setIsEditing(false);
@@ -109,11 +96,7 @@ const StudentProfile = () => {
       formData.append("image", profileImage);
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/update/image/byid/${auth.userId}`,
-        {
-          method: "PATCH",
-          body: formData,
-          headers: { Authorization: "Bearer " + auth.token },
-        }
+        { method: "PATCH", body: formData, headers: { Authorization: "Bearer " + auth.token } }
       );
       if (response.ok) {
         message.success("Profile image updated successfully");
@@ -131,32 +114,17 @@ const StudentProfile = () => {
   };
 
   const handlePasswordUpdate = async () => {
-    if (!passwords.password) {
-      message.error("Please enter your current password");
-      return;
-    }
-    if (!passwordsMatch) {
-      message.error("New passwords do not match");
-      return;
-    }
-    if (passwords.newPassword.length < 6) {
-      message.error("New password must be at least 6 characters");
-      return;
-    }
+    if (!passwords.password) { message.error("Please enter your current password"); return; }
+    if (!passwordsMatch) { message.error("New passwords do not match"); return; }
+    if (passwords.newPassword.length < 6) { message.error("New password must be at least 6 characters"); return; }
     setPasswordLoading(true);
     try {
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/update/password/byemail/${auth.email}`,
         {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + auth.token,
-          },
-          body: JSON.stringify({
-            password: passwords.password,
-            newPassword: passwords.newPassword,
-          }),
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + auth.token },
+          body: JSON.stringify({ password: passwords.password, newPassword: passwords.newPassword }),
         }
       );
       const data = await response.json();
@@ -173,20 +141,13 @@ const StudentProfile = () => {
     }
   };
 
-  const handleFieldChange = (e) => {
-    const { name, value } = e.target;
-    setEditedData((prev) => ({ ...prev, [name]: value }));
-  };
+  const cancelEdit = () => { setEditedData(student); setIsEditing(false); };
 
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswords((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const cancelEdit = () => {
-    setEditedData(student);
-    setIsEditing(false);
-  };
+  const currentAvatarUrl = profileImage
+    ? URL.createObjectURL(profileImage)
+    : student.image
+    ? `${process.env.REACT_APP_BACKEND_URL}/${student.image}`
+    : avatarUrl(`${student.firstName} ${student.lastName}`);
 
   const inputClass = "w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white dark:bg-navy-800";
 
@@ -197,15 +158,14 @@ const StudentProfile = () => {
           className="relative mt-1 flex h-32 w-full justify-center rounded-xl bg-cover"
           style={{ backgroundImage: `url(${banner})` }}
         >
-          <div className="absolute -bottom-12 flex h-[87px] w-[87px] items-center justify-center rounded-full border-[4px] border-white bg-pink-400 dark:!border-navy-700">
+          <div className="absolute -bottom-12 flex h-[87px] w-[87px] items-center justify-center rounded-full border-[4px] border-white bg-indigo-400 dark:!border-navy-700">
             <img
               className="h-full w-full rounded-full object-cover"
-              src={
-                profileImage
-                  ? URL.createObjectURL(profileImage)
-                  : `${process.env.REACT_APP_BACKEND_URL}/${student.image}`
-              }
+              src={currentAvatarUrl}
               alt=""
+              onError={(e) => {
+                e.target.src = avatarUrl(`${student.firstName} ${student.lastName}`);
+              }}
             />
           </div>
         </div>
@@ -221,17 +181,19 @@ const StudentProfile = () => {
         <Card extra="w-full h-full p-6">
           <h4 className="mb-6 text-xl font-bold text-navy-700 dark:text-white">Student Information</h4>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {FIELD_CONFIG.map(({ key, label, readonly, required }) => (
+            {FIELD_CONFIG.map(({ key, label, readonly, required, optional }) => (
               <div key={key}>
                 <label className="text-sm text-gray-600">
-                  {label}{required ? " *" : ""}
+                  {label}
+                  {required ? " *" : ""}
+                  {optional ? <span className="ml-1 text-xs text-gray-400">(optional)</span> : ""}
                 </label>
                 {isEditing && !readonly ? (
                   <input
                     type={key === "email" ? "email" : "text"}
                     name={key}
                     value={editedData[key] || ""}
-                    onChange={handleFieldChange}
+                    onChange={(e) => setEditedData((prev) => ({ ...prev, [e.target.name]: e.target.value }))}
                     className={inputClass}
                   />
                 ) : (
@@ -245,26 +207,15 @@ const StudentProfile = () => {
           <div className="mt-6 flex gap-3">
             {isEditing ? (
               <>
-                <button
-                  onClick={handleInfoUpdate}
-                  disabled={infoLoading}
-                  className="rounded-full bg-green-500 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-50"
-                >
+                <button onClick={handleInfoUpdate} disabled={infoLoading} className="rounded-full bg-green-500 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-50">
                   {infoLoading ? "Saving..." : "Save"}
                 </button>
-                <button
-                  onClick={cancelEdit}
-                  disabled={infoLoading}
-                  className="rounded-full bg-gray-400 px-4 py-2 text-white hover:bg-gray-600 disabled:opacity-50"
-                >
+                <button onClick={cancelEdit} disabled={infoLoading} className="rounded-full bg-gray-400 px-4 py-2 text-white hover:bg-gray-600 disabled:opacity-50">
                   Cancel
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
-              >
+              <button onClick={() => setIsEditing(true)} className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700">
                 Edit
               </button>
             )}
@@ -282,16 +233,8 @@ const StudentProfile = () => {
             />
             {profileImage && (
               <div className="flex items-center gap-4">
-                <img
-                  src={URL.createObjectURL(profileImage)}
-                  alt="Preview"
-                  className="h-16 w-16 rounded-full object-cover"
-                />
-                <button
-                  onClick={handleImageUpdate}
-                  disabled={imageLoading}
-                  className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-                >
+                <img src={URL.createObjectURL(profileImage)} alt="Preview" className="h-16 w-16 rounded-full object-cover" />
+                <button onClick={handleImageUpdate} disabled={imageLoading} className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50">
                   {imageLoading ? "Uploading..." : "Update Image"}
                 </button>
               </div>
@@ -310,13 +253,11 @@ const StudentProfile = () => {
                   type={showPassword[key] ? "text" : "password"}
                   name={name}
                   value={passwords[name]}
-                  onChange={handlePasswordChange}
+                  onChange={(e) => setPasswords((prev) => ({ ...prev, [name]: e.target.value }))}
                   placeholder={label}
                   className={`w-full rounded-md border p-3 pr-10 text-navy-700 dark:text-white dark:bg-navy-800 ${
                     name !== "password" && passwords.confirmPassword !== ""
-                      ? passwordsMatch
-                        ? "border-green-500"
-                        : "border-red-500"
+                      ? passwordsMatch ? "border-green-500" : "border-red-500"
                       : "border-gray-300"
                   }`}
                 />

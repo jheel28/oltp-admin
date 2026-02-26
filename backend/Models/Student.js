@@ -5,12 +5,12 @@ const uniqueValidator = require("mongoose-unique-validator");
 const studentSchema = new Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
-  fatherName: { type: String },
-  motherName: { type: String },
+  fatherName: { type: String, default: null },
+  motherName: { type: String, default: null },
   phoneNumber: { type: String, required: true },
   alternateNumber: { type: String, required: true },
   role: { type: String, required: true },
-  image: { type: String, required: true },
+  image: { type: String, default: null },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   studentId: { type: String, required: true },
@@ -20,6 +20,10 @@ const studentSchema = new Schema({
   pincode: { type: String, required: true },
   state: { type: String, required: true },
   country: { type: String, required: true },
+  isVerified: { type: Boolean, default: false },
+  verificationToken: { type: String, default: null },
+  verificationTokenExpiry: { type: Date, default: null },
 });
+
 studentSchema.plugin(uniqueValidator);
 module.exports = mongoose.model("Student", studentSchema);

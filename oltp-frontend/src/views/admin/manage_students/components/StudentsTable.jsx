@@ -8,6 +8,9 @@ import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Modal, message } from "antd";
 import { AuthContext } from "components/Auth-context";
 
+const avatarUrl = (name) =>
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "Student")}&background=4f46e5&color=fff&size=64&bold=true`;
+
 const isNewStudent = (admissionDate) => {
   if (!admissionDate) return false;
   const admitted = new Date(admissionDate);
@@ -282,6 +285,9 @@ const StudentsTable = () => {
                 paginated.map((student) => {
                   const isNew = isNewStudent(student.admissionDate);
                   const isSelected = selectedIds.has(student._id);
+                  const imgSrc = student.image
+                    ? `${process.env.REACT_APP_BACKEND_URL}/${student.image}`
+                    : avatarUrl(`${student.firstName} ${student.lastName}`);
                   return (
                     <tr
                       key={student._id}
@@ -298,10 +304,12 @@ const StudentsTable = () => {
                       <td className="py-3 pr-3">
                         <div className="relative">
                           <img
-                            src={`${process.env.REACT_APP_BACKEND_URL}/${student.image}`}
+                            src={imgSrc}
                             alt=""
                             className="h-8 w-8 rounded-full object-cover"
-                            onError={(e) => { e.target.src = "https://via.placeholder.com/32"; }}
+                            onError={(e) => {
+                              e.target.src = avatarUrl(`${student.firstName} ${student.lastName}`);
+                            }}
                           />
                           {isNew && (
                             <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[8px] font-bold px-1 rounded-full">NEW</span>

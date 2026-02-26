@@ -1,82 +1,43 @@
 import React, { useState } from "react";
-import { Steps, Form, Input, message } from "antd";
-import { useNavigate } from "react-router-dom";
+import { Form, Input, message } from "antd";
+import { useNavigate, Link } from "react-router-dom";
 import Footer from "components/footer/Footer";
 import logo from "assets/img/Logo/correct.png";
-
-const { Step } = Steps;
+import PhoneInput, { isValidPhoneNumber } from "components/PhoneInput";
 
 const AdminRegister = () => {
-  const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
-  const [imageAttempted, setImageAttempted] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState(false);
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  const getStepFields = (step) => {
-    switch (step) {
-      case 0:
-        return ["firstName", "lastName", "mobile"];
-      case 1:
-        return [];
-      case 2:
-        return ["email", "password", "confirmPassword"];
-      default:
-        return [];
-    }
-  };
-
-  const handleNext = async () => {
-    if (currentStep === 1) {
-      setImageAttempted(true);
-      if (!imageFile) {
-        message.error("Please upload a profile image to continue");
-        return;
-      }
-    }
-    try {
-      await form.validateFields(getStepFields(currentStep));
-      setCurrentStep((s) => s + 1);
-    } catch {
-      message.error("Please fill in all required fields correctly");
-    }
-  };
-
-  const handlePrev = () => setCurrentStep((s) => s - 1);
-
   const onFinish = async (values) => {
-    if (values.password !== values.confirmPassword) {
-      message.error("Passwords do not match");
+    if (!phone || !isValidPhoneNumber(phone)) {
+      setPhoneError(true);
+      message.error("Please enter a valid mobile number");
       return;
     }
-    if (!imageFile) {
-      message.error("Please upload a profile image");
-      setCurrentStep(1);
-      return;
-    }
+
     setLoading(true);
     try {
       const formData = new FormData();
       formData.append("firstName", values.firstName);
       formData.append("lastName", values.lastName);
-      formData.append("mobile", values.mobile);
+      formData.append("mobile", phone);
       formData.append("email", values.email);
       formData.append("password", values.password);
-      formData.append("image", imageFile);
+      if (imageFile) formData.append("image", imageFile);
 
-      const backendUrl =
-        process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
-      const response = await fetch(
-        `${backendUrl}/api/v1/admin/create/admin`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+      const response = await fetch(`${backendUrl}/api/v1/admin/create/admin`, {
+        method: "POST",
+        body: formData,
+      });
       const data = await response.json();
       if (response.ok) {
-        message.success("Registration successful! Please login.");
+        message.success("Account created! You can now log in.");
         setTimeout(() => navigate("/auth/sign-in?role=admin"), 1500);
       } else {
         message.error(data.message || "Registration failed. Please try again.");
@@ -93,125 +54,61 @@ const AdminRegister = () => {
       <div className="flex flex-grow">
         <div className="flex w-full flex-col items-center justify-center px-6 py-12 md:w-[55%] lg:w-[50%]">
           <div className="w-full max-w-[480px]">
-            <div className="mb-6">
-              <h4 className="mb-1 text-3xl font-bold text-navy-700 dark:text-white">
-                Admin Registration
-              </h4>
+            <div className="mb-8">
+              <div className="mb-2 inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 dark:bg-navy-700">
+                <span className="text-xs font-semibold uppercase tracking-widest text-indigo-500">Admin Registration</span>
+              </div>
+              <h4 className="mb-2 text-3xl font-bold text-navy-700 dark:text-white">Create your account</h4>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Create your administrator account to get started.
+                Fill in your details to register as an administrator.
               </p>
             </div>
 
-            <div className="mb-8">
-              <Steps current={currentStep} size="small" responsive={false}>
-                <Step title="Personal" />
-                <Step title="Photo" />
-                <Step title="Account" />
-              </Steps>
-            </div>
-
-            <Form
-              form={form}
-              name="admin-register"
-              onFinish={onFinish}
-              layout="vertical"
-              preserve
-            >
-              <div style={{ display: currentStep === 0 ? "block" : "none" }}>
-                <div className="grid grid-cols-2 gap-4">
-                  <Form.Item
-                    name="firstName"
-                    label="First Name"
-                    rules={[
-                      { required: true, message: "Required" },
-                      { min: 2, max: 255, message: "2–255 characters" },
-                    ]}
-                  >
-                    <Input placeholder="First name" size="large" />
-                  </Form.Item>
-                  <Form.Item
-                    name="lastName"
-                    label="Last Name"
-                    rules={[
-                      { required: true, message: "Required" },
-                      { min: 2, max: 255, message: "2–255 characters" },
-                    ]}
-                  >
-                    <Input placeholder="Last name" size="large" />
-                  </Form.Item>
-                </div>
+            <Form form={form} name="admin-register" onFinish={onFinish} layout="vertical" preserve>
+              <div className="grid grid-cols-2 gap-4">
                 <Form.Item
-                  name="mobile"
-                  label="Mobile Number"
-                  rules={[
-                    { required: true, message: "Required" },
-                    {
-                      pattern: /^\d{10}$/,
-                      message: "Must be exactly 10 digits",
-                    },
-                  ]}
+                  name="firstName"
+                  label="First Name"
+                  rules={[{ required: true, message: "Required" }, { min: 2, max: 255, message: "2–255 characters" }]}
                 >
-                  <Input
-                    placeholder="10-digit mobile number"
-                    maxLength={10}
-                    size="large"
-                    onKeyPress={(e) => {
-                      if (!/[0-9]/.test(e.key)) e.preventDefault();
-                    }}
-                  />
+                  <Input placeholder="First name" size="large" />
+                </Form.Item>
+                <Form.Item
+                  name="lastName"
+                  label="Last Name"
+                  rules={[{ required: true, message: "Required" }, { min: 2, max: 255, message: "2–255 characters" }]}
+                >
+                  <Input placeholder="Last name" size="large" />
                 </Form.Item>
               </div>
 
-              <div style={{ display: currentStep === 1 ? "block" : "none" }}>
-                <div className="mb-4">
-                  <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-                    Upload a profile picture for your admin account. This image
-                    will be shown on your profile.
-                  </p>
-                  <label className="mb-1 block text-sm font-medium text-navy-700 dark:text-white">
-                    Profile Picture <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/jpg"
-                    onChange={(e) => setImageFile(e.target.files[0] || null)}
-                    className="w-full rounded-lg border border-gray-300 p-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white"
-                  />
-                  {imageFile ? (
-                    <p className="mt-1 text-xs text-green-600">
-                      Selected: {imageFile.name}
-                    </p>
-                  ) : imageAttempted ? (
-                    <p className="mt-1 text-xs text-red-500">
-                      A profile image is required
-                    </p>
-                  ) : null}
-                </div>
-              </div>
+              <PhoneInput
+                label="Mobile Number"
+                required
+                value={phone}
+                onChange={(val) => {
+                  setPhone(val || "");
+                  if (phoneError) setPhoneError(false);
+                }}
+                showValidation={phoneError}
+                placeholder="Your mobile number"
+              />
 
-              <div style={{ display: currentStep === 2 ? "block" : "none" }}>
-                <Form.Item
-                  name="email"
-                  label="Email"
-                  rules={[
-                    { required: true, message: "Required" },
-                    { type: "email", message: "Invalid email address" },
-                  ]}
-                >
-                  <Input placeholder="admin@example.com" size="large" />
-                </Form.Item>
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[{ required: true, message: "Required" }, { type: "email", message: "Invalid email address" }]}
+              >
+                <Input placeholder="admin@example.com" size="large" />
+              </Form.Item>
+
+              <div className="grid grid-cols-2 gap-4">
                 <Form.Item
                   name="password"
                   label="Password"
-                  rules={[
-                    { required: true, message: "Required" },
-                    { min: 6, message: "Minimum 6 characters" },
-                  ]}
+                  rules={[{ required: true, message: "Required" }, { min: 6, message: "Minimum 6 characters" }]}
                 >
-                  <Input.Password
-                    placeholder="Min. 6 characters"
-                    size="large"
-                  />
+                  <Input.Password placeholder="Min. 6 characters" size="large" />
                 </Form.Item>
                 <Form.Item
                   name="confirmPassword"
@@ -220,61 +117,46 @@ const AdminRegister = () => {
                     { required: true, message: "Required" },
                     ({ getFieldValue }) => ({
                       validator(_, value) {
-                        if (!value || getFieldValue("password") === value) {
-                          return Promise.resolve();
-                        }
-                        return Promise.reject(
-                          new Error("Passwords do not match")
-                        );
+                        if (!value || getFieldValue("password") === value) return Promise.resolve();
+                        return Promise.reject(new Error("Passwords do not match"));
                       },
                     }),
                   ]}
                 >
-                  <Input.Password
-                    placeholder="Repeat your password"
-                    size="large"
-                  />
+                  <Input.Password placeholder="Repeat your password" size="large" />
                 </Form.Item>
               </div>
 
-              <div className="mt-6 flex items-center justify-between gap-3">
-                {currentStep > 0 && (
-                  <button
-                    type="button"
-                    onClick={handlePrev}
-                    className="rounded-xl border border-gray-300 bg-white px-6 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-50 dark:border-navy-600 dark:bg-navy-800 dark:text-white dark:hover:bg-navy-700"
-                  >
-                    Back
-                  </button>
-                )}
-                {currentStep < 2 ? (
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className="linear ml-auto rounded-xl bg-brand-500 px-8 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-600"
-                  >
-                    Next
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="linear ml-auto rounded-xl bg-brand-500 px-8 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:opacity-60"
-                  >
-                    {loading ? "Creating account..." : "Create Account"}
-                  </button>
+              <div className="mb-6">
+                <label className="mb-1 block text-sm font-medium text-gray-600 dark:text-gray-300">
+                  Profile Photo{" "}
+                  <span className="text-gray-400 font-normal">(optional — you can add this later)</span>
+                </label>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg"
+                  onChange={(e) => setImageFile(e.target.files[0] || null)}
+                  className="w-full rounded-lg border border-gray-300 p-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+                />
+                {imageFile && (
+                  <p className="mt-1 text-xs text-green-600">Selected: {imageFile.name}</p>
                 )}
               </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="linear w-full rounded-xl bg-brand-500 py-3 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:opacity-60"
+              >
+                {loading ? "Creating account..." : "Create Account"}
+              </button>
             </Form>
 
             <p className="mt-6 text-sm font-medium text-navy-700 dark:text-gray-500">
               Already have an account?{" "}
-              <a
-                href="/auth/sign-in?role=admin"
-                className="font-bold text-brand-500 hover:text-brand-600 dark:text-white"
-              >
+              <Link to="/auth/sign-in?role=admin" className="font-bold text-brand-500 hover:text-brand-600 dark:text-white">
                 Sign in
-              </a>
+              </Link>
             </p>
           </div>
         </div>
@@ -284,9 +166,7 @@ const AdminRegister = () => {
             src={logo}
             alt="The Correct Steps"
             className="max-h-[420px] max-w-[420px] object-contain"
-            onError={(e) => {
-              e.target.style.display = "none";
-            }}
+            onError={(e) => { e.target.style.display = "none"; }}
           />
         </div>
       </div>

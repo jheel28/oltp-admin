@@ -16,11 +16,16 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState(null);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSent, setResendSent] = useState(false);
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSignIn = async (e) => {
     e.preventDefault();
+    setUnverifiedEmail(null);
+    setResendSent(false);
 
     if (!email.trim()) {
       message.error("Please enter your email");
@@ -33,8 +38,7 @@ export default function SignIn() {
 
     setLoading(true);
     try {
-      const backendUrl =
-        process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
       const response = await fetch(
         `${backendUrl}/api/v1/${roleFromUrl}/login`,
         {
@@ -45,7 +49,12 @@ export default function SignIn() {
       );
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || "Login failed");
+        if (response.status === 403 && data.message?.includes("verify your email")) {
+          setUnverifiedEmail(email.trim());
+        } else {
+          throw new Error(data.message || "Login failed");
+        }
+        return;
       }
       auth.login(data.userId, data.token, data.email, data.role);
       message.success("Logged in successfully");
@@ -54,6 +63,30 @@ export default function SignIn() {
       message.error(error.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!unverifiedEmail) return;
+    setResendLoading(true);
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+      const response = await fetch(`${backendUrl}/api/v1/student/resend-verification`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: unverifiedEmail }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setResendSent(true);
+        message.success("Verification email sent");
+      } else {
+        message.error(data.message || "Failed to resend");
+      }
+    } catch {
+      message.error("Network error. Please try again.");
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -68,14 +101,31 @@ export default function SignIn() {
                   {isAdmin ? "Admin Portal" : "Student Portal"}
                 </span>
               </div>
-              <h4 className="mb-2 text-4xl font-bold text-navy-700 dark:text-white">
-                Welcome back
-              </h4>
+              <h4 className="mb-2 text-4xl font-bold text-navy-700 dark:text-white">Welcome back</h4>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Sign in to your {isAdmin ? "admin" : "student"} account to
-                continue.
+                Sign in to your {isAdmin ? "admin" : "student"} account to continue.
               </p>
             </div>
+
+            {unverifiedEmail && (
+              <div className="mb-4 rounded-xl border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
+                <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">Email not verified</p>
+                <p className="mt-1 text-xs text-yellow-700 dark:text-yellow-400">
+                  Please verify your email address before logging in. Check your inbox for the verification link.
+                </p>
+                {resendSent ? (
+                  <p className="mt-2 text-xs font-medium text-green-600">Verification email sent! Check your inbox.</p>
+                ) : (
+                  <button
+                    onClick={handleResendVerification}
+                    disabled={resendLoading}
+                    className="mt-2 text-xs font-semibold text-brand-500 hover:underline disabled:opacity-50"
+                  >
+                    {resendLoading ? "Sending..." : "Resend verification email"}
+                  </button>
+                )}
+              </div>
+            )}
 
             <form onSubmit={handleSignIn} className="flex flex-col gap-4">
               <InputField
@@ -88,10 +138,7 @@ export default function SignIn() {
                 onChange={(e) => setEmail(e.target.value)}
               />
               <div className="flex flex-col">
-                <label
-                  htmlFor="password"
-                  className="mb-1 ml-1 text-sm font-medium text-navy-700 dark:text-white"
-                >
+                <label htmlFor="password" className="mb-1 ml-1 text-sm font-medium text-navy-700 dark:text-white">
                   Password
                 </label>
                 <div className="relative">
@@ -110,39 +157,13 @@ export default function SignIn() {
                     tabIndex={-1}
                   >
                     {showPassword ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 4.411m0 0L21 21"
-                        />
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 4.411m0 0L21 21" />
                       </svg>
                     ) : (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                        />
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
                     )}
                   </button>
@@ -160,11 +181,9 @@ export default function SignIn() {
 
             <div className="mt-6 space-y-3">
               <p className="text-sm font-medium text-navy-700 dark:text-gray-500">
-                Don&apos;t have an account?{" "}
+                Don't have an account?{" "}
                 <Link
-                  to={
-                    isAdmin ? "/auth/register/admin" : "/auth/register/student"
-                  }
+                  to={isAdmin ? "/auth/register/admin" : "/auth/register/student"}
                   className="font-bold text-brand-500 hover:text-brand-600 dark:text-white"
                 >
                   Create an account
@@ -179,9 +198,7 @@ export default function SignIn() {
             src={logo}
             alt="The Correct Steps"
             className="max-h-[420px] max-w-[420px] object-contain"
-            onError={(e) => {
-              e.target.style.display = "none";
-            }}
+            onError={(e) => { e.target.style.display = "none"; }}
           />
         </div>
       </div>

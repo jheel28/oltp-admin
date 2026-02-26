@@ -15,7 +15,7 @@ router.post(
   [
     check("firstName").trim().isLength({ min: 2, max: 255 }),
     check("lastName").trim().isLength({ min: 2, max: 255 }),
-    check("mobile").trim().isNumeric().isLength({ min: 10, max: 10 }),
+    check("mobile").trim().notEmpty().withMessage("Mobile number is required"),
     check("email").trim().normalizeEmail().isEmail(),
     check("password").isLength({ min: 6 }),
   ],
@@ -31,7 +31,7 @@ router.patch(
   [
     check("firstName").optional().trim().isLength({ min: 2, max: 255 }),
     check("lastName").optional().trim().isLength({ min: 2, max: 255 }),
-    check("mobile").optional().trim().isNumeric().isLength({ min: 10, max: 10 }),
+    check("mobile").optional().trim().notEmpty(),
     check("email").optional().trim().normalizeEmail().isEmail(),
   ],
   adminControllers.updateAdminById,

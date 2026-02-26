@@ -13,6 +13,8 @@ import SignIn from "views/auth/SignIn";
 import StudentRegister from "views/auth/StudentRegister";
 import AdminRegister from "views/auth/AdminRegister";
 import StudentResultsTable from "views/student/result/components/StudentResultTable";
+import VerifyEmail from "views/auth/VerifyEmail";
+import VerifyEmailSent from "views/auth/VerifyEmailSent";
 
 const App = () => {
   const { login, logout, userId, token, email, role, initialized } = useAuth();
@@ -67,6 +69,8 @@ const App = () => {
         <Route path="auth/sign-in" element={<SignIn />} />
         <Route path="auth/register/student" element={<StudentRegister />} />
         <Route path="auth/register/admin" element={<AdminRegister />} />
+        <Route path="auth/verify-email/:token" element={<VerifyEmail />} />
+        <Route path="auth/verify-email-sent" element={<VerifyEmailSent />} />
         <Route path="auth/*" element={<SignIn />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
@@ -74,9 +78,7 @@ const App = () => {
   }
 
   return (
-    <AuthContext.Provider
-      value={{ isLoggedIn: !!token, login, logout, userId, token, email, role }}
-    >
+    <AuthContext.Provider value={{ isLoggedIn: !!token, login, logout, userId, token, email, role }}>
       <FetchInterceptor>
         <main>{routes}</main>
       </FetchInterceptor>

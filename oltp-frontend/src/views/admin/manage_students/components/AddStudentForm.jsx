@@ -1,6 +1,7 @@
 import { Select, message } from "antd";
 import { AuthContext } from "components/Auth-context";
 import React, { useContext, useEffect, useState } from "react";
+import PhoneInput, { isValidPhoneNumber } from "components/PhoneInput";
 
 const AddStudentForm = ({ onSubmit, onCancel }) => {
   const auth = useContext(AuthContext);
@@ -24,6 +25,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
   });
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     const fetchBatches = async () => {
@@ -31,10 +33,10 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         const response = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/get/all/batches`
         );
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) throw new Error();
         const data = await response.json();
         setBatches(data.batches || []);
-      } catch (err) {
+      } catch {
         message.error("Failed to load batches");
       }
     };
@@ -52,28 +54,35 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setFormData((prev) => ({ ...prev, image: file }));
-      message.success("Image selected");
+    if (file) setFormData((prev) => ({ ...prev, image: file }));
+  };
+
+  const validateForm = () => {
+    const missing = [];
+    if (!formData.phoneNumber) missing.push("Phone Number");
+    else if (!isValidPhoneNumber(formData.phoneNumber)) missing.push("Phone Number (invalid format)");
+    if (!formData.alternateNumber) missing.push("Alternate Number");
+    else if (!isValidPhoneNumber(formData.alternateNumber)) missing.push("Alternate Number (invalid format)");
+    if (!formData.batch) missing.push("Batch");
+
+    if (missing.length > 0) {
+      message.error(`Please fix: ${missing.join(", ")}`);
+      return false;
     }
+    return true;
   };
 
   const handleSubmit = async () => {
-    if (!formData.image) {
-      message.error("Please upload a student image");
-      return;
-    }
-    if (!formData.batch) {
-      message.error("Please select a batch");
-      return;
-    }
+    setSubmitted(true);
+    if (!validateForm()) return;
 
     setLoading(true);
     try {
-      const formDataToSend = new FormData();
+      const payload = new FormData();
       for (let key in formData) {
-        if (formData[key] !== null && formData[key] !== undefined) {
-          formDataToSend.append(key, formData[key]);
+        const val = formData[key];
+        if (val !== null && val !== undefined && val !== "") {
+          payload.append(key, val);
         }
       }
 
@@ -81,7 +90,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/create/student`,
         {
           method: "POST",
-          body: formDataToSend,
+          body: payload,
           headers: { Authorization: "Bearer " + auth.token },
         }
       );
@@ -94,58 +103,126 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
       }
 
       message.success("Student created successfully");
-      setFormData({
-        firstName: "",
-        lastName: "",
-        studentId: "",
-        fatherName: "",
-        motherName: "",
-        phoneNumber: "",
-        alternateNumber: "",
-        email: "",
-        password: "",
-        batch: "",
-        address: "",
-        pincode: "",
-        state: "",
-        country: "",
-        admissionDate: "",
-        image: null,
-      });
       onSubmit(responseData);
-    } catch (error) {
+    } catch {
       message.error("Network error, please try again");
     } finally {
       setLoading(false);
     }
   };
 
-  const inputClass = "mb-4 w-full rounded-md border border-gray-300 p-3 dark:bg-navy-700";
+  const inputClass =
+    "mb-4 w-full rounded-md border border-gray-300 p-3 text-black dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500";
 
   return (
-    <div className="text-black bg-black rounded-lg p-6 dark:bg-navy-700">
-      <h2 className="mb-4 text-xl font-bold text-navy-700 dark:text-white">
-        Add Student
-      </h2>
-      <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="First Name *" required style={{ color: "black" }} className={inputClass} disabled={loading} />
-      <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Last Name *" required style={{ color: "black" }} className={inputClass} disabled={loading} />
-      <input type="text" name="studentId" value={formData.studentId} onChange={handleChange} placeholder="Student ID *" required style={{ color: "black" }} className={inputClass} disabled={loading} />
-      <input type="number" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="Phone Number *" required style={{ color: "black" }} className={inputClass} disabled={loading} />
-      <input type="number" name="alternateNumber" value={formData.alternateNumber} onChange={handleChange} placeholder="Alternate Number *" required style={{ color: "black" }} className={inputClass} disabled={loading} />
-      <input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} placeholder="Father's Name" style={{ color: "black" }} className={inputClass} disabled={loading} />
-      <input type="text" name="motherName" value={formData.motherName} onChange={handleChange} placeholder="Mother's Name" style={{ color: "black" }} className={inputClass} disabled={loading} />
-      <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email *" style={{ color: "black" }} className={inputClass} disabled={loading} />
-      <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password *" style={{ color: "black" }} className={inputClass} disabled={loading} />
+    <div className="rounded-lg bg-white p-6 dark:bg-navy-700">
+      <h2 className="mb-6 text-xl font-bold text-navy-700 dark:text-white">Add Student</h2>
+
+      <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
+        <input
+          type="text"
+          name="firstName"
+          value={formData.firstName}
+          onChange={handleChange}
+          placeholder="First Name *"
+          required
+          className={inputClass}
+          disabled={loading}
+        />
+        <input
+          type="text"
+          name="lastName"
+          value={formData.lastName}
+          onChange={handleChange}
+          placeholder="Last Name *"
+          required
+          className={inputClass}
+          disabled={loading}
+        />
+      </div>
+
+      <input
+        type="text"
+        name="studentId"
+        value={formData.studentId}
+        onChange={handleChange}
+        placeholder="Student ID *"
+        required
+        className={inputClass}
+        disabled={loading}
+      />
+
+      <PhoneInput
+        label="Phone Number"
+        required
+        value={formData.phoneNumber}
+        onChange={(val) => setFormData((prev) => ({ ...prev, phoneNumber: val || "" }))}
+        disabled={loading}
+        showValidation={submitted}
+        placeholder="Phone number *"
+      />
+
+      <PhoneInput
+        label="Alternate Number"
+        required
+        value={formData.alternateNumber}
+        onChange={(val) => setFormData((prev) => ({ ...prev, alternateNumber: val || "" }))}
+        disabled={loading}
+        showValidation={submitted}
+        placeholder="Alternate number *"
+      />
+
+      <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
+        <input
+          type="text"
+          name="fatherName"
+          value={formData.fatherName}
+          onChange={handleChange}
+          placeholder="Father's Name (optional)"
+          className={inputClass}
+          disabled={loading}
+        />
+        <input
+          type="text"
+          name="motherName"
+          value={formData.motherName}
+          onChange={handleChange}
+          placeholder="Mother's Name (optional)"
+          className={inputClass}
+          disabled={loading}
+        />
+      </div>
+
+      <input
+        type="email"
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+        placeholder="Email *"
+        className={inputClass}
+        disabled={loading}
+      />
+      <input
+        type="password"
+        name="password"
+        value={formData.password}
+        onChange={handleChange}
+        placeholder="Password *"
+        className={inputClass}
+        disabled={loading}
+      />
 
       <div className="mb-4">
-        <strong className="text-white">Batch * :</strong>
-        <br />
+        <label className="mb-1 block text-sm font-medium text-gray-600 dark:text-gray-300">
+          Batch <span className="text-red-500">*</span>
+        </label>
         <Select
           style={{ width: "100%" }}
           value={formData.batch || undefined}
           placeholder="Select a batch"
           onChange={handleSelectChange}
           disabled={loading}
+          status={submitted && !formData.batch ? "error" : ""}
         >
           {batches.map((batch) => (
             <Select.Option key={batch._id} value={batch.batchName}>
@@ -153,28 +230,93 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
             </Select.Option>
           ))}
         </Select>
+        {submitted && !formData.batch && (
+          <p className="mt-1 text-xs text-red-500">Batch is required</p>
+        )}
       </div>
 
-      <input type="text" name="address" value={formData.address} onChange={handleChange} placeholder="Address *" style={{ color: "black" }} className={inputClass} disabled={loading} />
-      <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} placeholder="Pincode *" style={{ color: "black" }} className={inputClass} disabled={loading} />
-      <input type="text" name="state" value={formData.state} onChange={handleChange} placeholder="State *" style={{ color: "black" }} className={inputClass} disabled={loading} />
-      <input type="text" name="country" value={formData.country} onChange={handleChange} placeholder="Country *" style={{ color: "black" }} className={inputClass} disabled={loading} />
+      <input
+        type="text"
+        name="address"
+        value={formData.address}
+        onChange={handleChange}
+        placeholder="Address *"
+        className={inputClass}
+        disabled={loading}
+      />
 
-      <strong className="text-white">Date of Admission * :</strong>
-      <input type="date" name="admissionDate" value={formData.admissionDate} onChange={handleChange} style={{ color: "black" }} className={inputClass} disabled={loading} />
+      <div className="grid grid-cols-1 gap-0 sm:grid-cols-3 sm:gap-4">
+        <input
+          type="text"
+          name="pincode"
+          value={formData.pincode}
+          onChange={handleChange}
+          placeholder="Pincode *"
+          className={inputClass}
+          disabled={loading}
+        />
+        <input
+          type="text"
+          name="state"
+          value={formData.state}
+          onChange={handleChange}
+          placeholder="State *"
+          className={inputClass}
+          disabled={loading}
+        />
+        <input
+          type="text"
+          name="country"
+          value={formData.country}
+          onChange={handleChange}
+          placeholder="Country *"
+          className={inputClass}
+          disabled={loading}
+        />
+      </div>
 
-      <input type="file" name="image" accept="image/*" onChange={handleImageChange} className={inputClass} disabled={loading} />
+      <div className="mb-4">
+        <label className="mb-1 block text-sm font-medium text-gray-600 dark:text-gray-300">
+          Date of Admission <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="date"
+          name="admissionDate"
+          value={formData.admissionDate}
+          onChange={handleChange}
+          className={inputClass}
+          disabled={loading}
+        />
+      </div>
+
+      <div className="mb-6">
+        <label className="mb-1 block text-sm font-medium text-gray-600 dark:text-gray-300">
+          Student Photo{" "}
+          <span className="font-normal text-gray-400">(optional)</span>
+        </label>
+        <input
+          type="file"
+          name="image"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="w-full rounded-md border border-gray-300 p-3 text-sm"
+          disabled={loading}
+        />
+        {formData.image && (
+          <p className="mt-1 text-xs text-green-600">Selected: {formData.image.name}</p>
+        )}
+      </div>
 
       <div className="flex space-x-4">
         <button
-          className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-full bg-blue-500 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
           onClick={handleSubmit}
           disabled={loading}
         >
           {loading ? "Creating..." : "Submit"}
         </button>
         <button
-          className="rounded-full bg-red-500 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-50"
+          className="rounded-full bg-red-500 px-6 py-2 text-white hover:bg-red-700 disabled:opacity-50"
           onClick={onCancel}
           disabled={loading}
         >
