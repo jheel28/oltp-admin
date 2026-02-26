@@ -3,6 +3,7 @@ import React, { useContext } from "react";
 import MainDashboard from "views/admin/default";
 import AdminProfile from "views/admin/profile";
 import ManageStudents from "views/admin/manage_students";
+import ManageAdmins from "views/admin/manage_admins";
 import ManageTests from "views/admin/manage_tests";
 import ManageQuestionPapers from "views/admin/manage_question_papers";
 import Results from "views/admin/results";
@@ -17,6 +18,7 @@ import {
   MdPerson,
   MdCategory,
   MdBarChart,
+  MdAdminPanelSettings,
 } from "react-icons/md";
 import { AuthContext } from "components/Auth-context";
 import { Button, Card, message } from "antd";
@@ -77,6 +79,13 @@ const routes = [
     icon: <MdManageAccounts className="h-6 w-6" />,
     component: <ManageStudents />,
     secondary: true,
+  },
+  {
+    name: "Manage Admins",
+    layout: "/admin",
+    path: "manage-admins",
+    icon: <MdAdminPanelSettings className="h-6 w-6" />,
+    component: <ManageAdmins />,
   },
   {
     name: "Manage Tests",

@@ -20,6 +20,12 @@ const scoreRoutes = require("./Routes/v1/Score-Routes");
 const questionRoutes = require("./Routes/v1/Question-Routes");
 const categoryRoutes = require("./Routes/v1/Category-Routes");
 
+const uploadsDir = path.join(__dirname, "uploads", "images");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log("Created uploads/images directory");
+}
+
 const allowedOrigin = process.env.CORS_ORIGIN || "http://localhost:3000";
 
 app.use(
@@ -34,6 +40,7 @@ app.use(
           "blob:",
           allowedOrigin,
           process.env.BACKEND_URL || "http://localhost:5000",
+          "https://ui-avatars.com",
         ],
         scriptSrc: ["'self'"],
         styleSrc: ["'self'", "https:", "'unsafe-inline'"],
@@ -105,7 +112,12 @@ app.use((error, req, res, next) => {
     return next(error);
   }
 
-  res.status(error.code || 500);
+  const statusCode =
+    typeof error.code === "number" && error.code >= 100 && error.code < 600
+      ? error.code
+      : 500;
+
+  res.status(statusCode);
   res.json({ message: error.message || "An unknown error occurred!" });
 });
 

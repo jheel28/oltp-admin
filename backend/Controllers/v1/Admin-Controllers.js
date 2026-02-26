@@ -4,6 +4,7 @@ const Admin = require("../../Models/Admin");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
+const { validatePhoneNumber } = require("../../Utils/phoneValidation");
 
 const JWT_EXPIRY = process.env.JWT_EXPIRY || "7d";
 
@@ -18,6 +19,11 @@ const createAdmin = async (req, res, next) => {
 
   const { firstName, lastName, email, password, mobile } = req.body;
 
+  const mobileCheck = validatePhoneNumber(mobile);
+  if (!mobileCheck.valid) {
+    return next(new HttpError(`Mobile number: ${mobileCheck.error}`, 422));
+  }
+
   let existingAdmin;
   try {
     existingAdmin = await Admin.findOne({ email });
@@ -28,10 +34,6 @@ const createAdmin = async (req, res, next) => {
     return next(new HttpError("Email already exists, please try again", 422));
   }
 
-  if (!req.files || !req.files["image"] || req.files["image"].length === 0) {
-    return next(new HttpError("No image was uploaded.", 400));
-  }
-
   let hashedPassword;
   try {
     hashedPassword = await bcrypt.hash(password, 12);
@@ -39,14 +41,21 @@ const createAdmin = async (req, res, next) => {
     return next(new HttpError("Something went wrong while encrypting the password, please try again", 500));
   }
 
+  const imagePath =
+    req.files && req.files["image"] && req.files["image"].length > 0
+      ? req.files["image"][0].path
+      : req.file
+      ? req.file.path
+      : null;
+
   const createdAdmin = new Admin({
     firstName,
     lastName,
     email,
     password: hashedPassword,
-    image: req.files["image"][0].path,
+    image: imagePath,
     role: "Admin",
-    mobile,
+    mobile: mobileCheck.e164,
   });
 
   try {
@@ -151,6 +160,11 @@ const updateAdminById = async (req, res, next) => {
   }
 
   const id = req.params.id;
+
+  if (req.userData.userId !== id) {
+    return next(new HttpError("You can only update your own profile", 403));
+  }
+
   const { firstName, lastName, email, mobile } = req.body;
 
   let admin;
@@ -176,9 +190,16 @@ const updateAdminById = async (req, res, next) => {
     admin.email = email;
   }
 
+  if (mobile !== undefined && mobile !== admin.mobile) {
+    const mobileCheck = validatePhoneNumber(mobile);
+    if (!mobileCheck.valid) {
+      return next(new HttpError(`Mobile number: ${mobileCheck.error}`, 422));
+    }
+    admin.mobile = mobileCheck.e164;
+  }
+
   if (firstName !== undefined) admin.firstName = firstName;
   if (lastName !== undefined) admin.lastName = lastName;
-  if (mobile !== undefined) admin.mobile = mobile;
 
   if (req.files && req.files["image"] && req.files["image"].length > 0) {
     const oldImagePath = admin.image;
@@ -217,6 +238,11 @@ const updateAdminById = async (req, res, next) => {
 
 const updateImageById = async (req, res, next) => {
   const id = req.params.id;
+
+  if (req.userData.userId !== id) {
+    return next(new HttpError("You can only update your own profile image", 403));
+  }
+
   let admin;
   try {
     admin = await Admin.findById(id);
@@ -247,6 +273,10 @@ const updateImageById = async (req, res, next) => {
 const updatePasswordByEmail = async (req, res, next) => {
   const email = req.params.email;
   const { password, newPassword } = req.body;
+
+  if (req.userData.email !== email) {
+    return next(new HttpError("You can only update your own password", 403));
+  }
 
   if (!password || !newPassword) {
     return next(new HttpError("Current password and new password are required", 422));
@@ -294,6 +324,11 @@ const updatePasswordByEmail = async (req, res, next) => {
 
 const deleteAdmin = async (req, res, next) => {
   const id = req.params.id;
+
+  if (req.userData.userId === id) {
+    return next(new HttpError("You cannot delete your own account", 403));
+  }
+
   let admin;
   try {
     admin = await Admin.findOne({ _id: id });

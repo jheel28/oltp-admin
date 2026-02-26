@@ -2,6 +2,7 @@ import { message, Select } from "antd";
 import { AuthContext } from "components/Auth-context";
 import React, { useContext, useState, useEffect } from "react";
 import { FaPencilAlt, FaCheck } from "react-icons/fa";
+import PhoneInput, { isValidPhoneNumber } from "components/PhoneInput";
 
 const { Option } = Select;
 
@@ -11,6 +12,7 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
   const [editedData, setEditedData] = useState({ ...studentData });
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
 
   useEffect(() => {
     const fetchBatches = async () => {
@@ -30,11 +32,29 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
   const handleEditClick = () => setIsEditing(true);
 
   const handleUpdateClick = async () => {
+    setShowValidation(true);
+
+    if (editedData.phoneNumber && !isValidPhoneNumber(editedData.phoneNumber)) {
+      message.error("Please enter a valid phone number");
+      return;
+    }
+    if (editedData.alternateNumber && !isValidPhoneNumber(editedData.alternateNumber)) {
+      message.error("Please enter a valid alternate number");
+      return;
+    }
+
     setLoading(true);
     try {
       const formData = new FormData();
       Object.keys(editedData).forEach((key) => {
-        if (editedData[key] !== null && editedData[key] !== undefined) {
+        if (
+          editedData[key] !== null &&
+          editedData[key] !== undefined &&
+          key !== "_id" &&
+          key !== "__v" &&
+          key !== "isVerified" &&
+          key !== "role"
+        ) {
           formData.append(key, editedData[key]);
         }
       });
@@ -53,6 +73,7 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
       if (response.ok) {
         message.success("Student updated successfully");
         setIsEditing(false);
+        setShowValidation(false);
         onUpdate(responseData);
       } else {
         message.error(responseData.message || "Could not update the student, please check and try again");
@@ -76,11 +97,11 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
     }
   };
 
-  const inputClass = "w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white";
+  const inputClass = "w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white dark:bg-navy-800 focus:outline-none focus:ring-2 focus:ring-blue-500";
 
   const Field = ({ label, name, type = "text", children }) => (
     <div className="mb-3">
-      <label className="text-sm text-gray-600">{label}</label>
+      <label className="text-sm text-gray-600 dark:text-gray-400">{label}</label>
       {children || (
         isEditing ? (
           <input
@@ -101,8 +122,8 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
   );
 
   return (
-    <div className="flex">
-      <div className="w-1/3 bg-white p-6 dark:bg-navy-700">
+    <div className="flex flex-col sm:flex-row">
+      <div className="w-full sm:w-1/3 bg-white p-6 dark:bg-navy-700">
         <div className="relative mb-4 h-40 w-40 rounded-full bg-gray-300">
           <img
             src={
@@ -114,7 +135,7 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
             className="h-40 w-40 rounded-full object-cover"
           />
           {isEditing && (
-            <label htmlFor="image" className="absolute bottom-0 right-0 cursor-pointer text-blue-500">
+            <label htmlFor="image" className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-white p-1 shadow text-blue-500">
               <input
                 type="file"
                 name="image"
@@ -127,22 +148,64 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
             </label>
           )}
         </div>
+        <div className="mt-2">
+          <p className="text-sm text-gray-500">Student ID</p>
+          <p className="font-bold text-navy-700 dark:text-white">{editedData.studentId}</p>
+        </div>
+        <div className="mt-2">
+          <p className="text-sm text-gray-500">Status</p>
+          <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-bold ${
+            editedData.isVerified ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
+          }`}>
+            {editedData.isVerified ? "Verified" : "Unverified"}
+          </span>
+        </div>
       </div>
 
-      <div className="w-2/3 bg-white p-6 dark:bg-navy-700">
+      <div className="w-full sm:w-2/3 bg-white p-6 dark:bg-navy-700">
         <h2 className="mb-4 text-xl font-bold text-navy-700 dark:text-white">Student Details</h2>
 
-        <Field label="First Name *" name="firstName" />
-        <Field label="Last Name *" name="lastName" />
-        <Field label="Student ID *" name="studentId" />
-        <Field label="Phone Number *" name="phoneNumber" />
-        <Field label="Alternate Number *" name="alternateNumber" />
-        <Field label="Father's Name" name="fatherName" />
-        <Field label="Mother's Name" name="motherName" />
-        <Field label="Email *" name="email" type="email" />
+        <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+          <Field label="First Name *" name="firstName" />
+          <Field label="Last Name *" name="lastName" />
+          <Field label="Father's Name" name="fatherName" />
+          <Field label="Mother's Name" name="motherName" />
+          <Field label="Email *" name="email" type="email" />
+          <Field label="Student ID *" name="studentId" />
+        </div>
+
+        <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+          <div className="mb-3">
+            <label className="text-sm text-gray-600 dark:text-gray-400">Phone Number *</label>
+            {isEditing ? (
+              <PhoneInput
+                value={editedData.phoneNumber}
+                onChange={(val) => setEditedData((prev) => ({ ...prev, phoneNumber: val || "" }))}
+                disabled={loading}
+                showValidation={showValidation}
+              />
+            ) : (
+              <p className="text-base font-medium text-navy-700 dark:text-white">{editedData.phoneNumber || "—"}</p>
+            )}
+          </div>
+
+          <div className="mb-3">
+            <label className="text-sm text-gray-600 dark:text-gray-400">Alternate Number *</label>
+            {isEditing ? (
+              <PhoneInput
+                value={editedData.alternateNumber}
+                onChange={(val) => setEditedData((prev) => ({ ...prev, alternateNumber: val || "" }))}
+                disabled={loading}
+                showValidation={showValidation}
+              />
+            ) : (
+              <p className="text-base font-medium text-navy-700 dark:text-white">{editedData.alternateNumber || "—"}</p>
+            )}
+          </div>
+        </div>
 
         <div className="mb-3">
-          <label className="text-sm text-gray-600">Batch</label>
+          <label className="text-sm text-gray-600 dark:text-gray-400">Batch</label>
           {isEditing ? (
             <Select
               value={editedData.batch}
@@ -162,7 +225,7 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
         </div>
 
         <div className="mb-3">
-          <label className="text-sm text-gray-600">Admission Date</label>
+          <label className="text-sm text-gray-600 dark:text-gray-400">Admission Date</label>
           {isEditing ? (
             <input
               type="date"
@@ -178,13 +241,16 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
         </div>
 
         <Field label="Address" name="address" />
-        <Field label="Pincode" name="pincode" />
-        <Field label="State" name="state" />
-        <Field label="Country" name="country" />
+
+        <div className="grid grid-cols-3 gap-x-4">
+          <Field label="Pincode" name="pincode" />
+          <Field label="State" name="state" />
+          <Field label="Country" name="country" />
+        </div>
 
         {isEditing && (
           <div className="mb-3">
-            <label className="text-sm text-gray-600">New Password (leave blank to keep current)</label>
+            <label className="text-sm text-gray-600 dark:text-gray-400">New Password (leave blank to keep current)</label>
             <input
               type="password"
               name="password"
@@ -197,7 +263,7 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
           </div>
         )}
 
-        <div className="flex space-x-4 mt-4">
+        <div className="mt-4 flex flex-wrap gap-3">
           {isEditing ? (
             <>
               <button
@@ -211,7 +277,7 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
               <button
                 type="button"
                 className="rounded-full bg-gray-400 px-4 py-2 text-white hover:bg-gray-600 disabled:opacity-50"
-                onClick={() => { setIsEditing(false); setEditedData({ ...studentData }); }}
+                onClick={() => { setIsEditing(false); setEditedData({ ...studentData }); setShowValidation(false); }}
                 disabled={loading}
               >
                 Cancel
@@ -228,7 +294,7 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
           )}
           <button
             type="button"
-            className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+            className="rounded-full bg-gray-500 px-4 py-2 text-white hover:bg-gray-700 disabled:opacity-50"
             onClick={onBack}
             disabled={loading}
           >
