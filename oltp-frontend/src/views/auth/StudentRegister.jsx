@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Steps, Form, Input, message, Select } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Footer from "components/footer/Footer";
 import logo from "assets/img/Logo/correct.png";
 import PhoneInput, { isValidPhoneNumber } from "components/PhoneInput";
 
-const { Step } = Steps;
 const { Option } = Select;
 
 const StudentRegister = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
-  const [imageAttempted, setImageAttempted] = useState(false);
   const [batches, setBatches] = useState([]);
   const [phones, setPhones] = useState({ phoneNumber: "", alternateNumber: "" });
-  const [phoneErrors, setPhoneErrors] = useState({ phoneNumber: "", alternateNumber: "" });
+  const [phoneErrors, setPhoneErrors] = useState({ phoneNumber: false, alternateNumber: false });
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
@@ -27,44 +25,30 @@ const StudentRegister = () => {
         if (!response.ok) throw new Error("Failed to fetch batches");
         const data = await response.json();
         setBatches(data.batches || []);
-      } catch (err) {
-        message.error("Could not load batches. Please refresh the page.");
+      } catch {
+        message.error("Could not load batches. Please refresh.");
       }
     };
     fetchBatches();
   }, []);
 
-  const validatePhones = () => {
-    const errors = {};
-    if (!phones.phoneNumber || !isValidPhoneNumber(phones.phoneNumber)) {
-      errors.phoneNumber = "Enter a valid international phone number";
-    }
-    if (!phones.alternateNumber || !isValidPhoneNumber(phones.alternateNumber)) {
-      errors.alternateNumber = "Enter a valid international phone number";
-    }
-    setPhoneErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
+  const stepFields = [
+    ["firstName", "lastName", "email", "password", "confirmPassword"],
+    ["studentId", "batch", "admissionDate", "address", "pincode", "state", "country"],
+  ];
 
-  const getStepFields = (step) => {
-    switch (step) {
-      case 0: return ["firstName", "lastName", "email", "password", "confirmPassword"];
-      case 1: return ["studentId", "batch", "admissionDate"];
-      case 2: return ["address", "pincode", "state", "country"];
-      case 3: return ["fatherName", "motherName"];
-      default: return [];
-    }
+  const validatePhones = () => {
+    const errors = {
+      phoneNumber: !phones.phoneNumber || !isValidPhoneNumber(phones.phoneNumber),
+      alternateNumber: !phones.alternateNumber || !isValidPhoneNumber(phones.alternateNumber),
+    };
+    setPhoneErrors(errors);
+    return !errors.phoneNumber && !errors.alternateNumber;
   };
 
   const handleNext = async () => {
-    if (currentStep === 3) {
-      if (!validatePhones()) {
-        message.error("Please enter valid phone numbers");
-        return;
-      }
-    }
     try {
-      await form.validateFields(getStepFields(currentStep));
+      await form.validateFields(stepFields[currentStep] || []);
       setCurrentStep((s) => s + 1);
     } catch {
       message.error("Please fill in all required fields correctly");
@@ -76,13 +60,6 @@ const StudentRegister = () => {
   const onFinish = async (values) => {
     if (!validatePhones()) {
       message.error("Please enter valid phone numbers");
-      setCurrentStep(3);
-      return;
-    }
-    if (!imageFile) {
-      setImageAttempted(true);
-      message.error("A profile photo is required. Please upload one.");
-      setCurrentStep(4);
       return;
     }
 
@@ -100,11 +77,11 @@ const StudentRegister = () => {
       formData.append("pincode", values.pincode);
       formData.append("state", values.state);
       formData.append("country", values.country);
-      formData.append("fatherName", values.fatherName || "");
-      formData.append("motherName", values.motherName || "");
       formData.append("phoneNumber", phones.phoneNumber);
       formData.append("alternateNumber", phones.alternateNumber);
-      formData.append("image", imageFile);
+      if (values.fatherName) formData.append("fatherName", values.fatherName);
+      if (values.motherName) formData.append("motherName", values.motherName);
+      if (imageFile) formData.append("image", imageFile);
 
       const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
       const response = await fetch(`${backendUrl}/api/v1/student/signup`, {
@@ -117,7 +94,7 @@ const StudentRegister = () => {
           message.success("Registration successful! Please check your email to verify your account.");
           setTimeout(() => navigate("/auth/verify-email-sent"), 1500);
         } else {
-          message.success("Registration successful! You can now login.");
+          message.success("Registration successful! You can now log in.");
           setTimeout(() => navigate("/auth/sign-in"), 1500);
         }
       } else {
@@ -130,23 +107,25 @@ const StudentRegister = () => {
     }
   };
 
+  const inputClass = "w-full";
+
   return (
     <div className="flex min-h-screen flex-col dark:!bg-navy-900">
       <div className="flex flex-grow">
         <div className="flex w-full flex-col items-center justify-center px-6 py-12 md:w-[55%] lg:w-[50%]">
-          <div className="w-full max-w-[480px]">
+          <div className="w-full max-w-[520px]">
             <div className="mb-6">
               <h4 className="mb-1 text-3xl font-bold text-navy-700 dark:text-white">Student Registration</h4>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Create your student account to access tests and results.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Create your account to access tests and results.
+              </p>
             </div>
 
             <div className="mb-8">
               <Steps current={currentStep} size="small" responsive={false}>
-                <Step title="Personal" />
-                <Step title="Academic" />
-                <Step title="Address" />
-                <Step title="Contact" />
-                <Step title="Photo" />
+                <Steps.Step title="Personal" />
+                <Steps.Step title="Academic" />
+                <Steps.Step title="Contact" />
               </Steps>
             </div>
 
@@ -160,85 +139,90 @@ const StudentRegister = () => {
                     <Input placeholder="Last name" size="large" />
                   </Form.Item>
                 </div>
-                <Form.Item name="email" label="Email" rules={[{ required: true, message: "Required" }, { type: "email", message: "Invalid email address" }]}>
-                  <Input type="email" placeholder="you@example.com" size="large" />
-                </Form.Item>
-                <Form.Item name="password" label="Password" rules={[{ required: true, message: "Required" }, { min: 6, message: "Minimum 6 characters" }]}>
-                  <Input.Password placeholder="Min. 6 characters" size="large" />
-                </Form.Item>
                 <Form.Item
-                  name="confirmPassword"
-                  label="Confirm Password"
-                  rules={[
-                    { required: true, message: "Required" },
-                    ({ getFieldValue }) => ({
-                      validator(_, value) {
-                        if (!value || getFieldValue("password") === value) return Promise.resolve();
-                        return Promise.reject(new Error("Passwords do not match"));
-                      },
-                    }),
-                  ]}
+                  name="email"
+                  label="Email"
+                  rules={[{ required: true, message: "Required" }, { type: "email", message: "Invalid email" }]}
                 >
-                  <Input.Password placeholder="Repeat your password" size="large" />
-                </Form.Item>
-              </div>
-
-              <div style={{ display: currentStep === 1 ? "block" : "none" }}>
-                <Form.Item name="studentId" label="Student ID" rules={[{ required: true, message: "Required" }]}>
-                  <Input placeholder="Your student ID" size="large" />
-                </Form.Item>
-                <Form.Item name="batch" label="Batch" rules={[{ required: true, message: "Required" }]}>
-                  <Select placeholder="Select your batch" size="large">
-                    {batches.map((batch) => (
-                      <Option key={batch._id} value={batch.batchName}>{batch.batchName}</Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-                <Form.Item name="admissionDate" label="Admission Date" rules={[{ required: true, message: "Required" }]}>
-                  <Input type="date" size="large" />
-                </Form.Item>
-              </div>
-
-              <div style={{ display: currentStep === 2 ? "block" : "none" }}>
-                <Form.Item name="address" label="Address" rules={[{ required: true, message: "Required" }, { min: 2, message: "Too short" }]}>
-                  <Input.TextArea placeholder="Full address" rows={3} />
+                  <Input type="email" placeholder="you@example.com" size="large" />
                 </Form.Item>
                 <div className="grid grid-cols-2 gap-4">
                   <Form.Item
+                    name="password"
+                    label="Password"
+                    rules={[{ required: true, message: "Required" }, { min: 6, message: "Minimum 6 characters" }]}
+                  >
+                    <Input.Password placeholder="Min. 6 characters" size="large" />
+                  </Form.Item>
+                  <Form.Item
+                    name="confirmPassword"
+                    label="Confirm Password"
+                    rules={[
+                      { required: true, message: "Required" },
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          if (!value || getFieldValue("password") === value) return Promise.resolve();
+                          return Promise.reject(new Error("Passwords do not match"));
+                        },
+                      }),
+                    ]}
+                  >
+                    <Input.Password placeholder="Repeat password" size="large" />
+                  </Form.Item>
+                </div>
+              </div>
+
+              <div style={{ display: currentStep === 1 ? "block" : "none" }}>
+                <div className="grid grid-cols-2 gap-4">
+                  <Form.Item name="studentId" label="Student ID" rules={[{ required: true, message: "Required" }]}>
+                    <Input placeholder="Your student ID" size="large" />
+                  </Form.Item>
+                  <Form.Item name="batch" label="Batch" rules={[{ required: true, message: "Required" }]}>
+                    <Select placeholder="Select batch" size="large">
+                      {batches.map((b) => (
+                        <Option key={b._id} value={b.batchName}>{b.batchName}</Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </div>
+                <Form.Item name="admissionDate" label="Admission Date" rules={[{ required: true, message: "Required" }]}>
+                  <Input type="date" size="large" />
+                </Form.Item>
+                <Form.Item
+                  name="address"
+                  label="Address"
+                  rules={[{ required: true, message: "Required" }, { min: 2, message: "Too short" }]}
+                >
+                  <Input.TextArea placeholder="Full address" rows={2} />
+                </Form.Item>
+                <div className="grid grid-cols-3 gap-4">
+                  <Form.Item
                     name="pincode"
                     label="Pincode"
-                    rules={[{ required: true, message: "Required" }, { pattern: /^\d{4,10}$/, message: "Enter a valid pincode" }]}
+                    rules={[{ required: true, message: "Required" }, { pattern: /^\d{4,10}$/, message: "Invalid pincode" }]}
                   >
                     <Input placeholder="Pincode" size="large" />
                   </Form.Item>
                   <Form.Item name="state" label="State" rules={[{ required: true, message: "Required" }]}>
                     <Input placeholder="State" size="large" />
                   </Form.Item>
+                  <Form.Item name="country" label="Country" rules={[{ required: true, message: "Required" }]}>
+                    <Input placeholder="Country" size="large" />
+                  </Form.Item>
                 </div>
-                <Form.Item name="country" label="Country" rules={[{ required: true, message: "Required" }]}>
-                  <Input placeholder="Country" size="large" />
-                </Form.Item>
               </div>
 
-              <div style={{ display: currentStep === 3 ? "block" : "none" }}>
-                <div className="grid grid-cols-2 gap-4">
-                  <Form.Item name="fatherName" label="Father's Name" rules={[{ required: true, message: "Required" }]}>
-                    <Input placeholder="Father's name" size="large" />
-                  </Form.Item>
-                  <Form.Item name="motherName" label="Mother's Name" rules={[{ required: true, message: "Required" }]}>
-                    <Input placeholder="Mother's name" size="large" />
-                  </Form.Item>
-                </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div style={{ display: currentStep === 2 ? "block" : "none" }}>
+                <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
                   <PhoneInput
-                    label="Your Phone Number"
+                    label="Phone Number"
                     required
                     value={phones.phoneNumber}
                     onChange={(val) => {
                       setPhones((prev) => ({ ...prev, phoneNumber: val || "" }));
-                      if (phoneErrors.phoneNumber) setPhoneErrors((prev) => ({ ...prev, phoneNumber: "" }));
+                      if (phoneErrors.phoneNumber) setPhoneErrors((prev) => ({ ...prev, phoneNumber: false }));
                     }}
-                    showValidation={!!phoneErrors.phoneNumber}
+                    showValidation={phoneErrors.phoneNumber}
                     placeholder="Your phone number"
                   />
                   <PhoneInput
@@ -247,24 +231,26 @@ const StudentRegister = () => {
                     value={phones.alternateNumber}
                     onChange={(val) => {
                       setPhones((prev) => ({ ...prev, alternateNumber: val || "" }));
-                      if (phoneErrors.alternateNumber) setPhoneErrors((prev) => ({ ...prev, alternateNumber: "" }));
+                      if (phoneErrors.alternateNumber) setPhoneErrors((prev) => ({ ...prev, alternateNumber: false }));
                     }}
-                    showValidation={!!phoneErrors.alternateNumber}
+                    showValidation={phoneErrors.alternateNumber}
                     placeholder="Alternate number"
                   />
                 </div>
-                {phoneErrors.phoneNumber && (
-                  <p className="mt-1 text-xs text-red-500">{phoneErrors.phoneNumber}</p>
-                )}
-                {phoneErrors.alternateNumber && (
-                  <p className="mt-1 text-xs text-red-500">{phoneErrors.alternateNumber}</p>
-                )}
-              </div>
 
-              <div style={{ display: currentStep === 4 ? "block" : "none" }}>
+                <div className="grid grid-cols-2 gap-4">
+                  <Form.Item name="fatherName" label={<span>Father's Name <span className="text-gray-400 font-normal text-xs">(optional)</span></span>}>
+                    <Input placeholder="Father's name" size="large" />
+                  </Form.Item>
+                  <Form.Item name="motherName" label={<span>Mother's Name <span className="text-gray-400 font-normal text-xs">(optional)</span></span>}>
+                    <Input placeholder="Mother's name" size="large" />
+                  </Form.Item>
+                </div>
+
                 <div className="mb-4">
                   <label className="mb-1 block text-sm font-medium text-navy-700 dark:text-white">
-                    Profile Photo <span className="text-red-500">*</span>
+                    Profile Photo{" "}
+                    <span className="text-gray-400 font-normal">(optional — you can add this later from your profile)</span>
                   </label>
                   <input
                     type="file"
@@ -272,17 +258,14 @@ const StudentRegister = () => {
                     onChange={(e) => setImageFile(e.target.files[0] || null)}
                     className="w-full rounded-lg border border-gray-300 p-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white"
                   />
-                  {imageFile ? (
+                  {imageFile && (
                     <p className="mt-1 text-xs text-green-600">Selected: {imageFile.name}</p>
-                  ) : imageAttempted ? (
-                    <p className="mt-1 text-xs text-red-500">A profile photo is required</p>
-                  ) : null}
+                  )}
                 </div>
-                <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 dark:border-navy-600 dark:bg-navy-700">
-                  <p className="text-sm font-semibold text-navy-700 dark:text-white">Almost done!</p>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Upload your photo then click "Create Account" to complete registration.
-                    A verification email will be sent to your address.
+
+                <div className="rounded-xl border border-blue-100 bg-blue-50 p-3 dark:border-navy-600 dark:bg-navy-700">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    After registering, a verification email will be sent to your address. Click the link to activate your account before logging in.
                   </p>
                 </div>
               </div>
@@ -297,7 +280,7 @@ const StudentRegister = () => {
                     Back
                   </button>
                 )}
-                {currentStep < 4 ? (
+                {currentStep < 2 ? (
                   <button
                     type="button"
                     onClick={handleNext}
@@ -319,9 +302,9 @@ const StudentRegister = () => {
 
             <p className="mt-6 text-sm font-medium text-navy-700 dark:text-gray-500">
               Already have an account?{" "}
-              <a href="/auth/sign-in" className="font-bold text-brand-500 hover:text-brand-600 dark:text-white">
+              <Link to="/auth/sign-in" className="font-bold text-brand-500 hover:text-brand-600 dark:text-white">
                 Sign in
-              </a>
+              </Link>
             </p>
           </div>
         </div>

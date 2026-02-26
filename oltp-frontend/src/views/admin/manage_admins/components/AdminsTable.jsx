@@ -7,6 +7,9 @@ import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Modal, message } from "antd";
 import { AuthContext } from "components/Auth-context";
 
+const avatarUrl = (name) =>
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "Admin")}&background=6366f1&color=fff&size=72&bold=true`;
+
 const AdminsTable = () => {
   const auth = useContext(AuthContext);
   const [admins, setAdmins] = useState([]);
@@ -98,7 +101,7 @@ const AdminsTable = () => {
           <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search name, email..."
+            placeholder="Search name, email, mobile..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-56"
@@ -130,6 +133,9 @@ const AdminsTable = () => {
               ) : (
                 filtered.map((admin) => {
                   const isOwn = admin._id === auth.userId;
+                  const imgSrc = admin.image
+                    ? `${process.env.REACT_APP_BACKEND_URL}/${admin.image}`
+                    : avatarUrl(`${admin.firstName} ${admin.lastName}`);
                   return (
                     <tr
                       key={admin._id}
@@ -140,10 +146,12 @@ const AdminsTable = () => {
                       <td className="py-3 pr-3">
                         <div className="relative">
                           <img
-                            src={`${process.env.REACT_APP_BACKEND_URL}/${admin.image}`}
+                            src={imgSrc}
                             alt=""
                             className="h-9 w-9 rounded-full object-cover"
-                            onError={(e) => { e.target.src = "https://via.placeholder.com/36"; }}
+                            onError={(e) => {
+                              e.target.src = avatarUrl(`${admin.firstName} ${admin.lastName}`);
+                            }}
                           />
                           {isOwn && (
                             <span className="absolute -top-1 -right-1 rounded-full bg-blue-500 px-1 text-[8px] font-bold text-white">YOU</span>
@@ -159,7 +167,7 @@ const AdminsTable = () => {
                         <span className="text-sm text-gray-500">{admin.email}</span>
                       </td>
                       <td className="py-3 pr-6">
-                        <span className="text-sm text-gray-500">{admin.mobile}</span>
+                        <span className="text-sm text-gray-500">{admin.mobile || "—"}</span>
                       </td>
                       <td className="py-3">
                         <div className="flex items-center gap-2">

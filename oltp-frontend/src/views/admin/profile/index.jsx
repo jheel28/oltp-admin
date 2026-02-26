@@ -4,6 +4,10 @@ import Card from "components/card";
 import { AuthContext } from "components/Auth-context";
 import { message } from "antd";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import PhoneInput, { isValidPhoneNumber } from "components/PhoneInput";
+
+const avatarUrl = (name) =>
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "Admin")}&background=6366f1&color=fff&size=128&bold=true`;
 
 const AdminProfile = () => {
   const auth = useContext(AuthContext);
@@ -11,23 +15,15 @@ const AdminProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState({});
   const [profileImage, setProfileImage] = useState(null);
+  const [mobileError, setMobileError] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
   const [infoLoading, setInfoLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
-  const [passwords, setPasswords] = useState({
-    password: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const [showPassword, setShowPassword] = useState({
-    current: false,
-    new: false,
-    confirm: false,
-  });
+  const [passwords, setPasswords] = useState({ password: "", newPassword: "", confirmPassword: "" });
+  const [showPassword, setShowPassword] = useState({ current: false, new: false, confirm: false });
 
   const passwordsMatch =
-    passwords.newPassword !== "" &&
-    passwords.newPassword === passwords.confirmPassword;
+    passwords.newPassword !== "" && passwords.newPassword === passwords.confirmPassword;
 
   const fetchAdmin = async () => {
     try {
@@ -44,21 +40,21 @@ const AdminProfile = () => {
     }
   };
 
-  useEffect(() => {
-    fetchAdmin();
-  }, []);
+  useEffect(() => { fetchAdmin(); }, []);
 
   const handleInfoUpdate = async () => {
+    if (!editedData.mobile || !isValidPhoneNumber(editedData.mobile)) {
+      setMobileError(true);
+      message.error("Please enter a valid mobile number");
+      return;
+    }
     setInfoLoading(true);
     try {
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/v1/admin/update/admin/byid/${admin._id}`,
         {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + auth.token,
-          },
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + auth.token },
           body: JSON.stringify({
             firstName: editedData.firstName,
             lastName: editedData.lastName,
@@ -71,6 +67,7 @@ const AdminProfile = () => {
       if (response.ok) {
         message.success("Profile updated successfully");
         setIsEditing(false);
+        setMobileError(false);
         fetchAdmin();
       } else {
         message.error(data.message || "Could not update profile, please try again");
@@ -90,11 +87,7 @@ const AdminProfile = () => {
       formData.append("image", profileImage);
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/v1/admin/update/image/byid/${auth.userId}`,
-        {
-          method: "PATCH",
-          body: formData,
-          headers: { Authorization: "Bearer " + auth.token },
-        }
+        { method: "PATCH", body: formData, headers: { Authorization: "Bearer " + auth.token } }
       );
       if (response.ok) {
         message.success("Profile image updated successfully");
@@ -112,32 +105,17 @@ const AdminProfile = () => {
   };
 
   const handlePasswordUpdate = async () => {
-    if (!passwords.password) {
-      message.error("Please enter your current password");
-      return;
-    }
-    if (!passwordsMatch) {
-      message.error("New passwords do not match");
-      return;
-    }
-    if (passwords.newPassword.length < 6) {
-      message.error("New password must be at least 6 characters");
-      return;
-    }
+    if (!passwords.password) { message.error("Please enter your current password"); return; }
+    if (!passwordsMatch) { message.error("New passwords do not match"); return; }
+    if (passwords.newPassword.length < 6) { message.error("New password must be at least 6 characters"); return; }
     setPasswordLoading(true);
     try {
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/v1/admin/update/password/byemail/${auth.email}`,
         {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + auth.token,
-          },
-          body: JSON.stringify({
-            password: passwords.password,
-            newPassword: passwords.newPassword,
-          }),
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + auth.token },
+          body: JSON.stringify({ password: passwords.password, newPassword: passwords.newPassword }),
         }
       );
       const data = await response.json();
@@ -159,15 +137,13 @@ const AdminProfile = () => {
     setEditedData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswords((prev) => ({ ...prev, [name]: value }));
-  };
+  const cancelEdit = () => { setEditedData(admin); setIsEditing(false); setMobileError(false); };
 
-  const cancelEdit = () => {
-    setEditedData(admin);
-    setIsEditing(false);
-  };
+  const currentAvatarUrl = profileImage
+    ? URL.createObjectURL(profileImage)
+    : admin.image
+    ? `${process.env.REACT_APP_BACKEND_URL}/${admin.image}`
+    : avatarUrl(`${admin.firstName} ${admin.lastName}`);
 
   const inputClass = "w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white dark:bg-navy-800";
 
@@ -178,15 +154,14 @@ const AdminProfile = () => {
           className="relative mt-1 flex h-32 w-full justify-center rounded-xl bg-cover"
           style={{ backgroundImage: `url(${banner})` }}
         >
-          <div className="absolute -bottom-12 flex h-[87px] w-[87px] items-center justify-center rounded-full border-[4px] border-white bg-pink-400 dark:!border-navy-700">
+          <div className="absolute -bottom-12 flex h-[87px] w-[87px] items-center justify-center rounded-full border-[4px] border-white bg-indigo-400 dark:!border-navy-700">
             <img
               className="h-full w-full rounded-full object-cover"
-              src={
-                profileImage
-                  ? URL.createObjectURL(profileImage)
-                  : `${process.env.REACT_APP_BACKEND_URL}/${admin.image}`
-              }
+              src={currentAvatarUrl}
               alt=""
+              onError={(e) => {
+                e.target.src = avatarUrl(`${admin.firstName} ${admin.lastName}`);
+              }}
             />
           </div>
         </div>
@@ -205,8 +180,7 @@ const AdminProfile = () => {
             {[
               { name: "firstName", label: "First Name" },
               { name: "lastName",  label: "Last Name"  },
-              { name: "mobile",    label: "Mobile Number" },
-              { name: "email",     label: "Email" },
+              { name: "email",     label: "Email"       },
             ].map(({ name, label }) => (
               <div key={name}>
                 <label className="text-sm text-gray-600">{label}</label>
@@ -219,36 +193,39 @@ const AdminProfile = () => {
                     className={inputClass}
                   />
                 ) : (
-                  <p className="text-base font-medium text-navy-700 dark:text-white">
-                    {admin[name] || "—"}
-                  </p>
+                  <p className="text-base font-medium text-navy-700 dark:text-white">{admin[name] || "—"}</p>
                 )}
               </div>
             ))}
+            <div>
+              <label className="text-sm text-gray-600">Mobile Number</label>
+              {isEditing ? (
+                <PhoneInput
+                  value={editedData.mobile || ""}
+                  onChange={(val) => {
+                    setEditedData((prev) => ({ ...prev, mobile: val || "" }));
+                    if (mobileError) setMobileError(false);
+                  }}
+                  showValidation={mobileError}
+                  placeholder="Mobile number"
+                />
+              ) : (
+                <p className="text-base font-medium text-navy-700 dark:text-white">{admin.mobile || "—"}</p>
+              )}
+            </div>
           </div>
           <div className="mt-6 flex gap-3">
             {isEditing ? (
               <>
-                <button
-                  onClick={handleInfoUpdate}
-                  disabled={infoLoading}
-                  className="rounded-full bg-green-500 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-50"
-                >
+                <button onClick={handleInfoUpdate} disabled={infoLoading} className="rounded-full bg-green-500 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-50">
                   {infoLoading ? "Saving..." : "Save"}
                 </button>
-                <button
-                  onClick={cancelEdit}
-                  disabled={infoLoading}
-                  className="rounded-full bg-gray-400 px-4 py-2 text-white hover:bg-gray-600 disabled:opacity-50"
-                >
+                <button onClick={cancelEdit} disabled={infoLoading} className="rounded-full bg-gray-400 px-4 py-2 text-white hover:bg-gray-600 disabled:opacity-50">
                   Cancel
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
-              >
+              <button onClick={() => setIsEditing(true)} className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700">
                 Edit
               </button>
             )}
@@ -266,16 +243,8 @@ const AdminProfile = () => {
             />
             {profileImage && (
               <div className="flex items-center gap-4">
-                <img
-                  src={URL.createObjectURL(profileImage)}
-                  alt="Preview"
-                  className="h-16 w-16 rounded-full object-cover"
-                />
-                <button
-                  onClick={handleImageUpdate}
-                  disabled={imageLoading}
-                  className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-                >
+                <img src={URL.createObjectURL(profileImage)} alt="Preview" className="h-16 w-16 rounded-full object-cover" />
+                <button onClick={handleImageUpdate} disabled={imageLoading} className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50">
                   {imageLoading ? "Uploading..." : "Update Image"}
                 </button>
               </div>
@@ -294,13 +263,11 @@ const AdminProfile = () => {
                   type={showPassword[key] ? "text" : "password"}
                   name={name}
                   value={passwords[name]}
-                  onChange={handlePasswordChange}
+                  onChange={(e) => setPasswords((prev) => ({ ...prev, [name]: e.target.value }))}
                   placeholder={label}
                   className={`w-full rounded-md border p-3 pr-10 text-navy-700 dark:text-white dark:bg-navy-800 ${
                     name !== "password" && passwords.confirmPassword !== ""
-                      ? passwordsMatch
-                        ? "border-green-500"
-                        : "border-red-500"
+                      ? passwordsMatch ? "border-green-500" : "border-red-500"
                       : "border-gray-300"
                   }`}
                 />

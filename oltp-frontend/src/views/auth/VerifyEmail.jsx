@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import logo from "assets/img/Logo/correct.png";
 
 const VerifyEmail = () => {
   const { token } = useParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState("loading");
-  const [message, setMessage] = useState("");
+  const [msg, setMsg] = useState("");
+  const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
     if (!token) {
       setStatus("error");
-      setMessage("No verification token found.");
+      setMsg("No verification token found in the link.");
       return;
     }
 
@@ -23,20 +23,29 @@ const VerifyEmail = () => {
         const data = await response.json();
         if (response.ok) {
           setStatus("success");
-          setMessage(data.message || "Email verified successfully.");
-          setTimeout(() => navigate("/auth/sign-in"), 3000);
+          setMsg(data.message || "Email verified successfully.");
         } else {
           setStatus("error");
-          setMessage(data.message || "Verification failed. The link may have expired.");
+          setMsg(data.message || "Verification failed. The link may have expired.");
         }
       } catch {
         setStatus("error");
-        setMessage("A network error occurred. Please try again.");
+        setMsg("A network error occurred. Please try again.");
       }
     };
 
     verify();
   }, [token, navigate]);
+
+  useEffect(() => {
+    if (status !== "success") return;
+    if (countdown <= 0) {
+      navigate("/auth/sign-in");
+      return;
+    }
+    const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [status, countdown, navigate]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#F4F7FE] dark:!bg-navy-900 px-4">
@@ -51,7 +60,7 @@ const VerifyEmail = () => {
         {status === "loading" && (
           <>
             <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
-            <h2 className="text-xl font-bold text-navy-700 dark:text-white">Verifying your email...</h2>
+            <h2 className="text-xl font-bold text-navy-700 dark:text-white">Verifying your email…</h2>
             <p className="mt-2 text-sm text-gray-500">Please wait a moment.</p>
           </>
         )}
@@ -64,8 +73,10 @@ const VerifyEmail = () => {
               </svg>
             </div>
             <h2 className="text-xl font-bold text-green-600">Email Verified!</h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{message}</p>
-            <p className="mt-3 text-xs text-gray-400">Redirecting to login in 3 seconds...</p>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{msg}</p>
+            <p className="mt-3 text-xs text-gray-400">
+              Redirecting to login in {countdown} second{countdown !== 1 ? "s" : ""}…
+            </p>
             <Link
               to="/auth/sign-in"
               className="mt-4 inline-block rounded-xl bg-brand-500 px-6 py-2 text-sm font-semibold text-white hover:bg-brand-600"
@@ -83,8 +94,8 @@ const VerifyEmail = () => {
               </svg>
             </div>
             <h2 className="text-xl font-bold text-red-600">Verification Failed</h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{message}</p>
-            <div className="mt-6 space-y-2">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{msg}</p>
+            <div className="mt-6 space-y-4">
               <ResendVerification />
               <Link
                 to="/auth/sign-in"
@@ -135,20 +146,22 @@ const ResendVerification = () => {
 
   if (sent) {
     return (
-      <p className="text-sm text-green-600 font-medium">
-        Verification email sent! Check your inbox.
-      </p>
+      <div className="rounded-xl border border-green-200 bg-green-50 p-3">
+        <p className="text-sm font-medium text-green-700">Verification email sent! Check your inbox.</p>
+        <p className="mt-1 text-xs text-green-600">The link expires in 24 hours.</p>
+      </div>
     );
   }
 
   return (
-    <div className="mt-4">
-      <p className="mb-2 text-sm text-gray-500">Resend the verification email:</p>
+    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-left">
+      <p className="mb-2 text-sm font-medium text-gray-700">Resend verification email:</p>
       <div className="flex gap-2">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleResend()}
           placeholder="Enter your email"
           className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
@@ -157,7 +170,7 @@ const ResendVerification = () => {
           disabled={loading}
           className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 disabled:opacity-50"
         >
-          {loading ? "..." : "Send"}
+          {loading ? "…" : "Send"}
         </button>
       </div>
       {error && <p className="mt-1 text-xs text-red-500">{error}</p>}

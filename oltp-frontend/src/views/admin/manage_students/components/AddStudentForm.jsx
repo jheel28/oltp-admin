@@ -33,10 +33,10 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         const response = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/get/all/batches`
         );
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) throw new Error();
         const data = await response.json();
         setBatches(data.batches || []);
-      } catch (err) {
+      } catch {
         message.error("Failed to load batches");
       }
     };
@@ -54,17 +54,10 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setFormData((prev) => ({ ...prev, image: file }));
-      message.success("Image selected");
-    }
+    if (file) setFormData((prev) => ({ ...prev, image: file }));
   };
 
   const validateForm = () => {
-    if (!formData.image) {
-      message.error("Please upload a student image");
-      return false;
-    }
     if (!formData.batch) {
       message.error("Please select a batch");
       return false;
@@ -86,10 +79,11 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
 
     setLoading(true);
     try {
-      const formDataToSend = new FormData();
+      const payload = new FormData();
       for (let key in formData) {
-        if (formData[key] !== null && formData[key] !== undefined && formData[key] !== "") {
-          formDataToSend.append(key, formData[key]);
+        const val = formData[key];
+        if (val !== null && val !== undefined && val !== "") {
+          payload.append(key, val);
         }
       }
 
@@ -97,7 +91,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         `${process.env.REACT_APP_BACKEND_URL}/api/v1/student/create/student`,
         {
           method: "POST",
-          body: formDataToSend,
+          body: payload,
           headers: { Authorization: "Bearer " + auth.token },
         }
       );
@@ -110,27 +104,8 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
       }
 
       message.success("Student created successfully");
-      setFormData({
-        firstName: "",
-        lastName: "",
-        studentId: "",
-        fatherName: "",
-        motherName: "",
-        phoneNumber: "",
-        alternateNumber: "",
-        email: "",
-        password: "",
-        batch: "",
-        address: "",
-        pincode: "",
-        state: "",
-        country: "",
-        admissionDate: "",
-        image: null,
-      });
-      setShowValidation(false);
       onSubmit(responseData);
-    } catch (error) {
+    } catch {
       message.error("Network error, please try again");
     } finally {
       setLoading(false);
@@ -144,38 +119,11 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
       <h2 className="mb-6 text-xl font-bold text-navy-700 dark:text-white">Add Student</h2>
 
       <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
-        <input
-          type="text"
-          name="firstName"
-          value={formData.firstName}
-          onChange={handleChange}
-          placeholder="First Name *"
-          required
-          className={inputClass}
-          disabled={loading}
-        />
-        <input
-          type="text"
-          name="lastName"
-          value={formData.lastName}
-          onChange={handleChange}
-          placeholder="Last Name *"
-          required
-          className={inputClass}
-          disabled={loading}
-        />
+        <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="First Name *" required className={inputClass} disabled={loading} />
+        <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Last Name *" required className={inputClass} disabled={loading} />
       </div>
 
-      <input
-        type="text"
-        name="studentId"
-        value={formData.studentId}
-        onChange={handleChange}
-        placeholder="Student ID *"
-        required
-        className={inputClass}
-        disabled={loading}
-      />
+      <input type="text" name="studentId" value={formData.studentId} onChange={handleChange} placeholder="Student ID *" required className={inputClass} disabled={loading} />
 
       <PhoneInput
         label="Phone Number"
@@ -198,148 +146,55 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
       />
 
       <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
-        <input
-          type="text"
-          name="fatherName"
-          value={formData.fatherName}
-          onChange={handleChange}
-          placeholder="Father's Name"
-          className={inputClass}
-          disabled={loading}
-        />
-        <input
-          type="text"
-          name="motherName"
-          value={formData.motherName}
-          onChange={handleChange}
-          placeholder="Mother's Name"
-          className={inputClass}
-          disabled={loading}
-        />
+        <input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} placeholder="Father's Name (optional)" className={inputClass} disabled={loading} />
+        <input type="text" name="motherName" value={formData.motherName} onChange={handleChange} placeholder="Mother's Name (optional)" className={inputClass} disabled={loading} />
       </div>
 
-      <input
-        type="email"
-        name="email"
-        value={formData.email}
-        onChange={handleChange}
-        placeholder="Email *"
-        className={inputClass}
-        disabled={loading}
-      />
-      <input
-        type="password"
-        name="password"
-        value={formData.password}
-        onChange={handleChange}
-        placeholder="Password *"
-        className={inputClass}
-        disabled={loading}
-      />
+      <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email *" className={inputClass} disabled={loading} />
+      <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password *" className={inputClass} disabled={loading} />
 
       <div className="mb-4">
         <label className="mb-1 block text-sm font-medium text-gray-600 dark:text-gray-300">
           Batch <span className="text-red-500">*</span>
         </label>
-        <Select
-          style={{ width: "100%" }}
-          value={formData.batch || undefined}
-          placeholder="Select a batch"
-          onChange={handleSelectChange}
-          disabled={loading}
-        >
+        <Select style={{ width: "100%" }} value={formData.batch || undefined} placeholder="Select a batch" onChange={handleSelectChange} disabled={loading}>
           {batches.map((batch) => (
-            <Select.Option key={batch._id} value={batch.batchName}>
-              {batch.batchName}
-            </Select.Option>
+            <Select.Option key={batch._id} value={batch.batchName}>{batch.batchName}</Select.Option>
           ))}
         </Select>
       </div>
 
-      <input
-        type="text"
-        name="address"
-        value={formData.address}
-        onChange={handleChange}
-        placeholder="Address *"
-        className={inputClass}
-        disabled={loading}
-      />
+      <input type="text" name="address" value={formData.address} onChange={handleChange} placeholder="Address *" className={inputClass} disabled={loading} />
 
       <div className="grid grid-cols-1 gap-0 sm:grid-cols-3 sm:gap-4">
-        <input
-          type="text"
-          name="pincode"
-          value={formData.pincode}
-          onChange={handleChange}
-          placeholder="Pincode *"
-          className={inputClass}
-          disabled={loading}
-        />
-        <input
-          type="text"
-          name="state"
-          value={formData.state}
-          onChange={handleChange}
-          placeholder="State *"
-          className={inputClass}
-          disabled={loading}
-        />
-        <input
-          type="text"
-          name="country"
-          value={formData.country}
-          onChange={handleChange}
-          placeholder="Country *"
-          className={inputClass}
-          disabled={loading}
-        />
+        <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} placeholder="Pincode *" className={inputClass} disabled={loading} />
+        <input type="text" name="state" value={formData.state} onChange={handleChange} placeholder="State *" className={inputClass} disabled={loading} />
+        <input type="text" name="country" value={formData.country} onChange={handleChange} placeholder="Country *" className={inputClass} disabled={loading} />
       </div>
 
       <div className="mb-4">
         <label className="mb-1 block text-sm font-medium text-gray-600 dark:text-gray-300">
           Date of Admission <span className="text-red-500">*</span>
         </label>
-        <input
-          type="date"
-          name="admissionDate"
-          value={formData.admissionDate}
-          onChange={handleChange}
-          className={inputClass}
-          disabled={loading}
-        />
+        <input type="date" name="admissionDate" value={formData.admissionDate} onChange={handleChange} className={inputClass} disabled={loading} />
       </div>
 
       <div className="mb-6">
         <label className="mb-1 block text-sm font-medium text-gray-600 dark:text-gray-300">
-          Student Photo <span className="text-red-500">*</span>
+          Student Photo{" "}
+          <span className="text-gray-400 font-normal">(optional)</span>
         </label>
-        <input
-          type="file"
-          name="image"
-          accept="image/*"
-          onChange={handleImageChange}
-          className="w-full rounded-md border border-gray-300 p-3 text-sm"
-          disabled={loading}
-        />
+        <input type="file" name="image" accept="image/*" onChange={handleImageChange} className="w-full rounded-md border border-gray-300 p-3 text-sm" disabled={loading} />
         {formData.image && (
           <p className="mt-1 text-xs text-green-600">Selected: {formData.image.name}</p>
         )}
       </div>
 
       <div className="flex space-x-4">
-        <button
-          className="rounded-full bg-blue-500 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-          onClick={handleSubmit}
-          disabled={loading}
-        >
+        <button className="rounded-full bg-blue-500 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50" onClick={handleSubmit} disabled={loading}>
           {loading ? "Creating..." : "Submit"}
         </button>
-        <button
-          className="rounded-full bg-red-500 px-6 py-2 text-white hover:bg-red-700 disabled:opacity-50"
-          onClick={onCancel}
-          disabled={loading}
-        >
+        <button className="rounded-full bg-red-500 px-6 py-2 text-white hover:bg-red-700 disabled:opacity-50" onClick={onCancel} disabled={loading}>
           Cancel
         </button>
       </div>

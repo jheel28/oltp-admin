@@ -6,6 +6,9 @@ import PhoneInput, { isValidPhoneNumber } from "components/PhoneInput";
 
 const { Option } = Select;
 
+const avatarUrl = (name) =>
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "Student")}&background=4f46e5&color=fff&size=128&bold=true`;
+
 const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
   const auth = useContext(AuthContext);
   const [isEditing, setIsEditing] = useState(false);
@@ -22,7 +25,7 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
         );
         const data = await response.json();
         setBatches(data.batches || []);
-      } catch (error) {
+      } catch {
         message.error("Failed to load batches");
       }
     };
@@ -76,9 +79,9 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
         setShowValidation(false);
         onUpdate(responseData);
       } else {
-        message.error(responseData.message || "Could not update the student, please check and try again");
+        message.error(responseData.message || "Could not update the student, please try again");
       }
-    } catch (err) {
+    } catch {
       message.error("Network error, please try again");
     } finally {
       setLoading(false);
@@ -92,16 +95,23 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setEditedData((prev) => ({ ...prev, image: file }));
-    }
+    if (file) setEditedData((prev) => ({ ...prev, image: file }));
   };
 
   const inputClass = "w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white dark:bg-navy-800 focus:outline-none focus:ring-2 focus:ring-blue-500";
 
-  const Field = ({ label, name, type = "text", children }) => (
+  const displayImage = editedData.image instanceof File
+    ? URL.createObjectURL(editedData.image)
+    : editedData.image
+    ? `${process.env.REACT_APP_BACKEND_URL}/${editedData.image}`
+    : avatarUrl(`${editedData.firstName} ${editedData.lastName}`);
+
+  const Field = ({ label, name, type = "text", optional = false, children }) => (
     <div className="mb-3">
-      <label className="text-sm text-gray-600 dark:text-gray-400">{label}</label>
+      <label className="text-sm text-gray-600 dark:text-gray-400">
+        {label}
+        {optional && <span className="ml-1 text-xs text-gray-400">(optional)</span>}
+      </label>
       {children || (
         isEditing ? (
           <input
@@ -126,24 +136,16 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
       <div className="w-full sm:w-1/3 bg-white p-6 dark:bg-navy-700">
         <div className="relative mb-4 h-40 w-40 rounded-full bg-gray-300">
           <img
-            src={
-              editedData.image instanceof File
-                ? URL.createObjectURL(editedData.image)
-                : `${process.env.REACT_APP_BACKEND_URL}/${editedData.image}`
-            }
+            src={displayImage}
             alt="Student"
             className="h-40 w-40 rounded-full object-cover"
+            onError={(e) => {
+              e.target.src = avatarUrl(`${editedData.firstName} ${editedData.lastName}`);
+            }}
           />
           {isEditing && (
             <label htmlFor="image" className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-white p-1 shadow text-blue-500">
-              <input
-                type="file"
-                name="image"
-                id="image"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-              />
+              <input type="file" name="image" id="image" accept="image/*" onChange={handleImageChange} className="hidden" />
               <FaPencilAlt />
             </label>
           )}
@@ -168,8 +170,8 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
         <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
           <Field label="First Name *" name="firstName" />
           <Field label="Last Name *" name="lastName" />
-          <Field label="Father's Name" name="fatherName" />
-          <Field label="Mother's Name" name="motherName" />
+          <Field label="Father's Name" name="fatherName" optional />
+          <Field label="Mother's Name" name="motherName" optional />
           <Field label="Email *" name="email" type="email" />
           <Field label="Student ID *" name="studentId" />
         </div>
@@ -214,9 +216,7 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
               disabled={loading}
             >
               {batches.map((batch) => (
-                <Option key={batch._id} value={batch.batchName}>
-                  {batch.batchName}
-                </Option>
+                <Option key={batch._id} value={batch.batchName}>{batch.batchName}</Option>
               ))}
             </Select>
           ) : (
@@ -250,7 +250,9 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
 
         {isEditing && (
           <div className="mb-3">
-            <label className="text-sm text-gray-600 dark:text-gray-400">New Password (leave blank to keep current)</label>
+            <label className="text-sm text-gray-600 dark:text-gray-400">
+              New Password <span className="text-xs text-gray-400">(leave blank to keep current)</span>
+            </label>
             <input
               type="password"
               name="password"

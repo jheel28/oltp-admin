@@ -3,6 +3,10 @@ import { AuthContext } from "components/Auth-context";
 import React, { useContext, useState } from "react";
 import { FaPencilAlt, FaCheck } from "react-icons/fa";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import PhoneInput, { isValidPhoneNumber } from "components/PhoneInput";
+
+const avatarUrl = (name) =>
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "Admin")}&background=6366f1&color=fff&size=128&bold=true`;
 
 const ViewAdmin = ({ adminData, isOwnProfile, onUpdate, onBack }) => {
   const auth = useContext(AuthContext);
@@ -10,6 +14,7 @@ const ViewAdmin = ({ adminData, isOwnProfile, onUpdate, onBack }) => {
   const [editedData, setEditedData] = useState({ ...adminData });
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+  const [mobileError, setMobileError] = useState(false);
   const [passwords, setPasswords] = useState({ password: "", newPassword: "", confirmPassword: "" });
   const [showPasswords, setShowPasswords] = useState({ current: false, new: false, confirm: false });
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -28,6 +33,12 @@ const ViewAdmin = ({ adminData, isOwnProfile, onUpdate, onBack }) => {
   };
 
   const handleUpdate = async () => {
+    if (isEditing && (!editedData.mobile || !isValidPhoneNumber(editedData.mobile))) {
+      setMobileError(true);
+      message.error("Please enter a valid mobile number");
+      return;
+    }
+
     setLoading(true);
     try {
       const formData = new FormData();
@@ -52,6 +63,7 @@ const ViewAdmin = ({ adminData, isOwnProfile, onUpdate, onBack }) => {
         message.success("Profile updated successfully");
         setIsEditing(false);
         setImageFile(null);
+        setMobileError(false);
         onUpdate(data);
       } else {
         message.error(data.message || "Could not update profile");
@@ -102,9 +114,11 @@ const ViewAdmin = ({ adminData, isOwnProfile, onUpdate, onBack }) => {
 
   const inputClass = "w-full rounded-md border border-gray-300 p-2.5 text-sm text-navy-700 dark:text-white dark:bg-navy-800 focus:outline-none focus:ring-2 focus:ring-blue-500";
 
-  const currentImage = imageFile
+  const displayImage = imageFile
     ? URL.createObjectURL(imageFile)
-    : `${process.env.REACT_APP_BACKEND_URL}/${editedData.image}`;
+    : editedData.image
+    ? `${process.env.REACT_APP_BACKEND_URL}/${editedData.image}`
+    : avatarUrl(`${editedData.firstName} ${editedData.lastName}`);
 
   return (
     <div>
@@ -147,10 +161,12 @@ const ViewAdmin = ({ adminData, isOwnProfile, onUpdate, onBack }) => {
         <div className="flex-shrink-0">
           <div className="relative h-32 w-32">
             <img
-              src={currentImage}
+              src={displayImage}
               alt="Admin"
               className="h-32 w-32 rounded-full object-cover"
-              onError={(e) => { e.target.src = "https://via.placeholder.com/128"; }}
+              onError={(e) => {
+                e.target.src = avatarUrl(`${editedData.firstName} ${editedData.lastName}`);
+              }}
             />
             {isOwnProfile && isEditing && (
               <label htmlFor="admin-image" className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-white p-1.5 shadow-md text-blue-500">
@@ -170,7 +186,6 @@ const ViewAdmin = ({ adminData, isOwnProfile, onUpdate, onBack }) => {
               {[
                 { name: "firstName", label: "First Name" },
                 { name: "lastName", label: "Last Name" },
-                { name: "mobile", label: "Mobile Number" },
                 { name: "email", label: "Email" },
               ].map(({ name, label }) => (
                 <div key={name}>
@@ -191,6 +206,24 @@ const ViewAdmin = ({ adminData, isOwnProfile, onUpdate, onBack }) => {
               ))}
 
               <div>
+                <label className="mb-1 block text-xs font-medium text-gray-500 uppercase tracking-wide">Mobile Number</label>
+                {isOwnProfile && isEditing ? (
+                  <PhoneInput
+                    value={editedData.mobile}
+                    onChange={(val) => {
+                      setEditedData((prev) => ({ ...prev, mobile: val || "" }));
+                      if (mobileError) setMobileError(false);
+                    }}
+                    disabled={loading}
+                    showValidation={mobileError}
+                    placeholder="Mobile number"
+                  />
+                ) : (
+                  <p className="text-sm font-medium text-navy-700 dark:text-white">{editedData.mobile || "—"}</p>
+                )}
+              </div>
+
+              <div>
                 <label className="mb-1 block text-xs font-medium text-gray-500 uppercase tracking-wide">Role</label>
                 <span className="inline-block rounded-full bg-indigo-100 px-3 py-0.5 text-xs font-bold text-indigo-700">
                   {editedData.role}
@@ -208,10 +241,10 @@ const ViewAdmin = ({ adminData, isOwnProfile, onUpdate, onBack }) => {
                     disabled={loading}
                     className="flex items-center gap-2 rounded-full bg-green-500 px-4 py-2 text-sm text-white hover:bg-green-700 disabled:opacity-50"
                   >
-                    <FaCheck /> {loading ? "Saving..." : "Save Changes"}
+                    <FaCheck /> {loading ? "Saving…" : "Save Changes"}
                   </button>
                   <button
-                    onClick={() => { setIsEditing(false); setEditedData({ ...adminData }); setImageFile(null); }}
+                    onClick={() => { setIsEditing(false); setEditedData({ ...adminData }); setImageFile(null); setMobileError(false); }}
                     disabled={loading}
                     className="rounded-full bg-gray-400 px-4 py-2 text-sm text-white hover:bg-gray-600 disabled:opacity-50"
                   >
@@ -268,7 +301,7 @@ const ViewAdmin = ({ adminData, isOwnProfile, onUpdate, onBack }) => {
                 disabled={passwordLoading || !passwordsMatch || !passwords.password}
                 className="mt-2 rounded-full bg-green-500 px-4 py-2 text-sm text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {passwordLoading ? "Updating..." : "Update Password"}
+                {passwordLoading ? "Updating…" : "Update Password"}
               </button>
             </div>
           )}
