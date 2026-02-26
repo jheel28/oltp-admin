@@ -126,7 +126,7 @@ const PORT = process.env.PORT || 5000;
 mongoose
   .connect(process.env.MONGOURL)
   .then(() => {
-    console.log("Connected to MongoDB");
+    console.log(`Connected to MongoDB at ${process.env.MONGOURL}`);
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
