@@ -112,27 +112,39 @@ const Dashboard = () => {
 
   const parseTestDateTime = (dateStr, timeStr) => {
     if (!dateStr || !timeStr) return new Date(0);
-    const [year, month, day] = dateStr.includes("-") ? dateStr.split("-").map(Number) : dateStr.split("/").map(Number);
+    const parts = dateStr.includes("-") ? dateStr.split("-").map(Number) : dateStr.split("/").map(Number);
+    let year, month, day;
+    if (parts[0] > 1000) [year, month, day] = parts;
+    else if (parts[2] > 1000) [day, month, year] = parts;
+    else [year, month, day] = parts;
     const [hours, minutes] = timeStr.split(":").map(Number);
-    // Note: This logic assumes YYYY-MM-DD or DD-MM-YYYY handled by your API
     return new Date(year, month - 1, day, hours, minutes);
   };
 
-  const batchTests = tests.filter(t => student && student.batch === t.batchName && t.isPublished !== false);
+  const batchTests = tests.filter(t => 
+    student && 
+    student.batch?.trim().toLowerCase() === t.batchName?.trim().toLowerCase() && 
+    t.isPublished !== false
+  );
   
   const filteredTests = batchTests.filter(test => {
     const isAttempted = attempted.some(a => a.testId === test.testId);
+    if (test.isPermanent) return !isAttempted;
     const end = parseTestDateTime(test.date, test.endTime);
     return !isAttempted && currentTime <= end;
   });
 
   const activeTests = filteredTests.filter(test => {
+    if (test.isPermanent) return true;
     const start = parseTestDateTime(test.date, test.startTime);
     const end = parseTestDateTime(test.date, test.endTime);
     return currentTime >= start && currentTime <= end;
   });
 
-  const upcomingTests = filteredTests.filter(test => parseTestDateTime(test.date, test.startTime) > currentTime);
+  const upcomingTests = filteredTests.filter(test => {
+    if (test.isPermanent) return false;
+    return parseTestDateTime(test.date, test.startTime) > currentTime;
+  });
 
   const avgScore = attempted.length > 0 
     ? Math.round(attempted.reduce((acc, t) => acc + (t.totalMarks > 0 ? (t.marksObtained / t.totalMarks) * 100 : 0), 0) / attempted.length) 

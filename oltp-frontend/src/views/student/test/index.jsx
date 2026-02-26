@@ -52,6 +52,17 @@ const Marketplace = () => {
     fetchData();
   }, [auth.userId]);
 
+  const parseTestDateTime = (dateStr, timeStr) => {
+    if (!dateStr || !timeStr) return new Date(0);
+    const parts = dateStr.split(/[-/]/).map(Number);
+    let year, month, day;
+    if (parts[0] > 1000) [year, month, day] = parts;
+    else if (parts[2] > 1000) [day, month, year] = parts;
+    else [year, month, day] = parts;
+    const [h, m] = timeStr.split(":").map(Number);
+    return new Date(year, month - 1, day, h, m, 0);
+  };
+
   const filteredTests = tests.filter((test) => {
     if (!student || !test) return false;
 
@@ -68,7 +79,7 @@ const Marketplace = () => {
       return isSameBatch;
     }
 
-    const endTime = new Date(`${test.date} ${test.endTime}`);
+    const endTime = parseTestDateTime(test.date, test.endTime);
     const currentTime = new Date();
 
     const isTestNotExpired = currentTime <= endTime;
@@ -90,17 +101,6 @@ const Marketplace = () => {
         <div className="mt-8 flex flex-wrap gap-4">
           {filteredTests.length > 0 ? (
             filteredTests.map((test) => {
-              const parseTestDateTime = (dateStr, timeStr) => {
-                if (!dateStr || !timeStr) return new Date(0);
-                const parts = dateStr.split(/[-/]/).map(Number);
-                let year, month, day;
-                if (parts[0] > 1000) [year, month, day] = parts;
-                else if (parts[2] > 1000) [day, month, year] = parts;
-                else [year, month, day] = parts;
-                const [h, m] = timeStr.split(":").map(Number);
-                return new Date(year, month - 1, day, h, m, 0);
-              };
-
               const isActive = test.isPermanent
                 ? true
                 : (() => {

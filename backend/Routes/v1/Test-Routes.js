@@ -16,9 +16,21 @@ router.post(
     check("testName").isLength({ min: 1, max: 255 }),
     check("paperId").isLength({ min: 1, max: 255 }),
     check("batchName").isLength({ min: 1, max: 255 }),
-    check("date").notEmpty(),
-    check("startTime").notEmpty(),
-    check("endTime").notEmpty(),
+    check("date").custom((value, { req }) => {
+      const isPerm = req.body.isPermanent === true || req.body.isPermanent === "true";
+      if (!isPerm && !value) throw new Error("Date is required");
+      return true;
+    }),
+    check("startTime").custom((value, { req }) => {
+      const isPerm = req.body.isPermanent === true || req.body.isPermanent === "true";
+      if (!isPerm && !value) throw new Error("Start time is required");
+      return true;
+    }),
+    check("endTime").custom((value, { req }) => {
+      const isPerm = req.body.isPermanent === true || req.body.isPermanent === "true";
+      if (!isPerm && !value) throw new Error("End time is required");
+      return true;
+    }),
     check("duration").isNumeric(),
   ],
   testControllers.createTest
