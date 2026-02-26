@@ -9,10 +9,24 @@ const avatarUrl = (name) =>
   `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "User")}&background=4f46e5&color=fff&size=80&bold=true`;
 
 const BaseNavbar = ({ onOpenSidenav, brandText, onSearch, fetchUrl }) => {
-  const [darkmode, setDarkmode] = useState(false);
+  const [darkmode, setDarkmode] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    return savedTheme === "dark";
+  });
+
   const auth = useContext(AuthContext);
   const [user, setUser] = useState(null);
   const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    if (darkmode) {
+      document.body.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.body.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [darkmode]);
 
   useEffect(() => {
     if (!auth.userId) return;
@@ -73,15 +87,7 @@ const BaseNavbar = ({ onOpenSidenav, brandText, onSearch, fetchUrl }) => {
 
         <div
           className="cursor-pointer text-gray-600"
-          onClick={() => {
-            if (darkmode) {
-              document.body.classList.remove("dark");
-              setDarkmode(false);
-            } else {
-              document.body.classList.add("dark");
-              setDarkmode(true);
-            }
-          }}
+          onClick={() => setDarkmode(!darkmode)}
         >
           {darkmode ? (
             <RiSunFill className="h-4 w-4 text-gray-600 dark:text-white" />
