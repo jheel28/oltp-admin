@@ -53,7 +53,7 @@ const AddBatchForm = ({ onSubmit, onCancel }) => {
   };
 
   return (
-    <div className="text-black bg-black rounded-lg p-6 dark:bg-navy-700">
+    <div className="text-black rounded-lg p-6 dark:bg-navy-700">
       <h2 className="mb-4 text-xl font-bold text-navy-700 dark:text-white">
         Add Batch
       </h2>
@@ -63,8 +63,9 @@ const AddBatchForm = ({ onSubmit, onCancel }) => {
         onChange={(e) => setBatchName(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Batch & Section (e.g., 2026-CSE-A)"
-        style={{ color: "black" }}
-        className="mb-4 w-full rounded-md border border-gray-300 p-3 text-white dark:bg-navy-700"
+        className="text-black mb-4 w-full rounded-md border border-gray-300 
+             bg-white p-3 
+             dark:bg-navy-700 dark:text-white"
         disabled={loading}
       />
       <div className="flex space-x-4">

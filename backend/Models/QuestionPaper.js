@@ -5,7 +5,6 @@ const uniqueValidator = require("mongoose-unique-validator");
 const questionPaperSchema = new Schema(
   {
     paperId: { type: String, required: true, unique: true },
-    paperName: { type: String, required: true },
     category: { type: String, required: true },
     subjects: [{ type: String }],
     batch: { type: String, default: "" },
@@ -22,6 +21,7 @@ const questionPaperSchema = new Schema(
     passingPercentage: { type: Number, default: 35 },
     isActive: { type: Boolean, default: true },
     description: { type: String, default: "" },
+    answerKeyFile: { type: String, default: "" },
   },
   { timestamps: true },
 );

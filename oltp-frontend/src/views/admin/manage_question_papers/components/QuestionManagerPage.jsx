@@ -5,7 +5,7 @@ import { message } from "antd";
 import { AuthContext } from "components/Auth-context";
 import {
   MdAdd, MdDelete, MdArrowBack, MdSave, MdImage, MdClose,
-  MdCheckBox, MdRadioButtonChecked, MdCalculate,
+  MdCheckBox, MdRadioButtonChecked, MdCalculate, MdFilePresent, MdDownload,
 } from "react-icons/md";
 import { FaTrashAlt, FaEdit, FaPlus } from "react-icons/fa";
 
@@ -321,9 +321,10 @@ const QuestionManagerPage = () => {
     );
   }
 
+  const answerKeyUrl = paper?.answerKeyFile ? normImg(paper.answerKeyFile) : null;
+
   return (
     <div className="space-y-4">
-      {/* Header */}
       <Card extra="w-full p-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -331,14 +332,28 @@ const QuestionManagerPage = () => {
               <MdArrowBack className="h-5 w-5" />
             </button>
             <div>
-              <h2 className="text-xl font-bold text-navy-700 dark:text-white">{paper?.paperName || paperId}</h2>
+              <h2 className="text-xl font-bold text-navy-700 dark:text-white">
+                <code className="bg-gray-100 dark:bg-navy-700 px-2 py-0.5 rounded text-lg">{paper?.paperId || paperId}</code>
+              </h2>
               <p className="text-xs text-gray-400 mt-0.5">
-                <code className="bg-gray-100 dark:bg-navy-700 px-1.5 py-0.5 rounded text-gray-500">{paper?.paperId}</code>
-                <span className="mx-2">·</span>{paper?.category}
+                {paper?.category}
+                {paper?.subjects?.length ? ` · ${paper.subjects.join(", ")}` : ""}
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4 items-center">
+            {answerKeyUrl && (
+              <a
+                href={answerKeyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-blue-600 text-xs font-medium hover:bg-blue-100 transition"
+              >
+                <MdFilePresent className="h-3.5 w-3.5" />
+                Answer Key
+                <MdDownload className="h-3 w-3" />
+              </a>
+            )}
             {[
               { label: "Questions", value: paper?.totalQuestions ?? questions.length },
               { label: "Total Marks", value: paper?.totalMarks ?? "—" },
@@ -354,7 +369,6 @@ const QuestionManagerPage = () => {
         </div>
       </Card>
 
-      {/* Form */}
       {showForm && (
         <Card extra="w-full p-5">
           <div className="flex items-center justify-between mb-5">
@@ -367,7 +381,6 @@ const QuestionManagerPage = () => {
           </div>
 
           <div className="space-y-4">
-            {/* Type selector */}
             <div className="flex gap-2 flex-wrap">
               {Object.entries(TYPE_META).map(([t, meta]) => (
                 <button
@@ -385,7 +398,6 @@ const QuestionManagerPage = () => {
               ))}
             </div>
 
-            {/* Question text */}
             <div>
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                 Question Text <span className="text-red-400">*</span>
@@ -422,7 +434,6 @@ const QuestionManagerPage = () => {
               </div>
             </div>
 
-            {/* Options */}
             {form.type !== "NAT" && (
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -491,7 +502,6 @@ const QuestionManagerPage = () => {
               </div>
             )}
 
-            {/* NAT */}
             {form.type === "NAT" && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -513,7 +523,6 @@ const QuestionManagerPage = () => {
               </div>
             )}
 
-            {/* Marks / topic / difficulty */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-gray-100 dark:border-navy-700">
               <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">+Marks Override</label>
@@ -545,7 +554,6 @@ const QuestionManagerPage = () => {
               </div>
             </div>
 
-            {/* Submit */}
             <div className="flex gap-2 pt-2">
               <button
                 onClick={handleSubmit}
@@ -566,7 +574,6 @@ const QuestionManagerPage = () => {
         </Card>
       )}
 
-      {/* Question list */}
       <Card extra="w-full p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-bold text-navy-700 dark:text-white">

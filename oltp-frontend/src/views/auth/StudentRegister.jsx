@@ -37,9 +37,12 @@ const StudentRegister = () => {
     ["studentId", "batch", "admissionDate", "address", "pincode", "state", "country"],
   ];
 
+  // phoneNumber is required; alternateNumber is optional (only validate if provided)
   const phonesValid =
     isValidPhoneNumber(phones.phoneNumber) &&
-    isValidPhoneNumber(phones.alternateNumber);
+    (!phones.alternateNumber ||
+      !phones.alternateNumber.trim() ||
+      isValidPhoneNumber(phones.alternateNumber));
 
   const handleNext = async () => {
     try {
@@ -55,8 +58,18 @@ const StudentRegister = () => {
   const onFinish = async (values) => {
     setPhoneSubmitted(true);
 
-    if (!phonesValid) {
-      message.error("Please enter valid phone numbers");
+    if (!isValidPhoneNumber(phones.phoneNumber)) {
+      message.error("Please enter a valid phone number");
+      return;
+    }
+
+    // Validate alternate number only if one was entered
+    if (
+      phones.alternateNumber &&
+      phones.alternateNumber.trim() &&
+      !isValidPhoneNumber(phones.alternateNumber)
+    ) {
+      message.error("Please enter a valid alternate number or leave it blank");
       return;
     }
 
@@ -78,7 +91,12 @@ const StudentRegister = () => {
       formData.append("state", values.state);
       formData.append("country", values.country);
       formData.append("phoneNumber", phones.phoneNumber);
-      formData.append("alternateNumber", phones.alternateNumber);
+
+      // Only send alternateNumber if a value was entered
+      if (phones.alternateNumber && phones.alternateNumber.trim()) {
+        formData.append("alternateNumber", phones.alternateNumber);
+      }
+
       if (values.fatherName) formData.append("fatherName", values.fatherName);
       if (values.motherName) formData.append("motherName", values.motherName);
       if (imageFile) formData.append("image", imageFile);
@@ -132,6 +150,7 @@ const StudentRegister = () => {
             </div>
 
             <Form form={form} name="student-register" onFinish={onFinish} layout="vertical" preserve>
+              {/* ── Step 0: Personal ── */}
               <div style={{ display: currentStep === 0 ? "block" : "none" }}>
                 <div className="grid grid-cols-2 gap-4">
                   <Form.Item
@@ -222,10 +241,7 @@ const StudentRegister = () => {
                 <Form.Item
                   name="address"
                   label="Address"
-                  rules={[
-                    { required: true, message: "Required" },
-                    { min: 2, message: "Too short" },
-                  ]}
+                  rules={[{ required: true, message: "Required" }, { min: 2, message: "Too short" }]}
                 >
                   <Input.TextArea placeholder="Full address" rows={2} />
                 </Form.Item>
@@ -257,6 +273,7 @@ const StudentRegister = () => {
                 </div>
               </div>
 
+              {/* ── Step 2: Contact ── */}
               <div style={{ display: currentStep === 2 ? "block" : "none" }}>
                 <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
                   <PhoneInput
@@ -269,16 +286,28 @@ const StudentRegister = () => {
                     showValidation={phoneSubmitted}
                     placeholder="Your phone number"
                   />
-                  <PhoneInput
-                    label="Alternate Number"
-                    required
-                    value={phones.alternateNumber}
-                    onChange={(val) =>
-                      setPhones((prev) => ({ ...prev, alternateNumber: val || "" }))
-                    }
-                    showValidation={phoneSubmitted}
-                    placeholder="Alternate number"
-                  />
+
+                  <div>
+                    <PhoneInput
+                      label={
+                        <span>
+                          Alternate Number{" "}
+                          <span className="ml-1 text-xs font-normal text-gray-400">(optional)</span>
+                        </span>
+                      }
+                      value={phones.alternateNumber}
+                      onChange={(val) =>
+                        setPhones((prev) => ({ ...prev, alternateNumber: val || "" }))
+                      }
+                      // Only show validation if a value was entered and it's invalid
+                      showValidation={
+                        phoneSubmitted &&
+                        !!phones.alternateNumber &&
+                        !!phones.alternateNumber.trim()
+                      }
+                      placeholder="Alternate number (optional)"
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

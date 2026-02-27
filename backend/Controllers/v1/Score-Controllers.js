@@ -19,7 +19,6 @@ const createScore = async (req, res, next) => {
   let studentName = "";
   let batch = "";
   let testName = "";
-  let paperName = "";
   let category = "";
   let subjects = [];
   let passingPercentage = 35;
@@ -40,7 +39,6 @@ const createScore = async (req, res, next) => {
   try {
     const paper = await QuestionPaper.findOne({ paperId });
     if (paper) {
-      paperName = paper.paperName || paperId;
       category = paper.category || "";
       subjects = paper.subjects || [];
       passingPercentage = paper.passingPercentage != null ? paper.passingPercentage : 35;
@@ -58,7 +56,6 @@ const createScore = async (req, res, next) => {
     studentId,
     studentName,
     paperId,
-    paperName,
     category,
     subjects,
     batch,

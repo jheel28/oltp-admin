@@ -59,10 +59,19 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
 
   const validateForm = () => {
     const missing = [];
-    if (!formData.phoneNumber) missing.push("Phone Number");
-    else if (!isValidPhoneNumber(formData.phoneNumber)) missing.push("Phone Number (invalid format)");
-    if (!formData.alternateNumber) missing.push("Alternate Number");
-    else if (!isValidPhoneNumber(formData.alternateNumber)) missing.push("Alternate Number (invalid format)");
+
+    if (!formData.phoneNumber) {
+      missing.push("Phone Number");
+    } else if (!isValidPhoneNumber(formData.phoneNumber)) {
+      missing.push("Phone Number (invalid format)");
+    }
+
+    if (formData.alternateNumber && formData.alternateNumber.trim()) {
+      if (!isValidPhoneNumber(formData.alternateNumber)) {
+        missing.push("Alternate Number (invalid format)");
+      }
+    }
+
     if (!formData.batch) missing.push("Batch");
 
     if (missing.length > 0) {
@@ -81,6 +90,8 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
       const payload = new FormData();
       for (let key in formData) {
         const val = formData[key];
+        // Skip empty alternateNumber – let it default to null on the server
+        if (key === "alternateNumber" && (!val || !val.trim())) continue;
         if (val !== null && val !== undefined && val !== "") {
           payload.append(key, val);
         }
@@ -162,15 +173,25 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
         placeholder="Phone number *"
       />
 
-      <PhoneInput
-        label="Alternate Number"
-        required
-        value={formData.alternateNumber}
-        onChange={(val) => setFormData((prev) => ({ ...prev, alternateNumber: val || "" }))}
-        disabled={loading}
-        showValidation={submitted}
-        placeholder="Alternate number *"
-      />
+      <div className="mb-4">
+        <PhoneInput
+          label={
+            <span>
+              Alternate Number{" "}
+              <span className="ml-1 text-xs font-normal text-gray-400">(optional)</span>
+            </span>
+          }
+          value={formData.alternateNumber}
+          onChange={(val) => setFormData((prev) => ({ ...prev, alternateNumber: val || "" }))}
+          disabled={loading}
+          showValidation={
+            submitted &&
+            !!formData.alternateNumber &&
+            !!formData.alternateNumber.trim()
+          }
+          placeholder="Alternate number (optional)"
+        />
+      </div>
 
       <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
         <input

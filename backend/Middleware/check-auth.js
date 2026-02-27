@@ -20,13 +20,16 @@ module.exports = (roles) => {
 
       req.userData = {
         userId: decodedToken.userId,
+        email: decodedToken.email,
         role: decodedToken.role,
       };
 
       if (roles) {
         const allowed = Array.isArray(roles) ? roles : [roles];
         if (!allowed.includes(decodedToken.role)) {
-          console.log(`Unauthorized: Expected one of [${allowed.join(", ")}], got ${decodedToken.role}`);
+          console.log(
+            `Unauthorized: Expected one of [${allowed.join(", ")}], got ${decodedToken.role}`,
+          );
           return next(new HttpError("Unauthorized: Role mismatch", 403));
         }
       }

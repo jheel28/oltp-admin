@@ -6,7 +6,7 @@ import { AuthContext } from "components/Auth-context";
 import {
   MdCheck, MdArrowBack, MdArrowForward, MdSave, MdAutoAwesome,
   MdAdd, MdDelete, MdImage, MdClose, MdCheckBox, MdRadioButtonChecked,
-  MdCalculate, MdOutlineQuiz,
+  MdCalculate, MdOutlineQuiz, MdFileUpload, MdFilePresent, MdDownload,
 } from "react-icons/md";
 import { FaTrashAlt, FaEdit, FaPlus } from "react-icons/fa";
 
@@ -43,8 +43,6 @@ const defaultQForm = () => ({
 });
 
 const inputCls = "w-full px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition";
-
-// ─── Shared sub-components ───────────────────────────────────────────────────
 
 const StepIndicator = ({ current }) => (
   <div className="flex items-center gap-0 mb-8">
@@ -115,7 +113,91 @@ const ImagePreview = ({ src, onClear, label = "Image" }) => (
   </div>
 );
 
-// ─── Inline Question Form ─────────────────────────────────────────────────────
+const AnswerKeyPicker = ({ existingFile, onSelect, onClear }) => {
+  const ref = useRef();
+  const hasFile = !!existingFile;
+
+  return (
+    <div className="rounded-xl border border-dashed border-gray-200 dark:border-navy-600 p-4">
+      <input
+        ref={ref}
+        type="file"
+        accept=".pdf,image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          if (file.size > 10 * 1024 * 1024) {
+            message.error("Answer key file must be under 10 MB");
+            return;
+          }
+          const allowed = ["application/pdf", "image/jpeg", "image/png", "image/gif", "image/webp"];
+          if (!allowed.includes(file.type)) {
+            message.error("Only PDF and image files (JPEG, PNG, GIF, WEBP) are allowed");
+            return;
+          }
+          onSelect(file);
+          e.target.value = "";
+        }}
+      />
+
+      {hasFile ? (
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30 flex-shrink-0">
+            <MdFilePresent className="h-5 w-5 text-blue-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            {typeof existingFile === "string" ? (
+              <>
+                <p className="text-sm font-medium text-gray-700 dark:text-white truncate">
+                  {existingFile.split("/").pop()}
+                </p>
+                <a
+                  href={normImg(existingFile)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-xs text-blue-500 hover:underline mt-0.5 w-fit"
+                >
+                  <MdDownload className="h-3 w-3" /> View / Download
+                </a>
+              </>
+            ) : (
+              <p className="text-sm font-medium text-gray-700 dark:text-white truncate">
+                {existingFile.name}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => ref.current?.click()}
+              className="text-xs text-blue-500 hover:text-blue-600 px-2 py-1 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 transition"
+            >
+              Replace
+            </button>
+            <button
+              type="button"
+              onClick={onClear}
+              className="p-1.5 rounded-lg bg-red-50 text-red-400 hover:bg-red-100 transition"
+            >
+              <MdClose className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => ref.current?.click()}
+          className="flex flex-col items-center gap-2 w-full text-center py-2"
+        >
+          <MdFileUpload className="h-7 w-7 text-gray-300" />
+          <span className="text-sm text-gray-500">Upload answer key</span>
+          <span className="text-xs text-gray-400">PDF or image · max 10 MB</span>
+        </button>
+      )}
+    </div>
+  );
+};
 
 const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCancel }) => {
   const auth = useContext(AuthContext);
@@ -199,7 +281,6 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
         <button onClick={onCancel} className="text-xs text-gray-400 hover:text-gray-600 transition">Cancel</button>
       </div>
 
-      {/* Type selector */}
       <div className="flex gap-2 flex-wrap">
         {Object.entries(TYPE_META).map(([t, meta]) => (
           <button key={t} onClick={() => setF({ type: t })}
@@ -214,7 +295,6 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
         ))}
       </div>
 
-      {/* Question text */}
       <div>
         <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
           Question Text <span className="text-red-400">*</span>
@@ -236,7 +316,6 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
         </div>
       </div>
 
-      {/* Options */}
       {form.type !== "NAT" && (
         <div>
           <div className="flex items-center justify-between mb-2">
@@ -284,7 +363,6 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
         </div>
       )}
 
-      {/* NAT */}
       {form.type === "NAT" && (
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -300,7 +378,6 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
         </div>
       )}
 
-      {/* Marks / topic / difficulty */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-gray-100 dark:border-navy-700">
         <div>
           <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">+Marks Override</label>
@@ -310,7 +387,7 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
         <div>
           <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">−Marks Override</label>
           <input type="number" step="0.25" value={form.marksNegative} onChange={(e) => setF({ marksNegative: e.target.value })}
-            placeholder={`Default`} className={inputCls} />
+            placeholder="Default" className={inputCls} />
         </div>
         <div>
           <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Topic</label>
@@ -340,7 +417,6 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
   );
 };
 
-// ─── Questions Step ───────────────────────────────────────────────────────────
 
 const QuestionsStep = ({ paperId, paper, questions, setQuestions }) => {
   const auth = useContext(AuthContext);
@@ -472,14 +548,6 @@ const QuestionsStep = ({ paperId, paper, questions, setQuestions }) => {
                   )}
                 </div>
                 <p className="text-sm text-navy-700 dark:text-white line-clamp-2">{q.text}</p>
-                {q.questionImage && (
-                  <img
-                    src={normImg(q.questionImage)}
-                    alt="question"
-                    className="mt-1 h-16 max-w-[120px] object-contain rounded-lg border border-gray-100"
-                    onError={(e) => { e.currentTarget.style.display = "none"; }}
-                  />
-                )}
                 {q.type !== "NAT" && q.options?.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-1.5">
                     {q.options.map((o, oi) => {
@@ -492,7 +560,6 @@ const QuestionsStep = ({ paperId, paper, questions, setQuestions }) => {
                             ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-medium"
                             : "bg-gray-100 dark:bg-navy-700 text-gray-500"}`}>
                           {String.fromCharCode(65 + oi)}. {o.text}
-                          {o.image && <MdImage className="h-2.5 w-2.5 opacity-60" />}
                         </span>
                       );
                     })}
@@ -520,8 +587,6 @@ const QuestionsStep = ({ paperId, paper, questions, setQuestions }) => {
   );
 };
 
-// ─── Main Builder ─────────────────────────────────────────────────────────────
-
 const QuestionPaperBuilder = ({ mode = "create" }) => {
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
@@ -540,9 +605,20 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
   const [questions, setQuestions] = useState([]);
 
   const [form, setForm] = useState({
-    paperId: "", paperName: "", category: "", subject: "", batch: "",
-    difficulty: "Medium", marksPerQuestion: "4", negativeMarking: false,
-    negativeFraction: "0.25", isActive: true, description: "",
+    paperId: "",
+    category: "",
+    subject: "",
+    batch: "",
+    difficulty: "Medium",
+    marksPerQuestion: "4",
+    negativeMarking: false,
+    negativeFraction: "0.25",
+    passingPercentage: "35",
+    isActive: true,
+    description: "",
+    answerKeyFile: null, 
+    existingAnswerKeyFile: "", 
+    clearAnswerKey: false,
   });
 
   useEffect(() => {
@@ -577,7 +653,6 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
           setServerPaper(p);
           setForm({
             paperId: p.paperId || "",
-            paperName: p.paperName || "",
             category: p.category || "",
             subject: (p.subjects || [])[0] || "",
             batch: p.batch || "",
@@ -585,8 +660,12 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
             marksPerQuestion: p.marksPerQuestion?.toString() || "4",
             negativeMarking: p.negativeMarking || false,
             negativeFraction: p.negativeFraction?.toString() || "0.25",
+            passingPercentage: p.passingPercentage?.toString() || "35",
             isActive: p.isActive !== false,
             description: p.description || "",
+            answerKeyFile: null,
+            existingAnswerKeyFile: p.answerKeyFile || "",
+            clearAnswerKey: false,
           });
           const qRes = await fetch(`${BACKEND}/api/v1/question/get/questions/bypaperid/${p.paperId}`,
             { headers: { Authorization: "Bearer " + auth.token } });
@@ -615,7 +694,6 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
 
   const validateStep = (s) => {
     if (s === 0) {
-      if (!form.paperName.trim()) { message.warning("Paper name is required"); return false; }
       if (mode === "create" && !form.paperId.trim()) { message.warning("Paper ID is required"); return false; }
       if (!form.category) { message.warning("Category is required"); return false; }
     }
@@ -626,25 +704,30 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
   };
 
   const persistPaper = async () => {
-    const payload = {
-      paperName: form.paperName.trim(),
-      category: form.category,
-      subjects: form.subject ? [form.subject] : [],
-      batch: form.batch,
-      difficulty: form.difficulty,
-      marksPerQuestion: Number(form.marksPerQuestion),
-      negativeMarking: form.negativeMarking,
-      negativeFraction: Number(form.negativeFraction),
-      isActive: form.isActive,
-      description: form.description,
-    };
+    const fd = new FormData();
+    fd.append("category", form.category);
+    if (form.subject) fd.append("subjects", form.subject);
+    fd.append("batch", form.batch);
+    fd.append("difficulty", form.difficulty);
+    fd.append("marksPerQuestion", form.marksPerQuestion);
+    fd.append("negativeMarking", form.negativeMarking);
+    fd.append("negativeFraction", form.negativeFraction);
+    fd.append("passingPercentage", form.passingPercentage);
+    fd.append("isActive", form.isActive);
+    fd.append("description", form.description);
+
+    if (form.answerKeyFile) {
+      fd.append("answerKeyFile", form.answerKeyFile);
+    } else if (form.clearAnswerKey) {
+      fd.append("clearAnswerKey", "true");
+    }
 
     if (mode === "create" && !paperPersistedOnce) {
-      payload.paperId = form.paperId.trim();
+      fd.append("paperId", form.paperId.trim());
       const res = await fetch(`${BACKEND}/api/v1/questionpaper/create/questionpaper`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: "Bearer " + auth.token },
-        body: JSON.stringify(payload),
+        headers: { Authorization: "Bearer " + auth.token },
+        body: fd,
       });
       if (!res.ok) throw new Error((await res.json()).message || "Error creating paper");
       const data = await res.json();
@@ -655,8 +738,8 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
       const targetId = serverPaper?._id || id;
       const res = await fetch(`${BACKEND}/api/v1/questionpaper/update/questionpaper/byid/${targetId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", Authorization: "Bearer " + auth.token },
-        body: JSON.stringify(payload),
+        headers: { Authorization: "Bearer " + auth.token },
+        body: fd,
       });
       if (!res.ok) throw new Error((await res.json()).message || "Error updating paper");
       const data = await res.json();
@@ -702,6 +785,12 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
     negativeMarking: form.negativeMarking,
   };
 
+  const answerKeyDisplay = form.answerKeyFile
+    ? form.answerKeyFile
+    : (!form.clearAnswerKey && form.existingAnswerKeyFile)
+    ? form.existingAnswerKeyFile
+    : null;
+
   if (loadingPaper) {
     return (
       <Card extra="w-full p-12 flex items-center justify-center">
@@ -739,22 +828,15 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
 
       <StepIndicator current={step} />
 
-      {/* ── Step 0: Paper Details ── */}
       {step === 0 && (
         <div className="space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {mode === "create" && (
-              <Field label="Paper ID" required hint="Unique identifier — cannot be changed later">
-                <input type="text" name="paperId" value={form.paperId} onChange={handleChange}
-                  placeholder="e.g. NEET-2024-PHY" className={inputCls}
-                  disabled={paperPersistedOnce} />
-              </Field>
-            )}
-            <Field label="Paper Name" required>
-              <input type="text" name="paperName" value={form.paperName} onChange={handleChange}
-                placeholder="e.g. NEET 2024 Physics" className={inputCls} />
+          {mode === "create" && (
+            <Field label="Paper ID" required hint="Unique identifier — cannot be changed later">
+              <input type="text" name="paperId" value={form.paperId} onChange={handleChange}
+                placeholder="e.g. NEET-2024-PHY" className={inputCls}
+                disabled={paperPersistedOnce} />
             </Field>
-          </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Category" required>
@@ -796,10 +878,21 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
               rows={3} placeholder="Optional notes or instructions for this paper..."
               className={inputCls + " resize-none"} />
           </Field>
+
+          <Field label="Answer Key" hint="Upload a PDF or image of the answer key (optional, max 10 MB)">
+            <AnswerKeyPicker
+              existingFile={answerKeyDisplay}
+              onSelect={(file) => setForm((p) => ({ ...p, answerKeyFile: file, clearAnswerKey: false }))}
+              onClear={() => setForm((p) => ({
+                ...p,
+                answerKeyFile: null,
+                clearAnswerKey: !!p.existingAnswerKeyFile,
+              }))}
+            />
+          </Field>
         </div>
       )}
 
-      {/* ── Step 1: Marking Scheme ── */}
       {step === 1 && (
         <div className="space-y-5">
           <div className="rounded-xl border border-blue-100 dark:border-blue-900 bg-blue-50 dark:bg-blue-900/20 p-4 flex items-start gap-3">
@@ -815,6 +908,12 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
           <Field label="Marks Per Question" required hint="Default marks for a correct answer. Can be overridden per question.">
             <input type="number" name="marksPerQuestion" value={form.marksPerQuestion}
               onChange={handleChange} min="1" step="0.5" placeholder="e.g. 4"
+              className={inputCls + " w-40"} />
+          </Field>
+
+          <Field label="Passing Percentage" hint="Minimum percentage required to pass (e.g. 35 means 35%)">
+            <input type="number" name="passingPercentage" value={form.passingPercentage}
+              onChange={handleChange} min="0" max="100" step="1" placeholder="e.g. 35"
               className={inputCls + " w-40"} />
           </Field>
 
@@ -844,7 +943,6 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
         </div>
       )}
 
-      {/* ── Step 2: Add Questions ── */}
       {step === 2 && (
         <QuestionsStep
           paperId={activePaperId}
@@ -854,7 +952,6 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
         />
       )}
 
-      {/* ── Step 3: Settings & Review ── */}
       {step === 3 && (
         <div className="space-y-5">
           <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-navy-600">
@@ -877,15 +974,16 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
             </div>
             {[
               ["Paper ID", activePaperId || "—"],
-              ["Paper Name", form.paperName || "—"],
               ["Category", form.category || "—"],
               ["Subject", form.subject || "All"],
               ["Batch", form.batch || "All Batches"],
               ["Difficulty", form.difficulty],
               ["Marks Per Question", form.marksPerQuestion],
+              ["Passing Percentage", `${form.passingPercentage}%`],
               ["Negative Marking", form.negativeMarking ? `Yes (−${form.negativeFraction} per wrong)` : "No"],
               ["Questions Added", String(questions.length)],
               ["Total Marks", String(questions.reduce((s, q) => s + (q.marksPositive ?? Number(form.marksPerQuestion) ?? 4), 0))],
+              ["Answer Key", answerKeyDisplay ? (typeof answerKeyDisplay === "string" ? "Uploaded" : answerKeyDisplay.name) : "None"],
             ].map(([label, value]) => (
               <div key={label} className="flex items-center justify-between px-4 py-2.5">
                 <span className="text-xs text-gray-500 dark:text-gray-400">{label}</span>
@@ -908,7 +1006,6 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
         </div>
       )}
 
-      {/* ── Navigation ── */}
       <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100 dark:border-navy-600">
         <button
           type="button"

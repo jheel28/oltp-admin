@@ -17,7 +17,6 @@ const scoreSchema = new Schema(
     studentId: { type: String, required: true, index: true },
     studentName: { type: String, default: "" },
     paperId: { type: String, required: true },
-    paperName: { type: String, default: "" },
     batch: { type: String, default: "" },
     category: { type: String, default: "" },
     subjects: [{ type: String }],

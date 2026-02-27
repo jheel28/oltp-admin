@@ -5,6 +5,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const { validatePhoneNumber } = require("../../Utils/phoneValidation");
+const { normalizeEmail } = require("../../Utils/emailNormalization");
+const { parseDuplicateKeyError } = require("../../Middleware/duplicate-key");
 
 const JWT_EXPIRY = process.env.JWT_EXPIRY || "7d";
 
@@ -24,21 +26,44 @@ const createAdmin = async (req, res, next) => {
     return next(new HttpError(`Mobile number: ${mobileCheck.error}`, 422));
   }
 
+  const rawEmail = email.trim().toLowerCase();
+  const normEmail = normalizeEmail(rawEmail);
+
+  if (!normEmail) {
+    return next(new HttpError("Invalid email address provided.", 422));
+  }
+
   let existingAdmin;
   try {
-    existingAdmin = await Admin.findOne({ email });
+    existingAdmin = await Admin.findOne({ normalizedEmail: normEmail });
   } catch (err) {
-    return next(new HttpError("Something went wrong fetching the data, please try again", 500));
+    return next(
+      new HttpError(
+        "Something went wrong fetching the data, please try again",
+        500
+      )
+    );
   }
+
   if (existingAdmin) {
-    return next(new HttpError("Email already exists, please try again", 422));
+    return next(
+      new HttpError(
+        "An account with an equivalent email address already exists. Please use a different email (note: Gmail addresses with/without dots are treated identically).",
+        422
+      )
+    );
   }
 
   let hashedPassword;
   try {
     hashedPassword = await bcrypt.hash(password, 12);
   } catch (err) {
-    return next(new HttpError("Something went wrong while encrypting the password, please try again", 500));
+    return next(
+      new HttpError(
+        "Something went wrong while encrypting the password, please try again",
+        500
+      )
+    );
   }
 
   const imagePath =
@@ -51,7 +76,8 @@ const createAdmin = async (req, res, next) => {
   const createdAdmin = new Admin({
     firstName,
     lastName,
-    email,
+    email: rawEmail,
+    normalizedEmail: normEmail,
     password: hashedPassword,
     image: imagePath,
     role: "Admin",
@@ -61,18 +87,37 @@ const createAdmin = async (req, res, next) => {
   try {
     await createdAdmin.save();
   } catch (err) {
-    return next(new HttpError("Something went wrong while creating admin, please try again", 500));
+    const dupMsg = parseDuplicateKeyError(err, {
+      email: "email",
+      normalizedEmail: "email (equivalent address)",
+    });
+    if (dupMsg) return next(new HttpError(dupMsg, 422));
+    return next(
+      new HttpError(
+        "Something went wrong while creating admin, please try again",
+        500
+      )
+    );
   }
 
   let token;
   try {
     token = jwt.sign(
-      { userId: createdAdmin.id, email: createdAdmin.email, role: createdAdmin.role },
+      {
+        userId: createdAdmin.id,
+        email: createdAdmin.email,
+        role: createdAdmin.role,
+      },
       process.env.JWT_KEY,
       { expiresIn: JWT_EXPIRY }
     );
   } catch (err) {
-    return next(new HttpError("Something went wrong while creating the JWT token, please try again", 500));
+    return next(
+      new HttpError(
+        "Something went wrong while creating the JWT token, please try again",
+        500
+      )
+    );
   }
 
   res.status(201).json({
@@ -88,7 +133,12 @@ const getAllAdmins = async (req, res, next) => {
   try {
     admins = await Admin.find({}, "-password");
   } catch (err) {
-    return next(new HttpError("Something went wrong while fetching the data, please try again", 500));
+    return next(
+      new HttpError(
+        "Something went wrong while fetching the data, please try again",
+        500
+      )
+    );
   }
   res.json({ admins });
 };
@@ -97,9 +147,14 @@ const getAdminById = async (req, res, next) => {
   const id = req.params.id;
   let admin;
   try {
-    admin = await Admin.findOne({ _id: id }, "-password");
+    admin = await Admin.findById(id, "-password");
   } catch (err) {
-    return next(new HttpError("Something went wrong while fetching the data, please try again", 500));
+    return next(
+      new HttpError(
+        "Something went wrong while fetching the data, please try again",
+        500
+      )
+    );
   }
   if (!admin) {
     return next(new HttpError("Admin not found", 404));
@@ -114,12 +169,25 @@ const login = async (req, res, next) => {
     return next(new HttpError("Email and password are required", 422));
   }
 
+  const normEmail = normalizeEmail(email.trim().toLowerCase());
+
   let existingAdmin;
   try {
-    existingAdmin = await Admin.findOne({ email });
+    existingAdmin = await Admin.findOne({ normalizedEmail: normEmail });
+    if (!existingAdmin) {
+      existingAdmin = await Admin.findOne({
+        email: email.trim().toLowerCase(),
+      });
+    }
   } catch (err) {
-    return next(new HttpError("Something went wrong while verification of the admin, please try again", 500));
+    return next(
+      new HttpError(
+        "Something went wrong while verifying the admin, please try again",
+        500
+      )
+    );
   }
+
   if (!existingAdmin) {
     return next(new HttpError("Invalid email, please try again", 401));
   }
@@ -128,8 +196,14 @@ const login = async (req, res, next) => {
   try {
     isValidPassword = await bcrypt.compare(password, existingAdmin.password);
   } catch (err) {
-    return next(new HttpError("Something went wrong while verification of the password, please try again", 500));
+    return next(
+      new HttpError(
+        "Something went wrong while verifying the password, please try again",
+        500
+      )
+    );
   }
+
   if (!isValidPassword) {
     return next(new HttpError("Invalid credentials, please try again", 401));
   }
@@ -137,12 +211,21 @@ const login = async (req, res, next) => {
   let token;
   try {
     token = jwt.sign(
-      { userId: existingAdmin.id, email: existingAdmin.email, role: existingAdmin.role },
+      {
+        userId: existingAdmin.id,
+        email: existingAdmin.email,
+        role: existingAdmin.role,
+      },
       process.env.JWT_KEY,
       { expiresIn: JWT_EXPIRY }
     );
   } catch (err) {
-    return next(new HttpError("Something went wrong while fetching the JWT token, please try again", 500));
+    return next(
+      new HttpError(
+        "Something went wrong while creating the JWT token, please try again",
+        500
+      )
+    );
   }
 
   res.status(200).json({
@@ -160,34 +243,62 @@ const updateAdminById = async (req, res, next) => {
   }
 
   const id = req.params.id;
-
-  if (req.userData.userId !== id) {
-    return next(new HttpError("You can only update your own profile", 403));
-  }
-
   const { firstName, lastName, email, mobile } = req.body;
 
   let admin;
   try {
-    admin = await Admin.findOne({ _id: id });
+    admin = await Admin.findById(id);
   } catch (err) {
-    return next(new HttpError("Something went wrong while fetching the data, please try again", 500));
-  }
-  if (!admin) {
-    return next(new HttpError("No admin found, please try again", 404));
+    return next(
+      new HttpError(
+        "Something went wrong while fetching the data, please try again",
+        500
+      )
+    );
   }
 
-  if (email && email !== admin.email) {
-    let emailTaken;
-    try {
-      emailTaken = await Admin.findOne({ email });
-    } catch (err) {
-      return next(new HttpError("Something went wrong while checking email, please try again", 500));
+  if (!admin) {
+    return next(
+      new HttpError("No admin found with this ID, please try again", 404)
+    );
+  }
+
+  if (email) {
+    const newRaw = email.trim().toLowerCase();
+    const newNorm = normalizeEmail(newRaw);
+
+    if (!newNorm) {
+      return next(new HttpError("Invalid email address provided.", 422));
     }
-    if (emailTaken) {
-      return next(new HttpError("This email is already in use by another account", 422));
+
+    if (newNorm !== admin.normalizedEmail) {
+      let taken;
+      try {
+        taken = await Admin.findOne({
+          normalizedEmail: newNorm,
+          _id: { $ne: id },
+        });
+      } catch (err) {
+        return next(
+          new HttpError(
+            "Something went wrong while checking email, please try again",
+            500
+          )
+        );
+      }
+
+      if (taken) {
+        return next(
+          new HttpError(
+            "An account with an equivalent email address already exists. Please use a different email.",
+            422
+          )
+        );
+      }
+
+      admin.email = newRaw;
+      admin.normalizedEmail = newNorm;
     }
-    admin.email = email;
   }
 
   if (mobile !== undefined && mobile !== admin.mobile) {
@@ -214,7 +325,17 @@ const updateAdminById = async (req, res, next) => {
   try {
     await admin.save();
   } catch (err) {
-    return next(new HttpError("Something went wrong while updating admin, please try again", 500));
+    const dupMsg = parseDuplicateKeyError(err, {
+      email: "email",
+      normalizedEmail: "email (equivalent address)",
+    });
+    if (dupMsg) return next(new HttpError(dupMsg, 422));
+    return next(
+      new HttpError(
+        "Something went wrong while updating admin, please try again",
+        500
+      )
+    );
   }
 
   let token;
@@ -225,7 +346,12 @@ const updateAdminById = async (req, res, next) => {
       { expiresIn: JWT_EXPIRY }
     );
   } catch (err) {
-    return next(new HttpError("Something went wrong while fetching the JWT token, please try again", 500));
+    return next(
+      new HttpError(
+        "Something went wrong while creating the JWT token, please try again",
+        500
+      )
+    );
   }
 
   res.status(200).json({
@@ -239,84 +365,127 @@ const updateAdminById = async (req, res, next) => {
 const updateImageById = async (req, res, next) => {
   const id = req.params.id;
 
-  if (req.userData.userId !== id) {
-    return next(new HttpError("You can only update your own profile image", 403));
-  }
-
   let admin;
   try {
     admin = await Admin.findById(id);
   } catch (err) {
-    return next(new HttpError("Something went wrong while fetching the admin", 500));
+    return next(
+      new HttpError("Something went wrong while fetching the admin", 500)
+    );
   }
+
   if (!admin) {
     return next(new HttpError("Admin not found", 404));
   }
+
   if (!req.file) {
     return next(new HttpError("No image was uploaded", 400));
   }
+
   const oldImagePath = admin.image;
   admin.image = req.file.path;
+
   try {
     await admin.save();
   } catch (err) {
     return next(new HttpError("Error occurred while saving the admin", 500));
   }
+
   if (oldImagePath) {
     fs.unlink(oldImagePath, (err) => {
       if (err) console.log("Old image cleanup error:", err);
     });
   }
+
   res.status(200).json({ message: "Admin image updated successfully" });
 };
 
 const updatePasswordByEmail = async (req, res, next) => {
-  const email = req.params.email;
+  const emailParam = req.params.email;
   const { password, newPassword } = req.body;
 
-  if (req.userData.email !== email) {
-    return next(new HttpError("You can only update your own password", 403));
+  const { isSuperAdmin } = require("../../Middleware/check-admin-permissions");
+  if (!isSuperAdmin(req.userData.email) && req.userData.email !== emailParam) {
+    console.warn(
+      `[ADMIN-PERMISSIONS] UNAUTHORIZED | admin=${req.userData.email} attempted to change password for ${emailParam} | ip=${req.ip}`
+    );
+    return next(new HttpError("You can only update your own password.", 403));
   }
 
   if (!password || !newPassword) {
-    return next(new HttpError("Current password and new password are required", 422));
+    return next(
+      new HttpError("Current password and new password are required", 422)
+    );
   }
+
   if (newPassword.length < 6) {
-    return next(new HttpError("New password must be at least 6 characters", 422));
+    return next(
+      new HttpError("New password must be at least 6 characters", 422)
+    );
   }
 
   let admin;
   try {
-    admin = await Admin.findOne({ email });
+    admin = await Admin.findOne({ email: emailParam.toLowerCase() });
+    if (!admin) {
+      admin = await Admin.findOne({
+        normalizedEmail: normalizeEmail(emailParam),
+      });
+    }
   } catch (err) {
-    return next(new HttpError("Something went wrong while fetching the data, please try again", 500));
+    return next(
+      new HttpError(
+        "Something went wrong while fetching the data, please try again",
+        500
+      )
+    );
   }
+
   if (!admin) {
     return next(new HttpError("No account found with this email", 404));
   }
 
-  let isValidPassword;
-  try {
-    isValidPassword = await bcrypt.compare(password, admin.password);
-  } catch (err) {
-    return next(new HttpError("Something went wrong while verifying the password, please try again", 500));
-  }
-  if (!isValidPassword) {
-    return next(new HttpError("Current password is incorrect", 401));
+  if (!isSuperAdmin(req.userData.email)) {
+    let isValidPassword;
+    try {
+      isValidPassword = await bcrypt.compare(password, admin.password);
+    } catch (err) {
+      return next(
+        new HttpError(
+          "Something went wrong while verifying the password, please try again",
+          500
+        )
+      );
+    }
+
+    if (!isValidPassword) {
+      return next(new HttpError("Current password is incorrect", 401));
+    }
   }
 
   let hashedPassword;
   try {
     hashedPassword = await bcrypt.hash(newPassword, 12);
   } catch (err) {
-    return next(new HttpError("Something went wrong while encrypting the password, please try again", 500));
+    return next(
+      new HttpError(
+        "Something went wrong while encrypting the password, please try again",
+        500
+      )
+    );
   }
 
   admin.password = hashedPassword;
+
   try {
     await admin.save();
   } catch (err) {
-    return next(new HttpError("Something went wrong while updating the password, please try again", 500));
+    return next(
+      new HttpError(
+        "Something went wrong while updating the password, please try again",
+        500
+      )
+    );
   }
 
   res.status(200).json({ message: "Password updated successfully" });
@@ -325,25 +494,33 @@ const updatePasswordByEmail = async (req, res, next) => {
 const deleteAdmin = async (req, res, next) => {
   const id = req.params.id;
 
-  if (req.userData.userId === id) {
-    return next(new HttpError("You cannot delete your own account", 403));
-  }
-
   let admin;
   try {
-    admin = await Admin.findOne({ _id: id });
+    admin = await Admin.findById(id);
   } catch (err) {
-    return next(new HttpError("Something went wrong while fetching the data, please try again", 500));
+    return next(
+      new HttpError(
+        "Something went wrong while fetching the data, please try again",
+        500
+      )
+    );
   }
+
   if (!admin) {
     return next(new HttpError("No admin found, please try again", 404));
   }
 
   const imagePath = admin.image;
+
   try {
     await admin.deleteOne();
   } catch (err) {
-    return next(new HttpError("Something went wrong while deleting the admin, please try again", 500));
+    return next(
+      new HttpError(
+        "Something went wrong while deleting the admin, please try again",
+        500
+      )
+    );
   }
 
   res.status(200).json({ message: "Admin successfully deleted" });

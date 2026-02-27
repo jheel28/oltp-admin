@@ -2,7 +2,6 @@ import React from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Navbar from "components/navbar/stu_index";
 import StudentSidebar from "components/sidebar/stu_index";
-import Footer from "components/footer/Footer";
 import routes from "studentRoutes";
 
 export default function Student(props) {
@@ -51,36 +50,34 @@ export default function Student(props) {
   document.documentElement.dir = "ltr";
 
   return (
-    <div className="flex h-full w-full">
-      <StudentSidebar open={open} onClose={() => setOpen(false)} />
-      {open && (
-        <div
-          className="fixed inset-0 z-40 bg-black/30 xl:hidden"
-          onClick={() => setOpen(false)}
+  <div className="flex min-h-screen w-full">
+    <StudentSidebar open={open} onClose={() => setOpen(false)} />
+
+    {open && (
+      <div
+        className="fixed inset-0 z-40 bg-black/30 xl:hidden"
+        onClick={() => setOpen(false)}
+      />
+    )}
+
+    <div className="flex flex-col flex-1 bg-gray-50 dark:!bg-navy-900">
+      <main className="flex-1 transition-all duration-300 md:pr-2 xl:ml-[260px]">
+        <Navbar
+          onOpenSidenav={() => setOpen(true)}
+          logoText={"The Correct Steps"}
+          brandText={currentRoute}
+          secondary={getActiveNavbar(routes)}
+          {...rest}
         />
-      )}
-      <div className="h-full w-full bg-gray-50 dark:!bg-navy-900">
-        <main className="mx-[12px] h-full flex-none transition-all duration-300 md:pr-2 xl:ml-[260px]">
-          <div className="h-full">
-            <Navbar
-              onOpenSidenav={() => setOpen(true)}
-              logoText={"The Correct Steps"}
-              brandText={currentRoute}
-              secondary={getActiveNavbar(routes)}
-              {...rest}
-            />
-            <div className="mx-auto mb-auto h-full min-h-[84vh] p-2 md:pr-2">
-              <Routes>
-                {getRoutes(routes)}
-                <Route path="/" element={<Navigate to="/student/default" replace />} />
-              </Routes>
-            </div>
-            {/* <div className="p-3">
-              <Footer />
-            </div> */}
-          </div>
-        </main>
-      </div>
+
+        <div className="w-full p-2 md:pr-2">
+          <Routes>
+            {getRoutes(routes)}
+            <Route path="/" element={<Navigate to="/student/default" replace />} />
+          </Routes>
+        </div>
+      </main>
     </div>
-  );
+  </div>
+);
 }

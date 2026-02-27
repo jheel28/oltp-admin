@@ -17,6 +17,7 @@ const testSchema = new Schema(
     startTime: { type: String, default: "" },
     endTime: { type: String, default: "" },
     duration: { type: Number, required: true },
+    passingPercentage: { type: Number, default: 35 },
     isPublished: { type: Boolean, default: false },
     allowCalculator: { type: Boolean, default: true },
     allowWatermark: { type: Boolean, default: true },

@@ -41,7 +41,12 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
       message.error("Phone number is invalid");
       return;
     }
-    if (editedData.alternateNumber && !isValidPhoneNumber(editedData.alternateNumber)) {
+
+    if (
+      editedData.alternateNumber &&
+      editedData.alternateNumber.trim() &&
+      !isValidPhoneNumber(editedData.alternateNumber)
+    ) {
       message.error("Alternate number is invalid");
       return;
     }
@@ -56,6 +61,14 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
         if (key === "image") {
           if (editedData[key] instanceof File) {
             formData.append("image", editedData[key]);
+          }
+          return;
+        }
+
+        if (key === "alternateNumber") {
+          const val = editedData[key];
+          if (val && val.trim()) {
+            formData.append(key, val);
           }
           return;
         }
@@ -186,12 +199,12 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
         <h2 className="mb-4 text-xl font-bold text-navy-700 dark:text-white">Student Details</h2>
 
         <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
-          <Field label="First Name *" name="firstName" />
-          <Field label="Last Name *" name="lastName" />
-          <Field label="Father's Name" name="fatherName" optional />
-          <Field label="Mother's Name" name="motherName" optional />
-          <Field label="Email *" name="email" type="email" />
-          <Field label="Student ID *" name="studentId" />
+          <Field label="First Name *"    name="firstName" />
+          <Field label="Last Name *"     name="lastName"  />
+          <Field label="Father's Name"   name="fatherName" optional />
+          <Field label="Mother's Name"   name="motherName" optional />
+          <Field label="Email *"         name="email" type="email" />
+          <Field label="Student ID *"    name="studentId" />
         </div>
 
         <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
@@ -213,16 +226,26 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
             )}
           </div>
 
+          {/* Alternate Number – optional */}
           <div className="mb-3">
-            <label className="text-sm text-gray-600 dark:text-gray-400">Alternate Number *</label>
+            <label className="text-sm text-gray-600 dark:text-gray-400">
+              Alternate Number{" "}
+              <span className="text-xs text-gray-400">(optional)</span>
+            </label>
             {isEditing ? (
               <PhoneInput
-                value={editedData.alternateNumber}
+                value={editedData.alternateNumber || ""}
                 onChange={(val) =>
                   setEditedData((prev) => ({ ...prev, alternateNumber: val || "" }))
                 }
                 disabled={loading}
-                showValidation={submitted}
+                // Validate only if a value is present
+                showValidation={
+                  submitted &&
+                  !!editedData.alternateNumber &&
+                  !!editedData.alternateNumber.trim()
+                }
+                placeholder="Alternate number (optional)"
               />
             ) : (
               <p className="text-base font-medium text-navy-700 dark:text-white">
@@ -276,8 +299,8 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
 
         <div className="grid grid-cols-3 gap-x-4">
           <Field label="Pincode" name="pincode" />
-          <Field label="State" name="state" />
-          <Field label="Country" name="country" />
+          <Field label="State"   name="state"   />
+          <Field label="Country" name="country"  />
         </div>
 
         {isEditing && (
