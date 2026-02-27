@@ -256,6 +256,62 @@ const deleteSingleScore = async (req, res, next) => {
   res.status(200).json({ message: "Score deleted successfully" });
 };
 
+const updateScoreQuestions = async (req, res, next) => {
+  const { scoreId } = req.params;
+  const { questions: updatedQuestions, passingPercentage } = req.body;
+
+  if (!Array.isArray(updatedQuestions)) {
+    return res.status(422).json({ message: "questions must be an array" });
+  }
+
+  let score;
+  try {
+    score = await Score.findById(scoreId);
+  } catch (err) {
+    return next(new HttpError("Something went wrong finding the score.", 500));
+  }
+  if (!score) return next(new HttpError("Score not found.", 404));
+
+  const questionMap = new Map(
+    updatedQuestions.map((q) => [String(q.questionId), q])
+  );
+
+  score.questions = score.questions.map((sq) => {
+    const override = questionMap.get(String(sq.questionId));
+    if (!override) return sq;
+    const updated = sq.toObject();
+    updated.marksAwarded = Number(override.marksAwarded);
+    if (override.chosenAnswer !== undefined) {
+      updated.chosenAnswer = override.chosenAnswer;
+    }
+    return updated;
+  });
+
+  const newTotal = score.questions.reduce(
+    (sum, q) => sum + (Number(q.marksAwarded) || 0),
+    0
+  );
+  score.marksObtained = Math.max(0, Math.round(newTotal * 100) / 100);
+
+  if (score.totalMarks > 0) {
+    score.percentage =
+      Math.round((score.marksObtained / score.totalMarks) * 10000) / 100;
+    const threshold =
+      passingPercentage != null
+        ? Number(passingPercentage) / 100
+        : 0.35;
+    score.passed = score.marksObtained / score.totalMarks >= threshold;
+  }
+
+  try {
+    await score.save();
+  } catch (err) {
+    return next(new HttpError("Something went wrong saving the score.", 500));
+  }
+
+  res.status(200).json({ score, message: "Questions updated successfully" });
+};
+
 exports.createScore = createScore;
 exports.getScoreById = getScoreById;
 exports.getAllScores = getAllScores;
@@ -268,3 +324,4 @@ exports.getLiveTestStatus = getLiveTestStatus;
 exports.deleteScoresByTestId = deleteScoresByTestId;
 exports.updateScore = updateScore;
 exports.deleteSingleScore = deleteSingleScore;
+exports.updateScoreQuestions = updateScoreQuestions;

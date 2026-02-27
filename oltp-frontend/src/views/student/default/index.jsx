@@ -5,7 +5,7 @@ import StudentPerformance from "views/student/default/components/StudentPerforma
 import TestCard from "views/student/test/components/TestCard";
 import { MdBarChart, MdCheckCircle, MdBook, MdSchedule } from "react-icons/md";
 import { IoMdAlarm } from "react-icons/io";
-import { IoSchool, IoFlash } from "react-icons/io5";
+import { IoSchool, IoFlash, IoInfinite } from "react-icons/io5";
 
 const StatCard = ({ icon, title, value, accent = "blue" }) => {
   const map = {
@@ -130,8 +130,8 @@ const Dashboard = () => {
 
   const hasAttempted = (testId) => attempted.some((a) => a.testId === testId);
 
-  const isLive = (test) => {
-    if (test.isPermanent) return true;
+  const isLiveTimedTest = (test) => {
+    if (test.isPermanent) return false;
     const start = parseTestDateTime(test.date, test.startTime);
     const end = parseTestDateTime(test.date, test.endTime);
     return start && end ? currentTime >= start && currentTime <= end : false;
@@ -143,9 +143,11 @@ const Dashboard = () => {
     return start ? start > currentTime : false;
   };
 
-  const activeTests = batchTests.filter(
-    (t) => isLive(t) && (t.isPermanent || !hasAttempted(t.testId))
+  const liveTests = batchTests.filter(
+    (t) => !t.isPermanent && isLiveTimedTest(t) && !hasAttempted(t.testId)
   );
+
+  const permanentTests = batchTests.filter((t) => t.isPermanent);
 
   const upcomingTests = batchTests.filter(
     (t) => isUpcoming(t) && !hasAttempted(t.testId)
@@ -181,15 +183,32 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {activeTests.length > 0 && (
+      {liveTests.length > 0 && (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
           <div className="mb-3 flex items-center gap-2 px-1">
             <IoFlash className="h-5 w-5 text-red-500" />
-            <h4 className="text-base font-bold text-gray-800 dark:text-white">Active Exams</h4>
-            <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+            <h4 className="text-base font-bold text-gray-800 dark:text-white">Live Exams</h4>
+            <span className="flex h-2 w-2 animate-pulse rounded-full bg-red-500" />
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {activeTests.map((test) => (
+            {liveTests.map((test) => (
+              <TestCard key={test._id || test.testId} test={test} isActive={true} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {permanentTests.length > 0 && (
+        <div>
+          <div className="mb-3 flex items-center gap-2 px-1">
+            <IoInfinite className="h-5 w-5 text-indigo-500" />
+            <h4 className="text-base font-bold text-gray-800 dark:text-white">Practice Tests</h4>
+            <span className="ml-1 rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-600">
+              Always Available
+            </span>
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {permanentTests.map((test) => (
               <TestCard key={test._id || test.testId} test={test} isActive={true} />
             ))}
           </div>

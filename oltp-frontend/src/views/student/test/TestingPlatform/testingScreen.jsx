@@ -85,7 +85,6 @@ const TestingScreen = () => {
   const allowCalculator = test?.allowCalculator !== false;
   const allowWatermark = test?.allowWatermark !== false;
 
-  // Prefer test-level passingPercentage, then paper-level, then default 35
   const passingFraction = (() => {
     if (test?.passingPercentage != null && test.passingPercentage > 0)
       return test.passingPercentage / 100;
@@ -235,6 +234,7 @@ const TestingScreen = () => {
 
         setTest(fetchedTest);
         setStudent(fetchedStudent);
+
         const endTs = parseEndTimestamp(fetchedTest);
         setEndTimestamp(endTs);
 
@@ -264,16 +264,24 @@ const TestingScreen = () => {
           const len = qs.length;
           const paddedAnswers = padArray(saved.answers, len, null);
           const paddedStatuses = padArray(saved.statuses, len, 0);
-          if (endTs && Date.now() > endTs) {
+
+          const effectiveEndTs = endTs || saved.endTimestamp || null;
+
+          if (effectiveEndTs && Date.now() > effectiveEndTs) {
+            if (!endTs && saved.endTimestamp) setEndTimestamp(saved.endTimestamp);
             exam.restore(paddedAnswers, paddedStatuses, 0);
             setPhase("autosubmit");
             return;
           }
+
+          if (!endTs && saved.endTimestamp) {
+            setEndTimestamp(saved.endTimestamp);
+          }
+
           exam.restore(paddedAnswers, paddedStatuses, saved.currentIdx || 0);
           setRestored(true);
           setPhase("exam");
         } else {
-          // No valid prior session: clear stale data and show instructions
           clearState(fetchedTest.testId);
           setPhase("instructions");
         }
@@ -314,7 +322,7 @@ const TestingScreen = () => {
       <div className="flex h-screen flex-col items-center justify-center gap-4 bg-gray-100">
         <div className="border-t-transparent h-14 w-14 animate-spin rounded-full border-4 border-blue-600" />
         <p className="font-bold text-gray-600">
-          {phase === "autosubmit" ? "Auto-submitting exam…" : "Loading exam…"}
+          {phase === "autosubmit" ? "Auto-submitting exam\u2026" : "Loading exam\u2026"}
         </p>
       </div>
     );
@@ -340,8 +348,10 @@ const TestingScreen = () => {
         student={student}
         paper={paper}
         onBegin={() => {
-          // Wipe any stale localStorage for this test before a fresh attempt starts
           clearState(test.testId);
+          if (test.isPermanent && test.duration) {
+            setEndTimestamp(Date.now() + test.duration * 60 * 1000);
+          }
           setPhase("exam");
           document.documentElement.requestFullscreen?.().catch(() => {});
         }}
@@ -380,7 +390,7 @@ const TestingScreen = () => {
 
       {restored && (
         <div className="flex-none border-b border-yellow-200 bg-yellow-50 px-4 py-1.5 text-center text-xs font-medium text-yellow-800">
-          Session restored — your previously saved answers have been recovered.
+          Session restored \u2014 your previously saved answers have been recovered.
         </div>
       )}
 

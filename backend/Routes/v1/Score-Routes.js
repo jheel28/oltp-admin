@@ -50,13 +50,19 @@ router.delete(
 router.patch(
   "/update/:scoreId",
   checkAuth("Admin"),
-  ctrl.updateScore
+  ctrl.updateScore,
+);
+
+router.patch(
+  "/update/:scoreId/questions",
+  checkAuth("Admin"),
+  ctrl.updateScoreQuestions,
 );
 
 router.delete(
   "/delete/single/:scoreId",
   checkAuth("Admin"),
-  ctrl.deleteSingleScore
+  ctrl.deleteSingleScore,
 );
 
 module.exports = router;
