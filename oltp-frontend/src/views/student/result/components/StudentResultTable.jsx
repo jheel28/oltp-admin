@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import Card from "components/card";
 import { AuthContext } from "components/Auth-context";
 import { useParams, useNavigate } from "react-router-dom";
-import { MdArrowBack } from "react-icons/md";
+import { MdArrowBack, MdFilePresent, MdDownload } from "react-icons/md";
 
 const BACKEND = process.env.REACT_APP_BACKEND_URL;
 
@@ -128,7 +128,6 @@ const QuestionResult = ({ question, scoreQ, index }) => {
         />
       )}
 
-      {/* NAT answer */}
       {isNAT && (
         <div className="space-y-1.5">
           {skipped ? (
@@ -146,7 +145,6 @@ const QuestionResult = ({ question, scoreQ, index }) => {
         </div>
       )}
 
-      {/* MCQ/MSQ options */}
       {!isNAT && question?.options?.length > 0 && (
         <div className="space-y-1.5">
           {question.options.map((opt, oi) => (
@@ -164,10 +162,42 @@ const QuestionResult = ({ question, scoreQ, index }) => {
   );
 };
 
+const AnswerKeyBanner = ({ answerKeyFile }) => {
+  const url = normImg(answerKeyFile);
+  if (!url) return null;
+
+  const isPdf = answerKeyFile?.toLowerCase().endsWith(".pdf");
+  const fileName = answerKeyFile.split("/").pop();
+
+  return (
+    <div className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20 px-4 py-3">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/40">
+          <MdFilePresent className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">Official Answer Key Available</p>
+          <p className="truncate text-xs text-blue-600 dark:text-blue-400">{fileName}</p>
+        </div>
+      </div>
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-blue-700"
+      >
+        <MdDownload className="h-3.5 w-3.5" />
+        {isPdf ? "View PDF" : "View"}
+      </a>
+    </div>
+  );
+};
+
 const StudentResultsTable = () => {
   const [student, setStudent] = useState(null);
   const [scoreRecord, setScoreRecord] = useState(null);
   const [questions, setQuestions] = useState([]);
+  const [paper, setPaper] = useState(null);
   const [loading, setLoading] = useState(true);
   const auth = useContext(AuthContext);
   const { testId, paperId, scoreId } = useParams();
@@ -186,7 +216,6 @@ const StudentResultsTable = () => {
 
         let score;
         if (scoreId) {
-          // Fetch specific score by its _id
           const scoreRes = await fetch(
             `${BACKEND}/api/v1/score/get/score/byid/${scoreId}`,
             { headers: { Authorization: "Bearer " + auth.token } }
@@ -194,7 +223,6 @@ const StudentResultsTable = () => {
           const data = await scoreRes.json();
           score = data.score;
         } else {
-          // Legacy: fetch by testId + studentId
           const scoreRes = await fetch(
             `${BACKEND}/api/v1/score/get/score/bytestid/${testId}/studentid/${s.studentId}`,
             { headers: { Authorization: "Bearer " + auth.token } }
@@ -205,15 +233,21 @@ const StudentResultsTable = () => {
 
         setScoreRecord(score);
 
-        // Fetch questions using paperId from score or from URL param
         const pid = score?.paperId || paperId;
         if (pid) {
-          const questionsRes = await fetch(
-            `${BACKEND}/api/v1/question/get/questions/bypaperid/${pid}`,
-            { headers: { Authorization: "Bearer " + auth.token } }
-          );
+          const [questionsRes, paperRes] = await Promise.all([
+            fetch(
+              `${BACKEND}/api/v1/question/get/questions/bypaperid/${pid}`,
+              { headers: { Authorization: "Bearer " + auth.token } }
+            ),
+            fetch(`${BACKEND}/api/v1/questionpaper/get/questionpaper/bypaperid/${pid}`),
+          ]);
           const { questions: qs = [] } = await questionsRes.json();
           setQuestions(qs);
+          if (paperRes.ok) {
+            const { questionPaper } = await paperRes.json();
+            setPaper(questionPaper);
+          }
         }
       } catch (err) {
         console.error("StudentResultsTable error:", err);
@@ -274,16 +308,22 @@ const StudentResultsTable = () => {
           <p className="font-medium">No score record found for this test.</p>
         </div>
       ) : (
-        <ul className="space-y-4">
-          {fallbackItems.map(({ question, scoreQ }, index) => (
-            <QuestionResult
-              key={scoreQ?.questionId || index}
-              question={question}
-              scoreQ={scoreQ}
-              index={index}
-            />
-          ))}
-        </ul>
+        <>
+          {paper?.answerKeyFile && (
+            <AnswerKeyBanner answerKeyFile={paper.answerKeyFile} />
+          )}
+
+          <ul className="space-y-4">
+            {fallbackItems.map(({ question, scoreQ }, index) => (
+              <QuestionResult
+                key={scoreQ?.questionId || index}
+                question={question}
+                scoreQ={scoreQ}
+                index={index}
+              />
+            ))}
+          </ul>
+        </>
       )}
     </Card>
   );

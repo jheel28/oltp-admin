@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useCallback } from "react";
+import React, { useContext, useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   MdArrowBack,
@@ -12,6 +12,8 @@ import {
   MdEdit,
   MdSave,
   MdUndo,
+  MdFilePresent,
+  MdFileUpload,
 } from "react-icons/md";
 import Card from "components/card";
 import { message } from "antd";
@@ -61,6 +63,132 @@ const getDefaultNegativeMarks = (question, paper) => {
   const pos = getDefaultPositiveMarks(question, paper);
   if (question?.marksNegative != null) return question.marksNegative;
   return -(pos * (paper?.negativeFraction ?? 0.25));
+};
+
+const AnswerKeyPanel = ({ paper, paperId, onPaperUpdated, auth }) => {
+  const fileRef = useRef();
+  const [uploading, setUploading] = useState(false);
+
+  const hasFile = !!paper?.answerKeyFile;
+  const fileUrl = hasFile ? normImg(paper.answerKeyFile) : null;
+  const fileName = hasFile ? paper.answerKeyFile.split("/").pop() : null;
+  const isPdf = fileName?.toLowerCase().endsWith(".pdf");
+
+  const uploadFile = async (file) => {
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      message.error("Answer key file must be under 10 MB");
+      return;
+    }
+    const allowed = ["application/pdf", "image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      message.error("Only PDF and image files are allowed");
+      return;
+    }
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("answerKeyFile", file);
+      const res = await fetch(
+        `${BACKEND}/api/v1/questionpaper/update/questionpaper/byid/${paper._id}`,
+        { method: "PATCH", headers: { Authorization: "Bearer " + auth.token }, body: fd }
+      );
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      message.success("Answer key uploaded");
+      if (onPaperUpdated) onPaperUpdated(data.questionPaper);
+    } catch {
+      message.error("Failed to upload answer key");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  const removeFile = async () => {
+    if (!window.confirm("Remove the answer key from this paper?")) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("clearAnswerKey", "true");
+      const res = await fetch(
+        `${BACKEND}/api/v1/questionpaper/update/questionpaper/byid/${paper._id}`,
+        { method: "PATCH", headers: { Authorization: "Bearer " + auth.token }, body: fd }
+      );
+      if (!res.ok) throw new Error("Remove failed");
+      const data = await res.json();
+      message.success("Answer key removed");
+      if (onPaperUpdated) onPaperUpdated(data.questionPaper);
+    } catch {
+      message.error("Failed to remove answer key");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="mt-4 rounded-xl border border-dashed border-gray-200 dark:border-navy-600 bg-gray-50 dark:bg-navy-800/50 p-3">
+      <input
+        ref={fileRef}
+        type="file"
+        accept=".pdf,image/*"
+        className="hidden"
+        onChange={(e) => { uploadFile(e.target.files?.[0]); }}
+      />
+      <div className="mb-1.5 flex items-center justify-between">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Answer Key</span>
+        {!hasFile && (
+          <button
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            className="flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2 py-1 text-[11px] font-bold text-blue-600 transition hover:bg-blue-100 disabled:opacity-50"
+          >
+            <MdFileUpload className="h-3 w-3" />
+            {uploading ? "Uploading..." : "Upload"}
+          </button>
+        )}
+      </div>
+
+      {hasFile ? (
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+            <MdFilePresent className="h-4 w-4 text-blue-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="truncate text-xs font-medium text-gray-700 dark:text-white">{fileName}</p>
+          </div>
+          <div className="flex flex-shrink-0 items-center gap-1.5">
+            <a
+              href={fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 rounded-lg bg-blue-500 px-2.5 py-1 text-[11px] font-bold text-white transition hover:bg-blue-600"
+            >
+              <MdDownload className="h-3 w-3" />
+              {isPdf ? "View PDF" : "View"}
+            </a>
+            <button
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              className="rounded-lg border border-gray-200 px-2 py-1 text-[11px] font-bold text-gray-500 transition hover:bg-gray-100 disabled:opacity-50"
+            >
+              Replace
+            </button>
+            <button
+              onClick={removeFile}
+              disabled={uploading}
+              className="rounded-lg p-1 text-red-400 transition hover:bg-red-50 disabled:opacity-50"
+              title="Remove answer key"
+            >
+              <MdClose className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <p className="text-xs text-gray-400">No answer key uploaded for this paper.</p>
+      )}
+    </div>
+  );
 };
 
 const AnswerSheetModal = ({ score: initialScore, questions, paper, onClose, onSaved }) => {
@@ -657,8 +785,13 @@ const TestMonitor = () => {
               </h2>
               <p className="mt-0.5 text-xs text-gray-400">
                 Test ID: {testId}
-                {test?.batchName && ` \u00b7 Batch: ${test.batchName}`}
-                {test?.date && ` \u00b7 ${test.date}`}
+                {test?.batchName && ` · Batch: ${test.batchName}`}
+                {test?.date && ` · ${test.date}`}
+                {paper && (
+                  <span className="ml-2 text-blue-500 font-medium">
+                    Paper: {paper.paperId}
+                  </span>
+                )}
               </p>
             </div>
           </div>
@@ -689,6 +822,15 @@ const TestMonitor = () => {
             </button>
           </div>
         </div>
+
+        {paper && (
+          <AnswerKeyPanel
+            paper={paper}
+            paperId={paper.paperId}
+            onPaperUpdated={setPaper}
+            auth={auth}
+          />
+        )}
       </Card>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
