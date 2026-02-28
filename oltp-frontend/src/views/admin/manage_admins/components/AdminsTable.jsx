@@ -1,10 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState, useCallback } from "react";
-import { FaTrashAlt } from "react-icons/fa";
 import { MdSearch } from "react-icons/md";
 import Card from "components/card";
-import ViewAdmin from "./ViewAdmin";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { Modal, message } from "antd";
+import { message } from "antd";
 import { AuthContext } from "components/Auth-context";
 
 const avatarUrl = (name) =>
@@ -15,7 +12,6 @@ const AdminsTable = () => {
   const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [selectedAdmin, setSelectedAdmin] = useState(null);
 
   const fetchAdmins = useCallback(async () => {
     setLoading(true);
@@ -46,55 +42,13 @@ const AdminsTable = () => {
     );
   }, [admins, search]);
 
-  const deleteAdmin = async (id) => {
-    try {
-      const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/v1/admin/delete/admin/byid/${id}`,
-        { method: "DELETE", headers: { Authorization: "Bearer " + auth.token } }
-      );
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "Delete failed");
-      }
-      message.success("Admin deleted");
-      fetchAdmins();
-    } catch (err) {
-      message.error(err.message || "Failed to delete admin");
-    }
-  };
-
-  const handleDelete = (id) => {
-    Modal.confirm({
-      title: "Delete this admin?",
-      content: "This action cannot be undone.",
-      icon: <ExclamationCircleOutlined />,
-      okText: "Delete",
-      okType: "danger",
-      cancelText: "Cancel",
-      onOk: () => deleteAdmin(id),
-    });
-  };
-
-  if (selectedAdmin) {
-    return (
-      <Card extra="w-full p-4">
-        <ViewAdmin
-          adminData={selectedAdmin}
-          isOwnProfile={selectedAdmin._id === auth.userId}
-          onUpdate={() => { setSelectedAdmin(null); fetchAdmins(); }}
-          onBack={() => setSelectedAdmin(null)}
-        />
-      </Card>
-    );
-  }
-
   return (
     <Card extra="w-full pb-10 p-4 h-full">
       <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold text-navy-700 dark:text-white">Manage Admins</h2>
           <p className="mt-0.5 text-xs text-gray-500">
-            {filtered.length} admin{filtered.length !== 1 ? "s" : ""} — you can only edit your own profile
+            {filtered.length} admin{filtered.length !== 1 ? "s" : ""}
           </p>
         </div>
         <div className="relative">
@@ -120,13 +74,12 @@ const AdminsTable = () => {
                 <th className="pb-3 pr-6 text-left text-xs font-bold uppercase tracking-wide text-gray-500">Name</th>
                 <th className="pb-3 pr-6 text-left text-xs font-bold uppercase tracking-wide text-gray-500">Email</th>
                 <th className="pb-3 pr-6 text-left text-xs font-bold uppercase tracking-wide text-gray-500">Mobile</th>
-                <th className="pb-3 text-left text-xs font-bold uppercase tracking-wide text-gray-500">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center text-sm text-gray-400">
+                  <td colSpan={4} className="py-12 text-center text-sm text-gray-400">
                     {search ? "No admins match your search" : "No admins found"}
                   </td>
                 </tr>
@@ -168,24 +121,6 @@ const AdminsTable = () => {
                       </td>
                       <td className="py-3 pr-6">
                         <span className="text-sm text-gray-500">{admin.mobile || "—"}</span>
-                      </td>
-                      <td className="py-3">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => setSelectedAdmin(admin)}
-                            className="rounded-lg bg-blue-500 px-3 py-1.5 text-xs text-white hover:bg-blue-600"
-                          >
-                            {isOwn ? "View / Edit" : "View"}
-                          </button>
-                          {!isOwn && (
-                            <button
-                              onClick={() => handleDelete(admin._id)}
-                              className="rounded-lg bg-red-500 p-1.5 text-white hover:bg-red-600"
-                            >
-                              <FaTrashAlt className="h-3 w-3" />
-                            </button>
-                          )}
-                        </div>
                       </td>
                     </tr>
                   );
