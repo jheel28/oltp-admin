@@ -9,21 +9,21 @@ const avatarUrl = (name) =>
   `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "Student")}&background=4f46e5&color=fff&size=128&bold=true`;
 
 const FIELD_CONFIG = [
-  { key: "studentId",       label: "Student ID",       readonly: true  },
-  { key: "role",            label: "Role",             readonly: true  },
-  { key: "batch",           label: "Batch",            readonly: true  },
-  { key: "admissionDate",   label: "Admission Date",   readonly: true  },
-  { key: "email",           label: "Email",            required: true  },
-  { key: "firstName",       label: "First Name",       required: true  },
-  { key: "lastName",        label: "Last Name",        required: true  },
-  { key: "phoneNumber",     label: "Phone Number",     required: true  },
-  { key: "alternateNumber", label: "Alternate Number", required: true  },
-  { key: "fatherName",      label: "Father's Name",    optional: true  },
-  { key: "motherName",      label: "Mother's Name",    optional: true  },
-  { key: "address",         label: "Address",          required: true  },
-  { key: "pincode",         label: "Pincode",          required: true  },
-  { key: "state",           label: "State",            required: true  },
-  { key: "country",         label: "Country",          required: true  },
+  { key: "studentId", label: "Student ID", readonly: true },
+  { key: "role", label: "Role", readonly: true },
+  { key: "batch", label: "Batch", readonly: true },
+  { key: "admissionDate", label: "Admission Date", readonly: true },
+  { key: "email", label: "Email", required: true },
+  { key: "firstName", label: "First Name", required: true },
+  { key: "lastName", label: "Last Name", required: true },
+  { key: "phoneNumber", label: "Phone Number", required: true },
+  { key: "alternateNumber", label: "Alternate Number", required: false },
+  { key: "fatherName", label: "Father's Name", optional: true },
+  { key: "motherName", label: "Mother's Name", optional: true },
+  { key: "address", label: "Address", required: true },
+  { key: "pincode", label: "Pincode", required: true },
+  { key: "state", label: "State", required: true },
+  { key: "country", label: "Country", required: true },
 ];
 
 const StudentProfile = () => {
@@ -146,8 +146,8 @@ const StudentProfile = () => {
   const currentAvatarUrl = profileImage
     ? URL.createObjectURL(profileImage)
     : student.image
-    ? `${process.env.REACT_APP_BACKEND_URL}/${student.image}`
-    : avatarUrl(`${student.firstName} ${student.lastName}`);
+      ? `${process.env.REACT_APP_BACKEND_URL}/${student.image}`
+      : avatarUrl(`${student.firstName} ${student.lastName}`);
 
   const inputClass = "w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white dark:bg-navy-800";
 
@@ -244,8 +244,8 @@ const StudentProfile = () => {
           <Card extra="w-full p-6">
             <h4 className="mb-4 text-xl font-bold text-navy-700 dark:text-white">Change Password</h4>
             {[
-              { name: "password",        label: "Current Password", key: "current" },
-              { name: "newPassword",     label: "New Password",     key: "new"     },
+              { name: "password", label: "Current Password", key: "current" },
+              { name: "newPassword", label: "New Password", key: "new" },
               { name: "confirmPassword", label: "Confirm Password", key: "confirm" },
             ].map(({ name, label, key }) => (
               <div key={name} className="relative mb-4">
@@ -255,11 +255,10 @@ const StudentProfile = () => {
                   value={passwords[name]}
                   onChange={(e) => setPasswords((prev) => ({ ...prev, [name]: e.target.value }))}
                   placeholder={label}
-                  className={`w-full rounded-md border p-3 pr-10 text-navy-700 dark:text-white dark:bg-navy-800 ${
-                    name !== "password" && passwords.confirmPassword !== ""
-                      ? passwordsMatch ? "border-green-500" : "border-red-500"
-                      : "border-gray-300"
-                  }`}
+                  className={`w-full rounded-md border p-3 pr-10 text-navy-700 dark:text-white dark:bg-navy-800 ${name !== "password" && passwords.confirmPassword !== ""
+                    ? passwordsMatch ? "border-green-500" : "border-red-500"
+                    : "border-gray-300"
+                    }`}
                 />
                 <button
                   type="button"
