@@ -4,11 +4,23 @@ const Student = require("../../Models/Student");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
+const path = require("path");
 const crypto = require("crypto");
-const { sendVerificationEmail } = require("../../Utils/email");
+const { sendVerificationEmail, sendPasswordResetEmail } = require("../../Utils/email");
 const { validatePhoneNumber } = require("../../Utils/phoneValidation");
 const { normalizeEmail } = require("../../Utils/emailNormalization");
 const { parseDuplicateKeyError } = require("../../Middleware/duplicate-key");
+
+const toRelativePath = (absolutePath) => {
+  if (!absolutePath) return null;
+  return path.relative(path.join(__dirname, "../.."), absolutePath).replace(/\\/g, "/");
+};
+
+const toAbsolutePath = (storedPath) => {
+  if (!storedPath) return null;
+  if (path.isAbsolute(storedPath)) return storedPath;
+  return path.join(__dirname, "../..", storedPath);
+};
 
 const JWT_EXPIRY = process.env.JWT_EXPIRY || "7d";
 const VERIFICATION_EXPIRY_HOURS = 24;
@@ -103,7 +115,11 @@ const createStudent = async (req, res, next) => {
     ? new Date(Date.now() + VERIFICATION_EXPIRY_HOURS * 60 * 60 * 1000)
     : null;
 
-  const imagePath = req.file ? req.file.path : null;
+  const imagePath = req.file ? toRelativePath(req.file.path) : null;
+
+  if (!imagePath) {
+    return next(new HttpError("Profile photo is required", 422));
+  }
 
   const createdStudent = new Student({
     firstName,
@@ -526,9 +542,9 @@ const updateStudentById = async (req, res, next) => {
 
   if (req.file) {
     const oldImagePath = student.image;
-    student.image = req.file.path;
+    student.image = toRelativePath(req.file.path);
     if (oldImagePath) {
-      fs.unlink(oldImagePath, (err) => {
+      fs.unlink(toAbsolutePath(oldImagePath), (err) => {
         if (err) console.log("Old image cleanup error:", err);
       });
     }
@@ -592,7 +608,7 @@ const updateImageById = async (req, res, next) => {
   }
 
   const oldImagePath = student.image;
-  student.image = req.file.path;
+  student.image = toRelativePath(req.file.path);
 
   try {
     await student.save();
@@ -601,7 +617,7 @@ const updateImageById = async (req, res, next) => {
   }
 
   if (oldImagePath) {
-    fs.unlink(oldImagePath, (err) => {
+    fs.unlink(toAbsolutePath(oldImagePath), (err) => {
       if (err) console.log("Old image cleanup error:", err);
     });
   }
@@ -720,10 +736,111 @@ const deleteStudentById = async (req, res, next) => {
   res.status(200).json({ message: "Student successfully deleted" });
 
   if (imagePath) {
-    fs.unlink(imagePath, (err) => {
+    fs.unlink(toAbsolutePath(imagePath), (err) => {
       if (err) console.log("Image cleanup error:", err);
     });
   }
+};
+
+const forgotPassword = async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) {
+    return next(new HttpError("Email is required", 422));
+  }
+
+  const normEmail = normalizeEmail(email.trim().toLowerCase());
+
+  let student;
+  try {
+    student = await Student.findOne({ normalizedEmail: normEmail });
+    if (!student) {
+      student = await Student.findOne({ email: email.trim().toLowerCase() });
+    }
+  } catch (err) {
+    return next(new HttpError("Something went wrong, please try again", 500));
+  }
+
+  // Always return success to prevent email enumeration
+  if (!student) {
+    return res.status(200).json({
+      message: "If an account with that email exists, a password reset link has been sent.",
+    });
+  }
+
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  const resetExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+  student.resetPasswordToken = resetToken;
+  student.resetPasswordExpiry = resetExpiry;
+
+  try {
+    await student.save();
+  } catch (err) {
+    return next(new HttpError("Something went wrong, please try again", 500));
+  }
+
+  try {
+    await sendPasswordResetEmail(student.email, student.firstName, resetToken);
+  } catch (err) {
+    console.error("Password reset email failed:", err.message);
+    return next(
+      new HttpError("Failed to send password reset email. Please try again.", 500),
+    );
+  }
+
+  res.status(200).json({
+    message: "If an account with that email exists, a password reset link has been sent.",
+  });
+};
+
+const resetPassword = async (req, res, next) => {
+  const { token, newPassword } = req.body;
+
+  if (!token || !newPassword) {
+    return next(new HttpError("Token and new password are required", 422));
+  }
+  if (newPassword.length < 6) {
+    return next(new HttpError("Password must be at least 6 characters", 422));
+  }
+
+  let student;
+  try {
+    student = await Student.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpiry: { $gt: new Date() },
+    });
+  } catch (err) {
+    return next(new HttpError("Something went wrong, please try again", 500));
+  }
+
+  if (!student) {
+    return next(
+      new HttpError("Invalid or expired reset token. Please request a new password reset.", 400),
+    );
+  }
+
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(newPassword, 12);
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong while encrypting the password, please try again", 500),
+    );
+  }
+
+  student.password = hashedPassword;
+  student.resetPasswordToken = null;
+  student.resetPasswordExpiry = null;
+
+  try {
+    await student.save();
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong while resetting the password, please try again", 500),
+    );
+  }
+
+  res.status(200).json({ message: "Password has been reset successfully. You can now log in." });
 };
 
 exports.createStudent = createStudent;
@@ -736,3 +853,5 @@ exports.updateImageById = updateImageById;
 exports.updateStudentById = updateStudentById;
 exports.updatePasswordByEmail = updatePasswordByEmail;
 exports.deleteStudentById = deleteStudentById;
+exports.forgotPassword = forgotPassword;
+exports.resetPassword = resetPassword;

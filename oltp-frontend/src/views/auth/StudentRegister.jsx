@@ -58,6 +58,11 @@ const StudentRegister = () => {
   const onFinish = async (values) => {
     setPhoneSubmitted(true);
 
+    if (!imageFile) {
+      message.error("Please provide a profile photo");
+      return;
+    }
+
     if (!isValidPhoneNumber(phones.phoneNumber)) {
       message.error("Please enter a valid phone number");
       return;
@@ -337,17 +342,21 @@ const StudentRegister = () => {
 
                 <div className="mb-4">
                   <label className="mb-1 block text-sm font-medium text-navy-700 dark:text-white">
-                    Profile Photo{" "}
-                    <span className="font-normal text-gray-400">
-                      (optional — you can add this later from your profile)
-                    </span>
+                    Profile Photo <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="file"
                     accept="image/png,image/jpeg,image/jpg"
                     onChange={(e) => setImageFile(e.target.files[0] || null)}
-                    className="w-full rounded-lg border border-gray-300 p-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+                    className={`w-full rounded-lg border p-2 text-sm dark:bg-navy-700 dark:text-white ${
+                      phoneSubmitted && !imageFile
+                        ? "border-red-500 dark:border-red-500"
+                        : "border-gray-300 dark:border-navy-600"
+                    }`}
                   />
+                  {phoneSubmitted && !imageFile && (
+                    <p className="mt-1 text-xs text-red-500">Profile photo is required</p>
+                  )}
                   {imageFile && (
                     <p className="mt-1 text-xs text-green-600">Selected: {imageFile.name}</p>
                   )}

@@ -74,6 +74,8 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
 
     if (!formData.batch) missing.push("Batch");
 
+    if (!formData.image) missing.push("Student Photo");
+
     if (missing.length > 0) {
       message.error(`Please fix: ${missing.join(", ")}`);
       return false;
@@ -312,17 +314,21 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
 
       <div className="mb-6">
         <label className="mb-1 block text-sm font-medium text-gray-600 dark:text-gray-300">
-          Student Photo{" "}
-          <span className="font-normal text-gray-400">(optional)</span>
+          Student Photo <span className="text-red-500">*</span>
         </label>
         <input
           type="file"
           name="image"
           accept="image/*"
           onChange={handleImageChange}
-          className="w-full rounded-md border border-gray-300 p-3 text-sm"
+          className={`w-full rounded-md border p-3 text-sm ${
+            submitted && !formData.image ? "border-red-500" : "border-gray-300"
+          }`}
           disabled={loading}
         />
+        {submitted && !formData.image && (
+          <p className="mt-1 text-xs text-red-500">Student Photo is required</p>
+        )}
         {formData.image && (
           <p className="mt-1 text-xs text-green-600">Selected: {formData.image.name}</p>
         )}

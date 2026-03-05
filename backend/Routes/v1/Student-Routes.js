@@ -22,6 +22,8 @@ router.post("/login", loginRateLimiter, studentControllers.login);
 
 router.get("/verify/:token", studentControllers.verifyEmail);
 router.post("/resend-verification", studentControllers.resendVerificationEmail);
+router.post("/forgot-password", studentControllers.forgotPassword);
+router.post("/reset-password", studentControllers.resetPassword);
 
 const phoneValidation = (field, { required = true } = {}) => {
   const chain = check(field).trim();

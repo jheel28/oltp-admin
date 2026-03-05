@@ -170,6 +170,16 @@ export default function SignIn() {
                 </div>
               </div>
 
+              {!isAdmin && (
+                <div className="flex justify-end">
+                  <Link
+                    to="/auth/forgot-password"
+                    className="text-sm font-medium text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                  >
+                    Forgot Password?
+                  </Link>
+                </div>
+              )}
               <button
                 type="submit"
                 disabled={loading}

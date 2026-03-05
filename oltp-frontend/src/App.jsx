@@ -15,6 +15,8 @@ import AdminRegister from "views/auth/AdminRegister";
 import StudentResultsTable from "views/student/result/components/StudentResultTable";
 import VerifyEmail from "views/auth/VerifyEmail";
 import VerifyEmailSent from "views/auth/VerifyEmailSent";
+import ForgotPassword from "views/auth/ForgotPassword";
+import ResetPassword from "views/auth/ResetPassword";
 
 const App = () => {
   const { login, logout, userId, token, email, role, initialized } = useAuth();
@@ -71,6 +73,8 @@ const App = () => {
         <Route path="auth/register/admin" element={<AdminRegister />} />
         <Route path="auth/verify-email/:token" element={<VerifyEmail />} />
         <Route path="auth/verify-email-sent" element={<VerifyEmailSent />} />
+        <Route path="auth/forgot-password" element={<ForgotPassword />} />
+        <Route path="auth/reset-password/:token" element={<ResetPassword />} />
         <Route path="auth/*" element={<SignIn />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

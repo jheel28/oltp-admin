@@ -10,7 +10,7 @@ const studentSchema = new Schema({
   phoneNumber: { type: String, required: true },
   alternateNumber: { type: String, default: null },
   role: { type: String, required: true },
-  image: { type: String, default: null },
+  image: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   normalizedEmail: {
     type: String,
@@ -29,6 +29,8 @@ const studentSchema = new Schema({
   isVerified: { type: Boolean, default: false },
   verificationToken: { type: String, default: null },
   verificationTokenExpiry: { type: Date, default: null },
+  resetPasswordToken: { type: String, default: null },
+  resetPasswordExpiry: { type: Date, default: null },
 });
 
 studentSchema.plugin(uniqueValidator);
