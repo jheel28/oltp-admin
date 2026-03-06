@@ -4,6 +4,14 @@ const { check } = require("express-validator");
 const ctrl = require("../../Controllers/v1/Question-Controllers");
 const imageUpload = require("../../Middleware/image-upload");
 const checkAuth = require("../../Middleware/check-auth");
+const HttpError = require("../../Middleware/http-error");
+
+const handleUpload = (req, res, next) => {
+  imageUpload.any()(req, res, (err) => {
+    if (err) return next(new HttpError(err.message || "File upload failed", 400));
+    next();
+  });
+};
 
 router.get(
   "/get/all/questions",
@@ -24,7 +32,7 @@ router.get(
 router.post(
   "/create/question",
   checkAuth("Admin"),
-  imageUpload.any(),
+  handleUpload,
   [
     check("paperId").isLength({ min: 1, max: 255 }),
     check("text").notEmpty(),
@@ -36,7 +44,7 @@ router.post(
 router.patch(
   "/update/question/byid/:id",
   checkAuth("Admin"),
-  imageUpload.any(),
+  handleUpload,
   ctrl.updateQuestionById
 );
 
