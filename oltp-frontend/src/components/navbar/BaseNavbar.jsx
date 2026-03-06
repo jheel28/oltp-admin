@@ -44,10 +44,14 @@ const BaseNavbar = ({ onOpenSidenav, brandText, onSearch, fetchUrl }) => {
     load();
   }, [auth.userId, fetchUrl]);
 
+  useEffect(() => {
+    setImgError(false);
+  }, [user?.image]);
+
   const displayName = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() : "";
   const avatarSrc =
     user?.image && !imgError
-      ? `${process.env.REACT_APP_BACKEND_URL}/${user.image}`
+      ? `${(process.env.REACT_APP_BACKEND_URL || "").replace(/\/$/, "")}/${user.image.replace(/^\//, "")}`
       : avatarUrl(displayName);
 
   return (

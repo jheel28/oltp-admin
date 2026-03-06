@@ -11,6 +11,13 @@ import { AuthContext } from "components/Auth-context";
 const avatarUrl = (name) =>
   `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "Student")}&background=4f46e5&color=fff&size=64&bold=true`;
 
+const buildImageUrl = (imagePath) => {
+  if (!imagePath) return null;
+  const base = (process.env.REACT_APP_BACKEND_URL || "").replace(/\/$/, "");
+  const img = imagePath.replace(/^\//, "");
+  return `${base}/${img}`;
+};
+
 const isNewStudent = (admissionDate) => {
   if (!admissionDate) return false;
   const admitted = new Date(admissionDate);
@@ -36,7 +43,9 @@ const StudentsTable = () => {
     setLoading(true);
     try {
       const [sRes, bRes] = await Promise.all([
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/all/students`),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/student/get/all/students`, {
+          headers: { Authorization: "Bearer " + auth.token },
+        }),
         fetch(`${process.env.REACT_APP_BACKEND_URL}/api/v1/batch/get/all/batches`),
       ]);
       const sData = await sRes.json();
@@ -48,7 +57,7 @@ const StudentsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [auth.token]);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
@@ -285,9 +294,7 @@ const StudentsTable = () => {
                 paginated.map((student) => {
                   const isNew = isNewStudent(student.admissionDate);
                   const isSelected = selectedIds.has(student._id);
-                  const imgSrc = student.image
-                    ? `${process.env.REACT_APP_BACKEND_URL}/${student.image}`
-                    : avatarUrl(`${student.firstName} ${student.lastName}`);
+                  const imgSrc = buildImageUrl(student.image) || avatarUrl(`${student.firstName} ${student.lastName}`);
                   return (
                     <tr
                       key={student._id}

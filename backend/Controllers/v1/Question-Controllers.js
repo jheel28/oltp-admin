@@ -1,16 +1,21 @@
 const fs = require("fs");
+const path = require("path");
 const HttpError = require("../../Middleware/http-error");
 const { validationResult } = require("express-validator");
 const Question = require("../../Models/Question");
 const QuestionPaper = require("../../Models/QuestionPaper");
 
-const _normalizePath = (p) => (p ? p.replace(/\\/g, "/") : p);
+const _normalizePath = (p) =>
+  p ? p.replace(/\\/g, "/").replace(/^.*?uploads\//, "uploads/") : p;
 
 const _deleteFile = (filePath) => {
   if (!filePath) return;
-  fs.unlink(filePath, (err) => {
+  const abs = path.isAbsolute(filePath)
+    ? filePath
+    : path.join(__dirname, "../../", filePath);
+  fs.unlink(abs, (err) => {
     if (err && err.code !== "ENOENT") {
-      console.error("Failed to delete file:", filePath, err.message);
+      console.error("Failed to delete file:", abs, err.message);
     }
   });
 };
@@ -18,7 +23,6 @@ const _deleteFile = (filePath) => {
 const _extractOptionImages = (files) => {
   const map = {};
   if (!Array.isArray(files)) return map;
-
   files.forEach((file) => {
     const match = file.fieldname.match(/^optionImage_(\d+)$/);
     if (match) {
@@ -68,7 +72,9 @@ const createQuestion = async (req, res, next) => {
   const optionImages = _extractOptionImages(req.files);
   parsedOptions = parsedOptions.map((opt, i) => ({
     text: opt.text || "",
-    image: optionImages[i] ? optionImages[i] : (opt.image ? _normalizePath(opt.image) : undefined),
+    image: optionImages[i]
+      ? optionImages[i]
+      : (opt.image ? _normalizePath(opt.image) : undefined),
   }));
 
   let parsedCorrectOptions = [];
@@ -112,7 +118,7 @@ const createQuestion = async (req, res, next) => {
 
   try {
     await _syncPaperTotals(paperId);
-  } catch (_) { }
+  } catch (_) {}
 
   res.status(201).json({ question });
 };
@@ -172,7 +178,6 @@ const updateQuestionById = async (req, res, next) => {
   if (options !== undefined) {
     let parsedOptions = typeof options === "string" ? JSON.parse(options) : options;
     const optionImages = _extractOptionImages(req.files);
-
     const oldOptions = question.options || [];
 
     parsedOptions = parsedOptions.map((opt, i) => {
@@ -198,7 +203,7 @@ const updateQuestionById = async (req, res, next) => {
 
     const keptImages = new Set(parsedOptions.map((o) => o.image).filter(Boolean));
     oldOptions.forEach((o) => {
-      if (o.image && !keptImages.has(o.image)) _deleteFile(o.image);
+      if (o.image && !keptImages.has(_normalizePath(o.image))) _deleteFile(o.image);
     });
 
     question.options = parsedOptions;
@@ -238,7 +243,7 @@ const updateQuestionById = async (req, res, next) => {
 
   try {
     await _syncPaperTotals(question.paperId);
-  } catch (_) { }
+  } catch (_) {}
 
   res.status(200).json({ question });
 };
@@ -268,7 +273,7 @@ const deleteQuestionById = async (req, res, next) => {
 
   try {
     await _syncPaperTotals(paperId);
-  } catch (_) { }
+  } catch (_) {}
 
   res.status(200).json({ message: "Question deleted successfully" });
 };
