@@ -18,7 +18,7 @@ const _deleteFile = (filePath) => {
 const _extractOptionImages = (files) => {
   const map = {};
   if (!Array.isArray(files)) return map;
-  
+
   files.forEach((file) => {
     const match = file.fieldname.match(/^optionImage_(\d+)$/);
     if (match) {
@@ -44,8 +44,9 @@ const _syncPaperTotals = async (paperId) => {
 const createQuestion = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    const errorDetails = errors.array().map(err => `${err.path || err.param}: ${err.msg}`).join(", ");
     return res.status(422).json({
-      message: "Invalid inputs passed, please try again",
+      message: `Validation failed - ${errorDetails}`,
       errors: errors.array(),
     });
   }
@@ -95,8 +96,8 @@ const createQuestion = async (req, res, next) => {
     difficulty: difficulty || "Medium",
   });
 
-  const questionImgFile = Array.isArray(req.files) 
-    ? req.files.find(f => f.fieldname === "questionImage") 
+  const questionImgFile = Array.isArray(req.files)
+    ? req.files.find(f => f.fieldname === "questionImage")
     : null;
 
   if (questionImgFile) {
@@ -111,7 +112,7 @@ const createQuestion = async (req, res, next) => {
 
   try {
     await _syncPaperTotals(paperId);
-  } catch (_) {}
+  } catch (_) { }
 
   res.status(201).json({ question });
 };
@@ -217,8 +218,8 @@ const updateQuestionById = async (req, res, next) => {
   if (topic !== undefined) question.topic = topic;
   if (difficulty !== undefined) question.difficulty = difficulty;
 
-  const questionImgFile = Array.isArray(req.files) 
-    ? req.files.find(f => f.fieldname === "questionImage") 
+  const questionImgFile = Array.isArray(req.files)
+    ? req.files.find(f => f.fieldname === "questionImage")
     : null;
 
   if (questionImgFile) {
@@ -237,7 +238,7 @@ const updateQuestionById = async (req, res, next) => {
 
   try {
     await _syncPaperTotals(question.paperId);
-  } catch (_) {}
+  } catch (_) { }
 
   res.status(200).json({ question });
 };
@@ -267,7 +268,7 @@ const deleteQuestionById = async (req, res, next) => {
 
   try {
     await _syncPaperTotals(paperId);
-  } catch (_) {}
+  } catch (_) { }
 
   res.status(200).json({ message: "Question deleted successfully" });
 };

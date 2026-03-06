@@ -13,8 +13,9 @@ const JWT_EXPIRY = process.env.JWT_EXPIRY || "7d";
 const createAdmin = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    const errorDetails = errors.array().map(err => `${err.path || err.param}: ${err.msg}`).join(", ");
     return res.status(422).json({
-      message: "Invalid inputs passed, please try again",
+      message: `Validation failed - ${errorDetails}`,
       errors: errors.array(),
     });
   }
@@ -70,8 +71,8 @@ const createAdmin = async (req, res, next) => {
     req.files && req.files["image"] && req.files["image"].length > 0
       ? req.files["image"][0].path
       : req.file
-      ? req.file.path
-      : null;
+        ? req.file.path
+        : null;
 
   const createdAdmin = new Admin({
     firstName,
