@@ -8,8 +8,9 @@ const QuestionPaper = require("../../Models/QuestionPaper");
 const createScore = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    const errorDetails = errors.array().map(err => `${err.path || err.param}: ${err.msg}`).join(", ");
     return res.status(422).json({
-      message: "Invalid inputs passed, please try again",
+      message: `Validation failed - ${errorDetails}`,
       errors: errors.array(),
     });
   }
@@ -29,12 +30,12 @@ const createScore = async (req, res, next) => {
       studentName = `${student.firstName} ${student.lastName}`;
       batch = student.batch || "";
     }
-  } catch (_) {}
+  } catch (_) { }
 
   try {
     const test = await Test.findOne({ testId });
     if (test) testName = test.testName || testId;
-  } catch (_) {}
+  } catch (_) { }
 
   try {
     const paper = await QuestionPaper.findOne({ paperId });
@@ -43,7 +44,7 @@ const createScore = async (req, res, next) => {
       subjects = paper.subjects || [];
       passingPercentage = paper.passingPercentage != null ? paper.passingPercentage : 35;
     }
-  } catch (_) {}
+  } catch (_) { }
 
   const marks = Number(marksObtained);
   const total = Number(totalMarks);

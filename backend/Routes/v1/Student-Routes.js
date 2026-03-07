@@ -53,7 +53,7 @@ const studentValidation = [
   check("password").isLength({ min: 6 }),
   check("studentId").trim().isLength({ min: 1, max: 255 }),
   check("admissionDate").trim().isLength({ min: 1, max: 255 }),
-  check("address").trim().isLength({ min: 2, max: 255 }),
+  check("address").trim().isLength({ min: 2, max: 1000 }),
   check("pincode").trim().isNumeric().isLength({ min: 4, max: 10 }),
   check("state").trim().isLength({ min: 2, max: 255 }),
   check("country").trim().isLength({ min: 2, max: 255 }),

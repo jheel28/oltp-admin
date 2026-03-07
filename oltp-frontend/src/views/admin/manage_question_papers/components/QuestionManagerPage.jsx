@@ -18,6 +18,13 @@ const normImg = (p) => {
   return `${BACKEND}/${n}`;
 };
 
+const safeParseError = async (res) => {
+  const text = await res.text();
+  let msg = "Request failed";
+  try { msg = JSON.parse(text).message || msg; } catch (_) {}
+  return msg;
+};
+
 const inputCls = "w-full px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition";
 
 const TYPE_META = {
@@ -275,7 +282,7 @@ const QuestionManagerPage = () => {
         headers: { Authorization: "Bearer " + auth.token },
         body: fd,
       });
-      if (!res.ok) throw new Error((await res.json()).message || "Error");
+      if (!res.ok) throw new Error(await safeParseError(res));
       const data = await res.json();
 
       if (editingId) {
@@ -300,12 +307,12 @@ const QuestionManagerPage = () => {
         method: "DELETE",
         headers: { Authorization: "Bearer " + auth.token },
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error(await safeParseError(res));
       setQuestions((prev) => prev.filter((q) => q._id !== qId));
       await refreshPaper();
       message.success("Question deleted");
-    } catch {
-      message.error("Failed to delete question");
+    } catch (err) {
+      message.error(err.message || "Failed to delete question");
     }
   };
 

@@ -1,8 +1,10 @@
 const HttpError = require("./http-error");
 const jwt = require("jsonwebtoken");
+const Admin = require("../Models/Admin");
+const Student = require("../Models/Student");
 
 module.exports = (roles) => {
-  return (req, res, next) => {
+  return async (req, res, next) => {
     if (req.method === "OPTIONS") {
       return next();
     }
@@ -17,6 +19,19 @@ module.exports = (roles) => {
       }
 
       const decodedToken = jwt.verify(token, process.env.JWT_KEY);
+
+      let userExists = false;
+      if (decodedToken.role === "Admin") {
+        userExists = !!(await Admin.findById(decodedToken.userId).select("_id"));
+      } else if (decodedToken.role === "Student") {
+        userExists = !!(await Student.findById(decodedToken.userId).select("_id"));
+      } else {
+        throw new Error("Authentication failed: Role is invalid");
+      }
+
+      if (!userExists) {
+        throw new Error("Authentication failed: Account no longer exists");
+      }
 
       req.userData = {
         userId: decodedToken.userId,

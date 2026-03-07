@@ -16,15 +16,16 @@ const deleteFileIfExists = (relPath) => {
   try {
     const abs = path.join(__dirname, "../../", relPath);
     if (fs.existsSync(abs)) fs.unlinkSync(abs);
-  } catch (_) {}
+  } catch (_) { }
 };
 
 const createQuestionPaper = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     if (req.file) deleteFileIfExists(normalisePath(req.file.path));
+    const errorDetails = errors.array().map(err => `${err.path || err.param}: ${err.msg}`).join(", ");
     return res.status(422).json({
-      message: "Invalid inputs passed, please try again",
+      message: `Validation failed - ${errorDetails}`,
       errors: errors.array(),
     });
   }
@@ -66,9 +67,9 @@ const createQuestionPaper = async (req, res, next) => {
     ? subjects
     : typeof subjects === "string" && subjects.length > 0
       ? subjects
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean)
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
       : [];
 
   const paper = new QuestionPaper({
@@ -249,9 +250,9 @@ const updateQuestionPaperById = async (req, res, next) => {
     paper.subjects = Array.isArray(subjects)
       ? subjects
       : subjects
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean);
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
   }
   if (batch !== undefined) paper.batch = batch;
   if (difficulty !== undefined) paper.difficulty = difficulty;
@@ -299,7 +300,7 @@ const updateQuestionPaperById = async (req, res, next) => {
       return sum + marks;
     }, 0);
     await paper.save();
-  } catch (_) {}
+  } catch (_) { }
 
   res.status(200).json({ questionPaper: paper });
 };

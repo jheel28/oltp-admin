@@ -30,8 +30,9 @@ const REQUIRE_EMAIL_VERIFICATION =
 const createStudent = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    const errorDetails = errors.array().map(err => `${err.path || err.param}: ${err.msg}`).join(", ");
     return res.status(422).json({
-      message: "Invalid inputs passed, please try again",
+      message: `Validation failed - ${errorDetails}`,
       errors: errors.array(),
     });
   }
@@ -90,7 +91,7 @@ const createStudent = async (req, res, next) => {
     return next(
       new HttpError(
         "An account with an equivalent email address already exists. " +
-          "Please use a different email (note: Gmail addresses with/without dots are treated identically).",
+        "Please use a different email (note: Gmail addresses with/without dots are treated identically).",
         422,
       ),
     );
@@ -421,8 +422,9 @@ const login = async (req, res, next) => {
 const updateStudentById = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    const errorDetails = errors.array().map(err => `${err.path || err.param}: ${err.msg}`).join(", ");
     return res.status(422).json({
-      message: "Invalid inputs passed, please try again",
+      message: `Validation failed - ${errorDetails}`,
       errors: errors.array(),
     });
   }

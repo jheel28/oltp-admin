@@ -30,6 +30,10 @@ const BaseSidebar = ({ open, onClose, routes, fetchUrl, renderMeta }) => {
     load();
   }, [auth.userId, fetchUrl]);
 
+  useEffect(() => {
+    setImgError(false);
+  }, [user?.image]);
+
   const isActive = (path) => location.pathname.includes(path.replace("/*", ""));
 
   const navRoutes = routes.filter((r) => r.icon && r.path !== "logout");
@@ -40,7 +44,7 @@ const BaseSidebar = ({ open, onClose, routes, fetchUrl, renderMeta }) => {
     : "U";
   const avatarSrc =
     user?.image && !imgError
-      ? `${process.env.REACT_APP_BACKEND_URL}/${user.image}`
+      ? `${(process.env.REACT_APP_BACKEND_URL || "").replace(/\/$/, "")}/${user.image.replace(/^\//, "")}`
       : avatarUrl(displayName || initials);
 
   return (

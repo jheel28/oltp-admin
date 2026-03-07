@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import banner from "assets/img/profile/banner.png";
 import Card from "components/card";
 import { AuthContext } from "components/Auth-context";
@@ -8,6 +8,9 @@ import PhoneInput, { isValidPhoneNumber } from "components/PhoneInput";
 
 const avatarUrl = (name) =>
   `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "Admin")}&background=6366f1&color=fff&size=128&bold=true`;
+
+const normalizeImageUrl = (base, imagePath) =>
+  `${(base || "").replace(/\/$/, "")}/${imagePath.replace(/^\//, "")}`;
 
 const AdminProfile = () => {
   const auth = useContext(AuthContext);
@@ -25,7 +28,7 @@ const AdminProfile = () => {
   const passwordsMatch =
     passwords.newPassword !== "" && passwords.newPassword === passwords.confirmPassword;
 
-  const fetchAdmin = async () => {
+  const fetchAdmin = useCallback(async () => {
     try {
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/v1/admin/get/admin/byid/${auth.userId}`,
@@ -38,9 +41,12 @@ const AdminProfile = () => {
     } catch (err) {
       message.error("Error fetching admin data: " + err.message);
     }
-  };
+  }, [auth.userId, auth.token]);
 
-  useEffect(() => { fetchAdmin(); }, []);
+  useEffect(() => {
+    if (!auth.userId || !auth.token) return;
+    fetchAdmin();
+  }, [auth.userId, auth.token, fetchAdmin]);
 
   const handleInfoUpdate = async () => {
     if (!editedData.mobile || !isValidPhoneNumber(editedData.mobile)) {
@@ -65,6 +71,7 @@ const AdminProfile = () => {
       );
       const data = await response.json();
       if (response.ok) {
+        auth.login(data.userId, data.token, data.role, data.email);
         message.success("Profile updated successfully");
         setIsEditing(false);
         setMobileError(false);
@@ -142,8 +149,8 @@ const AdminProfile = () => {
   const currentAvatarUrl = profileImage
     ? URL.createObjectURL(profileImage)
     : admin.image
-    ? `${process.env.REACT_APP_BACKEND_URL}/${admin.image}`
-    : avatarUrl(`${admin.firstName} ${admin.lastName}`);
+    ? normalizeImageUrl(process.env.REACT_APP_BACKEND_URL, admin.image)
+    : avatarUrl(`${admin.firstName || ""} ${admin.lastName || ""}`);
 
   const inputClass = "w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white dark:bg-navy-800";
 
@@ -160,7 +167,7 @@ const AdminProfile = () => {
               src={currentAvatarUrl}
               alt=""
               onError={(e) => {
-                e.target.src = avatarUrl(`${admin.firstName} ${admin.lastName}`);
+                e.target.src = avatarUrl(`${admin.firstName || ""} ${admin.lastName || ""}`);
               }}
             />
           </div>
