@@ -173,6 +173,7 @@ const updateTestById = async (req, res, next) => {
   if (!test) return next(new HttpError("Test not found", 404));
 
   const {
+    testId,
     testName,
     paperId,
     batchName,
@@ -187,6 +188,26 @@ const updateTestById = async (req, res, next) => {
     description,
     passingPercentage,
   } = req.body;
+
+  if (testId !== undefined && testId.trim() !== test.testId) {
+    let duplicate;
+    try {
+      duplicate = await Test.findOne({ testId: testId.trim(), _id: { $ne: test._id } });
+    } catch (err) {
+      return next(
+        new HttpError("Something went wrong while checking for duplicate test IDs", 500)
+      );
+    }
+    if (duplicate) {
+      return next(
+        new HttpError(
+          `A test with ID "${testId.trim()}" already exists. Please choose a different Test ID.`,
+          422
+        )
+      );
+    }
+    test.testId = testId.trim();
+  }
 
   if (testName !== undefined) test.testName = testName;
   if (batchName !== undefined) test.batchName = batchName;

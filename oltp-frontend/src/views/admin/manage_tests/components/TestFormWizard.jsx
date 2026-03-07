@@ -256,7 +256,7 @@ const TestFormWizard = ({ mode = "create" }) => {
 
   const validateStep = (s) => {
     if (s === 0) {
-      if (mode === "create" && !form.testId.trim()) { message.warning("Test ID is required"); return false; }
+      if (!form.testId.trim()) { message.warning("Test ID is required"); return false; }
       if (!form.testName.trim()) { message.warning("Test name is required"); return false; }
       if (!form.paperId.trim()) { message.warning("Question Paper ID is required"); return false; }
       if (paperStatus !== "valid") { message.warning("A valid Question Paper ID is required to proceed"); return false; }
@@ -296,7 +296,7 @@ const TestFormWizard = ({ mode = "create" }) => {
     setSubmitting(true);
     try {
       const payload = {
-        ...(mode === "create" ? { testId: form.testId.trim() } : {}),
+        testId: form.testId.trim(),
         testName: form.testName.trim(),
         paperId: form.paperId.trim(),
         batchName: form.batchName,
@@ -355,12 +355,10 @@ const TestFormWizard = ({ mode = "create" }) => {
       {step === 0 && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {mode === "create" && (
-              <Field label="Test ID" required hint="Unique identifier">
-                <input type="text" name="testId" value={form.testId} onChange={handleChange}
-                  placeholder="e.g. NEET-2024-01" className={inputCls} />
-              </Field>
-            )}
+            <Field label="Test ID" required hint={mode === "edit" ? "Changing this will unlink old student attempts" : "Unique identifier"}>
+              <input type="text" name="testId" value={form.testId} onChange={handleChange}
+                placeholder="e.g. NEET-2024-01" className={inputCls} />
+            </Field>
             <Field label="Test Name" required>
               <input type="text" name="testName" value={form.testName} onChange={handleChange}
                 placeholder="e.g. NEET Full Syllabus Mock 1" className={inputCls} />

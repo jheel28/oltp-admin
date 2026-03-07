@@ -74,6 +74,17 @@ app.use(
   express.static(path.join(__dirname, "uploads", "images")),
 );
 
+app.use(
+  "/uploads/answer-keys",
+  cors(corsOptions),
+  (req, res, next) => {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+    next();
+  },
+  express.static(path.join(__dirname, "uploads", "answer-keys")),
+);
+
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/student", studentRoutes);
 app.use("/api/v1/batch", batchRoutes);
