@@ -11,6 +11,8 @@ const StudentRegister = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+  const [imageTooLarge, setImageTooLarge] = useState(false);
+  const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
   const [batches, setBatches] = useState([]);
   const [phones, setPhones] = useState({ phoneNumber: "", alternateNumber: "" });
   const [phoneSubmitted, setPhoneSubmitted] = useState(false);
@@ -60,6 +62,11 @@ const StudentRegister = () => {
 
     if (!imageFile) {
       message.error("Please provide a profile photo");
+      return;
+    }
+
+    if (imageFile && imageFile.size > MAX_IMAGE_BYTES) {
+      message.error("Profile image must be 5MB or smaller");
       return;
     }
 
@@ -347,17 +354,30 @@ const StudentRegister = () => {
                   <input
                     type="file"
                     accept="image/png,image/jpeg,image/jpg"
-                    onChange={(e) => setImageFile(e.target.files[0] || null)}
+                    onChange={(e) => {
+                      const file = e.target.files[0] || null;
+                      if (file && file.size > MAX_IMAGE_BYTES) {
+                        setImageFile(file);
+                        setImageTooLarge(true);
+                      } else {
+                        setImageFile(file);
+                        setImageTooLarge(false);
+                      }
+                    }}
                     className={`w-full rounded-lg border p-2 text-sm dark:bg-navy-700 dark:text-white ${
                       phoneSubmitted && !imageFile
                         ? "border-red-500 dark:border-red-500"
                         : "border-gray-300 dark:border-navy-600"
                     }`}
                   />
+                  <p className="mt-1 text-xs text-gray-500">Max file size: 5 MB. JPG/PNG only.</p>
                   {phoneSubmitted && !imageFile && (
                     <p className="mt-1 text-xs text-red-500">Profile photo is required</p>
                   )}
-                  {imageFile && (
+                  {imageTooLarge && (
+                    <p className="mt-1 text-xs text-red-500">Selected image exceeds 5 MB limit</p>
+                  )}
+                  {imageFile && !imageTooLarge && (
                     <p className="mt-1 text-xs text-green-600">Selected: {imageFile.name}</p>
                   )}
                 </div>

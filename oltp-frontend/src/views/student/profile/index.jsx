@@ -33,6 +33,8 @@ const StudentProfile = () => {
   const [editedData, setEditedData] = useState({});
   const [profileImage, setProfileImage] = useState(null);
   const [imageLoading, setImageLoading] = useState(false);
+  const [imageTooLarge, setImageTooLarge] = useState(false);
+  const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
   const [infoLoading, setInfoLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwords, setPasswords] = useState({ password: "", newPassword: "", confirmPassword: "" });
@@ -90,6 +92,10 @@ const StudentProfile = () => {
 
   const handleImageUpdate = async () => {
     if (!profileImage) return;
+    if (profileImage && profileImage.size > MAX_IMAGE_BYTES) {
+      message.error("Profile image must be 5MB or smaller");
+      return;
+    }
     setImageLoading(true);
     try {
       const formData = new FormData();
@@ -228,9 +234,22 @@ const StudentProfile = () => {
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setProfileImage(e.target.files[0] || null)}
+              onChange={(e) => {
+                const file = e.target.files[0] || null;
+                if (file && file.size > MAX_IMAGE_BYTES) {
+                  setProfileImage(file);
+                  setImageTooLarge(true);
+                } else {
+                  setProfileImage(file);
+                  setImageTooLarge(false);
+                }
+              }}
               className="mb-4 w-full rounded-md border border-gray-300 p-3 text-sm"
             />
+            <p className="mt-1 text-xs text-gray-500">Max file size: 5 MB. JPG/PNG only.</p>
+            {imageTooLarge && (
+              <p className="mt-1 text-xs text-red-500">Selected image exceeds 5 MB limit</p>
+            )}
             {profileImage && (
               <div className="flex items-center gap-4">
                 <img src={URL.createObjectURL(profileImage)} alt="Preview" className="h-16 w-16 rounded-full object-cover" />

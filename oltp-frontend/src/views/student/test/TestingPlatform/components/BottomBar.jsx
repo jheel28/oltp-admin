@@ -16,7 +16,7 @@ const BottomBar = ({
   onToggleCalc,
 }) => {
   return (
-    <div className="flex flex-none flex-wrap items-center justify-between gap-2 border-t border-gray-200 bg-white px-4 py-3 shadow-lg">
+    <div className="hidden lg:flex flex-none flex-wrap items-center justify-between gap-2 border-t border-gray-200 bg-white px-4 py-3 shadow-lg">
       <div className="flex items-center gap-2">
         <button
           onClick={onPrev}
@@ -76,7 +76,10 @@ const BottomBar = ({
 };
 
 export const MobileBar = ({ allowCalculator, onToggleCalc, onEndTest }) => (
-  <div className="fixed bottom-0 left-0 right-0 z-20 flex items-center justify-between gap-2 border-t border-gray-200 bg-white px-4 py-2 lg:hidden">
+  <div
+    className="fixed bottom-0 left-0 right-0 z-50 flex items-center gap-2 border-t border-gray-200 bg-white px-3 py-2 lg:hidden"
+    style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)' }}
+  >
     {allowCalculator && (
       <button
         onClick={onToggleCalc}

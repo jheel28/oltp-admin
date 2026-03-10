@@ -8,6 +8,8 @@ import PhoneInput, { isValidPhoneNumber } from "components/PhoneInput";
 const AdminRegister = () => {
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+  const [imageTooLarge, setImageTooLarge] = useState(false);
+  const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState(false);
   const [form] = Form.useForm();
@@ -17,6 +19,11 @@ const AdminRegister = () => {
     if (!phone || !isValidPhoneNumber(phone)) {
       setPhoneError(true);
       message.error("Please enter a valid mobile number");
+      return;
+    }
+
+    if (imageFile && imageFile.size > MAX_IMAGE_BYTES) {
+      message.error("Profile image must be 5MB or smaller");
       return;
     }
 
@@ -135,10 +142,23 @@ const AdminRegister = () => {
                 <input
                   type="file"
                   accept="image/png,image/jpeg,image/jpg"
-                  onChange={(e) => setImageFile(e.target.files[0] || null)}
+                  onChange={(e) => {
+                    const file = e.target.files[0] || null;
+                    if (file && file.size > MAX_IMAGE_BYTES) {
+                      setImageFile(file);
+                      setImageTooLarge(true);
+                    } else {
+                      setImageFile(file);
+                      setImageTooLarge(false);
+                    }
+                  }}
                   className="w-full rounded-lg border border-gray-300 p-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white"
                 />
-                {imageFile && (
+                <p className="mt-1 text-xs text-gray-500">Max file size: 5 MB. JPG/PNG only.</p>
+                {imageTooLarge && (
+                  <p className="mt-1 text-xs text-red-500">Selected image exceeds 5 MB limit</p>
+                )}
+                {imageFile && !imageTooLarge && (
                   <p className="mt-1 text-xs text-green-600">Selected: {imageFile.name}</p>
                 )}
               </div>

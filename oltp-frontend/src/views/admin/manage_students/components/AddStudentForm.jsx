@@ -23,6 +23,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
     admissionDate: "",
     image: null,
   });
+  const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -54,7 +55,15 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) setFormData((prev) => ({ ...prev, image: file }));
+    if (file) {
+      if (file.size > MAX_IMAGE_BYTES) {
+        message.error("Student Photo must be 5MB or smaller");
+        e.target.value = null;
+        setFormData((prev) => ({ ...prev, image: null }));
+        return;
+      }
+      setFormData((prev) => ({ ...prev, image: file }));
+    }
   };
 
   const validateForm = () => {
@@ -75,6 +84,10 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
     if (!formData.batch) missing.push("Batch");
 
     if (!formData.image) missing.push("Student Photo");
+
+    if (formData.image && formData.image.size > MAX_IMAGE_BYTES) {
+      missing.push("Student Photo (must be <= 5MB)");
+    }
 
     if (missing.length > 0) {
       message.error(`Please fix: ${missing.join(", ")}`);
@@ -326,6 +339,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
           }`}
           disabled={loading}
         />
+        <p className="mt-1 text-xs text-gray-500">Max file size: 5 MB. JPG/PNG only.</p>
         {submitted && !formData.image && (
           <p className="mt-1 text-xs text-red-500">Student Photo is required</p>
         )}
