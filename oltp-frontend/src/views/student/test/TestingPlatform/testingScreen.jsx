@@ -470,6 +470,13 @@ const TestingScreen = () => {
         allowCalculator={allowCalculator}
         onToggleCalc={() => setShowCalc((v) => !v)}
         onEndTest={() => setPhase("submit")}
+        onPrev={() => { if (exam.currentIdx > 0) exam.goTo(exam.currentIdx - 1); }}
+        onSaveNext={handleSaveNext}
+        onMarkSaveNext={handleMarkSaveNext}
+        onClear={exam.clearDraft}
+        isMarked={isMarked}
+        currentIdx={exam.currentIdx}
+        totalQuestions={questions.length}
       />
     </div>
   );

@@ -75,25 +75,81 @@ const BottomBar = ({
   );
 };
 
-export const MobileBar = ({ allowCalculator, onToggleCalc, onEndTest }) => (
+export const MobileBar = ({
+  allowCalculator,
+  onToggleCalc,
+  onEndTest,
+  onPrev,
+  onSaveNext,
+  onMarkSaveNext,
+  onClear,
+  isMarked,
+  currentIdx,
+  totalQuestions,
+}) => (
   <div
-    className="fixed bottom-0 left-0 right-0 z-50 flex items-center gap-2 border-t border-gray-200 bg-white px-3 py-2 lg:hidden"
+    className="fixed bottom-0 left-0 right-0 z-[60] border-t border-gray-200 bg-white px-3 py-2 lg:hidden"
     style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)' }}
   >
-    {allowCalculator && (
+    {/* Top row: small controls */}
+    <div className="mb-2 flex items-center gap-2">
       <button
-        onClick={onToggleCalc}
-        className="rounded-lg border border-gray-200 p-2 text-gray-500 hover:bg-gray-50"
+        onClick={onPrev}
+        disabled={currentIdx === 0}
+        className="rounded-xl bg-gray-100 px-3 py-2 text-sm font-bold text-gray-600 disabled:opacity-40"
+        title="Previous"
       >
-        <AiOutlineCalculator />
+        <AiOutlineArrowLeft /> Prev
       </button>
-    )}
-    <button
-      onClick={onEndTest}
-      className="flex-1 rounded-xl bg-[#1a2744] py-2.5 text-sm font-black text-white"
-    >
-      End Test
-    </button>
+
+      <button
+        onClick={onClear}
+        className="rounded-xl border border-red-200 px-4 py-2 text-sm font-bold text-red-500"
+        title="Clear"
+      >
+        <MdClear /> Clear
+      </button>
+
+      {allowCalculator && (
+        <button
+          onClick={onToggleCalc}
+          className="rounded-xl border border-gray-200 px-3 py-2 text-gray-500"
+          title="Calculator"
+        >
+          <AiOutlineCalculator />
+        </button>
+      )}
+
+      <button
+        onClick={onMarkSaveNext}
+        className={`ml-auto inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold ${
+          isMarked ? 'bg-purple-500 text-white' : 'bg-amber-400 text-amber-950'
+        }`}
+        title="Mark & Save"
+      >
+        {isMarked ? <MdBookmark /> : <MdOutlineBookmarkAdd />} 
+        <span className="whitespace-nowrap text-xs">{isMarked ? 'Marked' : 'Mark & Save'}</span>
+      </button>
+    </div>
+
+    {/* Bottom row: primary actions */}
+    <div className="flex items-center gap-2">
+      <button
+        onClick={onSaveNext}
+        className="flex-1 rounded-xl bg-green-500 px-4 py-3 text-sm font-bold text-white"
+        title="Save & Next"
+      >
+        Save & Next
+      </button>
+
+      <button
+        onClick={onEndTest}
+        className="ml-2 rounded-xl bg-[#1a2744] px-4 py-3 text-sm font-black text-white"
+        title="End Test"
+      >
+        End Test
+      </button>
+    </div>
   </div>
 );
 
