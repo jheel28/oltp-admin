@@ -88,31 +88,32 @@ export const MobileBar = ({
   totalQuestions,
 }) => (
   <div
-    className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white px-3 py-2 lg:hidden"
+    className="fixed bottom-0 left-0 right-0 z-[60] border-t border-gray-200 bg-white px-3 py-2 lg:hidden"
     style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)' }}
   >
-    <div className="flex items-center gap-2">
+    {/* Top row: small controls */}
+    <div className="mb-2 flex items-center gap-2">
       <button
         onClick={onPrev}
         disabled={currentIdx === 0}
-        className="rounded-lg border border-gray-200 p-2 text-gray-600 disabled:opacity-40"
+        className="rounded-xl bg-gray-100 px-3 py-2 text-sm font-bold text-gray-600 disabled:opacity-40"
         title="Previous"
       >
-        <AiOutlineArrowLeft />
+        <AiOutlineArrowLeft /> Prev
       </button>
 
       <button
         onClick={onClear}
-        className="rounded-lg border border-red-200 p-2 text-red-500"
+        className="rounded-xl border border-red-200 px-4 py-2 text-sm font-bold text-red-500"
         title="Clear"
       >
-        <MdClear />
+        <MdClear /> Clear
       </button>
 
       {allowCalculator && (
         <button
           onClick={onToggleCalc}
-          className="rounded-lg border border-gray-200 p-2 text-gray-500"
+          className="rounded-xl border border-gray-200 px-3 py-2 text-gray-500"
           title="Calculator"
         >
           <AiOutlineCalculator />
@@ -121,7 +122,7 @@ export const MobileBar = ({
 
       <button
         onClick={onMarkSaveNext}
-        className={`hidden sm:inline-flex items-center gap-2 rounded-lg px-3 py-2 font-semibold ${
+        className={`ml-auto inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold ${
           isMarked ? 'bg-purple-500 text-white' : 'bg-amber-400 text-amber-950'
         }`}
         title="Mark & Save"
@@ -129,10 +130,13 @@ export const MobileBar = ({
         {isMarked ? <MdBookmark /> : <MdOutlineBookmarkAdd />} 
         <span className="whitespace-nowrap text-xs">{isMarked ? 'Marked' : 'Mark & Save'}</span>
       </button>
+    </div>
 
+    {/* Bottom row: primary actions */}
+    <div className="flex items-center gap-2">
       <button
         onClick={onSaveNext}
-        className="flex-1 rounded-xl bg-green-500 px-4 py-2 text-sm font-bold text-white"
+        className="flex-1 rounded-xl bg-green-500 px-4 py-3 text-sm font-bold text-white"
         title="Save & Next"
       >
         Save & Next
@@ -140,10 +144,10 @@ export const MobileBar = ({
 
       <button
         onClick={onEndTest}
-        className="ml-2 rounded-lg bg-[#1a2744] px-3 py-2 text-sm font-black text-white"
+        className="ml-2 rounded-xl bg-[#1a2744] px-4 py-3 text-sm font-black text-white"
         title="End Test"
       >
-        End
+        End Test
       </button>
     </div>
   </div>
