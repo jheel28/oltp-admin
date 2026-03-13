@@ -319,6 +319,12 @@ module.exports = {
         800: "#190793",
         900: "#11047A",
       },
+      aptOrange: "#eb821b",
+      aptBlue: "#3b79c9",
+      aptTeal: "#007c70",
+      aptDarkGray: "#444444",
+      aptNavy: "#1b2746",
+      aptText: "#131e3d",
       shadow: {
         500: "rgba(112, 144, 176, 0.08)",
       },

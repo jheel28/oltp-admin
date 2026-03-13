@@ -1,11 +1,15 @@
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import logo from "assets/img/Logo/correct.png";
+import handshake from "assets/img/hero/handshake.jpg";
+import newImage from "assets/img/hero/1.jpg";
+import { useEffect, useState } from "react";
 import {
-  FaCheckCircle,
+  FaCalculator,
+  FaComments,
   FaChartLine,
-  FaClock,
+  FaCog,
+  FaBullseye,
 } from "react-icons/fa";
-import { useEffect } from "react";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -20,121 +24,292 @@ const LandingPage = () => {
   }, [location, navigate]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-white font-sans text-gray-900">
-      <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
-        <div className="container mx-auto flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
-            <img src={logo} alt="The Correct Steps" className="h-10 w-auto" />
-            <span className="text-xl font-bold tracking-tight text-brand-500">
-              The Correct Steps
-            </span>
+    <div className="min-h-screen font-sans text-aptText bg-white">
+      {/* Header */}
+      <header className="fixed inset-x-0 top-0 z-50">
+        {/* Top Header */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="container mx-auto flex items-center justify-between px-6 py-3">
+            <div className="flex items-center gap-3">
+              <img src={logo} alt="Correct Steps" className="h-10 w-auto" />
+              <span className="font-bold text-xl text-aptText tracking-tight">Correct Steps</span>
+            </div>
+            <div className="flex items-center gap-4 text-sm font-semibold">
+              <Link to="/auth/user/sign-in" className="text-aptText hover:text-aptOrange transition-colors px-3 py-2">Log in</Link>
+              <Link to="/auth/register/student" className="rounded-full bg-aptOrange hover:bg-orange-600 transition-colors shadow-sm px-6 py-2.5 text-white font-bold ml-1">Sign Up</Link>
+              <a href="#recruiting" className="text-gray-500 hover:text-gray-800 transition-colors hidden md:block ml-4 border border-gray-300 rounded-full px-4 py-1.5 text-[13px] font-medium tracking-wide">Recruiting?</a>
+            </div>
           </div>
-          <nav className="hidden items-center gap-8 font-medium md:flex">
-            <a
-              href="#features"
-              className="transition-colors hover:text-brand-500"
-            >
-              Features
-            </a>
-            <a href="#about" className="transition-colors hover:text-brand-500">
-              About
-            </a>
-            <Link
-              to="/auth/sign-in?role=student"
-              className="rounded-full bg-brand-500 px-6 py-2 font-bold text-white shadow-lg transition-all hover:bg-brand-600 hover:shadow-brand-200"
-            >
-              Login
-            </Link>
-          </nav>
+        </div>
+
+        {/* Bottom Nav */}
+        <div className="bg-aptDarkGray">
+          <div className="container mx-auto px-6">
+            <nav className="flex items-center justify-center md:justify-start gap-10 text-white text-[13px] font-semibold py-4 overflow-x-auto whitespace-nowrap">
+              <a href="#tests" className="hover:text-gray-300 transition-colors uppercase tracking-wider">Aptitude Tests</a>
+              <a href="#prep" className="hover:text-gray-300 transition-colors uppercase tracking-wider">Prep Access</a>
+              <a href="#news" className="hover:text-gray-300 transition-colors uppercase tracking-wider hidden md:block">Articles & News</a>
+              <a href="#app" className="hover:text-gray-300 transition-colors uppercase tracking-wider hidden md:block">Mobile App</a>
+              <a href="#employers" className="hover:text-gray-300 transition-colors uppercase tracking-wider">Employers</a>
+              <a href="#contact" className="hover:text-gray-300 transition-colors uppercase tracking-wider">Contact us</a>
+            </nav>
+          </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden pb-32 pt-20">
-        <div className="container mx-auto px-6 text-center">
-          <h1 className="mb-6 text-5xl font-extrabold leading-tight tracking-tight text-navy-700 md:text-7xl">
-            Master Your Exams with <br />
-            <span className="text-brand-500">The Correct Steps</span>
-          </h1>
-          <p className="mx-auto mb-10 max-w-2xl text-lg text-gray-600 md:text-xl">
-            The most robust, dynamic, and easy-to-use platform for Universities
-            to conduct tests and Students to achieve excellence.
-          </p>
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              to="/auth/sign-in?role=student"
-              className="w-full rounded-full bg-brand-500 px-8 py-4 text-lg font-bold text-white shadow-xl shadow-brand-200 transition-all hover:scale-105 hover:bg-brand-600 sm:w-auto"
-            >
-              Get Started Now
-            </Link>
-            <Link
-              to="/auth/register/student"
-              className="w-full rounded-full border-2 border-brand-500 px-8 py-4 text-lg font-bold text-brand-500 transition-all hover:bg-brand-50 sm:w-auto"
-            >
-              Create Free Account
-            </Link>
+      <section className="relative pt-[115px] pb-16 md:pt-[150px] md:pb-32 lg:pb-40 flex items-center" style={{ minHeight: '650px' }}>
+        {/* Background Image with Overlay */}
+        <div 
+          className="absolute inset-0 z-0 bg-white" 
+          style={{
+            backgroundImage: `linear-gradient(90deg, #f4f6f8 0%, #f4f6f8 40%, rgba(244, 246, 248, 0.8) 50%, rgba(244, 246, 248, 0) 65%), url(${handshake})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center right",
+          }}
+        >
+        </div>
+
+        <div className="container mx-auto px-6 relative z-10 w-full mt-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-10">
+            {/* Hero Left Content */}
+            <div className="w-full md:w-3/5 max-w-2xl py-10">
+              <h1 className="mb-4 text-4xl md:text-5xl lg:text-5xl font-extrabold text-aptText leading-tight">
+                Free Aptitude Tests Online
+              </h1>
+              <p className="mb-6 text-xl text-gray-700">
+                Prepare with us — <strong>Pass your test</strong> — Get the job
+              </p>
+              <p className="mb-8 text-lg text-gray-600">
+                Try one of our free aptitude tests.
+              </p>
+              <div>
+                <Link to="/auth/sign-in?role=student" className="inline-block rounded shadow-md bg-aptOrange hover:bg-orange-600 transition-colors px-10 py-4 font-bold text-white text-[15px] tracking-wide">
+                  START FREE TEST
+                </Link>
+              </div>
+            </div>
+
+            {/* Floating Card for Employers */}
+            <div className="w-full md:w-80 shadow-2xl rounded-lg overflow-hidden bg-white border-t-4 border-aptBlue shrink-0">
+              <div className="p-8 text-center">
+                <h3 className="text-[22px] font-bold text-aptText mb-2">Recruiting?</h3>
+                <p className="text-[15px] text-gray-600 mb-6">We help you choose the right talent.</p>
+                <div className="w-12 h-1 bg-gray-200 mx-auto mb-6"></div>
+                <button className="w-full rounded bg-aptBlue hover:bg-blue-700 transition-colors px-4 py-3 font-bold text-white uppercase text-sm tracking-wide">
+                  Learn More
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="bg-gray-50 py-24">
+      {/* Icon strip */}
+      <div className="bg-aptDarkGray text-white py-4 relative z-20">
         <div className="container mx-auto px-6">
-          <div className="mb-16 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-navy-700 md:text-4xl">
-              Why Choose The Correct Steps?
-            </h2>
-            <div className="mx-auto h-1.5 w-20 rounded-full bg-brand-500"></div>
+          <div className="flex flex-wrap items-center justify-center gap-10 md:gap-16">
+            <a href="#numerical" className="flex flex-col items-center text-sm transform transition-transform hover:-translate-y-1">
+              <FaCalculator className="text-4xl mb-2" />
+              <span className="text-xs font-semibold">Numerical Tests</span>
+            </a>
+            <a href="#verbal" className="flex flex-col items-center text-sm transform transition-transform hover:-translate-y-1">
+              <FaComments className="text-4xl mb-2" />
+              <span className="text-xs font-semibold">Verbal Tests</span>
+            </a>
+            <a href="#nonverbal" className="flex flex-col items-center text-sm transform transition-transform hover:-translate-y-1">
+              <FaChartLine className="text-4xl mb-2" />
+              <span className="text-xs font-semibold">Non-verbal Tests</span>
+            </a>
+            <a href="#mechanical" className="flex flex-col items-center text-sm transform transition-transform hover:-translate-y-1">
+              <FaCog className="text-4xl mb-2" />
+              <span className="text-xs font-semibold">Mechanical Tests</span>
+            </a>
+            <a href="#publisher" className="flex flex-col items-center text-sm transform transition-transform hover:-translate-y-1">
+              <FaBullseye className="text-4xl mb-2" />
+              <span className="text-xs font-semibold">Tests by Publisher</span>
+            </a>
           </div>
-          <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
-            <FeatureCard
-              icon={<FaClock className="text-brand-500" />}
-              title="Dynamic Timers"
-              description="Set custom durations for every test. Accurate to the second with automated submission."
+        </div>
+      </div>
+
+      {/* Categories Grid Section */}
+      <section className="py-20 bg-gray-50 border-t border-gray-200" id="tests">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-extrabold text-center text-aptText mb-12">Practice Tests by Category</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <CategoryCard imgSrc={newImage} title="Numerical Reasoning" />
+            <CategoryCard imgSrc={newImage} title="Verbal Reasoning" />
+            <CategoryCard imgSrc={newImage} title="Non-Verbal Reasoning" />
+            <CategoryCard imgSrc={newImage} title="Mechanical Reasoning" />
+            <CategoryCard imgSrc={newImage} title="Logical Reasoning" />
+            <CategoryCard imgSrc={newImage} title="Spatial Reasoning" />
+            <CategoryCard imgSrc={newImage} title="Abstract Reasoning" />
+            <CategoryCard imgSrc={newImage} title="Inductive Reasoning" />
+          </div>
+          <div className="mt-12 text-center">
+            {/* View All Categories Button Removed */}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us Section */}
+      <section className="bg-aptNavy text-white py-20 lg:py-28">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-extrabold mb-6">Why Choose Correct Steps?</h2>
+            <div className="w-20 h-1 bg-aptOrange mx-auto"></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 max-w-5xl mx-auto">
+            <WhyCard 
+               num="1" 
+               title="Realistic Practice Tests" 
+               desc="Our tests are designed to mimic the real-world assessments used by top employers globally, ensuring you are fully prepared for actual test conditions." 
             />
-            <FeatureCard
-              icon={<FaChartLine className="text-brand-500" />}
-              title="Instant Results"
-              description="Real-time feedback and detailed score analysis for both students and universities."
+            <WhyCard 
+               num="2" 
+               title="Detailed Solutions" 
+               desc="Every question comes with a step-by-step explanation to ensure you understand the underlying concepts and learn from your mistakes." 
             />
-            <FeatureCard
-              icon={<FaCheckCircle className="text-brand-500" />}
-              title="Proctored Security"
-              description="Secure testing environment designed to maintain academic integrity and trust."
+            <WhyCard 
+               num="3" 
+               title="Track Your Progress" 
+               desc="Identify your strengths and weaknesses with our comprehensive performance analytics, helping you target areas that need improvement." 
+            />
+            <WhyCard 
+               num="4" 
+               title="Constantly Updated Content" 
+               desc="Our database is regularly updated to reflect the latest testing trends and formats, so you always practice with relevant material." 
             />
           </div>
+        </div>
+      </section>
+
+      {/* Latest News & Articles Section */}
+      <section className="bg-gray-100 py-16 lg:py-24" id="news">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-bold text-gray-700 tracking-wide uppercase">Latest News</h2>
+          </div>
+          <div className="max-w-3xl mx-auto flex flex-col items-start text-left bg-transparent">
+            {/* Image */}
+            <div className="w-full mb-6 relative">
+              <img src={newImage} alt="Latest News" className="w-full h-auto object-cover shadow-sm" style={{ maxHeight: '420px' }} />
+            </div>
+            
+            {/* Content */}
+            <div className="w-full">
+              <h3 className="text-xl md:text-[22px] font-bold text-gray-800 mb-1">
+                New: Prepare for the DAT Next Generation
+              </h3>
+              <p className="text-[12px] text-gray-500 mb-4">October 13, 2025</p>
+              
+              <p className="text-[14px] text-gray-600 leading-relaxed mb-6">
+                Are you getting ready for the DAT Next Generation and want to perform at your absolute best? Aptitude-Test.com offers specialized practice materials that help you master every aspect of this modern cognitive ability assessment. The DAT Next Generation (Differential Aptitude Test) is an advanced cognitive ability assessment used by employers and public institutions to evaluate how well candidates can think logically, learn new concepts, and solve problems efficiently...
+              </p>
+              
+              <a href="#" className="font-bold text-[14px] text-aptBlue hover:text-blue-700 transition-colors">
+                Continue reading
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pre-Footer CTA Split Section */}
+      <section className="flex flex-col md:flex-row w-full bg-aptTeal min-h-[450px]">
+        <div className="w-full md:w-1/2 flex items-center justify-center p-12 md:p-16 lg:p-24 text-white">
+          <div className="max-w-md w-full">
+            <h2 className="text-3xl md:text-[40px] leading-tight font-extrabold mb-6">Unlock Your Full Potential</h2>
+            <p className="text-lg mb-10 opacity-90 leading-relaxed text-gray-100">
+              Get full access to all our practice tests, interview guides, and assessment center exercises. Build your confidence and land your dream job.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-5">
+              <Link to="/auth/register/student" className="text-center rounded shadow-md bg-aptOrange hover:bg-orange-600 transition-colors px-8 py-4 font-bold text-white uppercase text-[13px] tracking-wider">
+                Get Prep Access
+              </Link>
+              <button className="text-center rounded border-[3px] border-white hover:bg-white hover:text-aptTeal transition-colors px-8 py-4 font-bold text-white uppercase text-[13px] tracking-wider">
+                Learn More
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="w-full md:w-1/2 min-h-[350px] md:min-h-full" style={{
+            backgroundImage: `url(${handshake})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-navy-800 py-12 text-white">
-        <div className="container mx-auto px-6 text-center">
-          <img
-            src={logo}
-            alt="The Correct Steps"
-            className="mx-auto mb-6 h-12 w-auto brightness-200 grayscale"
-          />
-          <p className="mb-4 opacity-70">
-            &copy; 2026 The Correct Steps. All rights reserved.
-          </p>
-          <div className="flex justify-center gap-6 text-sm opacity-50">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">Contact Us</a>
+      <footer className="bg-aptDarkGray py-14 text-gray-300">
+        <div className="container mx-auto px-6 md:px-12">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8 border-b border-gray-600 pb-10 mb-10">
+            <div className="flex items-center gap-3">
+              <img src={logo} alt="logo" className="h-10 w-auto grayscale brightness-200" />
+              <div className="font-bold text-white text-xl uppercase tracking-wider">Correct Steps</div>
+            </div>
+            <div className="flex flex-wrap justify-center gap-8 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+              <a href="#" className="hover:text-white transition-colors">Affiliates</a>
+              <a href="#" className="hover:text-white transition-colors">Terms and Conditions</a>
+              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-white transition-colors">Links</a>
+            </div>
+          </div>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="text-sm text-gray-400">
+              &copy; {new Date().getFullYear()} Correct Steps. All rights reserved.
+            </div>
+            <div className="flex gap-3 opacity-60 text-2xl">
+              {/* Payment Icons Placeholder */}
+              <div className="flex items-center gap-2">
+                <span className="w-12 h-8 bg-gray-500 rounded flex items-center justify-center text-[10px] text-white font-bold shadow-sm">VISA</span>
+                <span className="w-12 h-8 bg-gray-500 rounded flex items-center justify-center text-[10px] text-white font-bold shadow-sm">MC</span>
+                <span className="w-12 h-8 bg-gray-500 rounded flex items-center justify-center text-[10px] text-white font-bold shadow-sm">AMEX</span>
+                <span className="w-12 h-8 bg-gray-500 rounded flex items-center justify-center text-[10px] text-white font-bold shadow-sm">PAYPAL</span>
+              </div>
+            </div>
           </div>
         </div>
+        
+        {/* Back to top button placeholder */}
+        <button 
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+          className="fixed bottom-8 right-8 w-12 h-12 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors shadow-lg border border-gray-600 z-50">
+          <span className="transform -rotate-90 text-lg">➜</span>
+        </button>
       </footer>
     </div>
   );
 };
 
-const FeatureCard = ({ icon, title, description }) => (
-  <div className="group rounded-3xl border border-gray-100 bg-white p-8 shadow-lg transition-all hover:border-brand-500 hover:shadow-brand-100">
-    <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 text-3xl transition-colors group-hover:bg-brand-500 group-hover:text-white">
-      {icon}
+const CategoryCard = ({ imgSrc, title }) => (
+  <div className="bg-white rounded border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group flex flex-col h-full transform hover:-translate-y-1">
+    <div className="h-44 overflow-hidden relative border-b border-gray-100">
+      <img src={imgSrc} alt={title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+      <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-300"></div>
     </div>
-    <h4 className="mb-3 text-xl font-bold text-navy-700">{title}</h4>
-    <p className="text-gray-500">{description}</p>
+    <div className="p-6 flex flex-col flex-grow items-center text-center">
+      <h3 className="font-extrabold text-[17px] text-aptText mb-6">{title}</h3>
+      <div className="mt-auto">
+        <button className="text-aptBlue text-[13px] font-bold flex items-center gap-2 group-hover:text-blue-700 tracking-wider">
+          PRACTICE <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+const WhyCard = ({ num, title, desc }) => (
+  <div className="flex gap-6 items-start">
+    <div className="shrink-0 flex items-center justify-center w-14 h-14 rounded bg-transparent border-2 border-white/20 text-white font-bold text-2xl shadow-sm">
+      {num}
+    </div>
+    <div>
+      <h3 className="mb-3 text-[22px] font-bold text-white">{title}</h3>
+      <p className="text-gray-300 leading-relaxed text-[15px]">{desc}</p>
+    </div>
   </div>
 );
 
