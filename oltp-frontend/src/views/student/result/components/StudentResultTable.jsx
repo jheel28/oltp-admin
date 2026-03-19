@@ -172,3 +172,4 @@ const StudentResultsTable = () => {
 };
 
 export default StudentResultsTable;
+ 

@@ -71,3 +71,4 @@ const EditQueryForm = ({ onSubmit, onCancel }) => {
 };
 
 export default EditQueryForm;
+ 

@@ -429,3 +429,4 @@ exports.updateAdminById = updateAdminById;
 exports.updateImageById = updateImageById;
 exports.forgotPassword = forgotPassword;
 exports.deleteAdmin = deleteAdmin;
+ 

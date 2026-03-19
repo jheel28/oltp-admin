@@ -18,3 +18,4 @@ const ManageBatches = () => {
 };
 
 export default ManageBatches;
+ 

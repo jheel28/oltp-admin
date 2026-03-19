@@ -302,3 +302,4 @@ const ViewEditUniversity = ({ universityData, onUpdate, onBack }) => {
 };
 
 export default ViewEditUniversity;
+ 

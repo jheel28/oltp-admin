@@ -343,3 +343,4 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
 };
 
 export default ViewEditStudent;
+ 

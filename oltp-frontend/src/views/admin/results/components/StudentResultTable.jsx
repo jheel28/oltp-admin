@@ -140,3 +140,4 @@ const StudentResultsTable = ({ student, onClose }) => {
 };
 
 export default StudentResultsTable;
+ 

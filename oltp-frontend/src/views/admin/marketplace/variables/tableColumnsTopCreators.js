@@ -12,3 +12,4 @@ export const tableColumnsTopCreators = [
     accessor: "rating",
   },
 ];
+ 

@@ -251,3 +251,4 @@ const UniversitiesTable = (props) => {
 };
 
 export default UniversitiesTable;
+ 

@@ -275,3 +275,4 @@ const General = ({ adminData, onUpdate, onBack }) => {
 };
 
 export default General;
+ 

@@ -11,3 +11,4 @@ const SuperAdminSettings = () => {
 };
 
 export default SuperAdminSettings;
+ 

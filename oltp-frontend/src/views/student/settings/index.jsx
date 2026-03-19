@@ -11,3 +11,4 @@ const StudentSettings = () => {
 };
 
 export default StudentSettings;
+ 

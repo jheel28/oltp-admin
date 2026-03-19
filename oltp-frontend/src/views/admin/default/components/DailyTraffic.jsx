@@ -37,3 +37,4 @@ const DailyTraffic = () => {
 };
 
 export default DailyTraffic;
+ 

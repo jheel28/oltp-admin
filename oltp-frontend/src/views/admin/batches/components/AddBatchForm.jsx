@@ -126,3 +126,4 @@ const AddBatchForm = ({ onSubmit, onCancel }) => {
 };
 
 export default AddBatchForm;
+ 

@@ -424,3 +424,4 @@ exports.updateImageById = updateImageById;
 exports.forgotPassword = forgotPassword;
 exports.updateStudentById = updateStudentById;
 exports.deleteStudentById = deleteStudentById;
+ 

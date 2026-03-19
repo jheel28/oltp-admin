@@ -275,3 +275,4 @@ const QueriesTable = () => {
 };
 
 export default QueriesTable;
+ 

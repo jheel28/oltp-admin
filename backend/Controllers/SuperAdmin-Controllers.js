@@ -394,3 +394,4 @@ exports.forgotPassword = forgotPassword;
 exports.updateImageById = updateImageById;
 exports.updateSuperAdminById = updateSuperAdminById;
 exports.deleteSuperAdmin = deleteSuperAdmin;
+ 

@@ -110,3 +110,4 @@ const EditUniversityForm = ({ universityData, onCancel, onSubmit }) => {
 };
 
 export default EditUniversityForm;
+ 
