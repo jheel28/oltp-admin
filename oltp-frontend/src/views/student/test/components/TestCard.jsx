@@ -26,7 +26,7 @@ const TestCard = ({ test, isActive }) => {
   };
 
   return (
-    <Card extra={"flex flex-col w-full h-full p-4 bg-white dark:bg-navy-700 border border-gray-100 dark:border-navy-600 rounded-2xl shadow-sm"}>
+    <Card extra={"flex flex-col w-full h-full p-4 bg-white dark:bg-[#0a2936] border border-gray-100 dark:border-[#0891b2]/20 rounded-2xl shadow-sm"}>
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-xl font-bold text-navy-700 dark:text-white leading-tight">

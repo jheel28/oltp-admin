@@ -15,8 +15,8 @@ const StatCard = ({ icon, title, value, accent = "blue" }) => {
     slate: "bg-slate-600",
   };
   return (
-    <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 dark:bg-cyan-700 dark:ring-navy-700">
-      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-cyan-50`}>
+    <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 dark:bg-[#0a2936] dark:ring-[#0891b2]/20">
+      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-cyan-600/30 bg-cyan-600/10 dark:bg-cyan-600/20`}>
         <span className="[&>svg]:h-5 [&>svg]:w-5">{icon}</span>
       </div>
       <div className="min-w-0">
@@ -28,8 +28,8 @@ const StatCard = ({ icon, title, value, accent = "blue" }) => {
 };
 
 const EmptyState = ({ message, sub, icon: Icon = IoMdAlarm }) => (
-  <div className="flex w-full flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white py-10 dark:border-cyan-500 dark:bg-cyan-700">
-    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-50">
+  <div className="flex w-full flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white py-10 dark:border-[#0891b2]/20 dark:bg-[#0a2936]">
+    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl border border-cyan-600/30 bg-cyan-600/10 dark:bg-cyan-600/20">
       <Icon className="h-6 w-6" />
     </div>
     <p className="text-sm font-semibold text-gray-500">{message}</p>
@@ -45,7 +45,7 @@ const AttemptedRow = ({ score }) => {
 
   return (
     <div className="flex items-center gap-3 border-b border-gray-100 py-3 last:border-0 dark:border-cyan-500">
-      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-50`}>
+      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-600`}>
         {score.passed ? <MdCheckCircle className="h-4 w-4" /> : <MdBook className="h-4 w-4" />}
       </div>
       <div className="flex-1 min-w-0">
@@ -58,7 +58,7 @@ const AttemptedRow = ({ score }) => {
         <div className="flex items-center gap-1.5">
           <div className="h-1.5 w-12 overflow-hidden rounded-full bg-gray-100">
             <div
-              className={`h-full rounded-full ${pct >= 35 ? "bg-blue-700" : "bg-red-500"}`}
+              className={`h-full rounded-full ${pct >= 35 ? "bg-cyan-600" : "bg-red-500"}`}
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -178,7 +178,7 @@ const Dashboard = () => {
         <div className="lg:col-span-2">
           <StudentPerformance tests={tests} attemptedScores={attempted} />
         </div>
-        <div className="rounded-xl bg-white p-2 shadow-sm ring-1 ring-gray-200 dark:bg-cyan-700 dark:ring-navy-700">
+        <div className="rounded-xl bg-white p-2 shadow-sm ring-1 ring-gray-200 dark:bg-[#0a2936] dark:ring-[#0891b2]/20">
           <MiniCalendar value={calendarValue} onChange={setCalendarValue} exams={batchTests} />
         </div>
       </div>
@@ -235,7 +235,7 @@ const Dashboard = () => {
 
         <div className="flex flex-col">
           <h4 className="mb-3 px-1 text-base font-bold text-gray-800 dark:text-white">Recent Results</h4>
-          <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 dark:bg-cyan-700 dark:ring-navy-700">
+          <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 dark:bg-[#0a2936] dark:ring-[#0891b2]/20">
             {attempted.length > 0 ? (
               [...attempted].slice(0, 5).map((score, i) => <AttemptedRow key={i} score={score} />)
             ) : (

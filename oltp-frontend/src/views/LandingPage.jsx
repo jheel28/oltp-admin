@@ -36,7 +36,7 @@ const LandingPage = () => {
             </div>
             <div className="flex items-center gap-4 text-sm font-semibold">
               <Link to="/auth/user/sign-in" className="text-gray-800 hover:text-teal-600 transition-colors px-3 py-2">Log in</Link>
-              <Link to="/auth/register/student" className="rounded-full bg-teal-600 hover:bg-teal-500 transition-colors shadow-sm px-6 py-2.5 text-white font-bold ml-1">Sign Up</Link>
+              <Link to="/auth/register/student" className="rounded-full bg-teal-600 hover:bg-teal-400 transition-colors shadow-sm px-6 py-2.5 text-white font-bold ml-1">Sign Up</Link>
               <a href="#recruiting" className="text-black hover:text-teal-600 transition-colors hidden md:block ml-4 border border-gray-300 rounded-full px-4 py-1.5 text-[13px] font-medium tracking-wide">Recruiting?</a>
             </div>
           </div>
@@ -95,19 +95,19 @@ const LandingPage = () => {
                 Start with 2 free tests. Unlock full potential with premium access.
               </p>
               <div>
-                <Link to="/auth/sign-in?role=student" className="inline-block rounded shadow-md bg-teal-600 hover:bg-teal-500 transition-colors px-10 py-4 font-bold text-white text-[15px] tracking-wide">
+                <Link to="/auth/sign-in?role=student" className="inline-block rounded shadow-md bg-teal-600 hover:bg-teal-400 transition-colors px-10 py-4 font-bold text-white text-[15px] tracking-wide">
                   GET STARTED NOW
                 </Link>
               </div>
             </div>
 
             {/* Floating Card for Employers */}
-            <div className="w-full md:w-80 shadow-2xl rounded-lg overflow-hidden bg-white border-t-4 border-teal-500 shrink-0">
+            <div className="w-full md:w-80 shadow-2xl rounded-lg overflow-hidden bg-white border-t-4 border-teal-400 shrink-0">
               <div className="p-8 text-center">
                 <h3 className="text-[22px] font-bold text-gray-900 mb-2">Recruiting?</h3>
                 <p className="text-[15px] text-gray-700 mb-6">We help you choose the right talent.</p>
                 <div className="w-12 h-1 bg-gray-300 mx-auto mb-6"></div>
-                <button className="w-full rounded bg-teal-600 hover:bg-teal-500 transition-colors px-4 py-3 font-bold text-white uppercase text-sm tracking-wide">
+                <button className="w-full rounded bg-teal-600 hover:bg-teal-400 transition-colors px-4 py-3 font-bold text-white uppercase text-sm tracking-wide">
                   Learn More
                 </button>
               </div>
@@ -184,7 +184,7 @@ const LandingPage = () => {
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-extrabold mb-6">Why Choose Correct Steps?</h2>
-            <div className="w-20 h-1 bg-teal-500 mx-auto"></div>
+            <div className="w-20 h-1 bg-teal-400 mx-auto"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 max-w-5xl mx-auto">
             <WhyCard 
@@ -234,7 +234,7 @@ const LandingPage = () => {
                 Are you getting ready for the DAT Next Generation and want to perform at your absolute best? Aptitude-Test.com offers specialized practice materials that help you master every aspect of this modern cognitive ability assessment. The DAT Next Generation (Differential Aptitude Test) is an advanced cognitive ability assessment used by employers and public institutions to evaluate how well candidates can think logically, learn new concepts, and solve problems efficiently...
               </p>
               
-              <a href="#" className="font-bold text-[14px] text-teal-600 hover:text-teal-500 transition-colors">
+              <a href="#" className="font-bold text-[14px] text-teal-600 hover:text-teal-400 transition-colors">
                 Continue reading
               </a>
             </div>
@@ -320,7 +320,7 @@ const CategoryCard = ({ imgSrc, title }) => (
     <div className="p-6 flex flex-col flex-grow items-center text-center">
       <h3 className="font-extrabold text-[17px] text-gray-900 mb-6">{title}</h3>
       <div className="mt-auto">
-        <button className="text-teal-600 text-[13px] font-bold flex items-center gap-2 group-hover:text-teal-500 tracking-wider">
+        <button className="text-teal-600 text-[13px] font-bold flex items-center gap-2 group-hover:text-teal-400 tracking-wider">
           PRACTICE <span className="transform group-hover:translate-x-1 transition-transform">→</span>
         </button>
       </div>

@@ -3,7 +3,7 @@ import PieChart from "components/charts/PieChart";
 import Card from "components/card";
 import { MdGroups } from "react-icons/md";
 
-const COLORS = ["#2563EB", "#3B82F6", "#60A5FA", "#93C5FD", "#64748B", "#94A3B8", "#1D4ED8", "#0EA5E9"];
+const COLORS = ["#14b8a6", "#0891b2", "#2dd4bf", "#5eead4", "#0a7a8a", "#0d9488", "#065f46", "#0f766e"];
 
 const PieChartCard = () => {
   const [students, setStudents] = useState([]);
@@ -47,7 +47,7 @@ const PieChartCard = () => {
               label: "Students",
               fontSize: "12px",
               fontWeight: "700",
-              color: "#64748B",
+              color: "#ffffff",
               formatter: () => students.length,
             },
           },
@@ -59,7 +59,7 @@ const PieChartCard = () => {
   return (
     <Card extra="rounded-xl p-4">
       <div className="mb-3 flex items-center gap-2">
-        <MdGroups className="h-5 w-5 text-teal-600" />
+        <MdGroups className="h-5 w-5 text-teal-500" />
         <h4 className="text-sm font-bold text-gray-800 dark:text-white">Students by Batch</h4>
       </div>
 
@@ -84,7 +84,7 @@ const PieChartCard = () => {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-1 w-14 overflow-hidden rounded-full bg-gray-100 dark:bg-navy-700">
+              <div className="h-1 w-14 overflow-hidden rounded-full bg-gray-100 dark:bg-[#051d28]">
                 <div
                   className="h-full rounded-full"
                   style={{

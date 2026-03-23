@@ -57,16 +57,16 @@ const AdminRegister = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col dark:!bg-navy-900">
+    <div className="flex min-h-screen flex-col bg-cyan-900">
       <div className="flex flex-grow">
         <div className="flex w-full flex-col items-center justify-center px-6 py-12 md:w-[55%] lg:w-[50%]">
           <div className="w-full max-w-[480px]">
             <div className="mb-8">
-              <div className="mb-2 inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 dark:bg-navy-700">
-                <span className="text-xs font-semibold uppercase tracking-widest text-indigo-500">Admin Registration</span>
+              <div className="mb-2 inline-flex items-center rounded-full bg-white/10 px-3 py-1">
+                <span className="text-xs font-semibold uppercase tracking-widest text-teal-400">Admin Registration</span>
               </div>
-              <h4 className="mb-2 text-3xl font-bold text-navy-700 dark:text-white">Create your account</h4>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <h4 className="mb-2 text-3xl font-bold text-white">Create your account</h4>
+              <p className="text-sm text-white/70">
                 Fill in your details to register as an administrator.
               </p>
             </div>
@@ -166,28 +166,38 @@ const AdminRegister = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="linear w-full rounded-xl bg-brand-500 py-3 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:opacity-60"
+                className="linear w-full rounded-xl bg-teal-600 py-3 text-sm font-semibold text-white transition hover:bg-teal-500 disabled:opacity-60"
               >
                 {loading ? "Creating account..." : "Create Account"}
               </button>
             </Form>
 
-            <p className="mt-6 text-sm font-medium text-navy-700 dark:text-gray-500">
+            <p className="mt-6 text-sm font-medium text-white/70">
               Already have an account?{" "}
-              <Link to="/auth/sign-in?role=admin" className="font-bold text-brand-500 hover:text-brand-600 dark:text-white">
+              <Link to="/auth/sign-in?role=admin" className="font-bold text-teal-400 hover:text-teal-300">
                 Sign in
               </Link>
             </p>
           </div>
         </div>
 
-        <div className="hidden items-center justify-center bg-[#F4F7FE] dark:bg-slate-800 md:flex md:w-[45%] lg:w-[50%]">
-          <img
-            src={logo}
-            alt="The Correct Steps"
-            className="max-h-[420px] max-w-[420px] object-contain"
-            onError={(e) => { e.target.style.display = "none"; }}
-          />
+        <div className="hidden items-center justify-center bg-gradient-to-br from-cyan-950 via-teal-950 to-cyan-900 md:flex md:w-[45%] lg:w-[50%] relative overflow-hidden">
+          {/* Decorative radial glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[120px]" />
+          
+          <div className="relative z-10 flex flex-col items-center text-center p-12">
+            <div className="mb-8 transform hover:scale-105 transition-transform duration-500">
+              <img
+                src={logo}
+                alt="The Correct Steps"
+                className="max-h-[300px] w-auto object-contain drop-shadow-[0_20px_50px_rgba(20,184,166,0.3)]"
+              />
+            </div>
+            <h2 className="text-3xl font-extrabold text-white mb-4 tracking-tight">Admin Portal</h2>
+            <p className="text-teal-400/80 text-lg font-medium max-w-sm">
+              Manage your institution with powerful tools and real-time insights.
+            </p>
+          </div>
         </div>
       </div>
       <Footer />

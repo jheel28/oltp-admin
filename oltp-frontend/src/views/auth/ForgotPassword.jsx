@@ -39,15 +39,15 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col dark:!bg-navy-900">
+    <div className="flex min-h-screen flex-col bg-cyan-900">
       <div className="flex flex-grow">
         <div className="flex w-full flex-col items-center justify-center px-6 py-12 md:w-[55%] lg:w-[50%]">
           <div className="w-full max-w-[420px]">
             <div className="mb-8">
-              <h4 className="mb-2 text-3xl font-bold text-navy-700 dark:text-white">
+              <h4 className="mb-2 text-3xl font-bold text-white">
                 Forgot Password
               </h4>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-white/70">
                 Enter your registered email address and we'll send you a link to reset your password.
               </p>
             </div>
@@ -76,7 +76,7 @@ export default function ForgotPassword() {
                 <div className="flex flex-col">
                   <label
                     htmlFor="reset-email"
-                    className="mb-1 ml-1 text-sm font-medium text-navy-700 dark:text-white"
+                    className="mb-1 ml-1 text-sm font-medium text-white"
                   >
                     Email Address
                   </label>
@@ -86,25 +86,25 @@ export default function ForgotPassword() {
                     placeholder="mail@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-navy-700 outline-none transition focus:border-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white dark:focus:border-brand-400"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-teal-500"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="linear mt-2 w-full rounded-xl bg-brand-500 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-brand-600 active:bg-brand-700 disabled:opacity-60 dark:bg-brand-400 dark:hover:bg-brand-300"
+                  className="linear mt-2 w-full rounded-xl bg-teal-600 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-teal-500 active:bg-teal-700 disabled:opacity-60"
                 >
                   {loading ? "Sending..." : "Send Reset Link"}
                 </button>
               </form>
             )}
 
-            <p className="mt-6 text-sm font-medium text-navy-700 dark:text-gray-500">
+            <p className="mt-6 text-sm font-medium text-white/70">
               Remember your password?{" "}
               <Link
                 to="/auth/sign-in"
-                className="font-bold text-brand-500 hover:text-brand-600 dark:text-white"
+                className="font-bold text-teal-400 hover:text-teal-300"
               >
                 Sign in
               </Link>
@@ -112,7 +112,7 @@ export default function ForgotPassword() {
           </div>
         </div>
 
-        <div className="hidden items-center justify-center bg-[#F4F7FE] dark:bg-slate-800 md:flex md:w-[45%] lg:w-[50%]">
+        <div className="hidden items-center justify-center bg-white/5 md:flex md:w-[45%] lg:w-[50%]">
           <img
             src={logo}
             alt="The Correct Steps"

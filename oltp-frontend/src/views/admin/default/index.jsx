@@ -7,8 +7,8 @@ import { FaUsers } from "react-icons/fa";
 
 const StatCard = ({ icon, title, value, accent = "blue" }) => {
   return (
-    <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 dark:bg-cyan-700 dark:ring-navy-700">
-      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-cyan-50`}>
+    <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 dark:bg-[#0a2936] dark:ring-[#0891b2]/20">
+      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-cyan-600/30 bg-cyan-600/10 dark:bg-cyan-600/20`}>
         <span className="[&>svg]:h-5 [&>svg]:w-5">{icon}</span>
       </div>
       <div className="min-w-0 flex-1">
@@ -23,7 +23,7 @@ const RecentScoreRow = ({ score }) => {
   const pct = score.totalMarks > 0 ? Math.round((score.marksObtained / score.totalMarks) * 100) : 0;
   return (
     <div className="flex items-center gap-3 border-b border-gray-100 py-3 last:border-0 dark:border-cyan-500">
-      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-50`}>
+      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-600`}>
         {score.passed ? <MdCheckCircle className="h-4 w-4" /> : <MdAccessTime className="h-4 w-4" />}
       </div>
       <div className="flex-1 min-w-0">
@@ -104,17 +104,17 @@ const Dashboard = () => {
 
         {/* Right Column: Recent Submissions */}
         <div className="h-full">
-          <div className="h-full rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 dark:bg-cyan-700 dark:ring-navy-700">
+          <div className="h-full rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 dark:bg-[#0a2936] dark:ring-[#0891b2]/20">
             <div className="mb-4 flex items-center gap-2 border-b border-gray-50 pb-4 dark:border-cyan-500">
-              <MdBarChart className="h-5 w-5 text-blue-700" />
+              <MdBarChart className="h-5 w-5 text-cyan-600" />
               <h4 className="text-lg font-bold text-gray-800 dark:text-white">Recent Submissions</h4>
             </div>
             <div className="flex flex-col">
               {data.recentScores.length > 0 ? (
                 data.recentScores.map((s) => <RecentScoreRow key={s._id} score={s} />)
               ) : (
-                <div className="flex w-full flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white py-10 dark:border-cyan-500 dark:bg-cyan-700">
-                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-50">
+                <div className="flex w-full flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white py-10 dark:border-[#0891b2]/20 dark:bg-[#0a2936]">
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl border border-cyan-600/30 bg-cyan-600/10 dark:bg-cyan-600/20">
                     <MdAccessTime className="h-6 w-6" />
                   </div>
                   <p className="text-sm font-semibold text-gray-500">No submissions recorded yet</p>

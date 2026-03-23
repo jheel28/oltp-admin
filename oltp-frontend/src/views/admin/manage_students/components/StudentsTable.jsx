@@ -338,7 +338,7 @@ const StudentsTable = () => {
                         <span className="text-sm text-gray-500">{student.phoneNumber}</span>
                       </td>
                       <td className="py-3 pr-6">
-                        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700">
+                        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-400">
                           {student.batch}
                         </span>
                       </td>
@@ -346,7 +346,7 @@ const StudentsTable = () => {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => setSelectedStudent(student)}
-                            className="px-3 py-1.5 text-xs rounded-lg bg-teal-500 text-white hover:bg-teal-500"
+                            className="px-3 py-1.5 text-xs rounded-lg bg-teal-500 text-white hover:bg-teal-600"
                           >
                             View
                           </button>

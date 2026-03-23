@@ -55,7 +55,7 @@ const BaseNavbar = ({ onOpenSidenav, brandText, onSearch, fetchUrl }) => {
       : avatarUrl(displayName);
 
   return (
-    <nav className="sticky top-4 z-40 flex flex-row flex-wrap items-center justify-between rounded-xl bg-white/10 p-2 backdrop-blur-xl dark:bg-cyan-700/50">
+    <nav className="relative z-40 flex flex-row flex-wrap items-center justify-between rounded-xl p-2 backdrop-blur-xl dark:bg-transparent">
       <div className="ml-[6px]">
         <p className="shrink text-[33px] capitalize text-cyan-900 dark:text-white">
           <Link
@@ -67,7 +67,7 @@ const BaseNavbar = ({ onOpenSidenav, brandText, onSearch, fetchUrl }) => {
         </p>
       </div>
 
-      <div className="relative mt-[3px] flex h-[61px] items-center justify-end gap-3 rounded-full bg-white px-4 py-2 shadow-xl shadow-shadow-500 dark:!bg-cyan-800 dark:shadow-none">
+      <div className="relative mt-[3px] flex h-[61px] items-center justify-end gap-3 rounded-full bg-white px-4 py-2 shadow-xl shadow-shadow-500 dark:bg-[#0a2936] dark:ring-1 dark:ring-[#0891b2]/20 dark:shadow-none">
         {onSearch && (
           <div className="flex h-full items-center rounded-full bg-lightPrimary text-navy-700 dark:bg-cyan-900 dark:text-white xl:w-[225px]">
             <p className="pl-3 pr-2 text-xl">

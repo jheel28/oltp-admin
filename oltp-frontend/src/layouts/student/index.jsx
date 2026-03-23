@@ -60,7 +60,7 @@ export default function Student(props) {
       />
     )}
 
-    <div className="flex flex-col flex-1 bg-gray-50 dark:!bg-cyan-600">
+    <div className="flex flex-col flex-1 bg-gray-50 dark:bg-[#051d28]">
       <main className="flex-1 transition-all duration-300 md:pr-2 xl:ml-[260px]">
         <Navbar
           onOpenSidenav={() => setOpen(true)}

@@ -31,31 +31,53 @@ const StudentPerformance = ({ tests = [], attemptedScores = [] }) => {
   const best = chartData.length > 0 ? Math.max(...chartData.map((d) => d.score)) : 0;
 
   const chartOptions = {
-    chart: { type: "line", zoom: { enabled: false }, toolbar: { show: false } },
-    colors: ["#1D4ED8"],
-    stroke: { curve: "smooth", width: 2.5 },
+    chart: { 
+      type: "line", 
+      zoom: { enabled: false }, 
+      toolbar: { show: false },
+      dropShadow: {
+        enabled: true,
+        top: 3,
+        left: 0,
+        blur: 4,
+        color: "#2dd4bf",
+        opacity: 0.35
+      }
+    },
+    colors: ["#2dd4bf"],
+    stroke: { curve: "smooth", width: 3 },
     xaxis: {
       categories: chartData.map((d) => d.testName),
-      labels: { style: { colors: "#94A3B8", fontSize: "11px" }, rotate: -20 },
+      labels: { style: { colors: "#649ba6", fontSize: "11px" }, rotate: -20 },
     },
     yaxis: {
       min: 0,
       max: 100,
       labels: {
-        style: { colors: "#94A3B8", fontSize: "11px" },
+        style: { colors: "#649ba6", fontSize: "11px" },
         formatter: (v) => `${v}%`,
       },
     },
     tooltip: { theme: "dark", y: { formatter: (v) => `${v}%` } },
-    grid: { borderColor: "#f1f5f9", strokeDashArray: 4, xaxis: { lines: { show: false } } },
-    markers: { size: 4, colors: ["#1D4ED8"], strokeColors: "#fff", strokeWidth: 2 },
+    grid: { 
+      borderColor: "rgba(100, 155, 166, 0.2)", 
+      strokeDashArray: 4, 
+      xaxis: { lines: { show: false } } 
+    },
+    markers: { 
+      size: 5, 
+      colors: ["#ffffff"], 
+      strokeColors: "#2dd4bf", 
+      strokeWidth: 2,
+      hover: { size: 7 }
+    },
   };
 
   return (
     <Card extra="!p-5 h-full">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-50">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-cyan-600/30 bg-cyan-600/10 dark:bg-cyan-600/20">
             <MdBarChart className="h-4 w-4" />
           </div>
           <h4 className="text-sm font-bold text-gray-800 dark:text-white">Performance History</h4>
@@ -82,7 +104,7 @@ const StudentPerformance = ({ tests = [], attemptedScores = [] }) => {
             series={[{ name: "Score %", data: chartData.map((d) => d.score) }]}
           />
         ) : (
-          <div className="flex h-full flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 dark:bg-cyan-700">
+          <div className="flex h-full flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 dark:bg-transparent">
             <MdBarChart className="mb-2 h-10 w-10 text-gray-200" />
             <p className="text-sm font-medium text-gray-400">
               Attempt a test to see performance history
