@@ -34,7 +34,7 @@ const MiniCalendar = ({ value, onChange, exams }) => {
 
     return (
       <div className="flex justify-center mt-0.5">
-        <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+        <div className="h-1.5 w-1.5 rounded-full bg-blue-700 dark:bg-white" />
       </div>
     );
   };
@@ -94,7 +94,7 @@ const MiniCalendar = ({ value, onChange, exams }) => {
             <div className="flex flex-col gap-1">
               {tooltip.tests.map((test, i) => (
                 <div key={i} className="flex items-start gap-1.5">
-                  <div className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" />
+                  <div className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-700 dark:bg-teal-400" />
                   <div>
                     <p className="text-xs font-semibold text-gray-800 dark:text-white leading-tight">
                       {test.testName || test.testId}

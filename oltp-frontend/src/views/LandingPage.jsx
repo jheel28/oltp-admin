@@ -43,7 +43,7 @@ const LandingPage = () => {
         </div>
 
         {/* Bottom Nav */}
-        <div className="bg-teal-900">
+        <div className="bg-cyan-900">
           <div className="container mx-auto px-6">
 
             <nav className="flex  flex-wrap items-center justify-center md:justify-start gap-10 text-white text-[13px] font-semibold py-4 overflow-x-auto whitespace-nowrap">
@@ -95,7 +95,7 @@ const LandingPage = () => {
                 Start with 2 free tests. Unlock full potential with premium access.
               </p>
               <div>
-                <Link to="/auth/sign-in?role=student" className="inline-block rounded shadow-md bg-teal-600 hover:bg-teal-700 transition-colors px-10 py-4 font-bold text-white text-[15px] tracking-wide">
+                <Link to="/auth/sign-in?role=student" className="inline-block rounded shadow-md bg-teal-600 hover:bg-teal-500 transition-colors px-10 py-4 font-bold text-white text-[15px] tracking-wide">
                   GET STARTED NOW
                 </Link>
               </div>
@@ -117,7 +117,7 @@ const LandingPage = () => {
       </section>
 
       {/* Icon strip */}
-      <div className="bg-teal-900 text-white py-4 relative z-20">
+      <div className="bg-cyan-900 text-white py-4 relative z-20">
         <div className="container mx-auto px-6">
           <div className="flex flex-wrap items-center justify-center gap-10 md:gap-16">
             <a href="#numerical" className="flex flex-col items-center text-sm transform transition-transform hover:-translate-y-1">
@@ -180,7 +180,7 @@ const LandingPage = () => {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="bg-teal-900 text-white py-20 lg:py-28">
+      <section className="bg-cyan-900 text-white py-20 lg:py-28">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-extrabold mb-6">Why Choose Correct Steps?</h2>
@@ -234,7 +234,7 @@ const LandingPage = () => {
                 Are you getting ready for the DAT Next Generation and want to perform at your absolute best? Aptitude-Test.com offers specialized practice materials that help you master every aspect of this modern cognitive ability assessment. The DAT Next Generation (Differential Aptitude Test) is an advanced cognitive ability assessment used by employers and public institutions to evaluate how well candidates can think logically, learn new concepts, and solve problems efficiently...
               </p>
               
-              <a href="#" className="font-bold text-[14px] text-teal-600 hover:text-teal-800 transition-colors">
+              <a href="#" className="font-bold text-[14px] text-teal-600 hover:text-teal-500 transition-colors">
                 Continue reading
               </a>
             </div>
@@ -243,7 +243,7 @@ const LandingPage = () => {
       </section>
 
       {/* Pre-Footer CTA Split Section */}
-      <section className="flex flex-col md:flex-row w-full min-h-[450px]" style={{ backgroundColor: '#565656ff' }}>
+      <section className="flex flex-col md:flex-row w-full min-h-[450px] bg-teal-600">
         <div className="w-full md:w-1/2 flex items-center justify-center p-12 md:p-16 lg:p-24 text-white">
           <div className="max-w-md w-full">
             <h2 className="text-3xl md:text-[40px] leading-tight font-extrabold mb-6">Unlock Your Full Potential</h2>
@@ -269,9 +269,9 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-teal-900 py-14 text-gray-100">
+      <footer className="bg-cyan-900 py-14 text-gray-100">
         <div className="container mx-auto px-6 md:px-12">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 border-b border-teal-800 pb-10 mb-10">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8 border-b border-teal-900 pb-10 mb-10">
             <div className="flex items-center gap-3">
               <img src={logo} alt="Correct Steps" className="h-10 w-auto" />
 

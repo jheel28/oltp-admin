@@ -138,7 +138,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
   };
 
   const inputClass =
-    "mb-4 w-full rounded-md border border-gray-300 p-3 text-black dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500";
+    "mb-4 w-full rounded-md border border-gray-300 p-3 text-black dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500";
 
   return (
     <div className="rounded-lg bg-white p-6 dark:bg-navy-700">
@@ -350,7 +350,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
 
       <div className="flex space-x-4">
         <button
-          className="rounded-full bg-blue-500 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-full bg-teal-500 px-6 py-2 text-white hover:bg-teal-500 disabled:opacity-50"
           onClick={handleSubmit}
           disabled={loading}
         >

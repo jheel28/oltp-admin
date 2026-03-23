@@ -42,7 +42,7 @@ const defaultQForm = () => ({
   existingQuestionImage: null, clearQuestionImage: false,
 });
 
-const inputCls = "w-full px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition";
+const inputCls = "w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm transition focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-cyan-500 dark:bg-navy-700 dark:text-white";
 
 const StepIndicator = ({ current }) => (
   <div className="flex items-center gap-0 mb-8">
@@ -50,19 +50,19 @@ const StepIndicator = ({ current }) => (
       <React.Fragment key={i}>
         <div className="flex flex-col items-center gap-1">
           <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold transition-all
-            ${i < current ? "bg-blue-500 text-white" :
-              i === current ? "bg-blue-600 text-white ring-4 ring-blue-100 dark:ring-blue-900" :
+            ${i < current ? "bg-teal-500 text-white" :
+              i === current ? "bg-teal-600 text-white ring-4 ring-teal-100 dark:ring-teal-900" :
               "bg-gray-100 dark:bg-navy-700 text-gray-400"}`}>
             {i < current ? <MdCheck className="h-4 w-4" /> : i + 1}
           </div>
           <span className={`text-[10px] font-medium whitespace-nowrap
-            ${i === current ? "text-blue-600 dark:text-blue-400" : "text-gray-400"}`}>
+            ${i === current ? "text-teal-600 dark:text-teal-400" : "text-gray-400"}`}>
             {label}
           </span>
         </div>
         {i < STEPS.length - 1 && (
           <div className={`flex-1 h-0.5 mx-1 mb-4 transition-all
-            ${i < current ? "bg-blue-500" : "bg-gray-200 dark:bg-navy-600"}`} />
+            ${i < current ? "bg-teal-500" : "bg-gray-200 dark:bg-navy-600"}`} />
         )}
       </React.Fragment>
     ))}
@@ -93,7 +93,7 @@ const ImagePickerButton = ({ onSelect }) => {
         }}
       />
       <button type="button" onClick={() => ref.current?.click()}
-        className="flex items-center gap-1 text-xs text-blue-500 hover:text-blue-600 transition px-2 py-1 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100">
+        className="flex items-center gap-1 text-xs text-teal-500 hover:text-teal-600 transition px-2 py-1 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100">
         <MdImage className="h-3.5 w-3.5" /> Upload image
       </button>
     </>
@@ -103,7 +103,7 @@ const ImagePickerButton = ({ onSelect }) => {
 const ImagePreview = ({ src, onClear, label = "Image" }) => (
   <div className="mt-1.5 flex items-start gap-2">
     <img src={src} alt={label}
-      className="h-24 max-w-[180px] object-contain rounded-lg border border-gray-200 dark:border-navy-600 bg-gray-50 dark:bg-navy-700"
+      className="h-24 max-w-[180px] object-contain rounded-lg border border-gray-200 dark:border-cyan-500 bg-gray-50 dark:bg-navy-700"
       onError={(e) => { e.currentTarget.style.display = "none"; }}
     />
     <button type="button" onClick={onClear}
@@ -118,7 +118,7 @@ const AnswerKeyPicker = ({ existingFile, onSelect, onClear }) => {
   const hasFile = !!existingFile;
 
   return (
-    <div className="rounded-xl border border-dashed border-gray-200 dark:border-navy-600 p-4">
+    <div className="rounded-xl border border-dashed border-gray-200 dark:border-cyan-500 p-4">
       <input
         ref={ref}
         type="file"
@@ -143,8 +143,8 @@ const AnswerKeyPicker = ({ existingFile, onSelect, onClear }) => {
 
       {hasFile ? (
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30 flex-shrink-0">
-            <MdFilePresent className="h-5 w-5 text-blue-600" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/30 flex-shrink-0">
+            <MdFilePresent className="h-5 w-5 text-teal-600" />
           </div>
           <div className="flex-1 min-w-0">
             {typeof existingFile === "string" ? (
@@ -156,7 +156,7 @@ const AnswerKeyPicker = ({ existingFile, onSelect, onClear }) => {
                   href={normImg(existingFile)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-xs text-blue-500 hover:underline mt-0.5 w-fit"
+                  className="flex items-center gap-1 text-xs text-teal-500 hover:underline mt-0.5 w-fit"
                 >
                   <MdDownload className="h-3 w-3" /> View / Download
                 </a>
@@ -171,7 +171,7 @@ const AnswerKeyPicker = ({ existingFile, onSelect, onClear }) => {
             <button
               type="button"
               onClick={() => ref.current?.click()}
-              className="text-xs text-blue-500 hover:text-blue-600 px-2 py-1 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 transition"
+              className="text-xs text-teal-500 hover:text-teal-600 px-2 py-1 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100 transition"
             >
               Replace
             </button>
@@ -286,8 +286,8 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
           <button key={t} onClick={() => setF({ type: t })}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition
               ${form.type === t
-                ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
-                : "border-gray-200 dark:border-navy-600 text-gray-500 hover:border-gray-300"}`}>
+                ? "border-teal-500 bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400"
+                : "border-gray-200 dark:border-cyan-500 text-gray-500 hover:border-gray-300"}`}>
             <meta.icon className="h-4 w-4" />
             {meta.label}
             <span className="hidden sm:inline text-xs opacity-70">— {meta.desc}</span>
@@ -323,7 +323,7 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
               Options
               {form.type === "MSQ" && <span className="text-indigo-400 normal-case font-normal ml-1">(check all correct)</span>}
             </label>
-            <button onClick={addOption} className="flex items-center gap-1 text-xs text-blue-500 hover:text-blue-600 transition">
+            <button onClick={addOption} className="flex items-center gap-1 text-xs text-teal-500 hover:text-teal-600 transition">
               <MdAdd className="h-3.5 w-3.5" /> Add option
             </button>
           </div>
@@ -335,7 +335,7 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
                   <div className="flex items-center gap-2">
                     {form.type === "MCQ" ? (
                       <input type="radio" name="correctOption" checked={form.correctOption === i.toString()}
-                        onChange={() => setF({ correctOption: i.toString() })} className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                        onChange={() => setF({ correctOption: i.toString() })} className="h-4 w-4 text-teal-500 flex-shrink-0" />
                     ) : (
                       <input type="checkbox" checked={form.correctOptions.includes(i)}
                         onChange={() => toggleMSQ(i)} className="h-4 w-4 text-indigo-500 flex-shrink-0" />
@@ -404,7 +404,7 @@ const QuestionForm = ({ paperId, paper, editingId, initialForm, onSaved, onCance
 
       <div className="flex gap-2 pt-2">
         <button onClick={handleSubmit} disabled={submitting}
-          className="flex items-center gap-2 px-5 py-2 text-sm rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-60 transition">
+          className="flex items-center gap-2 px-5 py-2 text-sm rounded-lg bg-teal-500 text-white hover:bg-teal-500 disabled:opacity-60 transition">
           <MdSave className="h-4 w-4" />
           {submitting ? "Saving..." : editingId ? "Update Question" : "Add Question"}
         </button>
@@ -472,19 +472,19 @@ const QuestionsStep = ({ paperId, paper, questions, setQuestions }) => {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-blue-100 dark:border-blue-900 bg-blue-50 dark:bg-blue-900/20 p-4 flex items-start gap-3">
-        <MdOutlineQuiz className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+      <div className="rounded-xl border border-teal-100 dark:border-teal-900 bg-teal-50 dark:bg-teal-900/20 p-4 flex items-start gap-3">
+        <MdOutlineQuiz className="h-5 w-5 text-teal-500 flex-shrink-0 mt-0.5" />
         <div className="flex-1">
-          <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">Paper saved — add questions now</p>
-          <p className="text-xs text-blue-600 dark:text-blue-500 mt-0.5">
+          <p className="text-sm font-semibold text-teal-700 dark:text-teal-400">Paper saved — add questions now</p>
+          <p className="text-xs text-teal-600 dark:text-teal-500 mt-0.5">
             Questions are saved to the server immediately. You can skip ahead and add more later from the Question Manager.
           </p>
         </div>
         {questions.length > 0 && (
           <div className="text-right flex-shrink-0">
-            <p className="text-lg font-bold text-blue-700 dark:text-blue-400">{questions.length}</p>
-            <p className="text-[10px] text-blue-500">questions</p>
-            <p className="text-[10px] text-blue-500">{totalMarks} marks</p>
+            <p className="text-lg font-bold text-teal-700 dark:text-teal-400">{questions.length}</p>
+            <p className="text-[10px] text-teal-500">questions</p>
+            <p className="text-[10px] text-teal-500">{totalMarks} marks</p>
           </div>
         )}
       </div>
@@ -495,14 +495,14 @@ const QuestionsStep = ({ paperId, paper, questions, setQuestions }) => {
         </span>
         {!showForm && (
           <button onClick={openCreate}
-            className="flex items-center gap-1.5 px-4 py-2 text-sm rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition">
+            className="flex items-center gap-1.5 px-4 py-2 text-sm rounded-lg bg-teal-500 text-white hover:bg-teal-500 transition">
             <FaPlus className="h-3 w-3" /> Add Question
           </button>
         )}
       </div>
 
       {showForm && (
-        <div className="rounded-xl border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-800 p-4">
+        <div className="rounded-xl border border-gray-200 dark:border-cyan-500 bg-white dark:bg-cyan-700 p-4">
           <QuestionForm
             paperId={paperId}
             paper={paper}
@@ -515,23 +515,23 @@ const QuestionsStep = ({ paperId, paper, questions, setQuestions }) => {
       )}
 
       {questions.length === 0 && !showForm ? (
-        <div className="py-12 flex flex-col items-center gap-3 text-gray-400 rounded-xl border border-dashed border-gray-200 dark:border-navy-600">
+        <div className="py-12 flex flex-col items-center gap-3 text-gray-400 rounded-xl border border-dashed border-gray-200 dark:border-cyan-500">
           <MdOutlineQuiz className="h-10 w-10 opacity-30" />
           <p className="text-sm">No questions yet</p>
-          <button onClick={openCreate} className="text-sm text-blue-500 hover:underline">Add the first question</button>
+          <button onClick={openCreate} className="text-sm text-teal-500 hover:underline">Add the first question</button>
         </div>
       ) : (
         <div className="space-y-2">
           {questions.map((q, idx) => (
             <div key={q._id}
-              className="flex items-start gap-3 p-3 rounded-xl border border-gray-100 dark:border-navy-700 hover:border-gray-200 dark:hover:border-navy-600 transition bg-white dark:bg-navy-800">
-              <div className="flex-shrink-0 h-7 w-7 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
-                <span className="text-xs font-bold text-blue-600">{idx + 1}</span>
+              className="flex items-start gap-3 p-3 rounded-xl border border-gray-100 dark:border-navy-700 hover:border-gray-200 dark:hover:border-navy-600 transition bg-white dark:bg-cyan-700">
+              <div className="flex-shrink-0 h-7 w-7 rounded-full bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center">
+                <span className="text-xs font-bold text-teal-600">{idx + 1}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide
-                    ${q.type === "MCQ" ? "bg-blue-100 text-blue-600" : q.type === "MSQ" ? "bg-indigo-100 text-indigo-600" : "bg-violet-100 text-violet-600"}`}>
+                    ${q.type === "MCQ" ? "bg-teal-100 text-teal-600" : q.type === "MSQ" ? "bg-indigo-100 text-indigo-600" : "bg-violet-100 text-violet-600"}`}>
                     {q.type}
                   </span>
                   <span className="text-[10px] bg-gray-100 dark:bg-navy-700 text-gray-500 px-1.5 py-0.5 rounded">
@@ -571,7 +571,7 @@ const QuestionsStep = ({ paperId, paper, questions, setQuestions }) => {
               </div>
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 <button onClick={() => openEdit(q)}
-                  className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-500 hover:bg-blue-100 transition">
+                  className="p-1.5 rounded-lg bg-teal-50 dark:bg-teal-900/20 text-teal-500 hover:bg-teal-100 transition">
                   <FaEdit className="h-3 w-3" />
                 </button>
                 <button onClick={() => handleDelete(q._id)}
@@ -795,7 +795,7 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
     return (
       <Card extra="w-full p-12 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-gray-400">
-          <div className="h-8 w-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
           <span className="text-sm">Loading paper...</span>
         </div>
       </Card>
@@ -817,7 +817,7 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
             <p className="text-xs text-gray-400 mt-0.5">
               <code className="bg-gray-100 dark:bg-navy-700 px-1.5 py-0.5 rounded">{activePaperId}</code>
               {questions.length > 0 && (
-                <span className="ml-2 text-blue-500 font-medium">
+                <span className="ml-2 text-teal-500 font-medium">
                   {questions.length} question{questions.length !== 1 ? "s" : ""}
                 </span>
               )}
@@ -895,11 +895,11 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
 
       {step === 1 && (
         <div className="space-y-5">
-          <div className="rounded-xl border border-blue-100 dark:border-blue-900 bg-blue-50 dark:bg-blue-900/20 p-4 flex items-start gap-3">
-            <MdAutoAwesome className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+          <div className="rounded-xl border border-teal-100 dark:border-teal-900 bg-teal-50 dark:bg-teal-900/20 p-4 flex items-start gap-3">
+            <MdAutoAwesome className="h-5 w-5 text-teal-500 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">Almost there</p>
-              <p className="text-xs text-blue-600 dark:text-blue-500 mt-0.5">
+              <p className="text-sm font-semibold text-teal-700 dark:text-teal-400">Almost there</p>
+              <p className="text-xs text-teal-600 dark:text-teal-500 mt-0.5">
                 Clicking "Save & Add Questions" will create the paper in the system so you can add questions in the very next step.
               </p>
             </div>
@@ -922,13 +922,13 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" name="negativeMarking" checked={form.negativeMarking}
                   onChange={handleChange} className="sr-only peer" />
-                <div className="w-10 h-5 bg-gray-200 peer-checked:bg-blue-500 rounded-full peer-focus:ring-2 peer-focus:ring-blue-300 dark:bg-navy-600 transition after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5" />
+                <div className="w-10 h-5 bg-gray-200 peer-checked:bg-teal-500 rounded-full peer-focus:ring-2 peer-focus:ring-teal-300 dark:bg-navy-600 transition after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5" />
               </label>
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Enable Negative Marking</span>
             </div>
 
             {form.negativeMarking && (
-              <div className="ml-13 pl-4 border-l-2 border-blue-200 dark:border-blue-800">
+              <div className="ml-13 pl-4 border-l-2 border-teal-200 dark:border-teal-800">
                 <Field label="Default Deduction Per Wrong Answer" hint="Can be overridden per question">
                   <select name="negativeFraction" value={form.negativeFraction}
                     onChange={handleChange} className={inputCls + " w-40"}>
@@ -954,7 +954,7 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
 
       {step === 3 && (
         <div className="space-y-5">
-          <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-navy-600">
+          <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-cyan-500">
             <div>
               <p className="text-sm font-semibold text-navy-700 dark:text-white">Paper Status</p>
               <p className="text-xs text-gray-400 mt-0.5">Active papers are visible to students during tests</p>
@@ -968,8 +968,8 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
             </label>
           </div>
 
-          <div className="rounded-xl border border-gray-200 dark:border-navy-600 divide-y divide-gray-100 dark:divide-navy-600 overflow-hidden">
-            <div className="px-4 py-3 bg-gray-50 dark:bg-navy-800">
+          <div className="rounded-xl border border-gray-200 dark:border-cyan-500 divide-y divide-gray-100 dark:divide-navy-600 overflow-hidden">
+            <div className="px-4 py-3 bg-gray-50 dark:bg-cyan-700">
               <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Review Summary</p>
             </div>
             {[
@@ -1006,7 +1006,7 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
         </div>
       )}
 
-      <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100 dark:border-navy-600">
+      <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100 dark:border-cyan-500">
         <button
           type="button"
           onClick={() => step === 0 ? navigate(-1) : setStep((s) => s - 1)}
@@ -1021,7 +1021,7 @@ const QuestionPaperBuilder = ({ mode = "create" }) => {
             type="button"
             onClick={handleNext}
             disabled={savingPaper}
-            className="flex items-center gap-2 px-6 py-2 text-sm rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-60 transition"
+            className="flex items-center gap-2 rounded-lg bg-teal-500 px-6 py-2 text-sm text-white transition hover:bg-teal-500 disabled:opacity-60"
           >
             {savingPaper ? (
               <>

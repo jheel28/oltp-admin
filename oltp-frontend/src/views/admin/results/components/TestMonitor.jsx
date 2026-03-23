@@ -127,7 +127,7 @@ const AnswerKeyPanel = ({ paper, paperId, onPaperUpdated, auth }) => {
   };
 
   return (
-    <div className="mt-4 rounded-xl border border-dashed border-gray-200 dark:border-navy-600 bg-gray-50 dark:bg-navy-800/50 p-3">
+    <div className="mt-4 rounded-xl border border-dashed border-gray-200 dark:border-cyan-500/30 bg-gray-50 dark:bg-cyan-700/50 p-3">
       <input
         ref={fileRef}
         type="file"
@@ -141,7 +141,7 @@ const AnswerKeyPanel = ({ paper, paperId, onPaperUpdated, auth }) => {
           <button
             onClick={() => fileRef.current?.click()}
             disabled={uploading}
-            className="flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2 py-1 text-[11px] font-bold text-blue-600 transition hover:bg-blue-100 disabled:opacity-50"
+            className="flex items-center gap-1 rounded-lg border border-teal-200 bg-teal-50 px-2 py-1 text-[11px] font-bold text-teal-600 transition hover:bg-teal-100 disabled:opacity-50"
           >
             <MdFileUpload className="h-3 w-3" />
             {uploading ? "Uploading..." : "Upload"}
@@ -151,8 +151,8 @@ const AnswerKeyPanel = ({ paper, paperId, onPaperUpdated, auth }) => {
 
       {hasFile ? (
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-            <MdFilePresent className="h-4 w-4 text-blue-600" />
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/30">
+            <MdFilePresent className="h-4 w-4 text-teal-600" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="truncate text-xs font-medium text-gray-700 dark:text-white">{fileName}</p>
@@ -162,7 +162,7 @@ const AnswerKeyPanel = ({ paper, paperId, onPaperUpdated, auth }) => {
               href={fileUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 rounded-lg bg-blue-500 px-2.5 py-1 text-[11px] font-bold text-white transition hover:bg-blue-600"
+              className="flex items-center gap-1 rounded-lg bg-teal-500 px-2.5 py-1 text-[11px] font-bold text-white transition hover:bg-teal-500"
             >
               <MdDownload className="h-3 w-3" />
               {isPdf ? "View PDF" : "View"}
@@ -294,7 +294,7 @@ const AnswerSheetModal = ({ score: initialScore, questions, paper, onClose, onSa
                 {score.batch ? ` &bull; ${score.batch}` : ""}
               </p>
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${editMode ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"}`}>
+                <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${editMode ? "bg-amber-100 text-amber-700" : "bg-teal-100 text-teal-700"}`}>
                   {editMode ? `Preview: ${newTotal}` : score.marksObtained} / {score.totalMarks} marks
                 </span>
                 <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${editMode ? "bg-amber-100 text-amber-700" : "bg-purple-100 text-purple-700"}`}>
@@ -314,7 +314,7 @@ const AnswerSheetModal = ({ score: initialScore, questions, paper, onClose, onSa
               {!editMode ? (
                 <button
                   onClick={enterEditMode}
-                  className="flex items-center gap-1.5 rounded-lg bg-blue-500 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-blue-600"
+                  className="flex items-center gap-1.5 rounded-lg bg-teal-500 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-teal-500"
                 >
                   <MdEdit className="h-3.5 w-3.5" /> Edit Marks
                 </button>
@@ -515,7 +515,7 @@ const AnswerSheetModal = ({ score: initialScore, questions, paper, onClose, onSa
                           </p>
                         )}
                         {correct && typeof correct === "object" && (
-                          <p className="text-blue-600">
+                          <p className="text-teal-600">
                             Correct range:{" "}
                             <strong>{correct.min} &ndash; {correct.max}</strong>
                           </p>
@@ -576,7 +576,7 @@ const AnswerSheetModal = ({ score: initialScore, questions, paper, onClose, onSa
                           </p>
                         )}
                         {correct !== null && correct !== undefined && (
-                          <p className="text-blue-600">
+                          <p className="text-teal-600">
                             Correct:{" "}
                             <strong>
                               {Array.isArray(correct) ? correct.join(", ") : String(correct)}
@@ -788,7 +788,7 @@ const TestMonitor = () => {
                 {test?.batchName && ` · Batch: ${test.batchName}`}
                 {test?.date && ` · ${test.date}`}
                 {paper && (
-                  <span className="ml-2 text-blue-500 font-medium">
+                  <span className="ml-2 text-teal-500 font-medium">
                     Paper: {paper.paperId}
                   </span>
                 )}
@@ -804,7 +804,7 @@ const TestMonitor = () => {
                 placeholder="Search student..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-44 rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+                className="w-44 rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-cyan-500 dark:bg-cyan-700 dark:text-white"
               />
             </div>
             <button
@@ -835,7 +835,7 @@ const TestMonitor = () => {
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
-          { label: "Total Submissions", value: totalAttempts, color: "text-blue-600" },
+          { label: "Total Submissions", value: totalAttempts, color: "text-teal-600" },
           { label: "Average Score", value: avgScore, color: "text-purple-600" },
           { label: "Passed", value: passed, color: "text-green-600" },
           {
@@ -854,7 +854,7 @@ const TestMonitor = () => {
       <Card extra="w-full p-4">
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="py-16 text-center text-sm text-gray-400">
@@ -948,7 +948,7 @@ const TestMonitor = () => {
                       <td className="py-2.5">
                         <button
                           onClick={() => setSelectedScore(s)}
-                          className="flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1 text-[11px] font-bold text-blue-600 transition hover:bg-blue-100"
+                          className="flex items-center gap-1 rounded-lg bg-teal-50 px-3 py-1 text-[11px] font-bold text-teal-600 transition hover:bg-teal-100"
                         >
                           <MdEdit className="h-3 w-3" /> View & Edit
                         </button>

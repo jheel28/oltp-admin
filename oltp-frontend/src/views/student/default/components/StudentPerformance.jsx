@@ -32,7 +32,7 @@ const StudentPerformance = ({ tests = [], attemptedScores = [] }) => {
 
   const chartOptions = {
     chart: { type: "line", zoom: { enabled: false }, toolbar: { show: false } },
-    colors: ["#2563EB"],
+    colors: ["#1D4ED8"],
     stroke: { curve: "smooth", width: 2.5 },
     xaxis: {
       categories: chartData.map((d) => d.testName),
@@ -48,15 +48,15 @@ const StudentPerformance = ({ tests = [], attemptedScores = [] }) => {
     },
     tooltip: { theme: "dark", y: { formatter: (v) => `${v}%` } },
     grid: { borderColor: "#f1f5f9", strokeDashArray: 4, xaxis: { lines: { show: false } } },
-    markers: { size: 4, colors: ["#2563EB"], strokeColors: "#fff", strokeWidth: 2 },
+    markers: { size: 4, colors: ["#1D4ED8"], strokeColors: "#fff", strokeWidth: 2 },
   };
 
   return (
     <Card extra="!p-5 h-full">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-            <MdBarChart className="h-4 w-4 text-white" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-50">
+            <MdBarChart className="h-4 w-4" />
           </div>
           <h4 className="text-sm font-bold text-gray-800 dark:text-white">Performance History</h4>
         </div>
@@ -82,7 +82,7 @@ const StudentPerformance = ({ tests = [], attemptedScores = [] }) => {
             series={[{ name: "Score %", data: chartData.map((d) => d.score) }]}
           />
         ) : (
-          <div className="flex h-full flex-col items-center justify-center rounded-xl border border-dashed border-gray-200">
+          <div className="flex h-full flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 dark:bg-cyan-700">
             <MdBarChart className="mb-2 h-10 w-10 text-gray-200" />
             <p className="text-sm font-medium text-gray-400">
               Attempt a test to see performance history

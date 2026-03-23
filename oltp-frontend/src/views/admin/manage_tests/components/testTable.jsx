@@ -11,7 +11,7 @@ import { AuthContext } from "components/Auth-context";
 const STATUS_COLORS = {
   active: "bg-green-100 text-green-700",
   inactive: "bg-gray-100 text-gray-500",
-  upcoming: "bg-blue-100 text-blue-700",
+  upcoming: "bg-teal-100 text-teal-700",
   expired: "bg-red-100 text-red-600",
 };
 
@@ -194,7 +194,7 @@ const TestTable = () => {
               placeholder="Search tests..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-              className="pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-44"
+              className="pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 w-44"
             />
           </div>
           <select
@@ -232,7 +232,7 @@ const TestTable = () => {
           <button onClick={exportCSV} className="px-3 py-2 text-sm rounded-lg bg-green-500 text-white hover:bg-green-600 flex items-center gap-1">
             <FaDownload className="h-3 w-3" /> Export
           </button>
-          <button onClick={() => navigate("/admin/manage-tests/create")} className="px-3 py-2 text-sm rounded-lg bg-blue-500 text-white hover:bg-blue-600">
+          <button onClick={() => navigate("/admin/manage-tests/create")} className="px-3 py-2 text-sm rounded-lg bg-teal-500 text-white hover:bg-teal-500">
             + Add Test
           </button>
           <select
@@ -277,7 +277,7 @@ const TestTable = () => {
                   const status = getTestStatus(test);
                   const isSelected = selectedIds.has(test._id);
                   return (
-                    <tr key={test._id} className={`border-b border-gray-100 dark:border-navy-700 transition-colors ${isSelected ? "bg-blue-50 dark:bg-navy-800" : "hover:bg-gray-50 dark:hover:bg-navy-800"}`}>
+                    <tr key={test._id} className={`border-b border-gray-100 dark:border-navy-700 transition-colors ${isSelected ? "bg-teal-50 dark:bg-white/10" : "hover:bg-gray-50 dark:hover:bg-white/5"}`}>
                       <td className="py-3 pr-3">
                         <input type="checkbox" checked={isSelected} onChange={() => toggleSelect(test._id)} className="rounded" />
                       </td>
@@ -309,7 +309,7 @@ const TestTable = () => {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => navigate(`/admin/manage-tests/edit/${test._id}`)}
-                            className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100"
+                            className="p-1.5 rounded-lg bg-teal-50 text-teal-600 hover:bg-teal-100"
                             title="Edit test"
                           >
                             <FaEdit className="h-3.5 w-3.5" />

@@ -74,7 +74,7 @@ const TestCard = ({ test, isActive }) => {
       {isActive ? (
         <button
           onClick={handleStartExam}
-          className="w-full bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-200 transform hover:scale-[1.02] shadow-lg shadow-blue-200 dark:shadow-none"
+          className="w-full bg-teal-500 hover:bg-teal-500 active:bg-teal-600 text-white font-bold py-3 rounded-xl transition duration-200 transform hover:scale-[1.02] shadow-lg shadow-teal-200 dark:shadow-none"
         >
           Start Exam
         </button>

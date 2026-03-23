@@ -38,11 +38,11 @@ const InstructionsScreen = ({ test, student, onBegin }) => {
   const studentImg = imgSrc(student?.image);
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-navy-900">
-      <div className="flex items-center justify-between bg-[#1a2744] px-6 py-3 text-white shadow">
+    <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-slate-800">
+      <div className="flex items-center justify-between bg-cyan-900 px-6 py-3 text-white shadow">
         <div>
           <div className="text-lg font-black tracking-tight">Online Examination Portal</div>
-          <div className="text-xs text-blue-300">{test?.testName}</div>
+          <div className="text-xs text-teal-300">{test?.testName}</div>
         </div>
       </div>
 
@@ -52,7 +52,7 @@ const InstructionsScreen = ({ test, student, onBegin }) => {
             <img
               src={studentImg}
               alt="student"
-              className="h-16 w-16 rounded-xl border-2 border-blue-100 object-cover"
+              className="h-16 w-16 rounded-xl border-2 border-teal-100 object-cover"
               onError={(e) => { e.currentTarget.style.display = "none"; }}
             />
           )}
@@ -68,12 +68,12 @@ const InstructionsScreen = ({ test, student, onBegin }) => {
 
         <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow">
           <h2 className="mb-4 flex items-center gap-2 text-base font-black text-navy-700">
-            <MdOutlineVerifiedUser className="text-blue-600" /> General Instructions
+            <MdOutlineVerifiedUser className="text-teal-600" /> General Instructions
           </h2>
           <div className="space-y-2 text-sm leading-relaxed text-gray-700">
             {instructions.map((text, i) => (
               <div key={i} className="flex gap-3">
-                <span className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-[10px] font-black text-blue-700">
+                <span className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-teal-100 text-[10px] font-black text-teal-700">
                   {i + 1}
                 </span>
                 <p>{text}</p>
@@ -92,7 +92,7 @@ const InstructionsScreen = ({ test, student, onBegin }) => {
               </div>
             ))}
             <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-blue-400 bg-blue-100 text-[11px] font-black text-blue-700">D</div>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-teal-400 bg-teal-100 text-[11px] font-black text-teal-700">D</div>
               <span className="text-xs text-gray-600">Unsaved Draft</span>
             </div>
           </div>
@@ -116,7 +116,7 @@ const InstructionsScreen = ({ test, student, onBegin }) => {
           <button
             disabled={!agreed}
             onClick={onBegin}
-            className="rounded-xl bg-blue-600 px-8 py-3 text-sm font-black text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-xl bg-teal-600 px-8 py-3 text-sm font-black text-white shadow-lg shadow-teal-200 transition-all hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-40"
           >
             I am ready to begin
           </button>

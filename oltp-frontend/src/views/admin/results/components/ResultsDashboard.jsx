@@ -22,7 +22,7 @@ import { message } from "antd";
 import { AuthContext } from "components/Auth-context";
 
 const BAR_COLORS = [
-  "#3B82F6",
+  "#1D4ED8",
   "#10B981",
   "#F59E0B",
   "#EF4444",
@@ -368,7 +368,7 @@ const ResultsDashboard = () => {
                   setSearch(e.target.value);
                   setPage(0);
                 }}
-                className="w-48 rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+                className="w-48 rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-navy-700 dark:bg-navy-800 dark:text-white"
               />
             </div>
             <select
@@ -426,7 +426,7 @@ const ResultsDashboard = () => {
               onClick={() => setActiveView(id)}
               className={`-mb-px flex items-center gap-1.5 border-b-2 px-4 py-2 text-sm font-medium transition ${
                 activeView === id
-                  ? "border-blue-500 text-blue-600"
+                  ? "border-teal-500 text-teal-600"
                   : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -444,7 +444,7 @@ const ResultsDashboard = () => {
       {loading ? (
         <Card extra="w-full p-16 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3 text-gray-400">
-            <div className="border-t-transparent h-8 w-8 animate-spin rounded-full border-2 border-blue-500" />
+            <div className="border-t-transparent h-8 w-8 animate-spin rounded-full border-2 border-teal-500" />
             <span className="text-sm">Loading results…</span>
           </div>
         </Card>
@@ -457,7 +457,7 @@ const ResultsDashboard = () => {
                   <StatCard
                     label="Total Attempts"
                     value={filtered.length}
-                    color="text-blue-600"
+                    color="text-teal-600"
                   />
                   <StatCard
                     label="Average Score"
@@ -612,7 +612,7 @@ const ResultsDashboard = () => {
                                 onClick={() =>
                                   navigate(`/admin/results/live/${t.testId}`)
                                 }
-                                className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2 py-1 text-[11px] font-bold text-blue-600 transition hover:bg-blue-100"
+                                className="inline-flex items-center gap-1 rounded-lg bg-teal-50 px-2 py-1 text-[11px] font-bold text-teal-600 transition hover:bg-teal-100"
                               >
                                 <MdMonitor className="h-3 w-3" /> Monitor
                               </button>
@@ -736,7 +736,7 @@ const ResultsDashboard = () => {
                                     setEditScoreData(s);
                                     setIsEditModalOpen(true);
                                   }}
-                                  className="rounded p-1 text-blue-500 transition hover:bg-blue-50"
+                                  className="rounded p-1 text-teal-500 transition hover:bg-teal-50"
                                   title="Edit Result"
                                 >
                                   <MdEdit className="h-4 w-4" />
@@ -848,7 +848,7 @@ const ResultsDashboard = () => {
                       marksObtained: e.target.value,
                     })
                   }
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
               <div>
@@ -862,7 +862,7 @@ const ResultsDashboard = () => {
                         passed: e.target.checked,
                       })
                     }
-                    className="rounded text-blue-500 focus:ring-blue-500"
+                    className="rounded text-teal-500 focus:ring-teal-500"
                   />
                   Mark as Passed
                 </label>
@@ -877,7 +877,7 @@ const ResultsDashboard = () => {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                  className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-500"
                 >
                   Save Changes
                 </button>

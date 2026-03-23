@@ -59,7 +59,7 @@ const PieChartCard = () => {
   return (
     <Card extra="rounded-xl p-4">
       <div className="mb-3 flex items-center gap-2">
-        <MdGroups className="h-5 w-5 text-blue-600" />
+        <MdGroups className="h-5 w-5 text-teal-600" />
         <h4 className="text-sm font-bold text-gray-800 dark:text-white">Students by Batch</h4>
       </div>
 

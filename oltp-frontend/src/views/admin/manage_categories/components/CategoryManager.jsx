@@ -198,13 +198,13 @@ const CategoryManager = () => {
             placeholder="Search categories..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-navy-600 dark:bg-navy-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-64 shadow-sm transition-all"
+            className="pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-navy-600 dark:bg-cyan-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-64 shadow-sm transition-all"
           />
         </div>
       </header>
 
       {/* Modern Tab Switcher */}
-      <div className="flex p-1 mb-8 bg-gray-100 dark:bg-navy-800 rounded-2xl w-fit border border-gray-200 dark:border-navy-700">
+      <div className="flex p-1 mb-8 bg-gray-100 dark:bg-cyan-700 rounded-2xl w-fit border border-gray-200 dark:border-cyan-500">
         <button
           onClick={() => setActiveTab("categories")}
           className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all ${
@@ -230,7 +230,7 @@ const CategoryManager = () => {
       {/* Stats Summary Bar */}
       {activeTab === "categories" && (
         <div className="mb-6 flex gap-4">
-            <div className="px-4 py-2 bg-blue-50 dark:bg-navy-800 rounded-lg border border-blue-100 dark:border-navy-700">
+            <div className="px-4 py-2 bg-blue-50 dark:bg-cyan-700 rounded-lg border border-blue-100 dark:border-cyan-500">
                 <span className="text-xs text-blue-400 font-bold uppercase tracking-wider">Total Subjects</span>
                 <p className="text-lg font-bold text-navy-700 dark:text-white leading-tight">{allSubjectCount}</p>
             </div>
@@ -239,7 +239,7 @@ const CategoryManager = () => {
 
       {/* Add Category Form */}
       {activeTab === "add" && (
-        <div className="mb-10 p-6 rounded-2xl border border-gray-200 bg-white dark:bg-navy-800 dark:border-navy-700 shadow-sm animate-fadeIn">
+        <div className="mb-10 p-6 rounded-2xl border border-gray-200 bg-white dark:bg-cyan-700 dark:border-cyan-500 shadow-sm animate-fadeIn">
           <h3 className="text-lg font-bold text-navy-700 dark:text-white mb-6">Create New Category</h3>
           <div className="space-y-6">
             <div className="max-w-md">
@@ -249,7 +249,7 @@ const CategoryManager = () => {
                 value={newCatName}
                 onChange={(e) => setNewCatName(e.target.value)}
                 placeholder="e.g. Engineering Entrance"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-navy-600 dark:bg-navy-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-navy-600 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
               />
             </div>
             <div>
@@ -259,7 +259,7 @@ const CategoryManager = () => {
                 onChange={(e) => setNewCatDesc(e.target.value)}
                 placeholder="Briefly describe what this category covers..."
                 rows={4}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-navy-600 dark:bg-navy-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-navy-600 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
               />
             </div>
             <div className="flex gap-3 pt-2">
@@ -288,7 +288,7 @@ const CategoryManager = () => {
             <p className="text-gray-400 font-medium">Fetching categories...</p>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="py-20 text-center border-2 border-dashed border-gray-100 dark:border-navy-700 rounded-3xl">
+        <div className="py-20 text-center border-2 border-dashed border-gray-100 dark:border-cyan-500 rounded-3xl">
           <p className="text-gray-400 text-lg">
             {search ? "No categories match your search." : "Your category list is empty."}
           </p>
@@ -312,8 +312,8 @@ const CategoryManager = () => {
                 key={cat._id}
                 className={`group rounded-2xl border transition-all duration-300 ${
                   isExpanded 
-                  ? "border-blue-200 dark:border-blue-900 bg-blue-50/30 dark:bg-navy-800 shadow-lg" 
-                  : "border-gray-100 dark:border-navy-700 bg-white dark:bg-navy-800 hover:shadow-md"
+                  ? "border-blue-200 dark:border-blue-900 bg-blue-50/30 dark:bg-cyan-700 shadow-lg" 
+                  : "border-gray-100 dark:border-cyan-500 bg-white dark:bg-cyan-700 hover:shadow-md"
                 }`}
               >
                 {/* Header Section */}
@@ -327,14 +327,14 @@ const CategoryManager = () => {
                           type="text"
                           value={editingCatName}
                           onChange={(e) => setEditingCatName(e.target.value)}
-                          className="w-full max-w-xs px-3 py-1.5 text-sm font-bold rounded-lg border border-blue-400 bg-white dark:bg-navy-900 dark:text-white"
+                          className="w-full max-w-xs px-3 py-1.5 text-sm font-bold rounded-lg border border-blue-400 bg-white dark:bg-slate-800 dark:text-white"
                         />
                         <input
                           type="text"
                           value={editingCatDesc}
                           onChange={(e) => setEditingCatDesc(e.target.value)}
                           placeholder="Edit description..."
-                          className="w-full max-w-md px-3 py-1.5 text-xs rounded-lg border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-900 dark:text-white"
+                          className="w-full max-w-md px-3 py-1.5 text-xs rounded-lg border border-gray-200 dark:border-navy-600 bg-white dark:bg-slate-800 dark:text-white"
                         />
                       </div>
                     ) : (
@@ -401,7 +401,7 @@ const CategoryManager = () => {
 
                 {/* Expanded Subject Area */}
                 {isExpanded && (
-                  <div className="px-6 py-5 border-t border-blue-100 dark:border-navy-700 bg-white/50 dark:bg-navy-900/50 rounded-b-2xl animate-slideDown">
+                  <div className="px-6 py-5 border-t border-blue-100 dark:border-cyan-500 bg-white/50 dark:bg-slate-800/50 rounded-b-2xl animate-slideDown">
                     <h5 className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-4">Subject Management</h5>
                     
                     <div className="flex flex-wrap gap-2 mb-6">
@@ -413,7 +413,7 @@ const CategoryManager = () => {
                             className={`flex items-center gap-2 px-4 py-1.5 rounded-xl border transition-all ${
                                 isEditingSub 
                                 ? "border-blue-400 bg-white ring-2 ring-blue-100" 
-                                : "border-gray-200 dark:border-navy-700 bg-white dark:bg-navy-800 hover:border-blue-300"
+                                : "border-gray-200 dark:border-cyan-500 bg-white dark:bg-cyan-700 hover:border-blue-300"
                             }`}
                           >
                             {isEditingSub ? (
@@ -434,7 +434,7 @@ const CategoryManager = () => {
                             ) : (
                               <>
                                 <span className="text-sm font-semibold text-navy-700 dark:text-white">{subject}</span>
-                                <div className="flex items-center gap-1.5 ml-1 border-l pl-2 border-gray-100 dark:border-navy-700">
+                                <div className="flex items-center gap-1.5 ml-1 border-l pl-2 border-gray-100 dark:border-cyan-500">
                                     <button
                                         onClick={() => { setEditingSubject({ catId: cat._id, oldName: subject }); setEditingSubjectName(subject); }}
                                         className="text-gray-400 hover:text-blue-500 transition-colors"
@@ -459,7 +459,7 @@ const CategoryManager = () => {
                     </div>
 
                     {/* Quick Add Subject */}
-                    <div className="mt-4 pt-4 border-l-4 border-blue-500 pl-4 bg-blue-50/50 dark:bg-navy-800 rounded-r-xl">
+                    <div className="mt-4 pt-4 border-l-4 border-blue-500 pl-4 bg-blue-50/50 dark:bg-cyan-700 rounded-r-xl">
                         {addingSubjectFor === cat._id ? (
                         <div className="flex gap-2 max-w-md animate-fadeIn">
                             <input
@@ -469,7 +469,7 @@ const CategoryManager = () => {
                             placeholder="New subject name..."
                             autoFocus
                             onKeyDown={(e) => { if (e.key === "Enter") addSubject(cat._id); if (e.key === "Escape") setAddingSubjectFor(null); }}
-                            className="flex-1 px-4 py-2 text-sm rounded-xl border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                            className="flex-1 px-4 py-2 text-sm rounded-xl border border-gray-200 dark:border-navy-600 bg-white dark:bg-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
                             />
                             <button onClick={() => addSubject(cat._id)} className="px-4 py-2 rounded-xl bg-blue-500 text-white text-sm font-bold shadow-md">Add</button>
                             <button onClick={() => setAddingSubjectFor(null)} className="px-4 py-2 rounded-xl bg-gray-200 dark:bg-navy-700 text-gray-600 dark:text-white text-sm font-bold">Cancel</button>

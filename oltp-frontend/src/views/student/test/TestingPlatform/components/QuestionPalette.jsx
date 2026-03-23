@@ -25,7 +25,7 @@ const QuestionPalette = ({
           <img
             src={studentImg}
             alt=""
-            className="h-10 w-10 flex-shrink-0 rounded-xl border-2 border-blue-100 object-cover"
+            className="h-10 w-10 flex-shrink-0 rounded-xl border-2 border-teal-100 object-cover"
             draggable={false}
             onError={(e) => { e.currentTarget.style.display = "none"; }}
           />
@@ -98,7 +98,7 @@ const QuestionPalette = ({
         </div>
         <button
           onClick={onEndTest}
-          className="w-full rounded-xl bg-[#1a2744] py-3 font-black text-white shadow transition-all hover:bg-navy-800"
+          className="w-full rounded-xl bg-cyan-900 py-3 font-black text-white shadow transition-all hover:bg-navy-800"
         >
           End Test
         </button>

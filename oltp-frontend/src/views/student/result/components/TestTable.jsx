@@ -120,11 +120,11 @@ const TestsTable = () => {
               </tr>
             ) : (
               paginated.map((row) => (
-                <tr key={row._id} className="border-b border-gray-100 dark:border-navy-700 hover:bg-gray-50 dark:hover:bg-navy-800 transition-colors">
+                <tr key={row._id} className="border-b border-gray-100 dark:border-navy-700 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                   <td className="py-3 pr-6 text-sm text-navy-700 dark:text-white font-medium">{row.testId}</td>
                   <td className="py-3 pr-6 text-sm text-gray-600 dark:text-gray-300">{row.testName}</td>
                   <td className="py-3 pr-6">
-                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
+                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-400">
                       #{row.attempt}{row.totalAttempts > 1 ? ` / ${row.totalAttempts}` : ""}
                     </span>
                   </td>
@@ -133,7 +133,7 @@ const TestsTable = () => {
                   </td>
                   <td className="py-3 pr-6 text-sm text-gray-600 dark:text-gray-300">{row.percentage}%</td>
                   <td className="py-3 pr-6">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${row.passed ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${row.passed ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" : "bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400"}`}>
                       {row.passed ? "Pass" : "Fail"}
                     </span>
                   </td>
@@ -142,7 +142,7 @@ const TestsTable = () => {
                   </td>
                   <td className="py-3">
                     <button
-                      className="rounded-full bg-blue-500 px-4 py-2 text-white text-xs font-bold hover:bg-blue-600 transition"
+                      className="rounded-full bg-teal-500 px-4 py-2 text-white text-xs font-bold hover:bg-teal-500 transition"
                       onClick={() => handleViewResults(row._id)}
                     >
                       View

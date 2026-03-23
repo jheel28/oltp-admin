@@ -9,7 +9,51 @@
 		font-family: 'DM Sans', sans-serif !important;
 		font-feature-settings: 'kern' !important;
 		-webkit-font-smoothing: antialiased;
-		letter-spacing: -0.5px;
+		letter-spacing: -0.2px;
+	}
+}
+
+@layer utilities {
+	/* Global Typography Readability Patch */
+	.text-\[10px\] {
+		font-size: 11.5px !important;
+	}
+	.text-xs {
+		font-size: 13px !important;
+	}
+	.text-sm {
+		font-size: 14.5px !important;
+	}
+
+	/* Improved Visibility for Light Mode while maintaining hierarchy */
+	.text-gray-400 {
+		color: #4b5563 !important; /* Visible Gray-600 */
+	}
+	.text-gray-500 {
+		color: #374151 !important; /* Visible Gray-700 */
+	}
+
+	/* Global Icon Color for Content Area (Cyan-600) 
+	   Only targets icons that don't have explicit high-contrast needs.
+	   Excludes calendar icons to maintain blue-700 theme. */
+	main svg:not(.text-white):not(.calendar-wrapper svg),
+	main .calendar-wrapper svg {
+		color: inherit !important; 
+	}
+	main svg:not(.text-white):not(.calendar-wrapper *) {
+		color: #0891b2 !important; 
+	}
+
+	/* Ensure icons are WHITE in Dark Mode on Cyan-600 background */
+	.dark main svg:not(.text-white):not(.calendar-wrapper *) {
+		color: #ffffff !important; 
+	}
+
+	/* Restoring crisp white/gray legibility in Dark Mode on Cyan-600 */
+	.dark .text-gray-400, .dark .dark\:text-gray-400,
+	.dark .text-gray-500, .dark .dark\:text-gray-500,
+	.dark .text-gray-600, .dark .dark\:text-gray-600 {
+		color: #f8fafc !important; /* Slate-50 for peak contrast */
 	}
 }
 

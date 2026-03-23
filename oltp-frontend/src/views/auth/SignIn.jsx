@@ -203,7 +203,7 @@ export default function SignIn() {
           </div>
         </div>
 
-        <div className="hidden items-center justify-center bg-[#F4F7FE] dark:bg-navy-900 md:flex md:w-[45%] lg:w-[50%]">
+        <div className="hidden items-center justify-center bg-[#F4F7FE] dark:bg-slate-800 md:flex md:w-[45%] lg:w-[50%]">
           <img
             src={logo}
             alt="The Correct Steps"

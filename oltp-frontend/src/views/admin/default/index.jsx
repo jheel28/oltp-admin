@@ -6,21 +6,14 @@ import { MdBarChart, MdGroups, MdCheckCircle, MdAccessTime } from "react-icons/m
 import { FaUsers } from "react-icons/fa";
 
 const StatCard = ({ icon, title, value, accent = "blue" }) => {
-  const accentMap = {
-    blue: "bg-blue-600 text-white",
-    slate: "bg-slate-600 text-white",
-    green: "bg-green-600 text-white",
-    orange: "bg-orange-500 text-white",
-  };
-  
   return (
-    <div className="flex items-center gap-4 rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 dark:bg-navy-800 dark:ring-navy-700">
-      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${accentMap[accent]}`}>
+    <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 dark:bg-cyan-700 dark:ring-navy-700">
+      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-cyan-50`}>
         <span className="[&>svg]:h-5 [&>svg]:w-5">{icon}</span>
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-medium text-gray-500 dark:text-gray-400">{title}</p>
-        <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
+        <p className="truncate text-[11px] font-medium text-gray-500 dark:text-gray-400">{title}</p>
+        <p className="text-xl font-bold text-gray-900 dark:text-white">{value}</p>
       </div>
     </div>
   );
@@ -29,9 +22,9 @@ const StatCard = ({ icon, title, value, accent = "blue" }) => {
 const RecentScoreRow = ({ score }) => {
   const pct = score.totalMarks > 0 ? Math.round((score.marksObtained / score.totalMarks) * 100) : 0;
   return (
-    <div className="flex items-center gap-3 border-b border-gray-100 py-3 last:border-0 dark:border-navy-700">
-      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${score.passed ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
-        {score.passed ? <MdCheckCircle className="h-5 w-5" /> : <MdAccessTime className="h-5 w-5" />}
+    <div className="flex items-center gap-3 border-b border-gray-100 py-3 last:border-0 dark:border-cyan-500">
+      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-50`}>
+        {score.passed ? <MdCheckCircle className="h-4 w-4" /> : <MdAccessTime className="h-4 w-4" />}
       </div>
       <div className="flex-1 min-w-0">
         <p className="truncate text-sm font-semibold text-gray-800 dark:text-white">
@@ -111,18 +104,20 @@ const Dashboard = () => {
 
         {/* Right Column: Recent Submissions */}
         <div className="h-full">
-          <div className="h-full rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-200 dark:bg-navy-800 dark:ring-navy-700">
-            <div className="mb-4 flex items-center gap-2 border-b border-gray-50 pb-4 dark:border-navy-700">
-              <MdBarChart className="h-5 w-5 text-blue-500" />
+          <div className="h-full rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 dark:bg-cyan-700 dark:ring-navy-700">
+            <div className="mb-4 flex items-center gap-2 border-b border-gray-50 pb-4 dark:border-cyan-500">
+              <MdBarChart className="h-5 w-5 text-blue-700" />
               <h4 className="text-lg font-bold text-gray-800 dark:text-white">Recent Submissions</h4>
             </div>
             <div className="flex flex-col">
               {data.recentScores.length > 0 ? (
                 data.recentScores.map((s) => <RecentScoreRow key={s._id} score={s} />)
               ) : (
-                <div className="flex flex-col items-center justify-center py-10 text-center">
-                  <MdAccessTime className="mb-2 h-10 w-10 text-gray-200" />
-                  <p className="text-sm text-gray-400">No submissions recorded yet</p>
+                <div className="flex w-full flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white py-10 dark:border-cyan-500 dark:bg-cyan-700">
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-50">
+                    <MdAccessTime className="h-6 w-6" />
+                  </div>
+                  <p className="text-sm font-semibold text-gray-500">No submissions recorded yet</p>
                 </div>
               )}
             </div>

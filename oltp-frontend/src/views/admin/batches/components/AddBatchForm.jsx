@@ -63,14 +63,12 @@ const AddBatchForm = ({ onSubmit, onCancel }) => {
         onChange={(e) => setBatchName(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Batch & Section (e.g., 2026-CSE-A)"
-        className="text-black mb-4 w-full rounded-md border border-gray-300 
-             bg-white p-3 
-             dark:bg-navy-700 dark:text-white"
+        className="text-black mb-4 w-full rounded-md border border-gray-300 p-3 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
         disabled={loading}
       />
       <div className="flex space-x-4">
         <button
-          className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-full bg-teal-500 px-6 py-2 text-white hover:bg-teal-500 disabled:opacity-50"
           onClick={handleSubmit}
           disabled={loading}
         >

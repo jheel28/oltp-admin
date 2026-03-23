@@ -8,7 +8,7 @@ const Sidebar = ({ open, onClose }) => (
     routes={routes.filter((r) => r.layout === "/admin")}
     fetchUrl="/api/v1/admin/get/admin/byid/"
     renderMeta={() => (
-      <p className="text-xs font-medium text-blue-600">Administrator</p>
+      <p className="text-xs font-medium text-teal-600">Administrator</p>
     )}
   />
 );

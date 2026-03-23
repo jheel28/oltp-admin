@@ -8,10 +8,10 @@ const ExamHeader = ({
   violations, isFullscreen, toggleFullscreen, lastSaved,
 }) => {
   return (
-    <div className="z-30 flex flex-none items-center justify-between bg-[#1a2744] px-4 py-2.5 shadow-lg">
+    <div className="z-30 flex flex-none items-center justify-between bg-cyan-900 px-4 py-2.5 shadow-lg">
       <div className="min-w-0">
         <div className="truncate text-sm font-black text-white">{testName}</div>
-        {category && <div className="text-[10px] text-blue-300">{category}</div>}
+        {category && <div className="text-[10px] text-teal-300">{category}</div>}
       </div>
 
       <div className="flex flex-shrink-0 items-center gap-2">
@@ -26,7 +26,7 @@ const ExamHeader = ({
 
         {/* Last saved indicator */}
         {lastSaved && (
-          <div className="hidden items-center gap-1 text-[10px] text-blue-300 sm:flex">
+          <div className="hidden items-center gap-1 text-[10px] text-teal-300 sm:flex">
             <MdSave className="h-3 w-3" />
             <span>Saved {new Date(lastSaved).toLocaleTimeString()}</span>
           </div>

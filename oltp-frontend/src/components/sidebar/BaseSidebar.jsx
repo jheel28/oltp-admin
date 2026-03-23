@@ -5,7 +5,7 @@ import { AuthContext } from "components/Auth-context";
 import { MdLogout } from "react-icons/md";
 import DashIcon from "components/icons/DashIcon";
 
-const avatarUrl = (name, bg = "2563eb") =>
+const avatarUrl = (name, bg = "0d9488") =>
   `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "User")}&background=${bg}&color=fff&size=80&bold=true`;
 
 const BaseSidebar = ({ open, onClose, routes, fetchUrl, renderMeta }) => {
@@ -49,19 +49,19 @@ const BaseSidebar = ({ open, onClose, routes, fetchUrl, renderMeta }) => {
 
   return (
     <div
-      className={`fixed left-0 top-0 z-50 flex h-screen w-[260px] flex-col border-r border-gray-200 bg-white transition-transform duration-200 dark:border-navy-700 dark:bg-navy-800 xl:translate-x-0 xl:z-10 ${
+      className={`fixed left-0 top-0 z-50 flex h-screen w-[260px] flex-col border-r border-cyan-900 bg-cyan-900 transition-transform duration-200 dark:border-navy-800 dark:bg-slate-800 xl:translate-x-0 xl:z-10 ${
         open ? "translate-x-0" : "-translate-x-full"
       }`}
     >
       <button
         onClick={onClose}
-        className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 xl:hidden"
+        className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg text-white hover:bg-white/10 hover:text-white xl:hidden"
       >
         <HiX className="h-4 w-4" />
       </button>
 
-      <div className="flex items-center gap-3 border-b border-gray-200 px-4 py-4 dark:border-navy-700">
-        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-blue-600">
+      <div className="flex items-center gap-3 border-b border-white/10 px-4 py-4 dark:border-navy-700">
+        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-teal-600">
           <img
             src={avatarSrc}
             alt={displayName || "User"}
@@ -70,7 +70,7 @@ const BaseSidebar = ({ open, onClose, routes, fetchUrl, renderMeta }) => {
           />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
+          <p className="truncate text-sm font-semibold text-white">
             {displayName || "Loading…"}
           </p>
           {renderMeta && renderMeta(user)}
@@ -78,8 +78,8 @@ const BaseSidebar = ({ open, onClose, routes, fetchUrl, renderMeta }) => {
         <span className="h-2 w-2 shrink-0 rounded-full bg-green-500" />
       </div>
 
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100 dark:border-navy-700">
-        <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10 dark:border-navy-700">
+        <span className="text-[11px] font-bold uppercase tracking-widest text-teal-300 dark:text-teal-500">
           The Correct Steps
         </span>
       </div>
@@ -95,15 +95,15 @@ const BaseSidebar = ({ open, onClose, routes, fetchUrl, renderMeta }) => {
                   onClick={() => { if (window.innerWidth < 1280) onClose(); }}
                   className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                     active
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-600 hover:bg-blue-50 hover:text-blue-700 dark:text-gray-400 dark:hover:bg-navy-700 dark:hover:text-white"
+                      ? "bg-teal-600 text-white"
+                      : "text-white hover:bg-white/10 hover:text-white dark:text-gray-100 dark:hover:bg-navy-700 dark:hover:text-white"
                   }`}
                 >
                   <span
                     className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors [&>svg]:h-4 [&>svg]:w-4 ${
                       active
                         ? "bg-white/20 text-white"
-                        : "bg-gray-100 text-gray-500 group-hover:bg-blue-100 group-hover:text-blue-600 dark:bg-navy-700"
+                        : "bg-white/5 text-white group-hover:bg-teal-500/20 group-hover:text-teal-400 dark:bg-navy-700"
                     }`}
                   >
                     {route.icon || <DashIcon />}
@@ -116,12 +116,12 @@ const BaseSidebar = ({ open, onClose, routes, fetchUrl, renderMeta }) => {
         </ul>
       </nav>
 
-      <div className="border-t border-gray-200 px-3 py-3 dark:border-navy-700">
+      <div className="border-t border-white/10 px-3 py-3 dark:border-navy-700">
         <button
           onClick={auth.logout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/20"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-500/10 hover:text-red-400 dark:text-gray-100 dark:hover:bg-red-900/20"
         >
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-gray-100 dark:bg-navy-700">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/5 dark:bg-navy-700">
             <MdLogout className="h-4 w-4" />
           </span>
           Sign Out

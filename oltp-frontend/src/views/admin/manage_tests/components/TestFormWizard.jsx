@@ -17,19 +17,19 @@ const StepIndicator = ({ current }) => (
       <React.Fragment key={i}>
         <div className="flex flex-col items-center gap-1">
           <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold transition-all
-            ${i < current ? "bg-blue-500 text-white" :
-              i === current ? "bg-blue-600 text-white ring-4 ring-blue-100 dark:ring-blue-900" :
+            ${i < current ? "bg-teal-500 text-white" :
+              i === current ? "bg-teal-600 text-white ring-4 ring-teal-100 dark:ring-teal-900" :
               "bg-gray-100 dark:bg-navy-700 text-gray-400"}`}>
             {i < current ? <MdCheck className="h-4 w-4" /> : i + 1}
           </div>
           <span className={`text-[10px] font-medium whitespace-nowrap
-            ${i === current ? "text-blue-600 dark:text-blue-400" : "text-gray-400"}`}>
+            ${i === current ? "text-teal-600 dark:text-teal-400" : "text-gray-400"}`}>
             {label}
           </span>
         </div>
         {i < STEPS.length - 1 && (
           <div className={`flex-1 h-0.5 mx-1 mb-4 transition-all
-            ${i < current ? "bg-blue-500" : "bg-gray-200 dark:bg-navy-600"}`} />
+            ${i < current ? "bg-teal-500" : "bg-gray-200 dark:bg-navy-600"}`} />
         )}
       </React.Fragment>
     ))}
@@ -47,7 +47,7 @@ const Field = ({ label, required, children, hint }) => (
 );
 
 const ToggleRow = ({ icon, title, hint, name, checked, onChange }) => (
-  <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-navy-600">
+  <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-cyan-500">
     <div className="flex items-center gap-3">
       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-navy-700 text-gray-500">
         {icon}
@@ -73,7 +73,7 @@ const ToggleRow = ({ icon, title, hint, name, checked, onChange }) => (
   </div>
 );
 
-const inputCls = "w-full px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition";
+const inputCls = "w-full px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-cyan-500 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition";
 
 const formatTime = (d) => {
   if (isNaN(d.getTime())) return "";
@@ -83,7 +83,7 @@ const formatTime = (d) => {
 };
 
 const PaperInfoCard = ({ paper }) => (
-  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 rounded-xl bg-blue-50 dark:bg-navy-800 border border-blue-100 dark:border-navy-600">
+  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 rounded-xl bg-teal-50 dark:bg-cyan-700 border border-teal-100 dark:border-cyan-500">
     {[
       ["Category", paper.category || "—"],
       ["Subject(s)", paper.subjects?.length ? paper.subjects.join(", ") : "—"],
@@ -91,7 +91,7 @@ const PaperInfoCard = ({ paper }) => (
       ["Questions", paper.totalQuestions ?? "—"],
     ].map(([label, value]) => (
       <div key={label}>
-        <p className="text-[10px] font-semibold text-blue-500 dark:text-blue-400 uppercase tracking-wider mb-0.5">{label}</p>
+        <p className="text-[10px] font-semibold text-teal-500 dark:text-teal-400 uppercase tracking-wider mb-0.5">{label}</p>
         <p className="text-sm font-medium text-navy-700 dark:text-white truncate">{value}</p>
       </div>
     ))}
@@ -334,7 +334,7 @@ const TestFormWizard = ({ mode = "create" }) => {
   if (loadingTest) {
     return (
       <Card extra="w-full p-12 flex items-center justify-center">
-        <div className="h-8 w-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+        <div className="h-8 w-8 rounded-full border-2 border-teal-500 border-t-transparent animate-spin" />
       </Card>
     );
   }
@@ -377,7 +377,7 @@ const TestFormWizard = ({ mode = "create" }) => {
               />
               <div className="absolute right-3 top-2 flex items-center h-full">
                 {isValidatingPaper && (
-                  <span className="text-xs text-blue-500 font-medium">Checking...</span>
+                  <span className="text-xs text-teal-500 font-medium">Checking...</span>
                 )}
                 {!isValidatingPaper && paperStatus === "valid" && (
                   <span className="flex items-center gap-1 text-[11px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded">
@@ -482,8 +482,8 @@ const TestFormWizard = ({ mode = "create" }) => {
             onChange={handleChange}
           />
 
-          <div className="rounded-xl border border-gray-200 dark:border-navy-600 divide-y divide-gray-100 dark:divide-navy-600 overflow-hidden">
-            <div className="px-4 py-3 bg-gray-50 dark:bg-navy-800">
+          <div className="rounded-xl border border-gray-200 dark:border-cyan-500 divide-y divide-gray-100 dark:divide-navy-600 overflow-hidden">
+            <div className="px-4 py-3 bg-gray-50 dark:bg-cyan-700">
               <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Review Summary</p>
             </div>
             {[
@@ -511,7 +511,7 @@ const TestFormWizard = ({ mode = "create" }) => {
         </div>
       )}
 
-      <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100 dark:border-navy-600">
+      <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100 dark:border-cyan-500">
         <button
           type="button"
           onClick={() => step === 0 ? navigate(-1) : setStep((s) => s - 1)}
@@ -525,7 +525,7 @@ const TestFormWizard = ({ mode = "create" }) => {
           <button
             type="button"
             onClick={handleNext}
-            className="flex items-center gap-2 px-6 py-2 text-sm rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
+            className="flex items-center gap-2 px-6 py-2 text-sm rounded-lg bg-teal-500 text-white hover:bg-teal-500 transition"
           >
             Next <MdArrowForward className="h-4 w-4" />
           </button>
