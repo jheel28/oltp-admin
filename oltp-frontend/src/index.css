@@ -14,15 +14,17 @@
 }
 
 @layer utilities {
-	/* Global Typography Readability Patch */
+	/* Global Typography Readability Patch - Reduced aggressiveness for mobile */
 	.text-\[10px\] {
-		font-size: 11.5px !important;
+		font-size: 0.7rem !important;
 	}
-	.text-xs {
-		font-size: 13px !important;
-	}
-	.text-sm {
-		font-size: 14.5px !important;
+	@media (min-width: 768px) {
+		.text-xs {
+			font-size: 0.8rem !important;
+		}
+		.text-sm {
+			font-size: 0.9rem !important;
+		}
 	}
 
 	/* Improved Visibility for Light Mode while maintaining hierarchy */
@@ -116,4 +118,44 @@ input.defaultCheckbox::before {
 
 input:checked.defaultCheckbox::before { 
 	opacity: 1;
+}
+
+/* ============================================================
+   AUTH PAGES - Label & Input Visibility on Dark Background
+   Targets any page with bg-cyan-900 class (auth pages)
+   ============================================================ */
+.bg-cyan-900 label,
+.bg-cyan-900 .ant-form-item-label > label {
+	color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.bg-cyan-900 .ant-input,
+.bg-cyan-900 .ant-input-password input,
+.bg-cyan-900 .ant-input-affix-wrapper,
+.bg-cyan-900 .ant-select-selector {
+	background-color: rgba(255, 255, 255, 0.05) !important;
+	color: rgba(255, 255, 255, 0.9) !important;
+	border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.bg-cyan-900 .ant-input::placeholder,
+.bg-cyan-900 .ant-select-selection-placeholder,
+.bg-cyan-900 .ant-input-password input::placeholder {
+	color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.bg-cyan-900 .ant-form-item-required::before {
+	color: #f87171 !important;
+}
+
+.bg-cyan-900 .ant-select-arrow,
+.bg-cyan-900 .ant-input-suffix svg {
+	color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ============================================================
+   GLOBAL RESPONSIVE - Prevent horizontal overflow
+   ============================================================ */
+* {
+	box-sizing: border-box;
 }

@@ -57,7 +57,7 @@ const AdminRegister = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-cyan-900">
+    <div className="flex min-h-screen flex-col bg-cyan-900 dark">
       <div className="flex flex-grow">
         <div className="flex w-full flex-col items-center justify-center px-6 py-12 md:w-[55%] lg:w-[50%]">
           <div className="w-full max-w-[480px]">
@@ -75,14 +75,14 @@ const AdminRegister = () => {
               <div className="grid grid-cols-2 gap-4">
                 <Form.Item
                   name="firstName"
-                  label="First Name"
+                  label={<span className="text-white/90">First Name</span>}
                   rules={[{ required: true, message: "Required" }, { min: 2, max: 255, message: "2–255 characters" }]}
                 >
                   <Input placeholder="First name" size="large" />
                 </Form.Item>
                 <Form.Item
                   name="lastName"
-                  label="Last Name"
+                  label={<span className="text-white/90">Last Name</span>}
                   rules={[{ required: true, message: "Required" }, { min: 2, max: 255, message: "2–255 characters" }]}
                 >
                   <Input placeholder="Last name" size="large" />
@@ -90,7 +90,7 @@ const AdminRegister = () => {
               </div>
 
               <PhoneInput
-                label="Mobile Number"
+                label={<span className="text-white/90">Mobile Number</span>}
                 required
                 value={phone}
                 onChange={(val) => {
@@ -103,7 +103,7 @@ const AdminRegister = () => {
 
               <Form.Item
                 name="email"
-                label="Email"
+                label={<span className="text-white/90">Email</span>}
                 rules={[{ required: true, message: "Required" }, { type: "email", message: "Invalid email address" }]}
               >
                 <Input placeholder="admin@example.com" size="large" />
@@ -112,14 +112,14 @@ const AdminRegister = () => {
               <div className="grid grid-cols-2 gap-4">
                 <Form.Item
                   name="password"
-                  label="Password"
+                  label={<span className="text-white/90">Password</span>}
                   rules={[{ required: true, message: "Required" }, { min: 6, message: "Minimum 6 characters" }]}
                 >
                   <Input.Password placeholder="Min. 6 characters" size="large" />
                 </Form.Item>
                 <Form.Item
                   name="confirmPassword"
-                  label="Confirm Password"
+                  label={<span className="text-white/90">Confirm Password</span>}
                   rules={[
                     { required: true, message: "Required" },
                     ({ getFieldValue }) => ({
@@ -135,7 +135,7 @@ const AdminRegister = () => {
               </div>
 
               <div className="mb-6">
-                <label className="mb-1 block text-sm font-medium text-gray-600 dark:text-gray-300">
+                <label className="mb-1 block text-sm font-medium text-white/90">
                   Profile Photo{" "}
                   <span className="text-gray-400 font-normal">(optional — you can add this later)</span>
                 </label>

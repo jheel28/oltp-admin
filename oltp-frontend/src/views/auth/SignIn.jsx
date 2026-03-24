@@ -91,9 +91,9 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-cyan-900">
+    <div className="flex min-h-screen flex-col bg-cyan-900 dark">
       <div className="flex flex-grow">
-        <div className="flex w-full flex-col items-center justify-center px-6 py-12 md:w-[55%] lg:w-[50%]">
+        <div className="flex w-full flex-col items-center justify-center px-4 py-8 md:px-6 md:py-12 md:w-[55%] lg:w-[50%]">
           <div className="w-full max-w-[420px]">
             <div className="mb-8">
               <div className="mb-2 inline-flex items-center rounded-full bg-white/10 px-3 py-1">
@@ -101,7 +101,7 @@ export default function SignIn() {
                   {isAdmin ? "Admin Portal" : "Student Portal"}
                 </span>
               </div>
-              <h4 className="mb-2 text-4xl font-bold text-white">Welcome back</h4>
+              <h4 className="mb-2 text-3xl md:text-4xl font-bold text-white">Welcome back</h4>
               <p className="text-sm text-white/70">
                 Sign in to your {isAdmin ? "admin" : "student"} account to continue.
               </p>
@@ -139,7 +139,7 @@ export default function SignIn() {
                 onChange={(e) => setEmail(e.target.value)}
               />
               <div className="flex flex-col">
-                <label htmlFor="password" class="mb-1 ml-1 text-sm font-medium text-white">
+                <label htmlFor="password" className="mb-1 ml-1 text-sm font-medium text-white">
                   Password
                 </label>
                 <div className="relative">

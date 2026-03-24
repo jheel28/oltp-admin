@@ -39,7 +39,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-cyan-900">
+    <div className="flex min-h-screen flex-col bg-cyan-900 dark">
       <div className="flex flex-grow">
         <div className="flex w-full flex-col items-center justify-center px-6 py-12 md:w-[55%] lg:w-[50%]">
           <div className="w-full max-w-[420px]">

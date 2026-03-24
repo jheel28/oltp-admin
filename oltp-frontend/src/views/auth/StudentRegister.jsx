@@ -113,13 +113,16 @@ const StudentRegister = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-cyan-900">
+    <div className="flex min-h-screen flex-col bg-cyan-900 dark">
       <div className="flex flex-grow">
         <div className="flex w-full flex-col items-center justify-center px-6 py-12 md:w-[55%] lg:w-[50%]">
           <div className="w-full max-w-[520px]">
             <div className="mb-6">
-              <h4 className="mb-1 text-3xl font-bold text-white">Student Registration</h4>
-              <p className="text-sm text-white/70">Create your account to access tests and results.</p>
+              <div className="mb-3 inline-flex items-center rounded-full bg-white/10 px-3 py-1">
+                <span className="text-xs font-semibold uppercase tracking-widest text-teal-400">Student Registration</span>
+              </div>
+              <h4 className="mb-2 text-4xl font-bold text-white">Create your account</h4>
+              <p className="text-sm text-white/70">Fill in your details to register as a student.</p>
             </div>
 
             <div className="mb-8">
@@ -193,7 +196,7 @@ const StudentRegister = () => {
                   <Form.Item name="motherName" label={<span className="text-white/90">Mother's Name</span>}><Input placeholder="Mother's name" size="large" /></Form.Item>
                 </div>
                 <div className="mb-4">
-                  <label className="mb-1 block text-sm font-medium text-white/90">Profile Photo <span className="text-red-500">*</span></label>
+                  <label className="mb-1 block text-sm font-medium text-white/90">Profile Photo <span className="text-teal-400">*</span></label>
                   <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files[0]; setImageFile(f); setImageTooLarge(f && f.size > MAX_IMAGE_BYTES); }} className="w-full rounded-lg border border-white/10 bg-white/5 p-2 text-white" />
                   {imageFile && !imageTooLarge && <p className="mt-1 text-xs text-teal-400">Selected: {imageFile.name}</p>}
                 </div>
