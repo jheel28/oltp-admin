@@ -17,6 +17,8 @@ import VerifyEmail from "views/auth/VerifyEmail";
 import VerifyEmailSent from "views/auth/VerifyEmailSent";
 import ForgotPassword from "views/auth/ForgotPassword";
 import ResetPassword from "views/auth/ResetPassword";
+import MechanicalSubjectPage from "views/subjects/MechanicalSubjectPage";
+import CommunicationAptitudePage from "views/subjects/CommunicationAptitudePage";
 
 const App = () => {
   const { login, logout, userId, token, email, role, initialized } = useAuth();
@@ -68,6 +70,8 @@ const App = () => {
     routes = (
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="subjects/mechanical/:slug" element={<MechanicalSubjectPage />} />
+        <Route path="subjects/communication-aptitude" element={<CommunicationAptitudePage />} />
         <Route path="auth/sign-in" element={<SignIn />} />
         <Route path="auth/register/student" element={<StudentRegister />} />
         <Route path="auth/register/admin" element={<AdminRegister />} />
