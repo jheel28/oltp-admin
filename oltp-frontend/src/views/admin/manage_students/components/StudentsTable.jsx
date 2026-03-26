@@ -213,13 +213,13 @@ const StudentsTable = () => {
               placeholder="Search name, ID, email, phone..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-              className="pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-56"
+              className="pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 w-56"
             />
           </div>
           <select
             value={batchFilter}
             onChange={(e) => { setBatchFilter(e.target.value); setPage(0); setSelectedIds(new Set()); }}
-            className="py-2 px-3 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="py-2 px-3 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
           >
             <option value="All">All Batches</option>
             {batches.map((b) => (
@@ -242,7 +242,7 @@ const StudentsTable = () => {
           </button>
           <button
             onClick={() => setShowAddForm(true)}
-            className="px-3 py-2 text-sm rounded-lg bg-blue-500 text-white hover:bg-blue-600"
+            className="px-3 py-2 text-sm rounded-lg bg-teal-500 text-white hover:bg-teal-500"
           >
             + Add Student
           </button>
@@ -298,7 +298,7 @@ const StudentsTable = () => {
                   return (
                     <tr
                       key={student._id}
-                      className={`border-b border-gray-100 dark:border-navy-700 transition-colors ${isSelected ? "bg-blue-50 dark:bg-navy-800" : "hover:bg-gray-50 dark:hover:bg-navy-800"}`}
+                      className={`border-b border-gray-100 dark:border-navy-700 transition-colors ${isSelected ? "bg-teal-50 dark:bg-white/10" : "hover:bg-gray-50 dark:hover:bg-white/5"}`}
                     >
                       <td className="py-3 pr-3">
                         <input
@@ -338,7 +338,7 @@ const StudentsTable = () => {
                         <span className="text-sm text-gray-500">{student.phoneNumber}</span>
                       </td>
                       <td className="py-3 pr-6">
-                        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700">
+                        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-400">
                           {student.batch}
                         </span>
                       </td>
@@ -346,7 +346,7 @@ const StudentsTable = () => {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => setSelectedStudent(student)}
-                            className="px-3 py-1.5 text-xs rounded-lg bg-blue-500 text-white hover:bg-blue-600"
+                            className="px-3 py-1.5 text-xs rounded-lg bg-teal-500 text-white hover:bg-teal-600"
                           >
                             View
                           </button>

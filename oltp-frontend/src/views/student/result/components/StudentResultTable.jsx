@@ -32,10 +32,10 @@ const isCorrect = (scoreQ, question) => {
 };
 
 const OptionRow = ({ opt, oi, isChosenOpt, isCorrectOpt }) => {
-  let cls = "bg-gray-100 dark:bg-navy-700 dark:text-gray-200";
-  if (isChosenOpt && isCorrectOpt) cls = "bg-green-200 border border-green-400 dark:text-gray-800";
-  else if (isChosenOpt && !isCorrectOpt) cls = "bg-red-200 border border-red-400 dark:text-gray-800";
-  else if (isCorrectOpt) cls = "bg-green-100 border border-green-300 dark:text-gray-800";
+  let cls = "bg-gray-100 dark:bg-[#0a2936] dark:text-gray-200 dark:ring-1 dark:ring-[#0891b2]/10";
+  if (isChosenOpt && isCorrectOpt) cls = "bg-green-200 border border-green-400 text-gray-800 dark:bg-green-900/40 dark:border-green-700 dark:text-green-500";
+  else if (isChosenOpt && !isCorrectOpt) cls = "bg-red-200 border border-red-400 text-gray-800 dark:bg-red-900/40 dark:border-red-800 dark:text-red-400";
+  else if (isCorrectOpt) cls = "bg-green-100 border border-green-300 text-gray-800 dark:bg-green-900/20 dark:border-green-700/50 dark:text-green-500";
 
   const optImgSrc = normImg(opt.image);
 
@@ -87,26 +87,28 @@ const QuestionResult = ({ question, scoreQ, index }) => {
     ? [Number(correct)] : [];
 
   const statusCls = skipped
-    ? "border-gray-200 bg-gray-50"
+    ? "border-l-cyan-600/30 bg-white/5"
     : correct_
-    ? "border-green-200 bg-green-50"
-    : "border-red-200 bg-red-50";
+    ? "border-l-green-500 bg-green-500/10"
+    : "border-l-red-500 bg-red-500/10";
 
   const qImgSrc = normImg(question?.questionImage);
 
   return (
-    <li className={`rounded-xl border p-4 ${statusCls}`}>
+    <li className={`rounded-xl border border-white/5 border-l-4 p-5 transition-all duration-300 dark:bg-[#0a2936] ${statusCls}`}>
       <div className="mb-3 flex items-start justify-between gap-2">
         <div className="flex-1">
-          <span className="text-[10px] font-bold uppercase text-gray-400 mr-2">Q{index + 1}</span>
-          <span className="text-sm font-semibold text-navy-700 dark:text-white">
-            {question?.text || `Question ${index + 1}`}
-          </span>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="flex h-6 w-10 items-center justify-center rounded bg-[#0891b2] text-[10px] font-bold text-white uppercase">Q{index + 1}</span>
+            <span className="text-base font-bold text-gray-800 dark:text-white">
+              {question?.text || `Question ${index + 1}`}
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-            skipped ? "bg-gray-100 text-gray-500" :
-            correct_ ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
+            skipped ? "bg-gray-100 text-gray-500 dark:bg-[#051d28] dark:text-gray-400" :
+            correct_ ? "bg-green-100 text-green-700 dark:bg-green-700/20 dark:text-green-500" : "bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400"
           }`}>
             {skipped ? "Skipped" : correct_ ? "Correct" : "Wrong"}
           </span>
@@ -138,7 +140,7 @@ const QuestionResult = ({ question, scoreQ, index }) => {
             </p>
           )}
           {!correct_ && correct && typeof correct === "object" && (
-            <p className="text-sm text-blue-600">
+            <p className="text-sm text-teal-600">
               Correct range: <strong>{correct.min} – {correct.max}</strong>
             </p>
           )}
@@ -170,21 +172,21 @@ const AnswerKeyBanner = ({ answerKeyFile }) => {
   const fileName = answerKeyFile.split("/").pop();
 
   return (
-    <div className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20 px-4 py-3">
+    <div className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-teal-200 bg-teal-50 dark:border-teal-800 dark:bg-teal-900/20 px-4 py-3">
       <div className="flex items-center gap-3 min-w-0">
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/40">
-          <MdFilePresent className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/40">
+          <MdFilePresent className="h-5 w-5 text-teal-600 dark:text-teal-400" />
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">Official Answer Key Available</p>
-          <p className="truncate text-xs text-blue-600 dark:text-blue-400">{fileName}</p>
+          <p className="text-sm font-semibold text-teal-800 dark:text-teal-300">Official Answer Key Available</p>
+          <p className="truncate text-xs text-teal-600 dark:text-teal-400">{fileName}</p>
         </div>
       </div>
       <a
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-blue-700"
+        className="flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-teal-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-teal-500"
       >
         <MdDownload className="h-3.5 w-3.5" />
         {isPdf ? "View PDF" : "View"}
@@ -261,7 +263,7 @@ const StudentResultsTable = () => {
   if (loading) {
     return (
       <Card extra="w-full p-12 flex items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
       </Card>
     );
   }
@@ -291,7 +293,7 @@ const StudentResultsTable = () => {
           <MdArrowBack className="h-5 w-5" />
         </button>
         <div>
-          <h2 className="text-xl font-bold text-navy-700 dark:text-white">Test Results</h2>
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white">Test Results</h2>
           {summary && (
             <p className="text-sm text-gray-500">
               {summary.marks} / {summary.total} marks ·{" "}
@@ -313,7 +315,7 @@ const StudentResultsTable = () => {
             <AnswerKeyBanner answerKeyFile={paper.answerKeyFile} />
           )}
 
-          <ul className="space-y-4">
+          <ul className="space-y-6">
             {fallbackItems.map(({ question, scoreQ }, index) => (
               <QuestionResult
                 key={scoreQ?.questionId || index}

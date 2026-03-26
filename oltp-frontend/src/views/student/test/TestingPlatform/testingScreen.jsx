@@ -320,7 +320,7 @@ const TestingScreen = () => {
   if (phase === "loading" || phase === "autosubmit") {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4 bg-gray-100">
-        <div className="border-t-transparent h-14 w-14 animate-spin rounded-full border-4 border-blue-600" />
+        <div className="border-t-transparent h-14 w-14 animate-spin rounded-full border-4 border-teal-600" />
         <p className="font-bold text-gray-600">
           {phase === "autosubmit" ? "Auto-submitting exam\u2026" : "Loading exam\u2026"}
         </p>
@@ -333,7 +333,7 @@ const TestingScreen = () => {
       <div className="flex h-screen items-center justify-center bg-gray-100">
         <div className="max-w-sm rounded-2xl bg-white p-8 text-center shadow">
           <p className="mb-4 text-lg font-bold text-red-500">Failed to load exam</p>
-          <button onClick={() => navigate("/student/default")} className="rounded-xl bg-blue-600 px-5 py-2 font-bold text-white">
+          <button onClick={() => navigate("/student/default")} className="rounded-xl bg-teal-600 px-5 py-2 font-bold text-white">
             Back to Dashboard
           </button>
         </div>
@@ -408,7 +408,7 @@ const TestingScreen = () => {
                     onClick={() => { setActiveSection(i); exam.goTo(sec.indices[0]); }}
                     className={`flex-shrink-0 border-b-2 px-5 py-2.5 text-xs font-bold transition-all ${
                       activeSection === i
-                        ? "border-blue-600 bg-blue-50 text-blue-600"
+                        ? "border-teal-600 bg-teal-50 text-teal-600"
                         : "border-transparent text-gray-500 hover:bg-gray-50"
                     }`}
                   >

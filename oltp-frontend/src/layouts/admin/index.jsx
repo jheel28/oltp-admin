@@ -66,7 +66,7 @@ export default function Admin(props) {
         />
       )}
 
-      <div className="flex flex-1 flex-col bg-gray-50 dark:!bg-navy-900">
+      <div className="flex flex-1 flex-col bg-gray-50 dark:bg-[#051d28]">
         <main className="flex-1 transition-all duration-300 md:pr-2 xl:ml-[260px]">
           <Navbar
             onOpenSidenav={() => setOpen(true)}

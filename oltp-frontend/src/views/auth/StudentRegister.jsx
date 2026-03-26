@@ -39,7 +39,6 @@ const StudentRegister = () => {
     ["studentId", "batch", "admissionDate", "address", "pincode", "state", "country"],
   ];
 
-  // phoneNumber is required; alternateNumber is optional (only validate if provided)
   const phonesValid =
     isValidPhoneNumber(phones.phoneNumber) &&
     (!phones.alternateNumber ||
@@ -59,28 +58,10 @@ const StudentRegister = () => {
 
   const onFinish = async (values) => {
     setPhoneSubmitted(true);
-
-    if (!imageFile) {
-      message.error("Please provide a profile photo");
-      return;
-    }
-
-    if (imageFile && imageFile.size > MAX_IMAGE_BYTES) {
-      message.error("Profile image must be 5MB or smaller");
-      return;
-    }
-
-    if (!isValidPhoneNumber(phones.phoneNumber)) {
-      message.error("Please enter a valid phone number");
-      return;
-    }
-
-    // Validate alternate number only if one was entered
-    if (
-      phones.alternateNumber &&
-      phones.alternateNumber.trim() &&
-      !isValidPhoneNumber(phones.alternateNumber)
-    ) {
+    if (!imageFile) { message.error("Please provide a profile photo"); return; }
+    if (imageFile && imageFile.size > MAX_IMAGE_BYTES) { message.error("Profile image must be 5MB or smaller"); return; }
+    if (!isValidPhoneNumber(phones.phoneNumber)) { message.error("Please enter a valid phone number"); return; }
+    if (phones.alternateNumber && phones.alternateNumber.trim() && !isValidPhoneNumber(phones.alternateNumber)) {
       message.error("Please enter a valid alternate number or leave it blank");
       return;
     }
@@ -94,21 +75,15 @@ const StudentRegister = () => {
       formData.append("password", values.password);
       formData.append("studentId", values.studentId);
       formData.append("batch", values.batch);
-      formData.append(
-        "admissionDate",
-        values.admissionDate || new Date().toISOString().split("T")[0]
-      );
+      formData.append("admissionDate", values.admissionDate || new Date().toISOString().split("T")[0]);
       formData.append("address", values.address);
       formData.append("pincode", values.pincode);
       formData.append("state", values.state);
       formData.append("country", values.country);
       formData.append("phoneNumber", phones.phoneNumber);
-
-      // Only send alternateNumber if a value was entered
       if (phones.alternateNumber && phones.alternateNumber.trim()) {
         formData.append("alternateNumber", phones.alternateNumber);
       }
-
       if (values.fatherName) formData.append("fatherName", values.fatherName);
       if (values.motherName) formData.append("motherName", values.motherName);
       if (imageFile) formData.append("image", imageFile);
@@ -121,100 +96,61 @@ const StudentRegister = () => {
       const data = await response.json();
       if (response.ok) {
         if (data.requiresVerification) {
-          message.success(
-            "Registration successful! Please check your email to verify your account."
-          );
+          message.success("Registration successful! Please check your email.");
           setTimeout(() => navigate("/auth/verify-email-sent"), 1500);
         } else {
           message.success("Registration successful! You can now log in.");
           setTimeout(() => navigate("/auth/sign-in"), 1500);
         }
       } else {
-        message.error(data.message || "Registration failed. Please try again.");
+        message.error(data.message || "Registration failed.");
       }
     } catch {
-      message.error("An error occurred during registration. Please try again.");
+      message.error("An error occurred during registration.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col dark:!bg-navy-900">
+    <div className="flex min-h-screen flex-col bg-cyan-900 dark">
       <div className="flex flex-grow">
         <div className="flex w-full flex-col items-center justify-center px-6 py-12 md:w-[55%] lg:w-[50%]">
           <div className="w-full max-w-[520px]">
             <div className="mb-6">
-              <h4 className="mb-1 text-3xl font-bold text-navy-700 dark:text-white">
-                Student Registration
-              </h4>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Create your account to access tests and results.
-              </p>
+              <div className="mb-3 inline-flex items-center rounded-full bg-white/10 px-3 py-1">
+                <span className="text-xs font-semibold uppercase tracking-widest text-teal-400">Student Registration</span>
+              </div>
+              <h4 className="mb-2 text-4xl font-bold text-white">Create your account</h4>
+              <p className="text-sm text-white/70">Fill in your details to register as a student.</p>
             </div>
 
             <div className="mb-8">
-              <Steps current={currentStep} size="small" responsive={false}>
-                <Steps.Step title="Personal" />
-                <Steps.Step title="Academic" />
-                <Steps.Step title="Contact" />
+              <Steps current={currentStep} size="small" responsive={false} className="dark-steps">
+                <Steps.Step title={<span className="text-white/70">Personal</span>} />
+                <Steps.Step title={<span className="text-white/70">Academic</span>} />
+                <Steps.Step title={<span className="text-white/70">Contact</span>} />
               </Steps>
             </div>
 
-            <Form form={form} name="student-register" onFinish={onFinish} layout="vertical" preserve>
-              {/* ── Step 0: Personal ── */}
+            <Form form={form} name="student-register" onFinish={onFinish} layout="vertical" preserve className="auth-form">
               <div style={{ display: currentStep === 0 ? "block" : "none" }}>
                 <div className="grid grid-cols-2 gap-4">
-                  <Form.Item
-                    name="firstName"
-                    label="First Name"
-                    rules={[{ required: true, message: "Required" }]}
-                  >
+                  <Form.Item name="firstName" label={<span className="text-white/90">First Name</span>} rules={[{ required: true }]}>
                     <Input placeholder="First name" size="large" />
                   </Form.Item>
-                  <Form.Item
-                    name="lastName"
-                    label="Last Name"
-                    rules={[{ required: true, message: "Required" }]}
-                  >
+                  <Form.Item name="lastName" label={<span className="text-white/90">Last Name</span>} rules={[{ required: true }]}>
                     <Input placeholder="Last name" size="large" />
                   </Form.Item>
                 </div>
-                <Form.Item
-                  name="email"
-                  label="Email"
-                  rules={[
-                    { required: true, message: "Required" },
-                    { type: "email", message: "Invalid email" },
-                  ]}
-                >
+                <Form.Item name="email" label={<span className="text-white/90">Email</span>} rules={[{ required: true, type: "email" }]}>
                   <Input type="email" placeholder="you@example.com" size="large" />
                 </Form.Item>
                 <div className="grid grid-cols-2 gap-4">
-                  <Form.Item
-                    name="password"
-                    label="Password"
-                    rules={[
-                      { required: true, message: "Required" },
-                      { min: 6, message: "Minimum 6 characters" },
-                    ]}
-                  >
+                  <Form.Item name="password" label={<span className="text-white/90">Password</span>} rules={[{ required: true, min: 6 }]}>
                     <Input.Password placeholder="Min. 6 characters" size="large" />
                   </Form.Item>
-                  <Form.Item
-                    name="confirmPassword"
-                    label="Confirm Password"
-                    rules={[
-                      { required: true, message: "Required" },
-                      ({ getFieldValue }) => ({
-                        validator(_, value) {
-                          if (!value || getFieldValue("password") === value)
-                            return Promise.resolve();
-                          return Promise.reject(new Error("Passwords do not match"));
-                        },
-                      }),
-                    ]}
-                  >
+                  <Form.Item name="confirmPassword" label={<span className="text-white/90">Confirm Password</span>} rules={[{ required: true }, ({ getFieldValue }) => ({ validator(_, value) { if (!value || getFieldValue('password') === value) return Promise.resolve(); return Promise.reject(new Error('Mismatch')); } })]}>
                     <Input.Password placeholder="Repeat password" size="large" />
                   </Form.Item>
                 </div>
@@ -222,225 +158,82 @@ const StudentRegister = () => {
 
               <div style={{ display: currentStep === 1 ? "block" : "none" }}>
                 <div className="grid grid-cols-2 gap-4">
-                  <Form.Item
-                    name="studentId"
-                    label="Student ID"
-                    rules={[{ required: true, message: "Required" }]}
-                  >
+                  <Form.Item name="studentId" label={<span className="text-white/90">Student ID</span>} rules={[{ required: true }]}>
                     <Input placeholder="Your student ID" size="large" />
                   </Form.Item>
-                  <Form.Item
-                    name="batch"
-                    label="Batch"
-                    rules={[{ required: true, message: "Required" }]}
-                  >
+                  <Form.Item name="batch" label={<span className="text-white/90">Batch</span>} rules={[{ required: true }]}>
                     <Select placeholder="Select batch" size="large">
-                      {batches.map((b) => (
-                        <Option key={b._id} value={b.batchName}>
-                          {b.batchName}
-                        </Option>
-                      ))}
+                      {batches.map((b) => <Option key={b._id} value={b.batchName}>{b.batchName}</Option>)}
                     </Select>
                   </Form.Item>
                 </div>
-                <Form.Item
-                  name="admissionDate"
-                  label="Admission Date"
-                  rules={[{ required: true, message: "Required" }]}
-                >
+                <Form.Item name="admissionDate" label={<span className="text-white/90">Admission Date</span>} rules={[{ required: true }]}>
                   <Input type="date" size="large" />
                 </Form.Item>
-                <Form.Item
-                  name="address"
-                  label="Address"
-                  rules={[{ required: true, message: "Required" }, { min: 2, message: "Too short" }]}
-                >
+                <Form.Item name="address" label={<span className="text-white/90">Address</span>} rules={[{ required: true }]}>
                   <Input.TextArea placeholder="Full address" rows={2} />
                 </Form.Item>
                 <div className="grid grid-cols-3 gap-4">
-                  <Form.Item
-                    name="pincode"
-                    label="Pincode"
-                    rules={[
-                      { required: true, message: "Required" },
-                      { pattern: /^\d{4,10}$/, message: "Invalid pincode" },
-                    ]}
-                  >
+                  <Form.Item name="pincode" label={<span className="text-white/90">Pin</span>} rules={[{ required: true }]}>
                     <Input placeholder="Pincode" size="large" />
                   </Form.Item>
-                  <Form.Item
-                    name="state"
-                    label="State"
-                    rules={[{ required: true, message: "Required" }]}
-                  >
+                  <Form.Item name="state" label={<span className="text-white/90">State</span>} rules={[{ required: true }]}>
                     <Input placeholder="State" size="large" />
                   </Form.Item>
-                  <Form.Item
-                    name="country"
-                    label="Country"
-                    rules={[{ required: true, message: "Required" }]}
-                  >
+                  <Form.Item name="country" label={<span className="text-white/90">Country</span>} rules={[{ required: true }]}>
                     <Input placeholder="Country" size="large" />
                   </Form.Item>
                 </div>
               </div>
 
-              {/* ── Step 2: Contact ── */}
               <div style={{ display: currentStep === 2 ? "block" : "none" }}>
-                <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
-                  <PhoneInput
-                    label="Phone Number"
-                    required
-                    value={phones.phoneNumber}
-                    onChange={(val) =>
-                      setPhones((prev) => ({ ...prev, phoneNumber: val || "" }))
-                    }
-                    showValidation={phoneSubmitted}
-                    placeholder="Your phone number"
-                  />
-
-                  <div>
-                    <PhoneInput
-                      label={
-                        <span>
-                          Alternate Number{" "}
-                          <span className="ml-1 text-xs font-normal text-gray-400">(optional)</span>
-                        </span>
-                      }
-                      value={phones.alternateNumber}
-                      onChange={(val) =>
-                        setPhones((prev) => ({ ...prev, alternateNumber: val || "" }))
-                      }
-                      // Only show validation if a value was entered and it's invalid
-                      showValidation={
-                        phoneSubmitted &&
-                        !!phones.alternateNumber &&
-                        !!phones.alternateNumber.trim()
-                      }
-                      placeholder="Alternate number (optional)"
-                    />
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <PhoneInput label={<span className="text-white/90">Phone Number</span>} required value={phones.phoneNumber} onChange={(val) => setPhones(p => ({ ...p, phoneNumber: val || "" }))} showValidation={phoneSubmitted} placeholder="Phone" />
+                  <PhoneInput label={<span className="text-white/90">Alternate Number (optional)</span>} value={phones.alternateNumber} onChange={(val) => setPhones(p => ({ ...p, alternateNumber: val || "" }))} placeholder="Alternate" />
                 </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <Form.Item
-                    name="fatherName"
-                    label={
-                      <span>
-                        Father's Name{" "}
-                        <span className="font-normal text-xs text-gray-400">(optional)</span>
-                      </span>
-                    }
-                  >
-                    <Input placeholder="Father's name" size="large" />
-                  </Form.Item>
-                  <Form.Item
-                    name="motherName"
-                    label={
-                      <span>
-                        Mother's Name{" "}
-                        <span className="font-normal text-xs text-gray-400">(optional)</span>
-                      </span>
-                    }
-                  >
-                    <Input placeholder="Mother's name" size="large" />
-                  </Form.Item>
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <Form.Item name="fatherName" label={<span className="text-white/90">Father's Name</span>}><Input placeholder="Father's name" size="large" /></Form.Item>
+                  <Form.Item name="motherName" label={<span className="text-white/90">Mother's Name</span>}><Input placeholder="Mother's name" size="large" /></Form.Item>
                 </div>
-
                 <div className="mb-4">
-                  <label className="mb-1 block text-sm font-medium text-navy-700 dark:text-white">
-                    Profile Photo <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/jpg"
-                    onChange={(e) => {
-                      const file = e.target.files[0] || null;
-                      if (file && file.size > MAX_IMAGE_BYTES) {
-                        setImageFile(file);
-                        setImageTooLarge(true);
-                      } else {
-                        setImageFile(file);
-                        setImageTooLarge(false);
-                      }
-                    }}
-                    className={`w-full rounded-lg border p-2 text-sm dark:bg-navy-700 dark:text-white ${
-                      phoneSubmitted && !imageFile
-                        ? "border-red-500 dark:border-red-500"
-                        : "border-gray-300 dark:border-navy-600"
-                    }`}
-                  />
-                  <p className="mt-1 text-xs text-gray-500">Max file size: 5 MB. JPG/PNG only.</p>
-                  {phoneSubmitted && !imageFile && (
-                    <p className="mt-1 text-xs text-red-500">Profile photo is required</p>
-                  )}
-                  {imageTooLarge && (
-                    <p className="mt-1 text-xs text-red-500">Selected image exceeds 5 MB limit</p>
-                  )}
-                  {imageFile && !imageTooLarge && (
-                    <p className="mt-1 text-xs text-green-600">Selected: {imageFile.name}</p>
-                  )}
+                  <label className="mb-1 block text-sm font-medium text-white/90">Profile Photo <span className="text-teal-400">*</span></label>
+                  <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files[0]; setImageFile(f); setImageTooLarge(f && f.size > MAX_IMAGE_BYTES); }} className="w-full rounded-lg border border-white/10 bg-white/5 p-2 text-white" />
+                  {imageFile && !imageTooLarge && <p className="mt-1 text-xs text-teal-400">Selected: {imageFile.name}</p>}
                 </div>
-
-                <div className="rounded-xl border border-blue-100 bg-blue-50 p-3 dark:border-navy-600 dark:bg-navy-700">
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    After registering, a verification email will be sent to your address. Click
-                    the link to activate your account before logging in.
-                  </p>
-                </div>
+                <div className="rounded-xl bg-white/5 p-3 mb-4"><p className="text-xs text-white/60">Verification email will be sent upon registration.</p></div>
               </div>
 
               <div className="mt-6 flex items-center justify-between gap-3">
-                {currentStep > 0 && (
-                  <button
-                    type="button"
-                    onClick={handlePrev}
-                    className="rounded-xl border border-gray-300 bg-white px-6 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-50 dark:border-navy-600 dark:bg-navy-800 dark:text-white dark:hover:bg-navy-700"
-                  >
-                    Back
-                  </button>
-                )}
+                {currentStep > 0 && <button type="button" onClick={handlePrev} className="rounded-xl border border-white/10 bg-white/5 px-6 py-2.5 text-sm font-semibold text-white hover:bg-white/10">Back</button>}
                 {currentStep < 2 ? (
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className="linear ml-auto rounded-xl bg-brand-500 px-8 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-600"
-                  >
-                    Next
-                  </button>
+                  <button type="button" onClick={handleNext} className="ml-auto rounded-xl bg-teal-600 px-8 py-2.5 text-sm font-semibold text-white hover:bg-teal-500">Next</button>
                 ) : (
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="linear ml-auto rounded-xl bg-brand-500 px-8 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:opacity-60"
-                  >
-                    {loading ? "Creating account..." : "Create Account"}
-                  </button>
+                  <button type="submit" disabled={loading} className="ml-auto rounded-xl bg-teal-600 px-8 py-2.5 text-sm font-semibold text-white hover:bg-teal-500 disabled:opacity-60">{loading ? "Creating..." : "Create Account"}</button>
                 )}
               </div>
             </Form>
 
-            <p className="mt-6 text-sm font-medium text-navy-700 dark:text-gray-500">
-              Already have an account?{" "}
-              <Link
-                to="/auth/sign-in"
-                className="font-bold text-brand-500 hover:text-brand-600 dark:text-white"
-              >
-                Sign in
-              </Link>
-            </p>
+            <p className="mt-6 text-sm text-white/70">Already have an account? <Link to="/auth/sign-in" className="font-bold text-teal-400 hover:text-teal-300">Sign in</Link></p>
           </div>
         </div>
 
-        <div className="hidden items-center justify-center bg-[#F4F7FE] dark:bg-navy-900 md:flex md:w-[45%] lg:w-[50%]">
-          <img
-            src={logo}
-            alt="The Correct Steps"
-            className="max-h-[420px] max-w-[420px] object-contain"
-            onError={(e) => {
-              e.target.style.display = "none";
-            }}
-          />
+        <div className="hidden bg-gradient-to-br from-cyan-950 via-teal-950 to-cyan-900 md:flex md:w-[45%] lg:w-[50%] items-center justify-center relative overflow-hidden">
+          {/* Decorative radial glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[120px]" />
+          
+          <div className="relative z-10 flex flex-col items-center text-center p-12">
+            <div className="mb-8 transform hover:scale-105 transition-transform duration-500">
+              <img 
+                src={logo} 
+                alt="Logo" 
+                className="max-h-[280px] object-contain drop-shadow-[0_20px_50px_rgba(20,184,166,0.25)]" 
+              />
+            </div>
+            <h2 className="text-3xl font-extrabold text-white mb-4 tracking-tight">Begin Your Journey</h2>
+            <p className="text-teal-400/80 text-lg font-medium max-w-sm">
+              Join thousands of students who are taking the correct steps toward their dreams.
+            </p>
+          </div>
         </div>
       </div>
       <Footer />

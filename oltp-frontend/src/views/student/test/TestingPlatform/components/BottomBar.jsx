@@ -144,7 +144,7 @@ export const MobileBar = ({
 
       <button
         onClick={onEndTest}
-        className="ml-2 rounded-xl bg-[#1a2744] px-4 py-3 text-sm font-black text-white"
+        className="ml-2 rounded-xl bg-cyan-900 px-4 py-3 text-sm font-black text-white"
         title="End Test"
       >
         End Test

@@ -259,13 +259,13 @@ const BatchTable = () => {
               placeholder="Search batches..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-              className="pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
+              className="pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 w-56"
             />
           </div>
           {selectedIds.size > 0 && (
             <button
               onClick={bulkDelete}
-              className="px-3 py-2 text-sm rounded-lg bg-red-500 text-white hover:bg-red-600 flex items-center gap-1"
+              className="px-3 py-1.5 text-xs rounded-lg bg-teal-500 text-white hover:bg-teal-500 flex items-center gap-1"
             >
               <FaTrashAlt className="h-3 w-3" /> Delete ({selectedIds.size})
             </button>
@@ -284,7 +284,7 @@ const BatchTable = () => {
           </button>
           <button
             onClick={() => setShowAddForm(true)}
-            className="px-3 py-2 text-sm rounded-lg bg-blue-500 text-white hover:bg-blue-600"
+            className="px-3 py-2 text-sm rounded-lg bg-teal-500 text-white hover:bg-teal-500"
           >
             + Add Batch
           </button>
@@ -331,8 +331,8 @@ const BatchTable = () => {
                         isDefault
                           ? "bg-amber-50 dark:bg-navy-750"
                           : isSelected
-                          ? "bg-blue-50 dark:bg-navy-800"
-                          : "hover:bg-gray-50 dark:hover:bg-navy-800"
+                          ? "bg-teal-50 dark:bg-white/10"
+                          : "hover:bg-gray-50 dark:hover:bg-white/5"
                       }`}
                     >
                       <td className="py-3 pr-4">

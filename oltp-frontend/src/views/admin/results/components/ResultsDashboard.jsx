@@ -22,16 +22,16 @@ import { message } from "antd";
 import { AuthContext } from "components/Auth-context";
 
 const BAR_COLORS = [
-  "#3B82F6",
+  "#0d9488",
+  "#0891b2",
+  "#2dd4bf",
+  "#14B8A6",
+  "#065f46",
+  "#0f766e",
+  "#22d3ee",
   "#10B981",
   "#F59E0B",
-  "#EF4444",
   "#8B5CF6",
-  "#EC4899",
-  "#14B8A6",
-  "#F97316",
-  "#6366F1",
-  "#84CC16",
 ];
 
 const StatCard = ({ label, value, color, sub }) => (
@@ -47,7 +47,7 @@ const MiniBar = ({ label, value, max, color }) => (
     <span className="w-28 flex-shrink-0 truncate text-right text-xs text-gray-500">
       {label}
     </span>
-    <div className="h-4 flex-1 overflow-hidden rounded-full bg-gray-100">
+    <div className="h-4 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-[#051d28]">
       <div
         className="h-full rounded-full transition-all duration-700"
         style={{
@@ -56,7 +56,7 @@ const MiniBar = ({ label, value, max, color }) => (
         }}
       />
     </div>
-    <span className="w-12 flex-shrink-0 text-right text-xs font-bold text-navy-700">
+    <span className="w-12 flex-shrink-0 text-right text-xs font-bold text-gray-700 dark:text-white">
       {typeof value === "number" ? value.toFixed(1) : value}
     </span>
   </div>
@@ -66,7 +66,7 @@ const BarChart = ({ data, max }) => (
   <div className="flex h-28 items-end justify-around gap-1 pb-1">
     {data.map(({ label, value, color }) => (
       <div key={label} className="flex flex-1 flex-col items-center gap-1">
-        <span className="text-[10px] font-bold text-navy-700">{value}</span>
+        <span className="text-[10px] font-bold text-gray-700 dark:text-white">{value}</span>
         <div
           className="w-full rounded-t bg-gray-100"
           style={{ height: "80px" }}
@@ -350,7 +350,7 @@ const ResultsDashboard = () => {
       <Card extra="w-full p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl font-bold text-navy-700 dark:text-white">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white">
               Results Dashboard
             </h2>
             <p className="mt-0.5 text-xs text-gray-400">
@@ -368,7 +368,7 @@ const ResultsDashboard = () => {
                   setSearch(e.target.value);
                   setPage(0);
                 }}
-                className="w-48 rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+                className="w-48 rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-[#0891b2]/30 dark:bg-[#051d28] dark:text-white"
               />
             </div>
             <select
@@ -426,7 +426,7 @@ const ResultsDashboard = () => {
               onClick={() => setActiveView(id)}
               className={`-mb-px flex items-center gap-1.5 border-b-2 px-4 py-2 text-sm font-medium transition ${
                 activeView === id
-                  ? "border-blue-500 text-blue-600"
+                  ? "border-teal-500 text-teal-600"
                   : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -444,7 +444,7 @@ const ResultsDashboard = () => {
       {loading ? (
         <Card extra="w-full p-16 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3 text-gray-400">
-            <div className="border-t-transparent h-8 w-8 animate-spin rounded-full border-2 border-blue-500" />
+            <div className="border-t-transparent h-8 w-8 animate-spin rounded-full border-2 border-teal-500" />
             <span className="text-sm">Loading results…</span>
           </div>
         </Card>
@@ -457,7 +457,7 @@ const ResultsDashboard = () => {
                   <StatCard
                     label="Total Attempts"
                     value={filtered.length}
-                    color="text-blue-600"
+                    color="text-teal-600"
                   />
                   <StatCard
                     label="Average Score"
@@ -486,7 +486,7 @@ const ResultsDashboard = () => {
               {stats?.hasScores && (
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                   <Card extra="p-4">
-                    <h3 className="mb-4 text-sm font-bold text-navy-700">
+                    <h3 className="mb-4 text-sm font-bold text-gray-800 dark:text-white">
                       Score Distribution
                     </h3>
                     <BarChart
@@ -506,7 +506,7 @@ const ResultsDashboard = () => {
                   </Card>
                   {stats.batchBreakdown.length > 0 && (
                     <Card extra="p-4">
-                      <h3 className="mb-4 text-sm font-bold text-navy-700">
+                      <h3 className="mb-4 text-sm font-bold text-gray-800 dark:text-white">
                         Avg Score by Batch
                       </h3>
                       <div className="space-y-2.5">
@@ -530,7 +530,7 @@ const ResultsDashboard = () => {
 
               {stats?.testBreakdown.length > 0 && (
                 <Card extra="p-4">
-                  <h3 className="mb-4 text-sm font-bold text-navy-700">
+                  <h3 className="mb-4 text-sm font-bold text-gray-800 dark:text-white">
                     Test Performance Summary
                   </h3>
                   <div className="overflow-x-auto">
@@ -562,7 +562,7 @@ const ResultsDashboard = () => {
                             key={t.testId}
                             className="border-b border-gray-100"
                           >
-                            <td className="py-2.5 text-sm font-medium text-navy-700">
+                            <td className="py-2.5 text-sm font-medium text-gray-800 dark:text-white">
                               <div className="flex items-center gap-2">
                                 <div
                                   className="h-2 w-2 flex-shrink-0 rounded-full"
@@ -579,7 +579,7 @@ const ResultsDashboard = () => {
                             <td className="py-2.5 text-right text-sm text-gray-500">
                               {t.count}
                             </td>
-                            <td className="py-2.5 text-right text-sm font-bold text-navy-700">
+                            <td className="py-2.5 text-right text-sm font-bold text-gray-800 dark:text-white">
                               {t.count > 0 ? t.avg.toFixed(1) : "—"}
                             </td>
                             <td className="py-2.5 text-right text-sm text-green-600">
@@ -590,10 +590,10 @@ const ResultsDashboard = () => {
                                 <span
                                   className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
                                     t.passed / t.count >= 0.6
-                                      ? "bg-green-100 text-green-700"
+                                      ? "bg-green-100 text-green-700 dark:bg-green-700/20 dark:text-green-500"
                                       : t.passed / t.count >= 0.4
-                                      ? "bg-amber-100 text-amber-700"
-                                      : "bg-red-100 text-red-600"
+                                      ? "bg-amber-100 text-amber-700 dark:bg-amber-700/20 dark:text-amber-500"
+                                      : "bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400"
                                   }`}
                                 >
                                   {`${((t.passed / t.count) * 100).toFixed(
@@ -612,7 +612,7 @@ const ResultsDashboard = () => {
                                 onClick={() =>
                                   navigate(`/admin/results/live/${t.testId}`)
                                 }
-                                className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2 py-1 text-[11px] font-bold text-blue-600 transition hover:bg-blue-100"
+                                className="inline-flex items-center gap-1 rounded-lg bg-teal-500/10 px-2 py-1.5 text-[11px] font-bold text-teal-500 transition-all hover:bg-teal-500 hover:text-white dark:bg-teal-500/20 dark:text-teal-400 dark:hover:bg-teal-500 dark:hover:text-white"
                               >
                                 <MdMonitor className="h-3 w-3" /> Monitor
                               </button>
@@ -688,7 +688,7 @@ const ResultsDashboard = () => {
                         return (
                           <tr
                             key={s._id || i}
-                            className="border-b border-gray-50 transition hover:bg-gray-50"
+                            className="border-b border-gray-50 transition hover:bg-gray-50 dark:border-[#0891b2]/10 dark:hover:bg-white/5"
                           >
                             <td className="py-2.5 pr-4">
                               <p className="text-sm font-medium text-navy-700">
@@ -702,11 +702,11 @@ const ResultsDashboard = () => {
                               {s.testName || s.testId}
                             </td>
                             <td className="py-2.5 pr-4">
-                              <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] text-indigo-700">
+                              <span className="rounded-full bg-teal-100 px-2 py-0.5 text-[10px] text-teal-700 dark:bg-teal-900/40 dark:text-teal-300">
                                 {s.batch || "—"}
                               </span>
                             </td>
-                            <td className="py-2.5 pr-4 text-right text-sm font-bold text-navy-700">
+                            <td className="py-2.5 pr-4 text-right text-sm font-bold text-gray-800 dark:text-white">
                               {s.marksObtained}
                               <span className="font-normal text-gray-400">
                                 /{s.totalMarks}
@@ -736,7 +736,7 @@ const ResultsDashboard = () => {
                                     setEditScoreData(s);
                                     setIsEditModalOpen(true);
                                   }}
-                                  className="rounded p-1 text-blue-500 transition hover:bg-blue-50"
+                                  className="rounded p-1 text-teal-500 transition hover:bg-teal-50"
                                   title="Edit Result"
                                 >
                                   <MdEdit className="h-4 w-4" />
@@ -813,11 +813,11 @@ const ResultsDashboard = () => {
             >
               <MdClose className="h-5 w-5" />
             </button>
-            <h2 className="mb-4 text-lg font-bold text-navy-700">
+            <h2 className="mb-4 text-lg font-bold text-gray-800 dark:text-white">
               Edit Result
             </h2>
 
-            <div className="mb-4 rounded-lg bg-gray-50 p-3 text-sm text-gray-500">
+            <div className="mb-4 rounded-lg bg-gray-50 p-3 text-sm text-gray-500 dark:bg-[#051d28] dark:text-gray-400">
               <p>
                 <span className="font-semibold">Student:</span>{" "}
                 {editScoreData.studentName}
@@ -848,11 +848,11 @@ const ResultsDashboard = () => {
                       marksObtained: e.target.value,
                     })
                   }
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-[#0891b2]/30 dark:bg-[#051d28] dark:text-white"
                 />
               </div>
               <div>
-                <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-700">
+                <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                   <input
                     type="checkbox"
                     checked={editScoreData.passed}
@@ -862,7 +862,7 @@ const ResultsDashboard = () => {
                         passed: e.target.checked,
                       })
                     }
-                    className="rounded text-blue-500 focus:ring-blue-500"
+                    className="rounded text-teal-500 focus:ring-teal-500"
                   />
                   Mark as Passed
                 </label>
@@ -871,13 +871,13 @@ const ResultsDashboard = () => {
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(false)}
-                  className="rounded-lg px-4 py-2 text-sm text-gray-500 transition hover:bg-gray-100"
+                  className="rounded-lg px-4 py-2 text-sm text-gray-500 transition hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                  className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-500"
                 >
                   Save Changes
                 </button>

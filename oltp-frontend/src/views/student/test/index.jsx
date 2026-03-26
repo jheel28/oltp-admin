@@ -103,7 +103,7 @@ const Marketplace = () => {
               );
             })
           ) : (
-            <div className="w-full rounded-2xl bg-gray-50 py-20 text-center dark:bg-navy-800">
+            <div className="w-full rounded-2xl bg-gray-50 py-20 text-center dark:bg-cyan-700">
               <p className="font-bold text-gray-500">No upcoming tests for your batch.</p>
               <p className="mt-2 text-sm text-gray-400">Check back later or contact your mentor.</p>
             </div>

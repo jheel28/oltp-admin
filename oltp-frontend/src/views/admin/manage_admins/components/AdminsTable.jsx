@@ -93,7 +93,7 @@ const AdminsTable = () => {
                     <tr
                       key={admin._id}
                       className={`border-b border-gray-100 transition-colors dark:border-navy-700 ${
-                        isOwn ? "bg-blue-50 dark:bg-navy-800/60" : "hover:bg-gray-50 dark:hover:bg-navy-800"
+                        isOwn ? "bg-teal-50 dark:bg-white/10" : "hover:bg-gray-50 dark:hover:bg-white/5"
                       }`}
                     >
                       <td className="py-3 pr-3">

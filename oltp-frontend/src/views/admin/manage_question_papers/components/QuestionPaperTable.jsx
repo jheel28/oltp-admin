@@ -95,12 +95,12 @@ const QuestionPaperTable = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search papers..."
-              className="pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-44"
+              className="pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-navy-600 dark:bg-navy-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 w-44"
             />
           </div>
           <button
             onClick={() => navigate("/admin/manage-question-papers/create")}
-            className="flex items-center gap-1.5 px-4 py-2 text-sm rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition font-medium"
+            className="flex items-center gap-1.5 px-4 py-2 text-sm rounded-lg bg-teal-500 text-white hover:bg-teal-500 transition font-medium"
           >
             <FaPlus className="h-3 w-3" />
             New Paper
@@ -110,7 +110,7 @@ const QuestionPaperTable = () => {
 
       {loading ? (
         <div className="py-16 flex items-center justify-center">
-          <div className="h-8 w-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+          <div className="h-8 w-8 rounded-full border-2 border-teal-500 border-t-transparent animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
         <div className="py-16 flex flex-col items-center gap-3 text-gray-400">
@@ -119,7 +119,7 @@ const QuestionPaperTable = () => {
           {!search && (
             <button
               onClick={() => navigate("/admin/manage-question-papers/create")}
-              className="text-sm text-blue-500 hover:underline"
+              className="text-sm text-teal-500 hover:underline"
             >
               Create your first paper
             </button>
@@ -141,7 +141,7 @@ const QuestionPaperTable = () => {
               {filtered.map((paper) => {
                 const answerKeyUrl = normFile(paper.answerKeyFile);
                 return (
-                  <tr key={paper._id} className="border-b border-gray-50 dark:border-navy-700 hover:bg-gray-50 dark:hover:bg-navy-800 transition">
+                  <tr key={paper._id} className="border-b border-gray-50 dark:border-navy-700 hover:bg-gray-50 dark:hover:bg-white/5 transition">
                     <td className="py-3 pr-4">
                       <p className="text-sm font-semibold text-navy-700 dark:text-white">
                         <code className="bg-gray-100 dark:bg-navy-700 px-2 py-0.5 rounded text-sm">
@@ -176,7 +176,7 @@ const QuestionPaperTable = () => {
                           href={answerKeyUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-700 font-medium"
+                          className="flex items-center gap-1 text-[11px] text-teal-600 hover:text-teal-500 font-medium"
                           title="Download answer key"
                         >
                           <MdFilePresent className="h-3.5 w-3.5" />
@@ -196,7 +196,7 @@ const QuestionPaperTable = () => {
                         <button
                           onClick={() => navigate(`/admin/manage-question-papers/edit/${paper._id}`)}
                           title="Edit paper"
-                          className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 hover:bg-blue-100 transition"
+                          className="p-1.5 rounded-lg bg-teal-50 dark:bg-teal-900/20 text-teal-600 hover:bg-teal-100 transition"
                         >
                           <FaEdit className="h-3.5 w-3.5" />
                         </button>

@@ -26,7 +26,7 @@ const TestCard = ({ test, isActive }) => {
   };
 
   return (
-    <Card extra={"flex flex-col w-full h-full p-4 bg-white dark:bg-navy-700 border border-gray-100 dark:border-navy-600 rounded-2xl shadow-sm"}>
+    <Card extra={"flex flex-col w-full h-full p-4 bg-white dark:bg-[#0a2936] border border-gray-100 dark:border-[#0891b2]/20 rounded-2xl shadow-sm"}>
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-xl font-bold text-navy-700 dark:text-white leading-tight">
@@ -74,7 +74,7 @@ const TestCard = ({ test, isActive }) => {
       {isActive ? (
         <button
           onClick={handleStartExam}
-          className="w-full bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-200 transform hover:scale-[1.02] shadow-lg shadow-blue-200 dark:shadow-none"
+          className="w-full bg-teal-500 hover:bg-teal-500 active:bg-teal-600 text-white font-bold py-3 rounded-xl transition duration-200 transform hover:scale-[1.02] shadow-lg shadow-teal-200 dark:shadow-none"
         >
           Start Exam
         </button>

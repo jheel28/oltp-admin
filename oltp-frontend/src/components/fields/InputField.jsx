@@ -18,8 +18,8 @@ function InputField(props) {
     <div className={`${extra}`}>
       <label
         htmlFor={id}
-        className={`text-sm text-navy-700 dark:text-white ${
-          variant === "auth" ? "ml-1.5 font-medium" : "ml-3 font-bold"
+        className={`text-sm ${
+          variant === "auth" ? "ml-1.5 font-medium text-white/90" : "ml-3 font-bold text-navy-700 dark:text-white"
         }`}
       >
         {label}

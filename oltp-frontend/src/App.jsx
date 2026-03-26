@@ -84,7 +84,7 @@ const App = () => {
   return (
     <AuthContext.Provider value={{ isLoggedIn: !!token, login, logout, userId, token, email, role }}>
       <FetchInterceptor>
-        <main>{routes}</main>
+        <div className="min-h-screen w-full">{routes}</div>
       </FetchInterceptor>
     </AuthContext.Provider>
   );

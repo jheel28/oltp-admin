@@ -152,7 +152,7 @@ const AdminProfile = () => {
     ? normalizeImageUrl(process.env.REACT_APP_BACKEND_URL, admin.image)
     : avatarUrl(`${admin.firstName || ""} ${admin.lastName || ""}`);
 
-  const inputClass = "w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white dark:bg-navy-800";
+  const inputClass = "w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white dark:bg-cyan-700";
 
   return (
     <div className="flex w-full flex-col gap-5 mt-3">
@@ -224,7 +224,7 @@ const AdminProfile = () => {
           <div className="mt-6 flex gap-3">
             {isEditing ? (
               <>
-                <button onClick={handleInfoUpdate} disabled={infoLoading} className="rounded-full bg-green-500 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-50">
+                <button onClick={handleInfoUpdate} disabled={infoLoading} className="rounded-full bg-green-700 px-4 py-2 text-white hover:bg-green-800 disabled:opacity-50">
                   {infoLoading ? "Saving..." : "Save"}
                 </button>
                 <button onClick={cancelEdit} disabled={infoLoading} className="rounded-full bg-gray-400 px-4 py-2 text-white hover:bg-gray-600 disabled:opacity-50">
@@ -232,7 +232,7 @@ const AdminProfile = () => {
                 </button>
               </>
             ) : (
-              <button onClick={() => setIsEditing(true)} className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700">
+              <button onClick={() => setIsEditing(true)} className="rounded-full bg-teal-500 px-4 py-2 text-white hover:bg-teal-500">
                 Edit
               </button>
             )}
@@ -251,7 +251,7 @@ const AdminProfile = () => {
             {profileImage && (
               <div className="flex items-center gap-4">
                 <img src={URL.createObjectURL(profileImage)} alt="Preview" className="h-16 w-16 rounded-full object-cover" />
-                <button onClick={handleImageUpdate} disabled={imageLoading} className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50">
+                <button onClick={handleImageUpdate} disabled={imageLoading} className="rounded-full bg-teal-500 px-4 py-2 text-white hover:bg-teal-500 disabled:opacity-50">
                   {imageLoading ? "Uploading..." : "Update Image"}
                 </button>
               </div>
@@ -272,7 +272,7 @@ const AdminProfile = () => {
                   value={passwords[name]}
                   onChange={(e) => setPasswords((prev) => ({ ...prev, [name]: e.target.value }))}
                   placeholder={label}
-                  className={`w-full rounded-md border p-3 pr-10 text-navy-700 dark:text-white dark:bg-navy-800 ${
+                  className={`w-full rounded-md border p-3 pr-10 text-navy-700 dark:text-white dark:bg-cyan-700 ${
                     name !== "password" && passwords.confirmPassword !== ""
                       ? passwordsMatch ? "border-green-500" : "border-red-500"
                       : "border-gray-300"
@@ -293,7 +293,7 @@ const AdminProfile = () => {
             <button
               onClick={handlePasswordUpdate}
               disabled={passwordLoading || !passwordsMatch || !passwords.password}
-              className="rounded-full bg-green-500 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-full bg-green-700 px-4 py-2 text-white hover:bg-green-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {passwordLoading ? "Updating..." : "Update Password"}
             </button>

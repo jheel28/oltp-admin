@@ -7,12 +7,12 @@ const SubmitScreen = ({ stats, questionCount, hasDraft, currentQuestion, submitt
     { label: "Marked for Review", value: stats.markedOnly, cls: "bg-purple-50 border-purple-200 text-purple-700" },
     { label: "Answered & Marked", value: stats.answeredMarked, cls: "bg-purple-50 border-purple-200 text-purple-700" },
     { label: "Not Visited", value: stats.notVisited, cls: "bg-gray-50 border-gray-200 text-gray-500" },
-    { label: "Total Questions", value: questionCount, cls: "bg-blue-50 border-blue-200 text-blue-700" },
+    { label: "Total Questions", value: questionCount, cls: "bg-teal-50 border-teal-200 text-teal-700" },
   ];
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-100">
-      <div className="bg-[#1a2744] px-6 py-3 text-center font-black text-white shadow">
+      <div className="bg-cyan-900 px-6 py-3 text-center font-black text-white shadow">
         Submit Confirmation
       </div>
       <div className="flex flex-1 items-center justify-center px-4 py-8">

@@ -90,7 +90,7 @@ const ViewEditBatch = ({ batchData, onUpdate, onBack }) => {
               name="batchName"
               value={editedData.batchName}
               onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white"
+              className="w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white dark:bg-navy-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
           ) : (
             <p className="text-base font-medium text-navy-700 dark:text-white">
@@ -111,7 +111,7 @@ const ViewEditBatch = ({ batchData, onUpdate, onBack }) => {
           ) : (
             <button
               type="button"
-              className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
+              className="rounded-full bg-teal-500 px-4 py-2 text-white hover:bg-teal-500"
               onClick={handleEditClick}
             >
               Edit

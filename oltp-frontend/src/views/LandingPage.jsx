@@ -14,6 +14,7 @@ import {
 const LandingPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -26,66 +27,89 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen font-sans text-aptText bg-white">
       {/* Header */}
-      <header className="fixed inset-x-0 top-0 z-50">
+      <header className="relative z-50">
         {/* Top Header */}
         <div className="bg-white border-b border-gray-200">
-          <div className="container mx-auto flex items-center justify-between px-6 py-3">
-            <div className="flex items-center gap-3">
-              <img src={logo} alt="Correct Steps" className="h-10 w-auto" />
-              <span className="font-bold text-xl text-gray-800 tracking-tight">Correct Steps</span>
+          <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 py-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <img src={logo} alt="Correct Steps" className="h-8 sm:h-10 w-auto" />
+              <span className="font-bold text-lg sm:text-xl text-gray-800 tracking-tight">Correct Steps</span>
             </div>
-            <div className="flex items-center gap-4 text-sm font-semibold">
-              <Link to="/auth/user/sign-in" className="text-gray-800 hover:text-teal-600 transition-colors px-3 py-2">Log in</Link>
-              <Link to="/auth/register/student" className="rounded-full bg-teal-600 hover:bg-teal-500 transition-colors shadow-sm px-6 py-2.5 text-white font-bold ml-1">Sign Up</Link>
-              <a href="#recruiting" className="text-black hover:text-teal-600 transition-colors hidden md:block ml-4 border border-gray-300 rounded-full px-4 py-1.5 text-[13px] font-medium tracking-wide">Recruiting?</a>
+            
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="flex items-center gap-1 sm:gap-4 text-xs sm:text-sm font-semibold">
+                <Link to="/auth/user/sign-in" className="text-gray-800 hover:text-teal-600 transition-colors px-2 py-2">Log in</Link>
+                <Link to="/auth/register/student" className="rounded-full bg-teal-600 hover:bg-teal-400 transition-colors shadow-sm px-4 sm:px-6 py-2 sm:py-2.5 text-white font-bold">Sign Up</Link>
+              </div>
+              
+              <button 
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="md:hidden p-2 text-gray-800 hover:text-teal-600 transition-colors"
+                aria-label="Toggle Menu"
+              >
+                {isMenuOpen ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+                  </svg>
+                )}
+              </button>
+              
+              <a href="#recruiting" className="text-black hover:text-teal-600 transition-colors hidden lg:block border border-gray-300 rounded-full px-4 py-1.5 text-[13px] font-medium tracking-wide">Recruiting?</a>
             </div>
           </div>
         </div>
 
-        {/* Bottom Nav */}
-        <div className="bg-teal-900">
+        {/* Desktop Bottom Nav / Mobile Menu */}
+        <div className={`bg-cyan-900 overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? "max-h-[400px]" : "max-h-0 md:max-h-none"}`}>
           <div className="container mx-auto px-6">
-
-            <nav className="flex  flex-wrap items-center justify-center md:justify-start gap-10 text-white text-[13px] font-semibold py-4 overflow-x-auto whitespace-nowrap">
-              <a href="#mechanical" className="hover:text-gray-300 transition-colors uppercase tracking-wider">
+            <nav className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 md:gap-10 text-white text-[13px] font-semibold py-6 md:py-4">
+              <a href="#mechanical" onClick={() => setIsMenuOpen(false)} className="hover:text-gray-300 transition-colors uppercase tracking-wider">
                 Mechanical Engineering
               </a>
-              <a href="#tests" className="hover:text-gray-300 transition-colors uppercase tracking-wider">
+              <a href="#tests" onClick={() => setIsMenuOpen(false)} className="hover:text-gray-300 transition-colors uppercase tracking-wider">
                 Aptitude Tests
               </a>
-              <a href="#prep" className="hover:text-gray-300 transition-colors uppercase tracking-wider">
+              <a href="#prep" onClick={() => setIsMenuOpen(false)} className="hover:text-gray-300 transition-colors uppercase tracking-wider">
                 Prep Access
               </a>
-              <a href="#news" className="hover:text-gray-300 transition-colors uppercase tracking-wider hidden md:block">
+              <a href="#news" onClick={() => setIsMenuOpen(false)} className="hover:text-gray-300 transition-colors uppercase tracking-wider">
                 Articles & News
               </a>
-              <a href="#contact" className="hover:text-gray-300 transition-colors uppercase tracking-wider">
+              <a href="#contact" onClick={() => setIsMenuOpen(false)} className="hover:text-gray-300 transition-colors uppercase tracking-wider">
                 Contact Us
               </a>
             </nav>
-            
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative pt-[115px] pb-16 md:pt-[150px] md:pb-32 lg:pb-40 flex items-center" style={{ minHeight: '650px' }}>
+      <section className="relative py-10 md:py-32 lg:py-40 flex items-center" style={{ minHeight: 'auto' }}>
         {/* Background Image with Overlay */}
         <div 
           className="absolute inset-0 z-0 bg-white" 
           style={{
-            backgroundImage: `linear-gradient(90deg, #f4f6f8 0%, #f4f6f8 40%, rgba(244, 246, 248, 0.8) 50%, rgba(244, 246, 248, 0) 65%), url(${handshake})`,
+            backgroundImage: `linear-gradient(rgba(244, 246, 248, 0.9), rgba(244, 246, 248, 0.9)), url(${handshake})`,
             backgroundSize: "cover",
-            backgroundPosition: "center right",
+            backgroundPosition: "center",
           }}
         >
         </div>
+        <div className="hidden md:block absolute inset-0 z-0" style={{
+            backgroundImage: `linear-gradient(90deg, #f4f6f8 0%, #f4f6f8 40%, rgba(244, 246, 248, 0.8) 50%, rgba(244, 246, 248, 0) 65%), url(${handshake})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center right",
+          }}></div>
 
         <div className="container mx-auto px-6 relative z-10 w-full mt-10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-10">
             {/* Hero Left Content */}
-            <div className="w-full md:w-3/5 max-w-2xl py-10">
-              <h1 className="mb-4 text-4xl md:text-5xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
+            <div className="w-full md:w-3/5 max-w-2xl py-6 md:py-10">
+              <h1 className="mb-4 text-2xl sm:text-3xl md:text-5xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
                 Smart Testing Platform for Serious Aspirants
               </h1>
               <p className="mb-6 text-xl text-gray-800">
@@ -95,19 +119,19 @@ const LandingPage = () => {
                 Start with 2 free tests. Unlock full potential with premium access.
               </p>
               <div>
-                <Link to="/auth/sign-in?role=student" className="inline-block rounded shadow-md bg-teal-600 hover:bg-teal-700 transition-colors px-10 py-4 font-bold text-white text-[15px] tracking-wide">
+                <Link to="/auth/sign-in?role=student" className="inline-block rounded shadow-md bg-teal-600 hover:bg-teal-400 transition-colors px-10 py-4 font-bold text-white text-[15px] tracking-wide">
                   GET STARTED NOW
                 </Link>
               </div>
             </div>
 
-            {/* Floating Card for Employers */}
-            <div className="w-full md:w-80 shadow-2xl rounded-lg overflow-hidden bg-white border-t-4 border-teal-500 shrink-0">
+            {/* Floating Card for Employers - hidden on mobile */}
+            <div className="hidden md:block w-full md:w-80 shadow-2xl rounded-lg overflow-hidden bg-white border-t-4 border-teal-400 shrink-0">
               <div className="p-8 text-center">
                 <h3 className="text-[22px] font-bold text-gray-900 mb-2">Recruiting?</h3>
                 <p className="text-[15px] text-gray-700 mb-6">We help you choose the right talent.</p>
                 <div className="w-12 h-1 bg-gray-300 mx-auto mb-6"></div>
-                <button className="w-full rounded bg-teal-600 hover:bg-teal-500 transition-colors px-4 py-3 font-bold text-white uppercase text-sm tracking-wide">
+                <button className="w-full rounded bg-teal-600 hover:bg-teal-400 transition-colors px-4 py-3 font-bold text-white uppercase text-sm tracking-wide">
                   Learn More
                 </button>
               </div>
@@ -117,28 +141,28 @@ const LandingPage = () => {
       </section>
 
       {/* Icon strip */}
-      <div className="bg-teal-900 text-white py-4 relative z-20">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-wrap items-center justify-center gap-10 md:gap-16">
-            <a href="#numerical" className="flex flex-col items-center text-sm transform transition-transform hover:-translate-y-1">
-              <FaCalculator className="text-4xl mb-2" />
-              <span className="text-xs font-semibold">Numerical Tests</span>
+      <div className="bg-cyan-900 text-white py-4 relative z-20">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-16">
+            <a href="#numerical" className="flex flex-col items-center text-sm transform transition-transform hover:-translate-y-1 min-w-[60px]">
+              <FaCalculator className="text-3xl md:text-4xl mb-1 md:mb-2" />
+              <span className="text-[10px] md:text-xs font-semibold text-center">Numerical Tests</span>
             </a>
-            <a href="#verbal" className="flex flex-col items-center text-sm transform transition-transform hover:-translate-y-1">
-              <FaComments className="text-4xl mb-2" />
-              <span className="text-xs font-semibold">Verbal Tests</span>
+            <a href="#verbal" className="flex flex-col items-center text-sm transform transition-transform hover:-translate-y-1 min-w-[60px]">
+              <FaComments className="text-3xl md:text-4xl mb-1 md:mb-2" />
+              <span className="text-[10px] md:text-xs font-semibold text-center">Verbal Tests</span>
             </a>
-            <a href="#nonverbal" className="flex flex-col items-center text-sm transform transition-transform hover:-translate-y-1">
-              <FaChartLine className="text-4xl mb-2" />
-              <span className="text-xs font-semibold">Non-verbal Tests</span>
+            <a href="#nonverbal" className="flex flex-col items-center text-sm transform transition-transform hover:-translate-y-1 min-w-[60px]">
+              <FaChartLine className="text-3xl md:text-4xl mb-1 md:mb-2" />
+              <span className="text-[10px] md:text-xs font-semibold text-center">Non-verbal Tests</span>
             </a>
-            <a href="#mechanical" className="flex flex-col items-center text-sm transform transition-transform hover:-translate-y-1">
-              <FaCog className="text-4xl mb-2" />
-              <span className="text-xs font-semibold">Mechanical Tests</span>
+            <a href="#mechanical" className="flex flex-col items-center text-sm transform transition-transform hover:-translate-y-1 min-w-[60px]">
+              <FaCog className="text-3xl md:text-4xl mb-1 md:mb-2" />
+              <span className="text-[10px] md:text-xs font-semibold text-center">Mechanical Tests</span>
             </a>
-            <a href="#publisher" className="flex flex-col items-center text-sm transform transition-transform hover:-translate-y-1">
-              <FaBullseye className="text-4xl mb-2" />
-              <span className="text-xs font-semibold">Tests by Publisher</span>
+            <a href="#publisher" className="flex flex-col items-center text-sm transform transition-transform hover:-translate-y-1 min-w-[60px]">
+              <FaBullseye className="text-3xl md:text-4xl mb-1 md:mb-2" />
+              <span className="text-[10px] md:text-xs font-semibold text-center">Tests by Publisher</span>
             </a>
           </div>
         </div>
@@ -180,11 +204,11 @@ const LandingPage = () => {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="bg-teal-900 text-white py-20 lg:py-28">
+      <section className="bg-cyan-900 text-white py-20 lg:py-28">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-extrabold mb-6">Why Choose Correct Steps?</h2>
-            <div className="w-20 h-1 bg-teal-500 mx-auto"></div>
+            <div className="w-20 h-1 bg-teal-400 mx-auto"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 max-w-5xl mx-auto">
             <WhyCard 
@@ -234,7 +258,7 @@ const LandingPage = () => {
                 Are you getting ready for the DAT Next Generation and want to perform at your absolute best? Aptitude-Test.com offers specialized practice materials that help you master every aspect of this modern cognitive ability assessment. The DAT Next Generation (Differential Aptitude Test) is an advanced cognitive ability assessment used by employers and public institutions to evaluate how well candidates can think logically, learn new concepts, and solve problems efficiently...
               </p>
               
-              <a href="#" className="font-bold text-[14px] text-teal-600 hover:text-teal-800 transition-colors">
+              <a href="#" className="font-bold text-[14px] text-teal-600 hover:text-teal-400 transition-colors">
                 Continue reading
               </a>
             </div>
@@ -243,8 +267,8 @@ const LandingPage = () => {
       </section>
 
       {/* Pre-Footer CTA Split Section */}
-      <section className="flex flex-col md:flex-row w-full min-h-[450px]" style={{ backgroundColor: '#565656ff' }}>
-        <div className="w-full md:w-1/2 flex items-center justify-center p-12 md:p-16 lg:p-24 text-white">
+      <section className="flex flex-col md:flex-row w-full min-h-[450px] bg-teal-600">
+        <div className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-16 lg:p-24 text-white">
           <div className="max-w-md w-full">
             <h2 className="text-3xl md:text-[40px] leading-tight font-extrabold mb-6">Unlock Your Full Potential</h2>
             <p className="text-lg mb-10 leading-relaxed text-gray-100">
@@ -269,9 +293,9 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-teal-900 py-14 text-gray-100">
+      <footer className="bg-cyan-900 py-14 text-gray-100">
         <div className="container mx-auto px-6 md:px-12">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 border-b border-teal-800 pb-10 mb-10">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8 border-b border-teal-900 pb-10 mb-10">
             <div className="flex items-center gap-3">
               <img src={logo} alt="Correct Steps" className="h-10 w-auto" />
 
@@ -320,7 +344,7 @@ const CategoryCard = ({ imgSrc, title }) => (
     <div className="p-6 flex flex-col flex-grow items-center text-center">
       <h3 className="font-extrabold text-[17px] text-gray-900 mb-6">{title}</h3>
       <div className="mt-auto">
-        <button className="text-teal-600 text-[13px] font-bold flex items-center gap-2 group-hover:text-teal-500 tracking-wider">
+        <button className="text-teal-600 text-[13px] font-bold flex items-center gap-2 group-hover:text-teal-400 tracking-wider">
           PRACTICE <span className="transform group-hover:translate-x-1 transition-transform">→</span>
         </button>
       </div>

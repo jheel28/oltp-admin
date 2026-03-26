@@ -48,8 +48,8 @@ const VerifyEmail = () => {
   }, [status, countdown, navigate]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#F4F7FE] dark:!bg-navy-900 px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-10 shadow-xl dark:bg-navy-800 text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-cyan-900 dark px-4">
+      <div className="w-full max-w-md text-center">
         <img
           src={logo}
           alt="The Correct Steps"
@@ -60,8 +60,8 @@ const VerifyEmail = () => {
         {status === "loading" && (
           <>
             <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
-            <h2 className="text-xl font-bold text-navy-700 dark:text-white">Verifying your email…</h2>
-            <p className="mt-2 text-sm text-gray-500">Please wait a moment.</p>
+            <h2 className="text-xl font-bold text-white">Verifying your email…</h2>
+            <p className="mt-2 text-sm text-white/70">Please wait a moment.</p>
           </>
         )}
 
@@ -72,9 +72,9 @@ const VerifyEmail = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-xl font-bold text-green-600">Email Verified!</h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{msg}</p>
-            <p className="mt-3 text-xs text-gray-400">
+            <h2 className="text-xl font-bold text-teal-400">Email Verified!</h2>
+            <p className="mt-2 text-sm text-white/80">{msg}</p>
+            <p className="mt-3 text-xs text-white/50">
               Redirecting to login in {countdown} second{countdown !== 1 ? "s" : ""}…
             </p>
             <Link
@@ -93,13 +93,13 @@ const VerifyEmail = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <h2 className="text-xl font-bold text-red-600">Verification Failed</h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{msg}</p>
+            <h2 className="text-xl font-bold text-red-500">Verification Failed</h2>
+            <p className="mt-2 text-sm text-white/80">{msg}</p>
             <div className="mt-6 space-y-4">
               <ResendVerification />
               <Link
                 to="/auth/sign-in"
-                className="block text-sm font-medium text-brand-500 hover:text-brand-600"
+                className="block text-sm font-medium text-teal-400 hover:text-teal-300"
               >
                 Back to login
               </Link>
@@ -154,8 +154,8 @@ const ResendVerification = () => {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-left">
-      <p className="mb-2 text-sm font-medium text-gray-700">Resend verification email:</p>
+    <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4 text-left">
+      <p className="mb-2 text-sm font-medium text-white/90">Resend verification email:</p>
       <div className="flex gap-2">
         <input
           type="email"
@@ -163,12 +163,12 @@ const ResendVerification = () => {
           onChange={(e) => setEmail(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleResend()}
           placeholder="Enter your email"
-          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-teal-500"
         />
         <button
           onClick={handleResend}
           disabled={loading}
-          className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 disabled:opacity-50"
+          className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-500 disabled:opacity-50"
         >
           {loading ? "…" : "Send"}
         </button>

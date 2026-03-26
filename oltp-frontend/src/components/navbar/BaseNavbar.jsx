@@ -6,7 +6,7 @@ import { RiMoonFill, RiSunFill } from "react-icons/ri";
 import { AuthContext } from "components/Auth-context";
 
 const avatarUrl = (name) =>
-  `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "User")}&background=4f46e5&color=fff&size=80&bold=true`;
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "User")}&background=0d9488&color=fff&size=80&bold=true`;
 
 const BaseNavbar = ({ onOpenSidenav, brandText, onSearch, fetchUrl }) => {
   const [darkmode, setDarkmode] = useState(() => {
@@ -55,21 +55,21 @@ const BaseNavbar = ({ onOpenSidenav, brandText, onSearch, fetchUrl }) => {
       : avatarUrl(displayName);
 
   return (
-    <nav className="sticky top-4 z-40 flex flex-row flex-wrap items-center justify-between rounded-xl bg-white/10 p-2 backdrop-blur-xl dark:bg-[#0b14374d]">
+    <nav className="relative z-40 flex flex-row flex-wrap items-center justify-between rounded-xl p-2 backdrop-blur-xl dark:bg-transparent">
       <div className="ml-[6px]">
-        <p className="shrink text-[33px] capitalize text-navy-700 dark:text-white">
+        <p className="shrink text-xl sm:text-2xl lg:text-[33px] capitalize text-cyan-900 dark:text-white">
           <Link
             to="#"
-            className="font-bold capitalize hover:text-navy-700 dark:hover:text-white"
+            className="font-bold capitalize hover:text-cyan-900 dark:hover:text-teal-400"
           >
             {brandText}
           </Link>
         </p>
       </div>
 
-      <div className="relative mt-[3px] flex h-[61px] items-center justify-end gap-3 rounded-full bg-white px-4 py-2 shadow-xl shadow-shadow-500 dark:!bg-navy-800 dark:shadow-none">
+      <div className="relative mt-[3px] flex min-h-[61px] h-auto flex-wrap items-center justify-end gap-2 sm:gap-3 rounded-full bg-white px-4 py-2 shadow-xl shadow-shadow-500 dark:bg-[#0a2936] dark:ring-1 dark:ring-[#0891b2]/20 dark:shadow-none">
         {onSearch && (
-          <div className="flex h-full items-center rounded-full bg-lightPrimary text-navy-700 dark:bg-navy-900 dark:text-white xl:w-[225px]">
+          <div className="flex h-full items-center rounded-full bg-lightPrimary text-navy-700 dark:bg-cyan-900 dark:text-white xl:w-[225px]">
             <p className="pl-3 pr-2 text-xl">
               <FiSearch className="h-4 w-4 text-gray-400 dark:text-white" />
             </p>
@@ -77,7 +77,7 @@ const BaseNavbar = ({ onOpenSidenav, brandText, onSearch, fetchUrl }) => {
               type="text"
               placeholder="Search..."
               onChange={(e) => onSearch(e.target.value)}
-              className="block h-full w-full rounded-full bg-lightPrimary text-sm font-medium text-navy-700 outline-none placeholder:!text-gray-400 dark:bg-navy-900 dark:text-white dark:placeholder:!text-white sm:w-fit"
+              className="block h-full w-full rounded-full bg-lightPrimary text-sm font-medium text-navy-700 outline-none placeholder:!text-gray-400 dark:bg-cyan-900 dark:text-white dark:placeholder:!text-white sm:w-fit"
             />
           </div>
         )}
@@ -109,7 +109,7 @@ const BaseNavbar = ({ onOpenSidenav, brandText, onSearch, fetchUrl }) => {
               onError={() => setImgError(true)}
             />
           }
-          classNames="py-2 top-8 -left-[180px] w-max"
+          classNames="py-2 top-8 right-0 sm:-left-[180px] w-max"
         />
       </div>
     </nav>

@@ -129,7 +129,7 @@ const QuestionReview = ({ qr, question, index }) => {
                 <span>Your answer: <strong>{String(chosen)}</strong></span>
               )}
               {!correct && !skipped && correctAns && typeof correctAns === "object" && (
-                <span className="ml-2 text-blue-600">
+                <span className="ml-2 text-teal-600">
                   · Correct range: <strong>{correctAns.min} – {correctAns.max}</strong>
                 </span>
               )}
@@ -145,7 +145,7 @@ const QuestionReview = ({ qr, question, index }) => {
                   isChosenOpt && isCorrectOpt ? "border-green-400 bg-green-100" :
                   isChosenOpt ? "border-red-400 bg-red-100" :
                   isCorrectOpt && !skipped ? "border-green-300 bg-green-50" :
-                  isCorrectOpt && skipped ? "border-blue-300 bg-blue-50" :
+                  isCorrectOpt && skipped ? "border-teal-300 bg-teal-50" :
                   "border-gray-200 bg-white";
 
                 const optImg = imgSrc(opt.image);
@@ -253,9 +253,9 @@ const FeedbackScreen = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="bg-[#1a2744] px-6 py-4 text-white text-center">
+        <div className="bg-cyan-900 px-6 py-4 text-white text-center">
         <div className="text-lg font-black">Exam Completed</div>
-        <div className="text-xs text-blue-300">{latestScore?.testName || "Your Results"}</div>
+        <div className="text-xs text-teal-300">{latestScore?.testName || "Your Results"}</div>
       </div>
 
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-8 space-y-5">
@@ -302,9 +302,9 @@ const FeedbackScreen = () => {
               className="flex items-center justify-between w-full text-left"
             >
               <h3 className="text-sm font-black text-navy-700 flex items-center gap-2">
-                <MdOutlineBarChart className="text-blue-500" /> Question-wise Analysis
+                <MdOutlineBarChart className="text-teal-500" /> Question-wise Analysis
               </h3>
-              <span className="text-xs font-bold text-blue-500">{showDetails ? "Hide" : "Show"}</span>
+              <span className="text-xs font-bold text-teal-500">{showDetails ? "Hide" : "Show"}</span>
             </button>
 
             {showDetails && !loading && (
@@ -317,7 +317,7 @@ const FeedbackScreen = () => {
             )}
             {showDetails && loading && (
               <div className="mt-4 flex items-center justify-center py-8">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
               </div>
             )}
           </Card>
@@ -332,7 +332,7 @@ const FeedbackScreen = () => {
           </button>
           <button
             onClick={() => navigate("/student/result")}
-            className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 shadow-lg shadow-blue-200"
+            className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-teal-600 text-white text-sm font-bold hover:bg-teal-500 shadow-lg shadow-teal-200"
           >
             <MdOutlineBarChart /> View All Results
           </button>

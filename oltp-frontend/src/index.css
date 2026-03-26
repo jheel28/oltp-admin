@@ -9,7 +9,99 @@
 		font-family: 'DM Sans', sans-serif !important;
 		font-feature-settings: 'kern' !important;
 		-webkit-font-smoothing: antialiased;
-		letter-spacing: -0.5px;
+		letter-spacing: -0.2px;
+	}
+}
+
+@layer utilities {
+	/* Global Typography Readability Patch - Reduced aggressiveness for mobile */
+	.text-\[10px\] {
+		font-size: 0.7rem !important;
+	}
+	@media (min-width: 768px) {
+		.text-xs {
+			font-size: 0.8rem !important;
+		}
+		.text-sm {
+			font-size: 0.9rem !important;
+		}
+	}
+
+	/* Improved Visibility for Light Mode while maintaining hierarchy */
+	.text-gray-400 {
+		color: #4b5563 !important; /* Visible Gray-600 */
+	}
+	.text-gray-500 {
+		color: #374151 !important; /* Visible Gray-700 */
+	}
+
+	/* Global Icon Color for Content Area (Cyan-600) 
+	   Only targets icons that don't have explicit high-contrast needs.
+	   Excludes calendar icons to maintain blue-700 theme. */
+	main svg:not(.text-white):not(.calendar-wrapper svg),
+	main .calendar-wrapper svg {
+		color: inherit !important; 
+	}
+	main svg:not(.text-white):not(.calendar-wrapper *) {
+		color: #0891b2 !important; 
+	}
+
+	/* Midnight Teal Dark Mode Theme */
+	.dark main {
+		background-color: #051d28 !important; /* deep midnight teal */
+	}
+
+	/* Subtle Elevated Grey Teal Cards with Teal-600 Glow */
+	.dark main .rounded-xl, .dark main .rounded-2xl, .dark main .rounded-lg,
+	.dark main [class*="bg-white"]:not(button):not(input), 
+	.dark main [class*="bg-gray-50"]:not(button):not(input) {
+		background-color: #0a2936 !important; /* elevated grey teal */
+		border: 1px solid rgba(8, 145, 178, 0.4) !important; /* Intense Teal-600 Glow */
+		box-shadow: 0 0 15px rgba(8, 145, 178, 0.1) !important;
+	}
+
+	/* Off-white Primary Text */
+	.dark main p:not(.text-red-500):not(.text-green-500):not(.text-teal-500):not(.text-green-700):not(.text-amber-700):not(.text-red-600), 
+	.dark main h1, .dark main h2, .dark main h3, .dark main h4, .dark main h5, .dark main h6, 
+	.dark main span:not(.text-red-500):not(.text-green-500):not(.text-blue-700):not(.text-teal-500):not(.text-green-700):not(.text-amber-700):not(.text-red-600), 
+	.dark main div:not(.dropdown-content *):not(.calendar-wrapper *):not(.text-teal-500),
+	.dark main label, .dark main th, .dark main td:not(.text-red-500):not(.text-green-500):not(.text-green-700):not(.text-amber-700):not(.text-red-600) {
+		color: #f1f5f9 !important;
+	}
+
+	/* Muted Grey Teal Secondary Text */
+	.dark main .text-gray-400, .dark main .text-gray-500, .dark main .text-gray-600,
+	.dark main .text-navy-700:not(h1):not(h2):not(h3):not(h4) {
+		color: #94b8c0 !important; /* Lighter Teal-Grey for visibility */
+	}
+
+	/* White Icons with Teal Context */
+	.dark main svg {
+		color: #ffffff !important; 
+		fill: currentColor;
+	}
+
+	/* Specific overrides for status icons should remain */
+	.dark main .text-green-500 svg, .dark main .text-green-600 svg, .dark main .text-green-700 svg { color: #15803d !important; }
+	.dark main .text-red-500 svg, .dark main .text-red-600 svg { color: #ef4444 !important; }
+
+	/* Branded Sidebar remains Cyan-900 / White Text */
+	
+	/* Midnight Teal Scrollbar */
+	::-webkit-scrollbar {
+		width: 8px;
+		height: 8px;
+	}
+	::-webkit-scrollbar-track {
+		background: #051d28;
+	}
+	::-webkit-scrollbar-thumb {
+		background: #0a2936;
+		border: 2px solid #051d28;
+		border-radius: 10px;
+	}
+	::-webkit-scrollbar-thumb:hover {
+		background: #0891b2;
 	}
 }
 
@@ -26,4 +118,44 @@ input.defaultCheckbox::before {
 
 input:checked.defaultCheckbox::before { 
 	opacity: 1;
+}
+
+/* ============================================================
+   AUTH PAGES - Label & Input Visibility on Dark Background
+   Targets any page with bg-cyan-900 class (auth pages)
+   ============================================================ */
+.bg-cyan-900 label,
+.bg-cyan-900 .ant-form-item-label > label {
+	color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.bg-cyan-900 .ant-input,
+.bg-cyan-900 .ant-input-password input,
+.bg-cyan-900 .ant-input-affix-wrapper,
+.bg-cyan-900 .ant-select-selector {
+	background-color: rgba(255, 255, 255, 0.05) !important;
+	color: rgba(255, 255, 255, 0.9) !important;
+	border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.bg-cyan-900 .ant-input::placeholder,
+.bg-cyan-900 .ant-select-selection-placeholder,
+.bg-cyan-900 .ant-input-password input::placeholder {
+	color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.bg-cyan-900 .ant-form-item-required::before {
+	color: #f87171 !important;
+}
+
+.bg-cyan-900 .ant-select-arrow,
+.bg-cyan-900 .ant-input-suffix svg {
+	color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ============================================================
+   GLOBAL RESPONSIVE - Prevent horizontal overflow
+   ============================================================ */
+* {
+	box-sizing: border-box;
 }

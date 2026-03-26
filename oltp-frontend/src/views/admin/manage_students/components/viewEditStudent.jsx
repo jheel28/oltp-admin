@@ -115,7 +115,7 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
   };
 
   const inputClass =
-    "w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white dark:bg-navy-800 focus:outline-none focus:ring-2 focus:ring-blue-500";
+    "w-full rounded-md border border-gray-300 p-2 text-base font-medium text-navy-700 dark:text-white dark:bg-navy-800 focus:outline-none focus:ring-2 focus:ring-teal-500";
 
   const displayImage =
     editedData.image instanceof File
@@ -163,7 +163,7 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
           {isEditing && (
             <label
               htmlFor="image"
-              className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-white p-1 shadow text-blue-500"
+              className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-white p-1 shadow text-teal-500"
             >
               <input
                 type="file"
@@ -348,7 +348,7 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
           ) : (
             <button
               type="button"
-              className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
+              className="rounded-full bg-teal-500 px-4 py-2 text-white hover:bg-teal-500"
               onClick={() => setIsEditing(true)}
             >
               Edit

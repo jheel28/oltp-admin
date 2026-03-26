@@ -24,7 +24,7 @@ const TYPE_LABELS = {
 };
 
 const OptionItem = ({ opt, optIdx, isDrafted, isSaved, onSelect }) => {
-  let cls = "border-gray-200 bg-white hover:border-blue-300 hover:bg-gray-50";
+  let cls = "border-gray-200 bg-white hover:border-teal-300 hover:bg-gray-50";
   let labelCls = "text-gray-700";
   let badgeCls = "";
   let badgeText = "";
@@ -35,9 +35,9 @@ const OptionItem = ({ opt, optIdx, isDrafted, isSaved, onSelect }) => {
     badgeCls = "bg-green-100 text-green-700";
     badgeText = "Saved";
   } else if (isDrafted) {
-    cls = "border-blue-400 bg-blue-50 shadow-sm";
-    labelCls = "text-blue-700";
-    badgeCls = "bg-blue-100 text-blue-700";
+    cls = "border-teal-400 bg-teal-50 shadow-sm";
+    labelCls = "text-teal-700";
+    badgeCls = "bg-teal-100 text-teal-700";
     badgeText = "Draft";
   } else if (isSaved) {
     cls = "border-green-400 bg-green-50 shadow-sm";
@@ -50,10 +50,10 @@ const OptionItem = ({ opt, optIdx, isDrafted, isSaved, onSelect }) => {
     isSaved && isDrafted
       ? "border-green-500 bg-green-500 text-white"
       : isDrafted
-      ? "border-blue-400 bg-blue-400 text-white"
+      ? "border-teal-400 bg-teal-400 text-white"
       : isSaved
       ? "border-green-400 bg-green-400 text-white"
-      : "border-gray-300 bg-gray-50 text-gray-400 group-hover:border-blue-300";
+      : "border-gray-300 bg-gray-50 text-gray-400 group-hover:border-teal-300";
 
   const src = imgSrc(opt.image);
 
@@ -134,7 +134,7 @@ const QuestionDisplay = ({
             Q{questionNumber} / {totalQuestions}
           </span>
           {question.topic && (
-            <span className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+            <span className="rounded-full border border-teal-100 bg-teal-50 px-3 py-1 text-xs font-bold text-teal-700">
               {question.topic}
             </span>
           )}
@@ -204,7 +204,7 @@ const QuestionDisplay = ({
                   : ""
               }
               onChange={(e) => onDraftSelect(e.target.value)}
-              className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 p-4 text-xl font-black text-navy-700 outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
+              className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 p-4 text-xl font-black text-navy-700 outline-none transition-all focus:border-teal-500 focus:ring-4 focus:ring-teal-50"
             />
             {savedAnswer !== null && savedAnswer !== undefined && (
               <p className="text-xs text-gray-500">

@@ -19,7 +19,7 @@ export default function Auth() {
   document.documentElement.dir = "ltr";
   return (
     <div>
-      <div className="relative float-right h-full min-h-screen w-full dark:!bg-navy-900">
+      <div className="relative float-right h-full min-h-screen w-full dark:!bg-cyan-600">
         <FixedPlugin />
         <main className={`mx-auto min-h-screen`}>
           <div className="relative flex">
@@ -43,7 +43,7 @@ export default function Auth() {
 
               {/* Logo section on the right - absolute positioned */}
               <div className="absolute right-0 hidden h-full min-h-screen md:block lg:w-[49vw] 2xl:w-[44vw]">
-                <div className="flex h-full w-full items-center justify-center bg-[#F4F7FE] dark:bg-navy-900">
+                <div className="flex h-full w-full items-center justify-center bg-[#F4F7FE] dark:bg-cyan-900">
                   <img
                     src={logo}
                     alt="Logo"

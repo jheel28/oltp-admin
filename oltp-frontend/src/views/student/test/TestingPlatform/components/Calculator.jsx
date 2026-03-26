@@ -62,7 +62,7 @@ const Calculator = ({ onClose }) => {
 
   return (
     <div className="fixed bottom-28 right-4 z-50 w-60 select-none overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
-      <div className="flex items-center justify-between bg-[#1a2744] px-4 py-2.5">
+      <div className="flex items-center justify-between bg-cyan-900 px-4 py-2.5">
         <span className="text-xs font-bold uppercase tracking-widest text-white">Calculator</span>
         <button onClick={onClose} className="text-gray-400 hover:text-white transition">
           <AiOutlineClose />
