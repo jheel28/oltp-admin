@@ -16,7 +16,7 @@ const CommunicationAptitudePage = () => {
           <Link to="/" className="flex items-center gap-2 sm:gap-3">
             <img src={logo} alt="Correct Steps" className="h-8 sm:h-10 w-auto" />
             <span className="font-bold text-lg sm:text-xl text-gray-800 tracking-tight">
-              Correct Steps
+              THE CORRECT STEPS
             </span>
           </Link>
           <div className="flex items-center gap-3">
@@ -79,12 +79,12 @@ const CommunicationAptitudePage = () => {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6 max-w-4xl">
           <SectionHeading>About the Program</SectionHeading>
-          <p className="mt-4 text-gray-700 text-base leading-relaxed">
+          <p className="mt-4 text-gray-900 text-base leading-relaxed font-medium">
             This program is a comprehensive blend of Verbal Ability, Quantitative Aptitude,
             Logical Reasoning, English Proficiency, and Personality Development, designed
             specifically to help students crack interviews and secure job opportunities.
           </p>
-          <p className="mt-3 text-gray-700 text-base leading-relaxed">
+          <p className="mt-3 text-gray-900 text-base leading-relaxed font-medium">
             In today's competitive environment, technical skills alone are not sufficient.
             Employers look for candidates who can communicate effectively, think critically,
             and present themselves confidently. This program bridges that gap by combining
@@ -177,7 +177,7 @@ const CommunicationAptitudePage = () => {
       <section className="py-16 bg-gray-50 border-t border-gray-100">
         <div className="container mx-auto px-6 max-w-4xl">
           <SectionHeading>Interview Preparation &amp; Career Support</SectionHeading>
-          <p className="mt-3 text-gray-700 text-sm">
+          <p className="mt-3 text-gray-900 text-sm font-medium">
             This program is strongly focused on real interview readiness and placement success.
           </p>
           <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -192,7 +192,7 @@ const CommunicationAptitudePage = () => {
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-600 text-white text-[10px] font-bold">
                   ✓
                 </span>
-                <span className="text-sm text-gray-700 font-medium">{item}</span>
+                <span className="text-sm text-gray-900 font-semibold">{item}</span>
               </li>
             ))}
           </ul>
@@ -202,7 +202,7 @@ const CommunicationAptitudePage = () => {
       <section className="py-16 bg-white border-t border-gray-100">
         <div className="container mx-auto px-6 max-w-4xl">
           <SectionHeading>Mock Interviews with Industry Mentors &amp; Professors</SectionHeading>
-          <p className="mt-4 text-gray-700 text-base leading-relaxed">
+          <p className="mt-4 text-gray-900 text-base leading-relaxed font-medium">
             One-on-one mock interviews conducted by industry professionals and experienced
             professors. These mock interviews simulate actual placement environments, ensuring
             students are fully prepared and confident.
@@ -216,7 +216,7 @@ const CommunicationAptitudePage = () => {
             ].map((item, i) => (
               <li key={i} className="flex items-start gap-3">
                 <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-500" />
-                <span className="text-sm text-gray-700">{item}</span>
+                <span className="text-sm text-gray-900 font-medium">{item}</span>
               </li>
             ))}
           </ul>
@@ -238,7 +238,7 @@ const CommunicationAptitudePage = () => {
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-cyan-600" />
-                    <span className="text-sm text-gray-700">{item}</span>
+                    <span className="text-sm text-gray-900 font-medium">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -255,7 +255,7 @@ const CommunicationAptitudePage = () => {
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-teal-500" />
-                    <span className="text-sm text-gray-700">{item}</span>
+                    <span className="text-sm text-gray-900 font-medium">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -277,7 +277,7 @@ const CommunicationAptitudePage = () => {
             ].map((item, i) => (
               <li key={i} className="flex items-start gap-3">
                 <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-600" />
-                <span className="text-sm text-gray-700">{item}</span>
+                <span className="text-sm text-gray-900 font-medium">{item}</span>
               </li>
             ))}
           </ul>
@@ -318,11 +318,11 @@ const CommunicationAptitudePage = () => {
           <div className="flex items-center gap-3">
             <img src={logo} alt="Correct Steps" className="h-8 w-auto" />
             <span className="font-bold text-white text-base uppercase tracking-wide">
-              Correct Steps
+              THE CORRECT STEPS
             </span>
           </div>
           <p className="text-sm">
-            &copy; {new Date().getFullYear()} Correct Steps. All rights reserved.
+            &copy; {new Date().getFullYear()} THE CORRECT STEPS. All rights reserved.
           </p>
         </div>
       </footer>
@@ -342,12 +342,12 @@ const CoreAreaCard = ({ number, title, description, points }) => (
       </div>
       <h3 className="font-bold text-gray-900 text-base">{title}</h3>
     </div>
-    <p className="text-sm text-gray-600">{description}</p>
+    <p className="text-sm text-gray-800 font-medium">{description}</p>
     <ul className="flex flex-col gap-1.5">
       {points.map((p, i) => (
         <li key={i} className="flex items-start gap-2">
           <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-500" />
-          <span className="text-xs text-gray-600">{p}</span>
+          <span className="text-sm text-gray-800">{p}</span>
         </li>
       ))}
     </ul>
@@ -361,7 +361,7 @@ const ModuleCard = ({ title, items }) => (
       {items.map((item, i) => (
         <li key={i} className="flex items-start gap-2">
           <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-600" />
-          <span className="text-xs text-gray-600">{item}</span>
+          <span className="text-sm text-gray-800">{item}</span>
         </li>
       ))}
     </ul>

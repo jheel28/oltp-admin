@@ -43,7 +43,7 @@ const LandingPage = () => {
           <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 py-3">
             <div className="flex items-center gap-2 sm:gap-3">
               <img src={logo} alt="Correct Steps" className="h-8 sm:h-10 w-auto" />
-              <span className="font-bold text-lg sm:text-xl text-gray-800 tracking-tight">Correct Steps</span>
+              <span className="font-bold text-lg sm:text-xl text-gray-800 tracking-tight">THE CORRECT STEPS</span>
             </div>
 
             <div className="flex items-center gap-2 sm:gap-4">
@@ -68,7 +68,6 @@ const LandingPage = () => {
                 )}
               </button>
 
-              <a href="#recruiting" className="text-black hover:text-teal-600 transition-colors hidden lg:block border border-gray-300 rounded-full px-4 py-1.5 text-[13px] font-medium tracking-wide">Recruiting?</a>
             </div>
           </div>
         </div>
@@ -133,16 +132,6 @@ const LandingPage = () => {
               </div>
             </div>
 
-            <div className="hidden md:block w-full md:w-80 shadow-2xl rounded-lg overflow-hidden bg-white border-t-4 border-teal-400 shrink-0">
-              <div className="p-8 text-center">
-                <h3 className="text-[22px] font-bold text-gray-900 mb-2">Recruiting?</h3>
-                <p className="text-[15px] text-gray-700 mb-6">We help you choose the right talent.</p>
-                <div className="w-12 h-1 bg-gray-300 mx-auto mb-6"></div>
-                <button className="w-full rounded bg-teal-600 hover:bg-teal-400 transition-colors px-4 py-3 font-bold text-white uppercase text-sm tracking-wide">
-                  Learn More
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -209,7 +198,7 @@ const LandingPage = () => {
       <section className="bg-cyan-900 text-white py-20 lg:py-28">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-extrabold mb-6">Why Choose Correct Steps?</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold mb-6">Why Choose THE CORRECT STEPS?</h2>
             <div className="w-20 h-1 bg-teal-400 mx-auto"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 max-w-5xl mx-auto">
@@ -272,13 +261,10 @@ const LandingPage = () => {
             <p className="text-lg mb-10 leading-relaxed text-gray-100">
               Get full access to all our practice tests, interview guides, and assessment center exercises. Build your confidence and land your dream job.
             </p>
-            <div className="flex flex-col sm:flex-row gap-5">
-              <Link to="/auth/register/student" className="text-center rounded shadow-md bg-white text-teal-600 hover:bg-gray-100 transition-colors px-8 py-4 font-bold uppercase text-[13px] tracking-wider">
+            <div>
+              <Link to="/auth/register/student" className="block w-full text-center rounded shadow-md bg-white text-teal-600 hover:bg-gray-100 transition-colors px-8 py-4 font-bold uppercase text-[13px] tracking-wider">
                 Get Prep Access
               </Link>
-              <button className="text-center rounded border-[3px] border-white hover:bg-white hover:text-teal-900 transition-colors px-8 py-4 font-bold text-white uppercase text-[13px] tracking-wider">
-                Learn More
-              </button>
             </div>
           </div>
         </div>
@@ -297,7 +283,7 @@ const LandingPage = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-8 border-b border-teal-900 pb-10 mb-10">
             <div className="flex items-center gap-3">
               <img src={logo} alt="Correct Steps" className="h-10 w-auto" />
-              <div className="font-bold text-white text-xl uppercase tracking-wider">Correct Steps</div>
+              <div className="font-bold text-white text-xl uppercase tracking-wider">THE CORRECT STEPS</div>
             </div>
             <div className="flex flex-wrap justify-center gap-8 text-[11px] font-bold uppercase tracking-wider text-gray-300">
               <a href="#" className="hover:text-white transition-colors">Affiliates</a>
@@ -308,7 +294,7 @@ const LandingPage = () => {
           </div>
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-sm text-gray-300 font-medium">
-              &copy; {new Date().getFullYear()} Correct Steps. All rights reserved.
+              &copy; {new Date().getFullYear()} THE CORRECT STEPS. All rights reserved.
             </div>
             <div className="flex gap-3 opacity-60 text-2xl">
               <div className="flex items-center gap-2">

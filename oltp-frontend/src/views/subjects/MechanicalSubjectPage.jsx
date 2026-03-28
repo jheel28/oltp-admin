@@ -33,7 +33,7 @@ const MechanicalSubjectPage = () => {
           <Link to="/" className="flex items-center gap-2 sm:gap-3">
             <img src={logo} alt="Correct Steps" className="h-8 sm:h-10 w-auto" />
             <span className="font-bold text-lg sm:text-xl text-gray-800 tracking-tight">
-              Correct Steps
+              THE CORRECT STEPS
             </span>
           </Link>
           <div className="flex items-center gap-3">
@@ -92,7 +92,7 @@ const MechanicalSubjectPage = () => {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6 max-w-4xl">
           <SectionHeading>About the Subject</SectionHeading>
-          <p className="text-gray-700 text-base leading-relaxed mt-4">{subject.about}</p>
+          <p className="text-gray-900 text-base leading-relaxed mt-4 font-medium">{subject.about}</p>
         </div>
       </section>
 
@@ -108,7 +108,7 @@ const MechanicalSubjectPage = () => {
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-600 text-white text-[10px] font-bold">
                   ✓
                 </span>
-                <span className="text-sm text-gray-700 font-medium">{point}</span>
+                <span className="text-sm text-gray-900 font-semibold">{point}</span>
               </li>
             ))}
           </ul>
@@ -125,7 +125,7 @@ const MechanicalSubjectPage = () => {
                 className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
               >
                 <span className="h-2 w-2 shrink-0 rounded-full bg-teal-500" />
-                <span className="text-sm text-gray-700">{topic}</span>
+                <span className="text-sm text-gray-900 font-medium">{topic}</span>
               </div>
             ))}
           </div>
@@ -141,7 +141,7 @@ const MechanicalSubjectPage = () => {
                 {subject.testStructure.map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-cyan-600" />
-                    <span className="text-sm text-gray-700">{item}</span>
+                    <span className="text-sm text-gray-900 font-medium">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -152,7 +152,7 @@ const MechanicalSubjectPage = () => {
                 {subject.platformFeatures.map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-teal-500" />
-                    <span className="text-sm text-gray-700">{item}</span>
+                    <span className="text-sm text-gray-900 font-medium">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -164,7 +164,7 @@ const MechanicalSubjectPage = () => {
       <section className="py-16 bg-white border-t border-gray-100">
         <div className="container mx-auto px-6 max-w-4xl">
           <SectionHeading>Who Should Enroll</SectionHeading>
-          <p className="mt-4 text-gray-700 text-base">{subject.whoShouldEnroll}</p>
+          <p className="mt-4 text-gray-900 text-base font-medium">{subject.whoShouldEnroll}</p>
         </div>
       </section>
 
@@ -216,11 +216,11 @@ const MechanicalSubjectPage = () => {
           <div className="flex items-center gap-3">
             <img src={logo} alt="Correct Steps" className="h-8 w-auto" />
             <span className="font-bold text-white text-base uppercase tracking-wide">
-              Correct Steps
+              THE CORRECT STEPS
             </span>
           </div>
           <p className="text-sm">
-            &copy; {new Date().getFullYear()} Correct Steps. All rights reserved.
+            &copy; {new Date().getFullYear()} THE CORRECT STEPS. All rights reserved.
           </p>
         </div>
       </footer>
