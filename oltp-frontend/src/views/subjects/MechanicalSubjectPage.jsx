@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { mechanicalSubjects } from "./subjectData";
 import CategoryCard from "components/common/CategoryCard";
 import logo from "assets/img/Logo/correct.png";
-import newImage from "assets/img/hero/1.jpg";
 
 const MechanicalSubjectPage = () => {
   const { slug } = useParams();
@@ -201,7 +200,7 @@ const MechanicalSubjectPage = () => {
               {related.map((s) => (
                 <CategoryCard
                   key={s.slug}
-                  imgSrc={newImage}
+                  imgSrc={s.image}
                   title={s.displayTitle}
                   link={`/subjects/mechanical/${s.slug}`}
                 />

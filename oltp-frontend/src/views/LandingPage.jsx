@@ -1,7 +1,12 @@
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import logo from "assets/img/Logo/correct.png";
 import handshake from "assets/img/hero/handshake.jpg";
-import newImage from "assets/img/hero/1.jpg";
+import hero9 from "assets/img/hero/L9.jpg";
+import hero8 from "assets/img/hero/L8.jpg";
+import hero10 from "assets/img/hero/L10.jpg";
+import hero11 from "assets/img/hero/L11.jpg";
+import hero13 from "assets/img/hero/L13.jpg";
+import hero14 from "assets/img/hero/A1.jpg";
 import { useEffect, useState } from "react";
 import {
   FaCalculator,
@@ -18,9 +23,9 @@ const ROUTES = {
 };
 
 const otherTests = [
-  { title: "Verbal ability" },
-  { title: "Data interpretation and logical reasoning" },
-  { title: "Quantitative aptitude" },
+  { title: "Verbal Ability", img: hero9 },
+  { title: "Data Interpretation and Logical Eeasoning", img: hero10 },
+  { title: "Quantitative Aptitude", img: hero11 },
 ];
 
 const LandingPage = () => {
@@ -95,11 +100,11 @@ const LandingPage = () => {
         </div>
       </header>
 
-      <section className="relative py-10 md:py-32 lg:py-40 flex items-center" style={{ minHeight: "auto" }}>
+      <section className="relative py-12 md:py-32 lg:py-40 flex items-center overflow-hidden" style={{ minHeight: "auto" }}>
         <div
           className="absolute inset-0 z-0 bg-white"
           style={{
-            backgroundImage: `linear-gradient(rgba(244, 246, 248, 0.9), rgba(244, 246, 248, 0.9)), url(${handshake})`,
+            backgroundImage: `linear-gradient(rgba(244, 246, 248, 0.92), rgba(244, 246, 248, 0.92)), url(${handshake})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -107,31 +112,30 @@ const LandingPage = () => {
         <div
           className="hidden md:block absolute inset-0 z-0"
           style={{
-            backgroundImage: `linear-gradient(90deg, #f4f6f8 0%, #f4f6f8 40%, rgba(244, 246, 248, 0.8) 50%, rgba(244, 246, 248, 0) 65%), url(${handshake})`,
+            backgroundImage: `linear-gradient(90deg, #f4f6f8 0%, #f4f6f8 40%, rgba(244, 246, 248, 0.7) 50%, rgba(244, 246, 248, 0) 70%), url(${handshake})`,
             backgroundSize: "cover",
             backgroundPosition: "center right",
           }}
         />
 
-        <div className="container mx-auto px-6 relative z-10 w-full mt-10">
+        <div className="container mx-auto px-6 relative z-10 w-full">
           <div className="flex flex-col md:flex-row items-center justify-between gap-10">
-            <div className="w-full md:w-3/5 max-w-2xl py-6 md:py-10">
-              <h1 className="mb-4 text-2xl sm:text-3xl md:text-5xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
+            <div className="w-full md:w-3/5 max-w-2xl py-6 md:py-10 text-center md:text-left">
+              <h1 className="mb-4 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
                 Smart Testing Platform for Serious Aspirants
               </h1>
-              <p className="mb-6 text-xl text-gray-800">
+              <p className="mb-6 text-lg sm:text-xl text-gray-800 font-medium">
                 Advanced test series with real-time analysis and performance insights.
               </p>
-              <p className="mb-8 text-lg text-gray-700">
+              <p className="mb-8 text-base sm:text-lg text-gray-700">
                 Start with 2 free tests. Unlock full potential with premium access.
               </p>
-              <div>
-                <Link to="/auth/sign-in?role=student" className="inline-block rounded shadow-md bg-teal-600 hover:bg-teal-400 transition-colors px-10 py-4 font-bold text-white text-[15px] tracking-wide">
+              <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+                <Link to="/auth/sign-in?role=student" className="w-full sm:w-auto text-center rounded-lg shadow-lg bg-teal-600 hover:bg-teal-500 transition-all px-10 py-4 font-bold text-white text-[15px] tracking-wide transform hover:-translate-y-0.5">
                   GET STARTED NOW
                 </Link>
               </div>
             </div>
-
           </div>
         </div>
       </section>
@@ -166,14 +170,15 @@ const LandingPage = () => {
       <section className="py-20 bg-gray-50 border-t border-gray-200" id="mechanical">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-12">Mechanical Engineering Practice Tests</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="flex flex-wrap justify-center gap-6">
             {mechanicalSubjects.map((subject) => (
-              <CategoryCard
-                key={subject.slug}
-                imgSrc={newImage}
-                title={subject.displayTitle}
-                link={`/subjects/mechanical/${subject.slug}`}
-              />
+              <div key={subject.slug} className="w-full sm:w-[calc(50%-1.5rem)] lg:w-[calc(25%-1.5rem)] max-w-[300px]">
+                <CategoryCard
+                  imgSrc={subject.image || hero8}
+                  title={subject.displayTitle}
+                  link={`/subjects/mechanical/${subject.slug}`}
+                />
+              </div>
             ))}
           </div>
         </div>
@@ -181,15 +186,16 @@ const LandingPage = () => {
 
       <section className="py-20 bg-gray-50 border-t border-gray-200" id="tests">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-12">Other Practice Tests</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-12">Interview & Exams Preparation </h2>
+          <div className="flex flex-wrap justify-center gap-6">
             {otherTests.map((test) => (
-              <CategoryCard
-                key={test.title}
-                imgSrc={newImage}
-                title={test.title}
-                link={ROUTES.COMMUNICATION}
-              />
+              <div key={test.title} className="w-full sm:w-[calc(50%-1.5rem)] lg:w-[calc(25%-1.5rem)] max-w-[300px]">
+                <CategoryCard
+                  imgSrc={test.img}
+                  title={test.title}
+                  link={ROUTES.COMMUNICATION}
+                />
+              </div>
             ))}
           </div>
         </div>
@@ -227,28 +233,26 @@ const LandingPage = () => {
       </section>
 
       <section className="bg-gray-100 py-16 lg:py-24" id="news">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold text-gray-700 tracking-wide uppercase">Latest News</h2>
+        <div className="container mx-auto px-6 text-center">
+          <div className="mb-12">
+            <h2 className="text-2xl font-extrabold text-gray-900 tracking-[0.25em] uppercase">Latest Article</h2>
           </div>
-          <div className="max-w-3xl mx-auto flex flex-col items-start text-left bg-transparent">
-            <div className="w-full mb-6 relative">
-              <img src={newImage} alt="Latest News" className="w-full h-auto object-cover shadow-sm" style={{ maxHeight: "420px" }} />
+          <div className="max-w-3xl mx-auto text-left">
+            <div className="w-full mb-10 shadow-md rounded-xl overflow-hidden aspect-[16/9] sm:aspect-[21/9]">
+              <img src={hero13} alt="Latest Article" className="w-full h-full object-cover" />
             </div>
 
-            <div className="w-full">
-              <h3 className="text-xl md:text-[22px] font-bold text-gray-900 mb-1">
-                New: Prepare for the DAT Next Generation
+            <div className="flex flex-col items-start w-full">
+              <h3 className="text-2xl md:text-4xl font-extrabold text-gray-900 mb-2 leading-tight">
+                How Employers Use Mechanical Aptitude Tests in Hiring
               </h3>
-              <p className="text-[12px] text-gray-600 mb-4 font-medium">October 13, 2025</p>
+              <p className="text-sm text-gray-600 mb-4 font-bold">March 4, 2026</p>
+              
+              <div className="w-12 h-1 bg-teal-600 mb-8 rounded-full"></div>
 
-              <p className="text-[14px] text-gray-800 leading-relaxed mb-6 font-medium">
-                Are you getting ready for the DAT Next Generation and want to perform at your absolute best? Aptitude-Test.com offers specialized practice materials that help you master every aspect of this modern cognitive ability assessment. The DAT Next Generation (Differential Aptitude Test) is an advanced cognitive ability assessment used by employers and public institutions to evaluate how well candidates can think logically, learn new concepts, and solve problems efficiently...
+              <p className="text-base md:text-lg text-gray-800 leading-relaxed font-semibold">
+                If you are applying for a technical or mechanical job, you may be asked to take a mechanical aptitude test as part of the hiring process. For many candidates, this comes as a surprise. Unlike interviews or résumé reviews, these tests measure something different: your ability to understand how mechanical systems work. Mechanical aptitude tests are widely used in industries where employees regularly work with machines, tools, or equipment. Employers use them to identify candidates who can quickly grasp mechanical concepts and solve practical problems. If you know why these tests are used and what employers are looking for, it [...]
               </p>
-
-              <a href="#" className="font-bold text-[14px] text-teal-600 hover:text-teal-400 transition-colors">
-                Continue reading
-              </a>
             </div>
           </div>
         </div>
@@ -271,7 +275,7 @@ const LandingPage = () => {
         <div
           className="w-full md:w-1/2 min-h-[350px] md:min-h-full"
           style={{
-            backgroundImage: `url(${handshake})`,
+            backgroundImage: `url(${hero14})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -286,10 +290,8 @@ const LandingPage = () => {
               <div className="font-bold text-white text-xl uppercase tracking-wider">THE CORRECT STEPS</div>
             </div>
             <div className="flex flex-wrap justify-center gap-8 text-[11px] font-bold uppercase tracking-wider text-gray-300">
-              <a href="#" className="hover:text-white transition-colors">Affiliates</a>
               <a href="#" className="hover:text-white transition-colors">Terms and Conditions</a>
               <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors">Links</a>
             </div>
           </div>
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">

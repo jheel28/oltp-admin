@@ -1,6 +1,17 @@
+import hero1 from "assets/img/hero/L1.jpg";
+import hero2 from "assets/img/hero/L2.jpeg";
+import hero3 from "assets/img/hero/L3.jpg";
+import hero4 from "assets/img/hero/L4.png";
+import hero5 from "assets/img/hero/L5.png";
+import hero6 from "assets/img/hero/L6.jpeg";
+import hero7 from "assets/img/hero/L7.png";
+import hero8 from "assets/img/hero/L8.jpg";
+// import hero15 from "assets/img/hero/15.jpeg";
+
 const mechanicalSubjects = [
   {
     slug: "engineering-mechanics",
+    image: hero1,
     title: "Engineering Mechanics & Mechanics of Materials",
     displayTitle: "Engineering Mechanics & Mechanics of Materials (Strength of Materials)",
     subtitle: "Strength of Materials",
@@ -50,6 +61,7 @@ const mechanicalSubjects = [
   },
   {
     slug: "cad-machine-drawing",
+    image: hero2,
     title: "CAD & Machine Drawing",
     displayTitle: "CAD & Machine Drawing",
     subtitle: "",
@@ -95,6 +107,7 @@ const mechanicalSubjects = [
   },
   {
     slug: "engineering-mathematics",
+    image: hero3,
     title: "Engineering Mathematics",
     displayTitle: "Engineering Mathematics",
     subtitle: "",
@@ -136,6 +149,7 @@ const mechanicalSubjects = [
   },
   {
     slug: "thermodynamics-heat-transfer",
+    image: hero4,
     title: "Thermodynamics & Heat Transfer",
     displayTitle: "Thermodynamics & Heat Transfer",
     subtitle: "",
@@ -175,6 +189,7 @@ const mechanicalSubjects = [
   },
   {
     slug: "machine-design",
+    image: hero5,
     title: "Machine Design",
     displayTitle: "Machine Design",
     subtitle: "",
@@ -213,6 +228,7 @@ const mechanicalSubjects = [
   },
   {
     slug: "theory-of-machines",
+    image: hero6,
     title: "Theory of Machines & Mechanisms",
     displayTitle: "Theory of Machines & Mechanisms",
     subtitle: "",
@@ -250,6 +266,7 @@ const mechanicalSubjects = [
   },
   {
     slug: "fluid-mechanics",
+    image: hero7,
     title: "Fluid Mechanics & Machinery",
     displayTitle: "Fluid Mechanics & Machinery",
     subtitle: "",
@@ -283,6 +300,7 @@ const mechanicalSubjects = [
   },
   {
     slug: "cfd-fea",
+    image: hero8,
     title: "CFD & FEA (Simulation Engineering)",
     displayTitle: "Computational Fluid Dynamics (CFD) & Finite Element Analysis (FEA)",
     subtitle: "Computational Fluid Dynamics & Finite Element Analysis",

@@ -45,7 +45,7 @@ const CommunicationAptitudePage = () => {
             ← Back
           </button>
           <p className="mb-3 text-xs font-bold uppercase tracking-widest text-teal-400">
-            Other Practice Tests
+            Interview & Exams Preparation 
           </p>
           <h1 className="text-3xl md:text-5xl font-extrabold leading-tight mb-4">
             Communication, Aptitude &amp; Career Development Program
