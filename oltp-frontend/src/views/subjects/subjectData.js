@@ -1,10 +1,10 @@
 import hero1 from "assets/img/hero/L1.jpg";
-import hero2 from "assets/img/hero/L2.jpeg";
+import hero2 from "assets/img/hero/L2.jpg";
 import hero3 from "assets/img/hero/L3.jpg";
-import hero4 from "assets/img/hero/L4.png";
-import hero5 from "assets/img/hero/L5.png";
-import hero6 from "assets/img/hero/L6.jpeg";
-import hero7 from "assets/img/hero/L7.png";
+import hero4 from "assets/img/hero/L4.jpg";
+import hero5 from "assets/img/hero/L5.jpg";
+import hero6 from "assets/img/hero/L6.jpg";
+import hero7 from "assets/img/hero/L7.jpg";
 import hero8 from "assets/img/hero/L8.jpg";
 // import hero15 from "assets/img/hero/15.jpeg";
 

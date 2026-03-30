@@ -6,6 +6,11 @@ import hero10 from "assets/img/hero/L10.jpg";
 import hero11 from "assets/img/hero/L11.jpg";
 import hero13 from "assets/img/hero/L13.jpg";
 import hero14 from "assets/img/hero/A1.jpg";
+import T1 from "assets/img/hero/T1.jpg";
+import T2 from "assets/img/hero/T2.jpg";
+import T3 from "assets/img/hero/T3.jpg";
+import T4 from "assets/img/hero/T4.jpg";
+import T5 from "assets/img/hero/T5.jpg";
 import {
   FaCalculator,
   FaComments,
@@ -26,10 +31,10 @@ const ROUTES = {
 };
 
 const SLIDER_IMAGES = [
-  "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1920&q=80",
-  "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=1920&q=80",
-  "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=1920&q=80",
-  "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=1920&q=80",
+  "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1280&q=60",
+  "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=1280&q=60",
+  "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=1280&q=60",
+  "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=1280&q=60",
 ];
 
 const SOCIAL_LINKS = [
@@ -60,6 +65,14 @@ const OTHER_TESTS = [
   { title: "Verbal Ability", img: hero9 },
   { title: "Data Interpretation and Logical Reasoning", img: hero10 },
   { title: "Quantitative Aptitude", img: hero11 },
+];
+
+const FEATURED_TOPICS = [
+  { title: "Physics of Design", img: T1 },
+  { title: "Origami Art in Robotics", img: T2 },
+  { title: "Mathematics", img: T3 },
+  { title: "Flexure Joints and Mechanisms", img: T4 },
+  { title: "Chemistry for Materials Science", img: T5 },
 ];
 
 const preloadImages = (srcs) => {
@@ -130,7 +143,15 @@ const LandingPage = () => {
   }, [location, navigate]);
 
   useEffect(() => {
-    preloadImages(SLIDER_IMAGES);
+    // Only preload the first image to drastically speed up initial paint
+    preloadImages([SLIDER_IMAGES[0]]);
+    
+    // Defer downloading the other 3 massive slides until main page finishes
+    const deferLoad = setTimeout(() => {
+      preloadImages(SLIDER_IMAGES.slice(1));
+    }, 4500);
+
+    return () => clearTimeout(deferLoad);
   }, []);
 
   const startAutoplay = useCallback(() => {
@@ -328,6 +349,29 @@ const LandingPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Featured Topics */}
+      <section className="py-20 bg-white border-t border-gray-200" id="featured-topics">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-12">
+            Featured Topics
+          </h2>
+          <div className="flex flex-wrap justify-center gap-6">
+            {FEATURED_TOPICS.map((topic) => (
+              <div
+                key={topic.title}
+                className="w-full sm:w-[calc(50%-1.5rem)] lg:w-[calc(33.333%-1.5rem)] xl:w-[calc(20%-1.5rem)] max-w-[300px]"
+              >
+                <CategoryCard
+                  imgSrc={topic.img}
+                  title={topic.title}
+                  link="#"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Mechanical Engineering Tests */}
       <section className="py-20 bg-gray-50 border-t border-gray-200" id="mechanical">
