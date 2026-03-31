@@ -18,9 +18,10 @@ const CategoryCard = ({ imgSrc, title, link }) => (
       <div className="mt-0 pb-1">
         <Link
           to={link}
+          state={{ bgImage: imgSrc }}
           className="inline-flex items-center gap-1.5 text-teal-600 text-[12px] font-bold hover:text-teal-400 transition-colors tracking-wider group/link"
         >
-          PRACTICE{" "}
+          START NOW{" "}
           <span className="transform group-hover/link:translate-x-1 transition-transform">→</span>
         </Link>
       </div>

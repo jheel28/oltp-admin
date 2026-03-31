@@ -6,7 +6,11 @@ import hero5 from "assets/img/hero/L5.jpg";
 import hero6 from "assets/img/hero/L6.jpg";
 import hero7 from "assets/img/hero/L7.jpg";
 import hero8 from "assets/img/hero/L8.jpg";
-// import hero15 from "assets/img/hero/15.jpeg";
+import T1 from "assets/img/hero/T1.jpg";
+import T2 from "assets/img/hero/T2.jpg";
+import T3 from "assets/img/hero/T3.jpg";
+import T4 from "assets/img/hero/T4.jpg";
+import T5 from "assets/img/hero/T5.jpg";
 
 const mechanicalSubjects = [
   {
@@ -337,4 +341,229 @@ const mechanicalSubjects = [
   },
 ];
 
-export { mechanicalSubjects };
+const featuredSubjects = [
+  {
+    slug: "physics-of-design",
+    image: T1,
+    title: "Physics of Design",
+    displayTitle: "Physics of Design",
+    subtitle: "",
+    hero: "Understand the fundamental physics behind engineering systems and product design.",
+    heroSub:
+      "Physics of Design focuses on applying core physical principles to engineering design and system behavior — crucial for robotics, aerospace, and advanced product development.",
+    about:
+      "Physics of Design focuses on applying core physical principles to engineering design and system behavior. It goes beyond theoretical physics and emphasizes how forces, energy, motion, and material interactions influence real-world products and mechanisms. This subject is crucial for engineers working in robotics, aerospace, automotive systems, and advanced product development, where design decisions must be backed by strong physical understanding.",
+    masterPoints: [
+      "Application of mechanics in design systems",
+      "Energy interactions and system behavior",
+      "Motion and force optimization",
+      "Physical constraints in product design",
+      "Analytical thinking for engineering applications",
+    ],
+    topics: [
+      "Classical Mechanics in Design",
+      "Energy Methods and Work Principles",
+      "Kinematics in Mechanical Systems",
+      "Dynamics of Rigid Bodies",
+      "Vibrations and System Stability",
+      "Contact Mechanics and Friction",
+      "Scaling Laws in Engineering Design",
+      "Physical Modeling and Prototyping",
+    ],
+    testStructure: [
+      "Concept-based MCQs",
+      "Multi-concept analytical MSQs",
+      "Numerical problems focused on design scenarios",
+      "Application-based problem solving",
+    ],
+    platformFeatures: [
+      "Advanced concept-driven learning",
+      "Research-oriented problem sets",
+      "Real-world application scenarios",
+      "Performance analytics and insights",
+    ],
+    whoShouldEnroll:
+      "Engineering students (Mechanical, Robotics, Aerospace), Product designers and innovators",
+    price: "₹300/month",
+    cta: "Develop the ability to design systems grounded in fundamental physics.",
+  },
+  {
+    slug: "origami-art-in-robotics",
+    image: T2,
+    title: "Origami Art in Robotics",
+    displayTitle: "Origami Art in Robotics",
+    subtitle: "",
+    hero: "Merge art, geometry, and engineering to build adaptive robotic systems.",
+    heroSub:
+      "Explore the emerging field of origami in robotics — combining folding techniques with engineering design to create compact, flexible, and deployable structures.",
+    about:
+      "Origami in Robotics is an emerging interdisciplinary field that combines folding techniques with engineering design to create compact, flexible, and deployable structures. This field is widely used in soft robotics, space structures, biomedical devices, and deployable mechanisms, where traditional rigid systems are not feasible.",
+    masterPoints: [
+      "Origami-based structural design",
+      "Folding kinematics and transformations",
+      "Deployable and reconfigurable systems",
+      "Soft robotics concepts",
+      "Geometry-driven engineering design",
+    ],
+    topics: [
+      "Basics of Origami Geometry",
+      "Folding Patterns (Miura-ori, Waterbomb, etc.)",
+      "Kinematics of Folding Structures",
+      "Deployable Mechanisms",
+      "Soft Robotics Applications",
+      "Material Behavior in Folding",
+      "Computational Origami Design",
+      "Applications in Aerospace and Biomedical Fields",
+    ],
+    testStructure: [
+      "Conceptual MCQs",
+      "Geometry-based MSQs",
+      "Numerical problems related to folding mechanics",
+      "Design-oriented case studies",
+    ],
+    platformFeatures: [
+      "Advanced concept-driven learning",
+      "Research-oriented problem sets",
+      "Real-world application scenarios",
+      "Performance analytics and insights",
+    ],
+    whoShouldEnroll:
+      "Engineering students, Robotics enthusiasts, Designers interested in deployable systems",
+    price: "₹300/month",
+    cta: "Explore the future of robotics through innovative folding-based design.",
+  },
+  {
+    slug: "mathematics",
+    image: T3,
+    title: "Mathematics",
+    displayTitle: "Mathematics",
+    subtitle: "Advanced Mathematics for Engineering & Research",
+    hero: "Build the analytical foundation for simulation, modeling, and innovation.",
+    heroSub:
+      "Focused on advanced applications in engineering, robotics, and computational systems — emphasizing problem-solving, modeling, and analytical thinking.",
+    about:
+      "Mathematics in this platform is focused on advanced applications in engineering, robotics, and computational systems. It emphasizes problem-solving, modeling, and analytical thinking required for simulations and research. This subject supports domains like CFD, FEA, AI, control systems, and optimization.",
+    masterPoints: [
+      "Mathematical modeling",
+      "Analytical problem solving",
+      "Computational methods",
+      "Optimization techniques",
+      "Applied mathematics in engineering",
+    ],
+    topics: [
+      "Advanced Calculus",
+      "Differential Equations",
+      "Linear Algebra",
+      "Vector Calculus",
+      "Numerical Methods",
+      "Optimization Techniques",
+      "Probability and Statistics",
+      "Mathematical Modeling",
+    ],
+    testStructure: [
+      "Conceptual MCQs",
+      "Multi-step analytical MSQs",
+      "Numerical simulation-based problems",
+    ],
+    platformFeatures: [
+      "Advanced concept-driven learning",
+      "Research-oriented problem sets",
+      "Real-world application scenarios",
+      "Performance analytics and insights",
+    ],
+    whoShouldEnroll: "Engineering students, Research enthusiasts, Learners aiming for R&D",
+    price: "₹300/month",
+    cta: "Strengthen your mathematical thinking for advanced engineering applications.",
+  },
+  {
+    slug: "flexure-joints-and-mechanisms",
+    image: T4,
+    title: "Flexure Joints and Mechanisms",
+    displayTitle: "Flexure Joints & Mechanisms",
+    subtitle: "",
+    hero: "Design precision systems without traditional joints.",
+    heroSub:
+      "Flexure mechanisms use elastic deformation to achieve motion, eliminating traditional joints for zero backlash and high precision in MEMS, robotics, and biomedical instruments.",
+    about:
+      "Flexure mechanisms use elastic deformation to achieve motion, eliminating the need for traditional mechanical joints. These systems are widely used in precision engineering, MEMS devices, robotics, and biomedical instruments. They offer advantages such as zero backlash, high precision, and minimal maintenance.",
+    masterPoints: [
+      "Design of compliant mechanisms",
+      "Elastic deformation principles",
+      "Precision motion systems",
+      "Mechanism optimization",
+      "Material behavior in flexure systems",
+    ],
+    topics: [
+      "Fundamentals of Flexure Mechanics",
+      "Compliant Mechanism Design",
+      "Beam-Based Flexure Systems",
+      "Stress Analysis in Flexures",
+      "Precision Engineering Applications",
+      "Micro and Nano Mechanisms",
+      "Design Optimization",
+      "Applications in Robotics and Instruments",
+    ],
+    testStructure: [
+      "Concept-based MCQs",
+      "Design-oriented MSQs",
+      "Numerical problems on deformation and stress",
+      "Case-based engineering problems",
+    ],
+    platformFeatures: [
+      "Advanced concept-driven learning",
+      "Research-oriented problem sets",
+      "Real-world application scenarios",
+      "Performance analytics and insights",
+    ],
+    whoShouldEnroll:
+      "Mechanical and robotics engineers, Precision engineering students, MEMS designers",
+    price: "₹300/month",
+    cta: "Design high-precision systems with advanced mechanism concepts.",
+  },
+  {
+    slug: "chemistry-for-materials-science",
+    image: T5,
+    title: "Chemistry for Materials Science",
+    displayTitle: "Chemistry for Materials Science",
+    subtitle: "",
+    hero: "Understand materials at the molecular level to engineer better products.",
+    heroSub:
+      "Master the chemical principles governing material properties and performance — essential for innovating in aerospace, automotive, electronics, and biomedical fields.",
+    about:
+      "This subject focuses on the chemical principles governing material properties, behavior, and performance. It is essential for developing new materials used in aerospace, automotive, electronics, and biomedical applications. Understanding material chemistry enables engineers to design stronger, lighter, and more efficient systems.",
+    masterPoints: [
+      "Material composition and structure",
+      "Chemical bonding and properties",
+      "Corrosion and degradation",
+      "Advanced material selection",
+      "Material behavior in engineering applications",
+    ],
+    topics: [
+      "Atomic Structure and Bonding",
+      "Crystal Structures and Defects",
+      "Polymers, Ceramics, and Composites",
+      "Corrosion and Surface Chemistry",
+      "Thermodynamics of Materials",
+      "Nanomaterials and Advanced Materials",
+      "Material Processing Techniques",
+      "Applications in Engineering Systems",
+    ],
+    testStructure: [
+      "Concept-based MCQs",
+      "Analytical MSQs",
+      "Numerical and application-based questions",
+    ],
+    platformFeatures: [
+      "Advanced concept-driven learning",
+      "Research-oriented problem sets",
+      "Real-world application scenarios",
+      "Performance analytics and insights",
+    ],
+    whoShouldEnroll:
+      "Materials science students, Aerospace and automotive engineers, Interdisciplinary learners",
+    price: "₹300/month",
+    cta: "Develop the knowledge to innovate with advanced materials.",
+  },
+];
+
+export { mechanicalSubjects, featuredSubjects };

@@ -1,14 +1,23 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
-import { mechanicalSubjects } from "./subjectData";
+import { mechanicalSubjects, featuredSubjects } from "./subjectData";
 import CategoryCard from "components/common/CategoryCard";
 import logo from "assets/img/Logo/correct.png";
 
 const MechanicalSubjectPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const subject = mechanicalSubjects.find((s) => s.slug === slug);
-  const related = mechanicalSubjects.filter((s) => s.slug !== slug).slice(0, 4);
+  const location = useLocation();
+  
+  // Get image from state or fallback to subject's own image
+  const bgImageFromState = location.state?.bgImage;
+  
+  // Combine all subjects to find the current one
+  const allSubjects = [...mechanicalSubjects, ...featuredSubjects];
+  const subject = allSubjects.find((s) => s.slug === slug);
+  const related = allSubjects.filter((s) => s.slug !== slug).slice(0, 4);
+
+  const heroBgImage = bgImageFromState || subject?.image;
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -29,31 +38,41 @@ const MechanicalSubjectPage = () => {
     <div className="min-h-screen font-sans text-aptText bg-white">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 py-3">
-          <Link to="/" className="flex items-center gap-2 sm:gap-3">
-            <img src={logo} alt="Correct Steps" className="h-8 sm:h-10 w-auto" />
-            <span className="font-bold text-lg sm:text-xl text-gray-800 tracking-tight">
+          <Link to="/" className="flex items-center gap-3 sm:gap-4">
+            <img src={logo} alt="Correct Steps" className="h-10 sm:h-12 w-auto" />
+            <span className="font-bold text-lg sm:text-2xl text-gray-800 tracking-tight">
               THE CORRECT STEPS
             </span>
           </Link>
-          <div className="flex items-center gap-3">
-            <Link
-              to="/auth/user/sign-in"
-              className="text-gray-700 hover:text-teal-600 transition-colors text-sm font-semibold px-2 py-2"
-            >
-              Log in
-            </Link>
-            <Link
-              to="/auth/register/student"
-              className="rounded-full bg-teal-600 hover:bg-teal-500 transition-colors px-5 py-2 text-white text-sm font-bold shadow-sm"
-            >
-              Sign Up
-            </Link>
+          <div className="flex items-center gap-3 sm:gap-6">
+            <div className="flex items-center gap-2 sm:gap-6 text-sm sm:text-base font-bold">
+              <Link 
+                to="/auth/user/sign-in" 
+                className="text-gray-800 hover:text-teal-600 transition-colors px-1 py-2"
+              >
+                Log in
+              </Link>
+              <Link 
+                to="/auth/register/student" 
+                className="rounded-full bg-teal-600 hover:bg-teal-500 transition-all shadow-md px-5 sm:px-8 py-2 sm:py-3 text-white transform hover:-translate-y-0.5 active:translate-y-0"
+              >
+                Sign Up
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
-      <section className="bg-cyan-900 py-16 md:py-24 text-white">
-        <div className="container mx-auto px-6 max-w-4xl">
+      <section 
+        className="relative py-16 md:py-24 text-white overflow-hidden"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${heroBgImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        <div className="container mx-auto px-6 max-w-4xl relative z-10">
           <button
             onClick={() => navigate(-1)}
             className="mb-6 flex items-center gap-2 text-sm text-teal-300 hover:text-white transition-colors"
@@ -61,7 +80,7 @@ const MechanicalSubjectPage = () => {
             ← Back
           </button>
           <p className="mb-3 text-xs font-bold uppercase tracking-widest text-teal-400">
-            Mechanical Engineering Practice Tests
+            {featuredSubjects.some(s => s.slug === slug) ? "Featured Research Topic" : "Mechanical Engineering Practice Tests"}
           </p>
           <h1 className="text-3xl md:text-5xl font-extrabold leading-tight mb-3">
             {subject.title}
@@ -210,15 +229,15 @@ const MechanicalSubjectPage = () => {
         </section>
       )}
 
-      <footer className="bg-cyan-900 py-10 text-gray-300">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img src={logo} alt="Correct Steps" className="h-8 w-auto" />
-            <span className="font-bold text-white text-base uppercase tracking-wide">
+      <footer className="bg-cyan-900 py-12 text-gray-300">
+        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <img src={logo} alt="Correct Steps" className="h-10 sm:h-12 w-auto" />
+            <span className="font-bold text-white text-lg sm:text-2xl uppercase tracking-tight">
               THE CORRECT STEPS
             </span>
           </div>
-          <p className="text-sm">
+          <p className="text-sm font-medium">
             &copy; {new Date().getFullYear()} THE CORRECT STEPS. All rights reserved.
           </p>
         </div>

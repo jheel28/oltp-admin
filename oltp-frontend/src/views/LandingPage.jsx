@@ -12,11 +12,6 @@ import T3 from "assets/img/hero/T3.jpg";
 import T4 from "assets/img/hero/T4.jpg";
 import T5 from "assets/img/hero/T5.jpg";
 import {
-  FaCalculator,
-  FaComments,
-  FaChartLine,
-  FaCog,
-  FaBullseye,
   FaFacebook,
   FaYoutube,
   FaLinkedin,
@@ -45,18 +40,10 @@ const SOCIAL_LINKS = [
   { href: "https://wa.me/919958800754", Icon: FaWhatsapp, label: "WhatsApp", hover: "hover:text-green-400" },
 ];
 
-const QUICK_LINKS = [
-  { href: "#numerical", Icon: FaCalculator, label: "Numerical Tests" },
-  { href: "#verbal", Icon: FaComments, label: "Verbal Tests" },
-  { href: "#nonverbal", Icon: FaChartLine, label: "Non-verbal Tests" },
-  { href: "#mechanical", Icon: FaCog, label: "Mechanical Tests" },
-  { href: "#publisher", Icon: FaBullseye, label: "Tests by Publisher" },
-];
-
 const NAV_LINKS = [
   { href: "#mechanical", label: "Mechanical Engineering" },
   { href: "#tests", label: "Aptitude Tests" },
-  { href: "#prep", label: "Prep Access" },
+  { href: "#research", label: "Research Papers" },
   { href: "#news", label: "Articles and News" },
   { href: "#contact", label: "Contact Us" },
 ];
@@ -67,12 +54,12 @@ const OTHER_TESTS = [
   { title: "Quantitative Aptitude", img: hero11 },
 ];
 
-const FEATURED_TOPICS = [
-  { title: "Physics of Design", img: T1 },
-  { title: "Origami Art in Robotics", img: T2 },
-  { title: "Mathematics", img: T3 },
-  { title: "Flexure Joints and Mechanisms", img: T4 },
-  { title: "Chemistry for Materials Science", img: T5 },
+const RESEARCH_PAPERS = [
+  { title: "Physics of Design", img: T1, slug: "physics-of-design" },
+  { title: "Origami Art in Robotics", img: T2, slug: "origami-art-in-robotics" },
+  { title: "Mathematics", img: T3, slug: "mathematics" },
+  { title: "Flexure Joints and Mechanisms", img: T4, slug: "flexure-joints-and-mechanisms" },
+  { title: "Chemistry for Materials Science", img: T5, slug: "chemistry-for-materials-science" },
 ];
 
 const preloadImages = (srcs) => {
@@ -89,16 +76,6 @@ const NavLink = memo(({ href, label, onClick }) => (
     className="hover:text-teal-300 transition-colors uppercase tracking-wider"
   >
     {label}
-  </a>
-));
-
-const QuickLink = memo(({ href, Icon, label }) => (
-  <a
-    href={href}
-    className="flex flex-col items-center transform transition-transform hover:-translate-y-1 min-w-[60px]"
-  >
-    <Icon className="text-3xl md:text-4xl mb-1 md:mb-2" />
-    <span className="text-[10px] md:text-xs font-semibold text-center">{label}</span>
   </a>
 ));
 
@@ -198,28 +175,28 @@ const LandingPage = () => {
       <header className={`sticky top-0 z-50 transition-all duration-200 ${scrolled ? "shadow-lg bg-white/95 backdrop-blur-sm" : "shadow-none bg-white"}`}>
         <div className="border-b border-gray-100">
           <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 py-2">
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-3 sm:gap-4">
               <img
                 src={logo}
                 alt="Correct Steps"
-                className="h-12 sm:h-16 w-auto"
+                className="h-10 sm:h-14 w-auto"
                 fetchPriority="high"
               />
-              <span className="font-bold text-base sm:text-xl text-gray-800 tracking-tight leading-tight">
+              <span className="font-bold text-lg sm:text-2xl text-gray-800 tracking-tight leading-tight">
                 THE CORRECT STEPS
               </span>
             </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm font-semibold">
-                <Link
-                  to="/auth/user/sign-in"
-                  className="text-gray-700 hover:text-teal-600 transition-colors px-2 py-2"
+            <div className="flex items-center gap-1.5 sm:gap-6">
+              <div className="flex items-center gap-1 sm:gap-6 text-[13px] sm:text-base font-bold whitespace-nowrap">
+                <Link 
+                  to="/auth/user/sign-in" 
+                  className="text-gray-800 hover:text-teal-600 transition-colors px-1 py-2"
                 >
                   Log in
                 </Link>
-                <Link
-                  to="/auth/register/student"
-                  className="rounded-full bg-teal-600 hover:bg-teal-500 transition-colors shadow-sm px-4 sm:px-6 py-2 sm:py-2.5 text-white font-bold text-xs sm:text-sm"
+                <Link 
+                  to="/auth/register/student" 
+                  className="rounded-full bg-teal-600 hover:bg-teal-500 transition-all shadow-md px-3.5 sm:px-8 py-1.5 sm:py-3 text-white transform hover:-translate-y-0.5 active:translate-y-0 text-[12px] sm:text-sm"
                 >
                   Sign Up
                 </Link>
@@ -254,8 +231,8 @@ const LandingPage = () => {
 
       {/* ─── HERO SECTION ─────────────────────────────────────────────────────── */}
       <section
-        className="relative w-full overflow-hidden"
-        style={{ height: "88vh", minHeight: "520px", maxHeight: "860px" }}
+        className="relative w-full overflow-hidden bg-gray-900"
+        style={{ height: "80vh", minHeight: "500px", maxHeight: "800px" }}
       >
         {/* Slide backgrounds */}
         {SLIDER_IMAGES.map((img, index) => (
@@ -267,50 +244,47 @@ const LandingPage = () => {
               inset: 0,
               backgroundImage: "url(" + img + ")",
               backgroundSize: "cover",
-              backgroundPosition: "center",
+              backgroundPosition: "center 25%",
               opacity: index === currentSlide ? 1 : 0,
-              transition: "opacity 1.1s ease-in-out",
+              transition: "opacity 1.2s ease-in-out",
               willChange: "opacity",
             }}
           />
         ))}
 
         {/* Layered overlay: dark base + left-weighted gradient */}
-        <div className="absolute inset-0 z-10" style={{ background: "rgba(8,24,32,0.45)" }} />
+        <div className="absolute inset-0 z-10" style={{ background: "rgba(8,24,32,0.4)" }} />
         <div
           className="absolute inset-0 z-10"
           style={{
-            background: "linear-gradient(105deg, rgba(8,24,32,0.92) 0%, rgba(8,24,32,0.72) 38%, rgba(8,24,32,0.28) 65%, transparent 100%)",
+            background: "linear-gradient(105deg, rgba(8,24,32,0.95) 0%, rgba(8,24,32,0.8) 35%, rgba(8,24,32,0.3) 65%, transparent 100%)",
           }}
         />
-        {/* Bottom fade for slide indicator legibility */}
-        <div
-          className="absolute bottom-0 left-0 right-0 z-10 h-28"
-          style={{ background: "linear-gradient(to top, rgba(8,24,32,0.6) 0%, transparent 100%)" }}
-        />
+        {/* Mobile-only center overlay for better text contrast */}
+        <div className="md:hidden absolute inset-0 z-10 bg-black/20" />
 
         {/* Content */}
-        <div className="relative z-20 h-full container mx-auto px-6 sm:px-10 flex items-center">
-          <div className="w-full md:w-[58%] max-w-2xl flex flex-col gap-0">
+        <div className="relative z-20 h-full container mx-auto px-6 sm:px-10 flex items-center justify-center md:justify-start text-center md:text-left">
+          <div className="w-full md:w-[60%] max-w-2xl flex flex-col gap-0">
 
-            <h1 className="mb-5 text-3xl sm:text-4xl md:text-5xl lg:text-[3.4rem] font-extrabold text-white leading-[1.12] tracking-tight">
+            <h1 className="mb-5 text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold text-white leading-[1.1] tracking-tight drop-shadow-lg">
               Smart Testing Platform<br className="hidden sm:block" /> for Serious Aspirants
             </h1>
 
-            <p className="mb-2 text-xl text-gray-100 font-medium leading-relaxed">
+            <p className="mb-2 text-lg sm:text-xl text-gray-100 font-medium leading-relaxed drop-shadow-md">
               Advanced test series with real-time analysis and performance insights.
             </p>
-            <p className="mb-10 text-lg text-gray-200 leading-relaxed">
+            <p className="mb-10 text-base sm:text-lg text-gray-200 leading-relaxed drop-shadow-md">
               Start with 2 free tests. Unlock full potential with premium access.
             </p>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
               <Link
                 to="/auth/sign-in?role=student"
-                className="inline-flex items-center gap-2 rounded-lg bg-teal-500 hover:bg-teal-400 transition-all duration-200 px-8 py-3.5 font-bold text-white text-sm tracking-widest uppercase shadow-lg hover:-translate-y-0.5 transform"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-teal-500 hover:bg-teal-400 transition-all duration-200 px-10 py-4 font-bold text-white text-sm tracking-widest uppercase shadow-xl hover:-translate-y-1 transform"
               >
                 Get Started Now
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
               </Link>
@@ -331,41 +305,28 @@ const LandingPage = () => {
               />
             ))}
 
-            {/* Slide counter */}
-            <span className="ml-2 text-white/50 text-xs font-semibold tabular-nums">
-              {String(currentSlide + 1).padStart(2, "0")} / {String(SLIDER_IMAGES.length).padStart(2, "0")}
-            </span>
+            {/* Slide counter removed */}
           </div>
         </div>
       </section>
 
-      {/* Quick Links */}
-      <div className="bg-cyan-900 text-white py-5 relative z-20">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-16">
-            {QUICK_LINKS.map((link) => (
-              <QuickLink key={link.label} href={link.href} Icon={link.Icon} label={link.label} />
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* Featured Topics */}
-      <section className="py-20 bg-white border-t border-gray-200" id="featured-topics">
+      <section className="py-20 bg-white border-t border-gray-200" id="research">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-12">
             Featured Topics
           </h2>
-          <div className="flex flex-wrap justify-center gap-6">
-            {FEATURED_TOPICS.map((topic) => (
+          {/* Centered container with limited width to force 3+2 layout while keeping card size standard */}
+          <div className="flex flex-wrap justify-center gap-6 max-w-[1000px] mx-auto">
+            {RESEARCH_PAPERS.map((topic) => (
               <div
-                key={topic.title}
-                className="w-full sm:w-[calc(50%-1.5rem)] lg:w-[calc(33.333%-1.5rem)] xl:w-[calc(20%-1.5rem)] max-w-[300px]"
+                key={topic.slug}
+                className="w-full sm:w-[calc(50%-1.5rem)] lg:w-[calc(33.333%-1.5rem)] max-w-[300px]"
               >
                 <CategoryCard
                   imgSrc={topic.img}
                   title={topic.title}
-                  link="#"
+                  link={`/subjects/mechanical/${topic.slug}`}
                 />
               </div>
             ))}
@@ -379,7 +340,7 @@ const LandingPage = () => {
           <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-12">
             Mechanical Engineering Practice Tests
           </h2>
-          <div className="flex flex-wrap justify-center gap-6">
+          <div className="flex flex-wrap justify-center gap-6 max-w-[1280px] mx-auto">
             {mechanicalSubjects.map((subject) => (
               <div
                 key={subject.slug}
@@ -402,7 +363,7 @@ const LandingPage = () => {
           <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-12">
             Interview and Exams Preparation
           </h2>
-          <div className="flex flex-wrap justify-center gap-6">
+          <div className="flex flex-wrap justify-center gap-6 max-w-[1280px] mx-auto">
             {OTHER_TESTS.map((test) => (
               <div
                 key={test.title}
@@ -470,25 +431,41 @@ const LandingPage = () => {
       </section>
 
       {/* Prep Access */}
-      <section className="flex flex-col md:flex-row w-full min-h-[450px] bg-teal-600" id="prep">
-        <div className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-16 lg:p-24 text-white">
-          <div className="max-w-md w-full">
-            <h2 className="text-3xl md:text-[40px] leading-tight font-extrabold mb-6">
+      <section className="relative flex flex-col md:flex-row w-full min-h-[450px] bg-teal-600 overflow-hidden" id="prep">
+        {/* Mobile Background (integrated) */}
+        <div 
+          className="md:hidden absolute inset-0 z-0 opacity-20"
+          style={{
+            backgroundImage: "url(" + hero14 + ")",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+        
+        <div className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-16 lg:p-24 text-white relative z-10">
+          <div className="max-w-md w-full text-center md:text-left">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 leading-tight">
               Unlock Your Full Potential
             </h2>
-            <p className="text-lg mb-10 leading-relaxed text-gray-100">
-              Get full access to all our practice tests, interview guides, and assessment center exercises. Build your confidence and land your dream job.
+            <p className="text-lg md:text-xl text-teal-50 mb-10 leading-relaxed font-medium">
+              Get full access to all our practice tests, interview guides, and
+              assessment center exercises. Build your confidence and land your
+              dream job.
             </p>
-            <Link
-              to="/auth/register/student"
-              className="block w-full text-center rounded shadow-md bg-white text-teal-600 hover:bg-gray-100 transition-colors px-8 py-4 font-bold uppercase text-[13px] tracking-wider"
-            >
-              Get Prep Access
-            </Link>
+            <div>
+              <Link
+                to="/auth/register/student"
+                className="inline-block w-full sm:w-auto rounded-lg bg-white px-10 py-4 font-bold text-teal-600 hover:bg-gray-100 transition-all shadow-lg transform hover:-translate-y-0.5 active:translate-y-0"
+              >
+                GET PREP ACCESS
+              </Link>
+            </div>
           </div>
         </div>
+        
+        {/* Desktop Image Panel */}
         <div
-          className="w-full md:w-1/2 min-h-[350px] md:min-h-full"
+          className="hidden md:block w-full md:w-1/2 min-h-[350px] md:min-h-full"
           style={{
             backgroundImage: "url(" + hero14 + ")",
             backgroundSize: "cover",
@@ -506,16 +483,16 @@ const LandingPage = () => {
 
             {/* Left: brand block */}
             <div className="flex flex-col gap-5">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 sm:gap-4">
                 <img
                   src={logo}
                   alt="Correct Steps"
                   loading="lazy"
                   decoding="async"
-                  className="h-14 w-auto"
+                  className="h-10 sm:h-14 w-auto"
                 />
-                <span className="font-bold text-white text-lg uppercase tracking-widest leading-tight">
-                  The Correct Steps
+                <span className="font-bold text-white text-lg sm:text-2xl uppercase tracking-tight leading-tight">
+                  THE CORRECT STEPS
                 </span>
               </div>
               <p className="text-sm text-gray-100 max-w-xs leading-relaxed">
@@ -537,11 +514,14 @@ const LandingPage = () => {
 
           </div>
 
-          {/* Bottom bar */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-8 border-t border-gray-100/10">
             <p className="text-xs text-gray-100 font-medium">
-              &copy; {new Date().getFullYear()} The Correct Steps. All rights reserved.
+              &copy; {new Date().getFullYear()} THE CORRECT STEPS. All rights reserved.
             </p>
+            <div className="flex items-center gap-6 text-[11px] font-bold uppercase tracking-wider text-gray-100">
+              <Link to="/terms" className="hover:text-white transition-colors">T&C</Link>
+              <Link to="/privacy" className="hover:text-white transition-colors">Privacy and Policy</Link>
+            </div>
           </div>
         </div>
       </footer>
