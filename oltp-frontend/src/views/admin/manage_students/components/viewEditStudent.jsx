@@ -9,7 +9,7 @@ const { Option } = Select;
 const avatarUrl = (name) =>
   `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "Student")}&background=4f46e5&color=fff&size=128&bold=true`;
 
-const EXCLUDED_KEYS = new Set(["_id", "__v", "isVerified", "role"]);
+const EXCLUDED_KEYS = new Set(["_id", "__v", "isVerified", "role", "studentId"]);
 
 const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
   const auth = useContext(AuthContext);
@@ -199,12 +199,11 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
         <h2 className="mb-4 text-xl font-bold text-navy-700 dark:text-white">Student Details</h2>
 
         <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
-          <Field label="First Name *"    name="firstName" />
-          <Field label="Last Name *"     name="lastName"  />
-          <Field label="Father's Name"   name="fatherName" optional />
-          <Field label="Mother's Name"   name="motherName" optional />
-          <Field label="Email *"         name="email" type="email" />
-          <Field label="Student ID *"    name="studentId" />
+          <Field label="First Name *"  name="firstName" />
+          <Field label="Last Name *"   name="lastName" />
+          <Field label="Father's Name" name="fatherName" optional />
+          <Field label="Mother's Name" name="motherName" optional />
+          <Field label="Email *"       name="email" type="email" />
         </div>
 
         <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
@@ -226,7 +225,6 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
             )}
           </div>
 
-          {/* Alternate Number – optional */}
           <div className="mb-3">
             <label className="text-sm text-gray-600 dark:text-gray-400">
               Alternate Number{" "}
@@ -239,7 +237,6 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
                   setEditedData((prev) => ({ ...prev, alternateNumber: val || "" }))
                 }
                 disabled={loading}
-                // Validate only if a value is present
                 showValidation={
                   submitted &&
                   !!editedData.alternateNumber &&
@@ -295,12 +292,12 @@ const ViewEditStudent = ({ studentData, onUpdate, onBack }) => {
           )}
         </div>
 
-        <Field label="Address" name="address" />
+        <Field label="City" name="city" />
 
         <div className="grid grid-cols-3 gap-x-4">
-          <Field label="Pincode" name="pincode" />
-          <Field label="State"   name="state"   />
-          <Field label="Country" name="country"  />
+          <Field label="Pincode / Zipcode" name="pincode" />
+          <Field label="State"             name="state" />
+          <Field label="Country"           name="country" />
         </div>
 
         {isEditing && (

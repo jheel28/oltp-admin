@@ -8,7 +8,6 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    studentId: "",
     fatherName: "",
     motherName: "",
     phoneNumber: "",
@@ -16,14 +15,14 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
     email: "",
     password: "",
     batch: "",
-    address: "",
+    city: "",
     pincode: "",
     state: "",
     country: "",
     admissionDate: "",
     image: null,
   });
-  const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
+  const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -82,9 +81,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
     }
 
     if (!formData.batch) missing.push("Batch");
-
     if (!formData.image) missing.push("Student Photo");
-
     if (formData.image && formData.image.size > MAX_IMAGE_BYTES) {
       missing.push("Student Photo (must be <= 5MB)");
     }
@@ -105,7 +102,6 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
       const payload = new FormData();
       for (let key in formData) {
         const val = formData[key];
-        // Skip empty alternateNumber – let it default to null on the server
         if (key === "alternateNumber" && (!val || !val.trim())) continue;
         if (val !== null && val !== undefined && val !== "") {
           payload.append(key, val);
@@ -166,17 +162,6 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
           disabled={loading}
         />
       </div>
-
-      <input
-        type="text"
-        name="studentId"
-        value={formData.studentId}
-        onChange={handleChange}
-        placeholder="Student ID *"
-        required
-        className={inputClass}
-        disabled={loading}
-      />
 
       <PhoneInput
         label="Phone Number"
@@ -273,10 +258,10 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
 
       <input
         type="text"
-        name="address"
-        value={formData.address}
+        name="city"
+        value={formData.city}
         onChange={handleChange}
-        placeholder="Address *"
+        placeholder="City *"
         className={inputClass}
         disabled={loading}
       />
@@ -287,7 +272,7 @@ const AddStudentForm = ({ onSubmit, onCancel }) => {
           name="pincode"
           value={formData.pincode}
           onChange={handleChange}
-          placeholder="Pincode *"
+          placeholder="Pincode / Zipcode *"
           className={inputClass}
           disabled={loading}
         />

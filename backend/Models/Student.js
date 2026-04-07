@@ -22,7 +22,7 @@ const studentSchema = new Schema({
   studentId: { type: String, required: true },
   admissionDate: { type: String, required: true },
   batch: { type: String, required: true },
-  address: { type: String, required: true },
+  city: { type: String, required: true },
   pincode: { type: String, required: true },
   state: { type: String, required: true },
   country: { type: String, required: true },

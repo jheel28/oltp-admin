@@ -20,8 +20,8 @@ const FIELD_CONFIG = [
   { key: "alternateNumber", label: "Alternate Number", required: false },
   { key: "fatherName", label: "Father's Name", optional: true },
   { key: "motherName", label: "Mother's Name", optional: true },
-  { key: "address", label: "Address", required: true },
-  { key: "pincode", label: "Pincode", required: true },
+  { key: "city", label: "City", required: true },
+  { key: "pincode", label: "Pincode / Zipcode", required: true },
   { key: "state", label: "State", required: true },
   { key: "country", label: "Country", required: true },
 ];
@@ -34,7 +34,7 @@ const StudentProfile = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [imageTooLarge, setImageTooLarge] = useState(false);
-  const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
+  const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
   const [infoLoading, setInfoLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwords, setPasswords] = useState({ password: "", newPassword: "", confirmPassword: "" });
@@ -213,15 +213,26 @@ const StudentProfile = () => {
           <div className="mt-6 flex gap-3">
             {isEditing ? (
               <>
-                <button onClick={handleInfoUpdate} disabled={infoLoading} className="rounded-full bg-green-700 px-4 py-2 text-white hover:bg-green-800 disabled:opacity-50">
+                <button
+                  onClick={handleInfoUpdate}
+                  disabled={infoLoading}
+                  className="rounded-full bg-green-700 px-4 py-2 text-white hover:bg-green-800 disabled:opacity-50"
+                >
                   {infoLoading ? "Saving..." : "Save"}
                 </button>
-                <button onClick={cancelEdit} disabled={infoLoading} className="rounded-full bg-gray-400 px-4 py-2 text-white hover:bg-gray-600 disabled:opacity-50">
+                <button
+                  onClick={cancelEdit}
+                  disabled={infoLoading}
+                  className="rounded-full bg-gray-400 px-4 py-2 text-white hover:bg-gray-600 disabled:opacity-50"
+                >
                   Cancel
                 </button>
               </>
             ) : (
-              <button onClick={() => setIsEditing(true)} className="rounded-full bg-teal-500 px-4 py-2 text-white hover:bg-teal-500">
+              <button
+                onClick={() => setIsEditing(true)}
+                className="rounded-full bg-teal-500 px-4 py-2 text-white hover:bg-teal-500"
+              >
                 Edit
               </button>
             )}
@@ -253,7 +264,11 @@ const StudentProfile = () => {
             {profileImage && (
               <div className="flex items-center gap-4">
                 <img src={URL.createObjectURL(profileImage)} alt="Preview" className="h-16 w-16 rounded-full object-cover" />
-                <button onClick={handleImageUpdate} disabled={imageLoading} className="rounded-full bg-teal-500 px-4 py-2 text-white hover:bg-teal-500 disabled:opacity-50">
+                <button
+                  onClick={handleImageUpdate}
+                  disabled={imageLoading}
+                  className="rounded-full bg-teal-500 px-4 py-2 text-white hover:bg-teal-500 disabled:opacity-50"
+                >
                   {imageLoading ? "Uploading..." : "Update Image"}
                 </button>
               </div>
@@ -274,10 +289,11 @@ const StudentProfile = () => {
                   value={passwords[name]}
                   onChange={(e) => setPasswords((prev) => ({ ...prev, [name]: e.target.value }))}
                   placeholder={label}
-                  className={`w-full rounded-md border p-3 pr-10 text-navy-700 dark:text-white dark:bg-cyan-700 ${name !== "password" && passwords.confirmPassword !== ""
-                    ? passwordsMatch ? "border-green-500" : "border-red-500"
-                    : "border-gray-300"
-                    }`}
+                  className={`w-full rounded-md border p-3 pr-10 text-navy-700 dark:text-white dark:bg-cyan-700 ${
+                    name !== "password" && passwords.confirmPassword !== ""
+                      ? passwordsMatch ? "border-green-500" : "border-red-500"
+                      : "border-gray-300"
+                  }`}
                 />
                 <button
                   type="button"

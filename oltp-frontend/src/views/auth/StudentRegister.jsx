@@ -12,7 +12,7 @@ const StudentRegister = () => {
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [imageTooLarge, setImageTooLarge] = useState(false);
-  const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
+  const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
   const [batches, setBatches] = useState([]);
   const [phones, setPhones] = useState({ phoneNumber: "", alternateNumber: "" });
   const [phoneSubmitted, setPhoneSubmitted] = useState(false);
@@ -36,7 +36,7 @@ const StudentRegister = () => {
 
   const stepFields = [
     ["firstName", "lastName", "email", "password", "confirmPassword"],
-    ["studentId", "batch", "admissionDate", "address", "pincode", "state", "country"],
+    ["batch", "admissionDate", "city", "pincode", "state", "country"],
   ];
 
   const phonesValid =
@@ -73,10 +73,9 @@ const StudentRegister = () => {
       formData.append("lastName", values.lastName);
       formData.append("email", values.email);
       formData.append("password", values.password);
-      formData.append("studentId", values.studentId);
       formData.append("batch", values.batch);
       formData.append("admissionDate", values.admissionDate || new Date().toISOString().split("T")[0]);
-      formData.append("address", values.address);
+      formData.append("city", values.city);
       formData.append("pincode", values.pincode);
       formData.append("state", values.state);
       formData.append("country", values.country);
@@ -150,32 +149,39 @@ const StudentRegister = () => {
                   <Form.Item name="password" label={<span className="text-white/90">Password</span>} rules={[{ required: true, min: 6 }]}>
                     <Input.Password placeholder="Min. 6 characters" size="large" />
                   </Form.Item>
-                  <Form.Item name="confirmPassword" label={<span className="text-white/90">Confirm Password</span>} rules={[{ required: true }, ({ getFieldValue }) => ({ validator(_, value) { if (!value || getFieldValue('password') === value) return Promise.resolve(); return Promise.reject(new Error('Mismatch')); } })]}>
+                  <Form.Item
+                    name="confirmPassword"
+                    label={<span className="text-white/90">Confirm Password</span>}
+                    rules={[
+                      { required: true },
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          if (!value || getFieldValue("password") === value) return Promise.resolve();
+                          return Promise.reject(new Error("Mismatch"));
+                        },
+                      }),
+                    ]}
+                  >
                     <Input.Password placeholder="Repeat password" size="large" />
                   </Form.Item>
                 </div>
               </div>
 
               <div style={{ display: currentStep === 1 ? "block" : "none" }}>
-                <div className="grid grid-cols-2 gap-4">
-                  <Form.Item name="studentId" label={<span className="text-white/90">Student ID</span>} rules={[{ required: true }]}>
-                    <Input placeholder="Your student ID" size="large" />
-                  </Form.Item>
-                  <Form.Item name="batch" label={<span className="text-white/90">Batch</span>} rules={[{ required: true }]}>
-                    <Select placeholder="Select batch" size="large">
-                      {batches.map((b) => <Option key={b._id} value={b.batchName}>{b.batchName}</Option>)}
-                    </Select>
-                  </Form.Item>
-                </div>
+                <Form.Item name="batch" label={<span className="text-white/90">Batch</span>} rules={[{ required: true }]}>
+                  <Select placeholder="Select batch" size="large">
+                    {batches.map((b) => <Option key={b._id} value={b.batchName}>{b.batchName}</Option>)}
+                  </Select>
+                </Form.Item>
                 <Form.Item name="admissionDate" label={<span className="text-white/90">Admission Date</span>} rules={[{ required: true }]}>
                   <Input type="date" size="large" />
                 </Form.Item>
-                <Form.Item name="address" label={<span className="text-white/90">Address</span>} rules={[{ required: true }]}>
-                  <Input.TextArea placeholder="Full address" rows={2} />
+                <Form.Item name="city" label={<span className="text-white/90">City</span>} rules={[{ required: true }]}>
+                  <Input placeholder="City" size="large" />
                 </Form.Item>
                 <div className="grid grid-cols-3 gap-4">
-                  <Form.Item name="pincode" label={<span className="text-white/90">Pin</span>} rules={[{ required: true }]}>
-                    <Input placeholder="Pincode" size="large" />
+                  <Form.Item name="pincode" label={<span className="text-white/90">Pincode / Zipcode</span>} rules={[{ required: true }]}>
+                    <Input placeholder="Pincode / Zipcode" size="large" />
                   </Form.Item>
                   <Form.Item name="state" label={<span className="text-white/90">State</span>} rules={[{ required: true }]}>
                     <Input placeholder="State" size="large" />
@@ -188,45 +194,97 @@ const StudentRegister = () => {
 
               <div style={{ display: currentStep === 2 ? "block" : "none" }}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <PhoneInput label={<span className="text-white/90">Phone Number</span>} required value={phones.phoneNumber} onChange={(val) => setPhones(p => ({ ...p, phoneNumber: val || "" }))} showValidation={phoneSubmitted} placeholder="Phone" />
-                  <PhoneInput label={<span className="text-white/90">Alternate Number (optional)</span>} value={phones.alternateNumber} onChange={(val) => setPhones(p => ({ ...p, alternateNumber: val || "" }))} placeholder="Alternate" />
+                  <PhoneInput
+                    label={<span className="text-white/90">Phone Number</span>}
+                    required
+                    value={phones.phoneNumber}
+                    onChange={(val) => setPhones(p => ({ ...p, phoneNumber: val || "" }))}
+                    showValidation={phoneSubmitted}
+                    placeholder="Phone"
+                  />
+                  <PhoneInput
+                    label={<span className="text-white/90">Alternate Number (optional)</span>}
+                    value={phones.alternateNumber}
+                    onChange={(val) => setPhones(p => ({ ...p, alternateNumber: val || "" }))}
+                    placeholder="Alternate"
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4 mt-4">
-                  <Form.Item name="fatherName" label={<span className="text-white/90">Father's Name</span>}><Input placeholder="Father's name" size="large" /></Form.Item>
-                  <Form.Item name="motherName" label={<span className="text-white/90">Mother's Name</span>}><Input placeholder="Mother's name" size="large" /></Form.Item>
+                  <Form.Item name="fatherName" label={<span className="text-white/90">Father's Name</span>}>
+                    <Input placeholder="Father's name" size="large" />
+                  </Form.Item>
+                  <Form.Item name="motherName" label={<span className="text-white/90">Mother's Name</span>}>
+                    <Input placeholder="Mother's name" size="large" />
+                  </Form.Item>
                 </div>
                 <div className="mb-4">
-                  <label className="mb-1 block text-sm font-medium text-white/90">Profile Photo <span className="text-teal-400">*</span></label>
-                  <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files[0]; setImageFile(f); setImageTooLarge(f && f.size > MAX_IMAGE_BYTES); }} className="w-full rounded-lg border border-white/10 bg-white/5 p-2 text-white" />
-                  {imageFile && !imageTooLarge && <p className="mt-1 text-xs text-teal-400">Selected: {imageFile.name}</p>}
+                  <label className="mb-1 block text-sm font-medium text-white/90">
+                    Profile Photo <span className="text-teal-400">*</span>
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const f = e.target.files[0];
+                      setImageFile(f);
+                      setImageTooLarge(f && f.size > MAX_IMAGE_BYTES);
+                    }}
+                    className="w-full rounded-lg border border-white/10 bg-white/5 p-2 text-white"
+                  />
+                  {imageFile && !imageTooLarge && (
+                    <p className="mt-1 text-xs text-teal-400">Selected: {imageFile.name}</p>
+                  )}
                 </div>
-                <div className="rounded-xl bg-white/5 p-3 mb-4"><p className="text-xs text-white/60">Verification email will be sent upon registration.</p></div>
+                <div className="rounded-xl bg-white/5 p-3 mb-4">
+                  <p className="text-xs text-white/60">Verification email will be sent upon registration.</p>
+                </div>
               </div>
 
               <div className="mt-6 flex items-center justify-between gap-3">
-                {currentStep > 0 && <button type="button" onClick={handlePrev} className="rounded-xl border border-white/10 bg-white/5 px-6 py-2.5 text-sm font-semibold text-white hover:bg-white/10">Back</button>}
+                {currentStep > 0 && (
+                  <button
+                    type="button"
+                    onClick={handlePrev}
+                    className="rounded-xl border border-white/10 bg-white/5 px-6 py-2.5 text-sm font-semibold text-white hover:bg-white/10"
+                  >
+                    Back
+                  </button>
+                )}
                 {currentStep < 2 ? (
-                  <button type="button" onClick={handleNext} className="ml-auto rounded-xl bg-teal-600 px-8 py-2.5 text-sm font-semibold text-white hover:bg-teal-500">Next</button>
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    className="ml-auto rounded-xl bg-teal-600 px-8 py-2.5 text-sm font-semibold text-white hover:bg-teal-500"
+                  >
+                    Next
+                  </button>
                 ) : (
-                  <button type="submit" disabled={loading} className="ml-auto rounded-xl bg-teal-600 px-8 py-2.5 text-sm font-semibold text-white hover:bg-teal-500 disabled:opacity-60">{loading ? "Creating..." : "Create Account"}</button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="ml-auto rounded-xl bg-teal-600 px-8 py-2.5 text-sm font-semibold text-white hover:bg-teal-500 disabled:opacity-60"
+                  >
+                    {loading ? "Creating..." : "Create Account"}
+                  </button>
                 )}
               </div>
             </Form>
 
-            <p className="mt-6 text-sm text-white/70">Already have an account? <Link to="/auth/sign-in" className="font-bold text-teal-400 hover:text-teal-300">Sign in</Link></p>
+            <p className="mt-6 text-sm text-white/70">
+              Already have an account?{" "}
+              <Link to="/auth/sign-in" className="font-bold text-teal-400 hover:text-teal-300">Sign in</Link>
+            </p>
           </div>
         </div>
 
         <div className="hidden bg-gradient-to-br from-cyan-950 via-teal-950 to-cyan-900 md:flex md:w-[45%] lg:w-[50%] items-center justify-center relative overflow-hidden">
-          {/* Decorative radial glow */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[120px]" />
-          
           <div className="relative z-10 flex flex-col items-center text-center p-12">
             <div className="mb-8 transform hover:scale-105 transition-transform duration-500">
-              <img 
-                src={logo} 
-                alt="Logo" 
-                className="max-h-[280px] object-contain drop-shadow-[0_20px_50px_rgba(20,184,166,0.25)]" 
+              <img
+                src={logo}
+                alt="Logo"
+                className="max-h-[280px] object-contain drop-shadow-[0_20px_50px_rgba(20,184,166,0.25)]"
               />
             </div>
             <h2 className="text-3xl font-extrabold text-white mb-4 tracking-tight">Begin Your Journey</h2>

@@ -22,6 +22,12 @@ const toAbsolutePath = (storedPath) => {
   return path.join(__dirname, "../..", storedPath);
 };
 
+const generateStudentId = () => {
+  const ts = Date.now().toString().slice(-6);
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  return `STU-${ts}-${rand}`;
+};
+
 const JWT_EXPIRY = process.env.JWT_EXPIRY || "7d";
 const VERIFICATION_EXPIRY_HOURS = 24;
 const REQUIRE_EMAIL_VERIFICATION =
@@ -46,10 +52,9 @@ const createStudent = async (req, res, next) => {
     motherName,
     phoneNumber,
     alternateNumber,
-    studentId,
     admissionDate,
     batch,
-    address,
+    city,
     pincode,
     state,
     country,
@@ -132,12 +137,12 @@ const createStudent = async (req, res, next) => {
     motherName: motherName || null,
     phoneNumber: phoneCheck.e164,
     alternateNumber: altE164,
-    studentId,
+    studentId: generateStudentId(),
     role: "Student",
     admissionDate,
     image: imagePath,
     batch,
-    address,
+    city,
     pincode,
     state,
     country,
@@ -439,10 +444,9 @@ const updateStudentById = async (req, res, next) => {
     motherName,
     phoneNumber,
     alternateNumber,
-    studentId,
     admissionDate,
     batch,
-    address,
+    city,
     pincode,
     state,
     country,
@@ -534,9 +538,8 @@ const updateStudentById = async (req, res, next) => {
   if (lastName !== undefined) student.lastName = lastName;
   if (fatherName !== undefined) student.fatherName = fatherName || null;
   if (motherName !== undefined) student.motherName = motherName || null;
-  if (studentId !== undefined) student.studentId = studentId;
   if (batch !== undefined) student.batch = batch;
-  if (address !== undefined) student.address = address;
+  if (city !== undefined) student.city = city;
   if (pincode !== undefined) student.pincode = pincode;
   if (state !== undefined) student.state = state;
   if (country !== undefined) student.country = country;
@@ -762,7 +765,6 @@ const forgotPassword = async (req, res, next) => {
     return next(new HttpError("Something went wrong, please try again", 500));
   }
 
-  // Always return success to prevent email enumeration
   if (!student) {
     return res.status(200).json({
       message: "If an account with that email exists, a password reset link has been sent.",
@@ -770,7 +772,7 @@ const forgotPassword = async (req, res, next) => {
   }
 
   const resetToken = crypto.randomBytes(32).toString("hex");
-  const resetExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+  const resetExpiry = new Date(Date.now() + 60 * 60 * 1000);
 
   student.resetPasswordToken = resetToken;
   student.resetPasswordExpiry = resetExpiry;
