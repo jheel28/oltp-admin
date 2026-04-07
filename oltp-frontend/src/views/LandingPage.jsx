@@ -43,8 +43,8 @@ const SOCIAL_LINKS = [
 const NAV_LINKS = [
   { href: "#mechanical", label: "Mechanical Engineering" },
   { href: "#tests", label: "Aptitude Tests" },
-  { href: "#research", label: "Research Papers" },
-  { href: "#news", label: "Articles and News" },
+  { href: "https://bingelearning.in", label: "Binge Learning", external: true },
+  { href: "/news", label: "Articles and News", external: true },
   { href: "#contact", label: "Contact Us" },
 ];
 
@@ -62,6 +62,27 @@ const RESEARCH_PAPERS = [
   { title: "Chemistry for Materials Science", img: T5, slug: "chemistry-for-materials-science" },
 ];
 
+const LATEST_ARTICLES = [
+  {
+    title: "How Employers Use Mechanical Aptitude Tests in Hiring",
+    date: "March 4, 2026",
+    excerpt: "If you are applying for a technical or mechanical job, you may be asked to take a mechanical aptitude test as part of the hiring process...",
+    img: hero13
+  },
+  {
+    title: "The Importance of Visual-Spatial Reasoning",
+    date: "February 28, 2026",
+    excerpt: "Visual-spatial reasoning is the ability to mentally manipulate 2D and 3D figures. It is a critical skill for engineers and architects...",
+    img: hero9
+  },
+  {
+    title: "Mastering Data Interpretation for Competitive Exams",
+    date: "February 15, 2026",
+    excerpt: "Data interpretation is more than just reading charts—it's about extracting meaningful insights under time pressure...",
+    img: hero10
+  }
+];
+
 const preloadImages = (srcs) => {
   srcs.forEach((src) => {
     const img = new window.Image();
@@ -69,10 +90,12 @@ const preloadImages = (srcs) => {
   });
 };
 
-const NavLink = memo(({ href, label, onClick }) => (
+const NavLink = memo(({ href, label, onClick, external }) => (
   <a
     href={href}
     onClick={onClick}
+    target={external ? "_blank" : undefined}
+    rel={external ? "noopener noreferrer" : undefined}
     className="hover:text-teal-300 transition-colors uppercase tracking-wider"
   >
     {label}
@@ -108,8 +131,10 @@ const LandingPage = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentArticle, setCurrentArticle] = useState(0);
   const [scrolled, setScrolled] = useState(false);
   const intervalRef = useRef(null);
+  const articleIntervalRef = useRef(null);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -140,7 +165,13 @@ const LandingPage = () => {
 
   useEffect(() => {
     startAutoplay();
-    return () => clearInterval(intervalRef.current);
+    articleIntervalRef.current = setInterval(() => {
+      setCurrentArticle((prev) => (prev + 1) % LATEST_ARTICLES.length);
+    }, 6000);
+    return () => {
+      clearInterval(intervalRef.current);
+      clearInterval(articleIntervalRef.current);
+    };
   }, [startAutoplay]);
 
   useEffect(() => {
@@ -175,7 +206,7 @@ const LandingPage = () => {
       <header className={`sticky top-0 z-50 transition-all duration-200 ${scrolled ? "shadow-lg bg-white/95 backdrop-blur-sm" : "shadow-none bg-white"}`}>
         <div className="border-b border-gray-100">
           <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 py-2">
-            <div className="flex items-center gap-3 sm:gap-4">
+            <Link to="/" className="flex items-center gap-3 sm:gap-4 hover:opacity-90 transition-opacity">
               <img
                 src={logo}
                 alt="Correct Steps"
@@ -185,18 +216,18 @@ const LandingPage = () => {
               <span className="font-bold text-lg sm:text-2xl text-gray-800 tracking-tight leading-tight">
                 THE CORRECT STEPS
               </span>
-            </div>
-            <div className="flex items-center gap-1.5 sm:gap-6">
-              <div className="flex items-center gap-1 sm:gap-6 text-[13px] sm:text-base font-bold whitespace-nowrap">
+            </Link>
+            <div className="flex items-center gap-1.5 sm:gap-8">
+              <div className="flex items-center gap-3 sm:gap-8 text-base md:text-lg lg:text-[18px] font-bold whitespace-nowrap">
                 <Link 
                   to="/auth/user/sign-in" 
-                  className="text-gray-800 hover:text-teal-600 transition-colors px-1 py-2"
+                  className="text-gray-800 hover:text-teal-600 transition-colors px-2 py-2"
                 >
                   Log in
                 </Link>
                 <Link 
                   to="/auth/register/student" 
-                  className="rounded-full bg-teal-600 hover:bg-teal-500 transition-all shadow-md px-3.5 sm:px-8 py-1.5 sm:py-3 text-white transform hover:-translate-y-0.5 active:translate-y-0 text-[12px] sm:text-sm"
+                  className="rounded-full bg-teal-600 hover:bg-teal-500 transition-all shadow-md px-5 sm:px-8 py-2 sm:py-3 text-white transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-lg lg:text-[19px]"
                 >
                   Sign Up
                 </Link>
@@ -220,9 +251,9 @@ const LandingPage = () => {
         </div>
         <div className={`bg-cyan-900 overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 md:max-h-none opacity-0 md:opacity-100"}`}>
           <div className="container mx-auto px-6">
-            <nav className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 md:gap-10 text-white text-[13px] font-semibold py-6 md:py-4">
+            <nav className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 md:gap-10 text-white text-base md:text-lg lg:text-[17px] font-bold py-6 md:py-4">
               {NAV_LINKS.map((link) => (
-                <NavLink key={link.href} href={link.href} label={link.label} onClick={closeMenu} />
+                <NavLink key={link.href} href={link.href} label={link.label} onClick={closeMenu} external={link.external} />
               ))}
             </nav>
           </div>
@@ -398,33 +429,64 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Latest Article */}
-      <section className="bg-gray-100 py-16 lg:py-24" id="news">
-        <div className="container mx-auto px-6 text-center">
-          <div className="mb-12">
-            <h2 className="text-2xl font-extrabold text-gray-900 tracking-[0.25em] uppercase">
-              Latest Article
+      {/* Latest Articles Slider */}
+      <section className="bg-gray-100 py-20 lg:py-24" id="news">
+        <div className="container mx-auto px-6">
+          <div className="flex items-center justify-between mb-12">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 uppercase tracking-wider">
+              Latest Articles
             </h2>
+            <Link to="/news" className="text-teal-600 font-bold hover:text-teal-700 flex items-center gap-2 transition-all">
+              View All 
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </Link>
           </div>
-          <div className="max-w-3xl mx-auto text-left">
-            <div className="w-full mb-10 shadow-md rounded-xl overflow-hidden aspect-[16/9] sm:aspect-[21/9]">
-              <img
-                src={hero13}
-                alt="Latest Article"
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="flex flex-col items-start w-full">
-              <h3 className="text-2xl md:text-4xl font-extrabold text-gray-900 mb-2 leading-tight">
-                How Employers Use Mechanical Aptitude Tests in Hiring
-              </h3>
-              <p className="text-sm text-gray-600 mb-4 font-bold">March 4, 2026</p>
-              <div className="w-12 h-1 bg-teal-600 mb-8 rounded-full"></div>
-              <p className="text-base md:text-lg text-gray-800 leading-relaxed font-semibold">
-                If you are applying for a technical or mechanical job, you may be asked to take a mechanical aptitude test as part of the hiring process. For many candidates, this comes as a surprise. Unlike interviews or résumé reviews, these tests measure something different: your ability to understand how mechanical systems work. Mechanical aptitude tests are widely used in industries where employees regularly work with machines, tools, or equipment. Employers use them to identify candidates who can quickly grasp mechanical concepts and solve practical problems. If you know why these tests are used and what employers are looking for, it [...]
-              </p>
+          
+          <div className="relative max-w-7xl mx-auto min-h-[500px]">
+            {LATEST_ARTICLES.map((article, index) => (
+              <div 
+                key={index}
+                className={`absolute inset-0 transition-all duration-1000 ease-in-out transform ${index === currentArticle ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12 pointer-events-none"}`}
+              >
+                <div className="bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col md:flex-row h-full">
+                  <div className="md:w-5/12 lg:w-1/2 h-64 md:h-auto overflow-hidden bg-gray-50 flex items-center justify-center">
+                    <img 
+                      src={article.img} 
+                      alt={article.title} 
+                      className="w-full h-full object-contain p-4"
+                    />
+                  </div>
+                  <div className="md:w-7/12 lg:w-1/2 p-8 md:p-14 flex flex-col justify-center">
+                    <span className="text-teal-600 font-bold text-sm tracking-widest uppercase mb-4">
+                      {article.date}
+                    </span>
+                    <h3 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 leading-tight">
+                      {article.title}
+                    </h3>
+                    <p className="text-gray-600 text-lg mb-8 leading-relaxed">
+                      {article.excerpt}
+                    </p>
+                    <Link 
+                      to="/news" 
+                      className="inline-flex items-center text-gray-900 font-bold border-b-2 border-teal-500 pb-1 self-start hover:text-teal-600 transition-colors"
+                    >
+                      Read Full Article
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+            
+            <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 flex gap-3">
+              {LATEST_ARTICLES.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentArticle(index)}
+                  className={`w-3 h-3 rounded-full transition-all ${index === currentArticle ? "bg-teal-600 w-8" : "bg-gray-300"}`}
+                />
+              ))}
             </div>
           </div>
         </div>
@@ -475,53 +537,77 @@ const LandingPage = () => {
       </section>
 
       {/* ─── FOOTER ───────────────────────────────────────────────────────────── */}
-      <footer className="bg-cyan-900 text-gray-100" id="contact">
-
-        {/* Main footer body */}
-        <div className="container mx-auto px-6 md:px-12 pt-14 pb-10">
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-12 md:gap-16 items-start border-b border-white/10 pb-10 mb-8">
-
-            {/* Left: brand block */}
-            <div className="flex flex-col gap-5">
-              <div className="flex items-center gap-3 sm:gap-4">
-                <img
-                  src={logo}
-                  alt="Correct Steps"
-                  loading="lazy"
-                  decoding="async"
-                  className="h-10 sm:h-14 w-auto"
-                />
-                <span className="font-bold text-white text-lg sm:text-2xl uppercase tracking-tight leading-tight">
+      <footer className="bg-cyan-900 text-gray-100 border-t border-white/10 relative overflow-hidden" id="contact">
+        <div className="container mx-auto px-6 md:px-12 pt-20 pb-10 relative z-10">
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 border-b border-white/10 pb-12 mb-8">
+            
+            {/* Column 1: Brand & About */}
+            <div className="flex flex-col gap-6 lg:pr-6">
+              <div className="flex items-center gap-4 mb-2">
+                <img src={logo} alt="Correct Steps" className="h-12 w-auto drop-shadow-md" />
+                <span className="font-extrabold text-white text-2xl tracking-tight leading-none">
                   THE CORRECT STEPS
                 </span>
               </div>
-              <p className="text-sm text-gray-100 max-w-xs leading-relaxed">
-                A smart testing platform built for serious aspirants preparing for technical and aptitude assessments.
+              <p className="text-[15px] leading-relaxed text-gray-200 font-medium max-w-[320px] text-justify">
+                A premium smart testing platform built for serious aspirants preparing for technical and aptitude assessments under competitive time constraints.
               </p>
-            </div>
-
-            {/* Right: social links stacked with label */}
-            <div className="flex flex-col gap-4">
-              <span className="text-[11px] font-bold tracking-[0.18em] uppercase text-gray-100">
-                Follow Us
-              </span>
-              <div className="flex items-center gap-5">
+              <div className="flex items-center gap-4 mt-6">
                 {SOCIAL_LINKS.map((link) => (
-                  <SocialLink key={link.label} href={link.href} Icon={link.Icon} label={link.label} hover={link.hover} />
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={link.label}
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white transition-all hover:scale-110 shadow-lg"
+                  >
+                    <link.Icon className="text-lg" />
+                  </a>
                 ))}
               </div>
             </div>
 
+            {/* Column 2: Quick Links */}
+            <div className="flex flex-col gap-6">
+              <h4 className="text-white font-extrabold text-base uppercase tracking-widest mb-2 border-b border-white/20 pb-4 inline-block self-start">Platform</h4>
+              <nav className="flex flex-col gap-4">
+                <a href="#mechanical" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Mechanical Engineering</a>
+                <a href="#tests" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Aptitude Tests</a>
+                <a href="https://bingelearning.in" target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Binge Learning</a>
+                <Link to="/news" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Articles & News</Link>
+              </nav>
+            </div>
+
+            {/* Column 3: Support */}
+            <div className="flex flex-col gap-6">
+              <h4 className="text-white font-extrabold text-base uppercase tracking-widest mb-2 border-b border-white/20 pb-4 inline-block self-start">Support</h4>
+              <nav className="flex flex-col gap-4">
+                <Link to="/auth/user/sign-in" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Student Login</Link>
+                <Link to="/auth/register/student" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Create Account</Link>
+                <a href="mailto:support@thecorrectsteps.com" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Email Support</a>
+              </nav>
+            </div>
+
+            {/* Column 4: Legal */}
+            <div className="flex flex-col gap-6">
+              <h4 className="text-white font-extrabold text-base uppercase tracking-widest mb-2 border-b border-white/20 pb-4 inline-block self-start">Legal</h4>
+              <nav className="flex flex-col gap-4">
+                <Link to="/terms" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Terms & Conditions</Link>
+                <Link to="/privacy" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Privacy Policy</Link>
+              </nav>
+            </div>
+
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-8 border-t border-gray-100/10">
-            <p className="text-xs text-gray-100 font-medium">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+            <p className="text-xs text-gray-300 font-medium">
               &copy; {new Date().getFullYear()} THE CORRECT STEPS. All rights reserved.
             </p>
-            <div className="flex items-center gap-6 text-[11px] font-bold uppercase tracking-wider text-gray-100">
-              <Link to="/terms" className="hover:text-white transition-colors">T&C</Link>
-              <Link to="/privacy" className="hover:text-white transition-colors">Privacy and Policy</Link>
-            </div>
+            <p className="text-xs text-gray-300 font-medium">
+              Designed for Excellence.
+            </p>
           </div>
         </div>
       </footer>

@@ -19,6 +19,7 @@ import ForgotPassword from "views/auth/ForgotPassword";
 import ResetPassword from "views/auth/ResetPassword";
 import MechanicalSubjectPage from "views/subjects/MechanicalSubjectPage";
 import CommunicationAptitudePage from "views/subjects/CommunicationAptitudePage";
+import NewsArticlesPage from "views/NewsArticlesPage";
 
 const App = () => {
   const { login, logout, userId, token, email, role, initialized } = useAuth();
@@ -79,6 +80,7 @@ const App = () => {
         <Route path="auth/verify-email-sent" element={<VerifyEmailSent />} />
         <Route path="auth/forgot-password" element={<ForgotPassword />} />
         <Route path="auth/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/news" element={<NewsArticlesPage />} />
         <Route path="auth/*" element={<SignIn />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
