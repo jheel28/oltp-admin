@@ -230,9 +230,6 @@ const StudentRegister = () => {
               />
             </div>
             <h2 className="text-3xl font-extrabold text-white mb-4 tracking-tight">Begin Your Journey</h2>
-            <p className="text-teal-400/80 text-lg font-medium max-w-sm">
-              Join thousands of students who are taking the correct steps toward their dreams.
-            </p>
           </div>
         </div>
       </div>

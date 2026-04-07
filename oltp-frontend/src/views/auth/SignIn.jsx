@@ -217,9 +217,6 @@ export default function SignIn() {
               />
             </div>
             <h2 className="text-3xl font-extrabold text-white mb-4 tracking-tight">The Correct Steps</h2>
-            <p className="text-teal-400/80 text-lg font-medium max-w-sm">
-              Empowering your journey to excellence with every step you take.
-            </p>
           </div>
         </div>
       </div>
