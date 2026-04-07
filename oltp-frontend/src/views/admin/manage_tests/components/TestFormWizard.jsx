@@ -260,7 +260,6 @@ const TestFormWizard = ({ mode = "create" }) => {
       if (!form.testName.trim()) { message.warning("Test name is required"); return false; }
       if (!form.paperId.trim()) { message.warning("Question Paper ID is required"); return false; }
       if (paperStatus !== "valid") { message.warning("A valid Question Paper ID is required to proceed"); return false; }
-      if (!form.batchName) { message.warning("Batch is required"); return false; }
     }
 
     if (s === 1) {
@@ -299,7 +298,7 @@ const TestFormWizard = ({ mode = "create" }) => {
         testId: form.testId.trim(),
         testName: form.testName.trim(),
         paperId: form.paperId.trim(),
-        batchName: form.batchName,
+        batchName: form.batchName || "",
         isPermanent: form.isPermanent,
         date: form.isPermanent ? "" : form.date,
         startTime: form.isPermanent ? "" : form.startTime,
@@ -338,6 +337,8 @@ const TestFormWizard = ({ mode = "create" }) => {
       </Card>
     );
   }
+
+  const batchDisplayLabel = form.batchName ? form.batchName : "All Batches";
 
   return (
     <Card extra="w-full p-6 max-w-3xl mx-auto">
@@ -397,10 +398,13 @@ const TestFormWizard = ({ mode = "create" }) => {
             <PaperInfoCard paper={paperDetails} />
           )}
 
-          <Field label="Batch" required>
+          <Field
+            label="Batch"
+            hint="Leave as All Batches to make this test accessible to every student regardless of batch"
+          >
             <select name="batchName" value={form.batchName} onChange={handleChange}
               disabled={loadingMeta} className={inputCls}>
-              <option value="">{loadingMeta ? "Loading..." : "Select batch..."}</option>
+              <option value="">{loadingMeta ? "Loading..." : "All Batches"}</option>
               {batches.map((b) => <option key={b._id} value={b.batchName}>{b.batchName}</option>)}
             </select>
           </Field>
@@ -494,7 +498,7 @@ const TestFormWizard = ({ mode = "create" }) => {
               ["Subject(s)", paperDetails?.subjects?.length ? paperDetails.subjects.join(", ") : "—"],
               ["Total Marks", paperDetails?.totalMarks ?? "—"],
               ["Questions", paperDetails?.totalQuestions ?? "—"],
-              ["Batch", form.batchName],
+              ["Batch", batchDisplayLabel],
               ["Permanent", form.isPermanent ? "Yes — Always Available" : "No"],
               ...(form.isPermanent ? [] : [["Date", form.date], ["Time", `${form.startTime} — ${form.endTime}`]]),
               ["Duration", `${form.duration} minutes`],

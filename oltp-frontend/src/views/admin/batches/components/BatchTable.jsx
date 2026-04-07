@@ -1,13 +1,11 @@
 import React, { useContext, useEffect, useMemo, useState, useCallback } from "react";
-import { FaTrashAlt, FaPencilAlt, FaCheck, FaTimes, FaCodeBranch, FaDownload, FaLock } from "react-icons/fa";
+import { FaTrashAlt, FaPencilAlt, FaCheck, FaTimes, FaCodeBranch, FaDownload } from "react-icons/fa";
 import { MdSearch } from "react-icons/md";
 import Card from "components/card";
 import AddBatchForm from "./AddBatchForm";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Modal, message, Tooltip } from "antd";
 import { AuthContext } from "components/Auth-context";
-
-const DEFAULT_BATCH = "Default";
 
 const BatchTable = () => {
   const auth = useContext(AuthContext);
@@ -49,10 +47,16 @@ const BatchTable = () => {
   const studentCountMap = useMemo(() => {
     const map = {};
     students.forEach((s) => {
-      map[s.batch] = (map[s.batch] || 0) + 1;
+      const key = s.batch || "";
+      if (key) map[key] = (map[key] || 0) + 1;
     });
     return map;
   }, [students]);
+
+  const unassignedCount = useMemo(
+    () => students.filter((s) => !s.batch || s.batch.trim() === "").length,
+    [students]
+  );
 
   const filtered = useMemo(() => {
     if (!search.trim()) return batches;
@@ -67,8 +71,6 @@ const BatchTable = () => {
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
 
-  const selectablePaginated = paginated.filter((b) => b.batchName !== DEFAULT_BATCH);
-
   const toggleSelect = (id) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -78,10 +80,10 @@ const BatchTable = () => {
   };
 
   const toggleAll = () => {
-    if (selectedIds.size === selectablePaginated.length) {
+    if (selectedIds.size === paginated.length) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(selectablePaginated.map((b) => b._id)));
+      setSelectedIds(new Set(paginated.map((b) => b._id)));
     }
   };
 
@@ -123,9 +125,11 @@ const BatchTable = () => {
     const count = studentCountMap[batch?.batchName] || 0;
     Modal.confirm({
       title: count > 0
-        ? `This batch has ${count} student(s). They will be moved to the Default batch.`
+        ? `This batch has ${count} student(s). They will become unassigned.`
         : "Delete this batch?",
-      content: count > 0 ? "The batch will be deleted and all its students reassigned to Default." : null,
+      content: count > 0
+        ? "The batch will be deleted and its students will have no batch assigned. You can reassign them later from the Students section."
+        : null,
       icon: <ExclamationCircleOutlined />,
       okText: "Delete",
       okType: "danger",
@@ -152,14 +156,14 @@ const BatchTable = () => {
 
   const bulkDelete = () => {
     const ids = [...selectedIds];
-    const withStudents = ids.filter((id) => {
+    const totalAffectedStudents = ids.reduce((sum, id) => {
       const b = batches.find((x) => x._id === id);
-      return b && (studentCountMap[b.batchName] || 0) > 0;
-    });
+      return sum + (b ? studentCountMap[b.batchName] || 0 : 0);
+    }, 0);
     Modal.confirm({
       title: `Delete ${ids.length} batch(es)?`,
-      content: withStudents.length > 0
-        ? `${withStudents.length} batch(es) have students who will be moved to the Default batch.`
+      content: totalAffectedStudents > 0
+        ? `${totalAffectedStudents} student(s) will become unassigned. You can reassign them later from the Students section.`
         : "This action cannot be undone.",
       icon: <ExclamationCircleOutlined />,
       okText: "Delete All",
@@ -223,6 +227,7 @@ const BatchTable = () => {
   const exportCSV = () => {
     const rows = [["Batch Name", "Student Count"]];
     batches.forEach((b) => rows.push([b.batchName, studentCountMap[b.batchName] || 0]));
+    if (unassignedCount > 0) rows.push(["Unassigned", unassignedCount]);
     const csv = rows.map((r) => r.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -249,7 +254,16 @@ const BatchTable = () => {
       <header className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
           <h2 className="text-xl font-bold text-navy-700 dark:text-white">Manage Batches</h2>
-          <p className="text-xs text-gray-500 mt-0.5">{batches.length} batch(es) total</p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            {batches.length} batch(es) total
+            {unassignedCount > 0 && (
+              <Tooltip title="These students have no batch assigned. Edit each student to assign them to a batch.">
+                <span className="ml-2 cursor-help rounded-full bg-amber-100 px-2 py-0.5 text-amber-700 text-xs font-semibold">
+                  {unassignedCount} unassigned
+                </span>
+              </Tooltip>
+            )}
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
@@ -265,7 +279,7 @@ const BatchTable = () => {
           {selectedIds.size > 0 && (
             <button
               onClick={bulkDelete}
-              className="px-3 py-1.5 text-xs rounded-lg bg-teal-500 text-white hover:bg-teal-500 flex items-center gap-1"
+              className="px-3 py-1.5 text-xs rounded-lg bg-red-500 text-white hover:bg-red-600 flex items-center gap-1"
             >
               <FaTrashAlt className="h-3 w-3" /> Delete ({selectedIds.size})
             </button>
@@ -301,7 +315,7 @@ const BatchTable = () => {
                 <th className="pb-3 pr-4 text-left w-8">
                   <input
                     type="checkbox"
-                    checked={selectablePaginated.length > 0 && selectedIds.size === selectablePaginated.length}
+                    checked={paginated.length > 0 && selectedIds.size === paginated.length}
                     onChange={toggleAll}
                     className="rounded"
                   />
@@ -320,7 +334,6 @@ const BatchTable = () => {
                 </tr>
               ) : (
                 paginated.map((batch) => {
-                  const isDefault = batch.batchName === DEFAULT_BATCH;
                   const count = studentCountMap[batch.batchName] || 0;
                   const isEditingRow = editingId === batch._id;
                   const isSelected = selectedIds.has(batch._id);
@@ -328,52 +341,37 @@ const BatchTable = () => {
                     <tr
                       key={batch._id}
                       className={`border-b border-gray-100 dark:border-navy-700 transition-colors ${
-                        isDefault
-                          ? "bg-amber-50 dark:bg-navy-750"
-                          : isSelected
+                        isSelected
                           ? "bg-teal-50 dark:bg-white/10"
                           : "hover:bg-gray-50 dark:hover:bg-white/5"
                       }`}
                     >
                       <td className="py-3 pr-4">
-                        {isDefault ? (
-                          <span className="block w-4" />
-                        ) : (
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => toggleSelect(batch._id)}
-                            className="rounded"
-                          />
-                        )}
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelect(batch._id)}
+                          className="rounded"
+                        />
                       </td>
                       <td className="py-3 pr-6">
-                        <div className="flex items-center gap-2">
-                          {isEditingRow ? (
-                            <input
-                              type="text"
-                              value={editingName}
-                              onChange={(e) => setEditingName(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") saveEdit(batch._id);
-                                if (e.key === "Escape") cancelEdit();
-                              }}
-                              autoFocus
-                              className="px-2 py-1 text-sm rounded border border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-navy-700 dark:text-white w-48"
-                            />
-                          ) : (
-                            <span className="text-sm font-bold text-navy-700 dark:text-white">
-                              {batch.batchName}
-                            </span>
-                          )}
-                          {isDefault && (
-                            <Tooltip title="This batch is protected. It cannot be renamed or deleted. Students from deleted batches are automatically moved here.">
-                              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold cursor-help">
-                                <FaLock className="h-2.5 w-2.5" /> Protected
-                              </span>
-                            </Tooltip>
-                          )}
-                        </div>
+                        {isEditingRow ? (
+                          <input
+                            type="text"
+                            value={editingName}
+                            onChange={(e) => setEditingName(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") saveEdit(batch._id);
+                              if (e.key === "Escape") cancelEdit();
+                            }}
+                            autoFocus
+                            className="px-2 py-1 text-sm rounded border border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-navy-700 dark:text-white w-48"
+                          />
+                        ) : (
+                          <span className="text-sm font-bold text-navy-700 dark:text-white">
+                            {batch.batchName}
+                          </span>
+                        )}
                       </td>
                       <td className="py-3 pr-6">
                         <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${count > 0 ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-500"}`}>
@@ -381,9 +379,7 @@ const BatchTable = () => {
                         </span>
                       </td>
                       <td className="py-3">
-                        {isDefault ? (
-                          <span className="text-xs text-gray-400 italic">No actions available</span>
-                        ) : isEditingRow ? (
+                        {isEditingRow ? (
                           <div className="flex items-center gap-2">
                             <button onClick={() => saveEdit(batch._id)} className="p-1.5 rounded bg-green-500 text-white hover:bg-green-600">
                               <FaCheck className="h-3 w-3" />
@@ -447,7 +443,7 @@ const BatchTable = () => {
             className="w-full border rounded px-3 py-2 text-sm dark:bg-navy-700"
           >
             <option value="">Select source...</option>
-            {batches.filter((b) => b.batchName !== DEFAULT_BATCH).map((b) => (
+            {batches.map((b) => (
               <option key={b._id} value={b._id}>{b.batchName} ({studentCountMap[b.batchName] || 0} students)</option>
             ))}
           </select>

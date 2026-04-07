@@ -15,7 +15,7 @@ router.post(
     check("testId").isLength({ min: 1, max: 255 }),
     check("testName").isLength({ min: 1, max: 255 }),
     check("paperId").isLength({ min: 1, max: 255 }),
-    check("batchName").isLength({ min: 1, max: 255 }),
+    check("batchName").optional({ nullable: true, checkFalsy: true }).isLength({ max: 255 }),
     check("date").custom((value, { req }) => {
       const isPerm = req.body.isPermanent === true || req.body.isPermanent === "true";
       if (!isPerm && !value) throw new Error("Date is required");

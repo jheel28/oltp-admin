@@ -3,17 +3,6 @@ const { validationResult } = require("express-validator");
 const Batch = require("../../Models/Batch");
 const Student = require("../../Models/Student");
 
-const DEFAULT_BATCH_NAME = "Default";
-
-const ensureDefaultBatch = async () => {
-  let defaultBatch = await Batch.findOne({ batchName: DEFAULT_BATCH_NAME });
-  if (!defaultBatch) {
-    defaultBatch = new Batch({ batchName: DEFAULT_BATCH_NAME });
-    await defaultBatch.save();
-  }
-  return defaultBatch;
-};
-
 const createBatch = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -100,10 +89,6 @@ const updateBatchById = async (req, res, next) => {
     return next(new HttpError("Batch not found, please try again", 404));
   }
 
-  if (batch.batchName === DEFAULT_BATCH_NAME) {
-    return next(new HttpError("The Default batch cannot be renamed", 422));
-  }
-
   let existing;
   try {
     existing = await Batch.findOne({ batchName: newBatchName });
@@ -168,31 +153,15 @@ const deleteBatchById = async (req, res, next) => {
     return next(new HttpError("Batch not found, please try again", 404));
   }
 
-  if (batch.batchName === DEFAULT_BATCH_NAME) {
-    return next(new HttpError("The Default batch cannot be deleted", 422));
-  }
-
-  let defaultBatch;
-  try {
-    defaultBatch = await ensureDefaultBatch();
-  } catch (err) {
-    return next(
-      new HttpError(
-        "Something went wrong while ensuring the Default batch exists, please try again",
-        500,
-      ),
-    );
-  }
-
   try {
     await Student.updateMany(
       { batch: batch.batchName },
-      { $set: { batch: DEFAULT_BATCH_NAME } },
+      { $set: { batch: "" } },
     );
   } catch (err) {
     return next(
       new HttpError(
-        "Something went wrong while reassigning students, please try again",
+        "Something went wrong while unassigning students, please try again",
         500,
       ),
     );
@@ -209,12 +178,10 @@ const deleteBatchById = async (req, res, next) => {
     );
   }
 
-  res
-    .status(200)
-    .json({
-      message:
-        "Batch successfully deleted. Orphaned students have been moved to Default batch.",
-    });
+  res.status(200).json({
+    message:
+      "Batch successfully deleted. Students from this batch have been marked as unassigned.",
+  });
 };
 
 exports.createBatch = createBatch;

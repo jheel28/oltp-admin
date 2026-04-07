@@ -26,6 +26,8 @@ const isNewStudent = (admissionDate) => {
   return diffDays <= 30;
 };
 
+const UNASSIGNED_KEY = "__unassigned__";
+
 const StudentsTable = () => {
   const auth = useContext(AuthContext);
   const [students, setStudents] = useState([]);
@@ -61,9 +63,16 @@ const StudentsTable = () => {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
+  const unassignedCount = useMemo(
+    () => students.filter((s) => !s.batch || s.batch.trim() === "").length,
+    [students]
+  );
+
   const filtered = useMemo(() => {
     let list = students;
-    if (batchFilter !== "All") {
+    if (batchFilter === UNASSIGNED_KEY) {
+      list = list.filter((s) => !s.batch || s.batch.trim() === "");
+    } else if (batchFilter !== "All") {
       list = list.filter((s) => s.batch === batchFilter);
     }
     if (search.trim()) {
@@ -160,7 +169,7 @@ const StudentsTable = () => {
     const headers = ["Student ID", "First Name", "Last Name", "Email", "Phone", "Batch", "Admission Date", "State", "Country"];
     const rows = filtered.map((s) => [
       s.studentId, s.firstName, s.lastName, s.email,
-      s.phoneNumber, s.batch, s.admissionDate, s.state, s.country,
+      s.phoneNumber, s.batch || "Unassigned", s.admissionDate, s.state, s.country,
     ]);
     const csv = [headers, ...rows].map((r) => r.map((c) => `"${c || ""}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
@@ -195,14 +204,19 @@ const StudentsTable = () => {
     );
   }
 
+  const batchFilterLabel = () => {
+    if (batchFilter === "All") return "students total";
+    if (batchFilter === UNASSIGNED_KEY) return "unassigned students";
+    return `students in ${batchFilter}`;
+  };
+
   return (
     <Card extra="w-full pb-10 p-4 h-full">
       <header className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
           <h2 className="text-xl font-bold text-navy-700 dark:text-white">Manage Students</h2>
           <p className="text-xs text-gray-500 mt-0.5">
-            {filtered.length} student{filtered.length !== 1 ? "s" : ""}
-            {batchFilter !== "All" ? ` in ${batchFilter}` : " total"}
+            {filtered.length} {batchFilterLabel()}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -225,6 +239,9 @@ const StudentsTable = () => {
             {batches.map((b) => (
               <option key={b._id} value={b.batchName}>{b.batchName}</option>
             ))}
+            {unassignedCount > 0 && (
+              <option value={UNASSIGNED_KEY}>Unassigned ({unassignedCount})</option>
+            )}
           </select>
           {selectedIds.size > 0 && (
             <button
@@ -294,6 +311,7 @@ const StudentsTable = () => {
                 paginated.map((student) => {
                   const isNew = isNewStudent(student.admissionDate);
                   const isSelected = selectedIds.has(student._id);
+                  const isUnassigned = !student.batch || student.batch.trim() === "";
                   const imgSrc = buildImageUrl(student.image) || avatarUrl(`${student.firstName} ${student.lastName}`);
                   return (
                     <tr
@@ -338,9 +356,15 @@ const StudentsTable = () => {
                         <span className="text-sm text-gray-500">{student.phoneNumber}</span>
                       </td>
                       <td className="py-3 pr-6">
-                        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-400">
-                          {student.batch}
-                        </span>
+                        {isUnassigned ? (
+                          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                            Unassigned
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-400">
+                            {student.batch}
+                          </span>
+                        )}
                       </td>
                       <td className="py-3">
                         <div className="flex items-center gap-2">

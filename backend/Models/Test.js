@@ -7,7 +7,7 @@ const testSchema = new Schema(
     testId: { type: String, required: true, unique: true },
     testName: { type: String, required: true },
     paperId: { type: String, required: true },
-    batchName: { type: String, required: true },
+    batchName: { type: String, default: "" },
     category: { type: String, default: "" },
     subjects: [{ type: String }],
     totalMarks: { type: Number, default: 0 },
