@@ -20,6 +20,9 @@ import ResetPassword from "views/auth/ResetPassword";
 import MechanicalSubjectPage from "views/subjects/MechanicalSubjectPage";
 import CommunicationAptitudePage from "views/subjects/CommunicationAptitudePage";
 import NewsArticlesPage from "views/NewsArticlesPage";
+import RefundPolicyPage from "views/legal/RefundPolicyPage";
+import PrivacyPolicyPage from "views/legal/PrivacyPolicyPage";
+import TermsAndConditionsPage from "views/legal/TermsAndConditionsPage";
 
 const App = () => {
   const { login, logout, userId, token, email, role, initialized } = useAuth();
@@ -81,6 +84,9 @@ const App = () => {
         <Route path="auth/forgot-password" element={<ForgotPassword />} />
         <Route path="auth/reset-password/:token" element={<ResetPassword />} />
         <Route path="/news" element={<NewsArticlesPage />} />
+        <Route path="/refund" element={<RefundPolicyPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms" element={<TermsAndConditionsPage />} />
         <Route path="auth/*" element={<SignIn />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

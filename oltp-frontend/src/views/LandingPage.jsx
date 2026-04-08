@@ -44,7 +44,7 @@ const NAV_LINKS = [
   { href: "#mechanical", label: "Mechanical Engineering" },
   { href: "#tests", label: "Aptitude Tests" },
   { href: "https://bingelearning.in", label: "Binge Learning", external: true },
-  { href: "/news", label: "Articles and News", external: true },
+  { href: "/news", label: "Articles and News" },
   { href: "#contact", label: "Contact Us" },
 ];
 
@@ -90,17 +90,43 @@ const preloadImages = (srcs) => {
   });
 };
 
-const NavLink = memo(({ href, label, onClick, external }) => (
-  <a
-    href={href}
-    onClick={onClick}
-    target={external ? "_blank" : undefined}
-    rel={external ? "noopener noreferrer" : undefined}
-    className="hover:text-teal-300 transition-colors uppercase tracking-wider"
-  >
-    {label}
-  </a>
-));
+const NavLink = memo(({ href, label, onClick, external }) => {
+  if (external) {
+    return (
+      <a
+        href={href}
+        onClick={onClick}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hover:text-teal-300 transition-colors uppercase tracking-wider"
+      >
+        {label}
+      </a>
+    );
+  }
+
+  if (href.startsWith("#")) {
+    return (
+      <a
+        href={href}
+        onClick={onClick}
+        className="hover:text-teal-300 transition-colors uppercase tracking-wider"
+      >
+        {label}
+      </a>
+    );
+  }
+
+  return (
+    <Link
+      to={href}
+      onClick={onClick}
+      className="hover:text-teal-300 transition-colors uppercase tracking-wider"
+    >
+      {label}
+    </Link>
+  );
+});
 
 const SocialLink = memo(({ href, Icon, label, hover }) => (
   <a
@@ -596,6 +622,7 @@ const LandingPage = () => {
               <nav className="flex flex-col gap-4">
                 <Link to="/terms" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Terms & Conditions</Link>
                 <Link to="/privacy" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Privacy Policy</Link>
+                <Link to="/refund" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Refund & Cancellation Policy</Link>
               </nav>
             </div>
 
