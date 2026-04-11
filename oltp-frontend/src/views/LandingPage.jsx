@@ -397,7 +397,7 @@ const LandingPage = () => {
       <section className="py-20 bg-gray-50 border-t border-gray-200" id="mechanical">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-12">
-            Interview Preparation
+            Mechanical Engineering Practice Tests
           </h2>
           <div className="flex flex-wrap justify-center gap-6 max-w-[1280px] mx-auto">
             {mechanicalSubjects.map((subject) => (
