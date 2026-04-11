@@ -157,7 +157,7 @@ const MechanicalSubjectPage = () => {
               <SectionHeading>Test Series Structure</SectionHeading>
               <ul className="mt-5 flex flex-col gap-3">
                 {subject.testStructure.map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
+                   <li key={i} className="flex items-start gap-3">
                     <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-cyan-600" />
                     <span className="text-sm text-gray-900 font-medium">{item}</span>
                   </li>
@@ -178,6 +178,25 @@ const MechanicalSubjectPage = () => {
           </div>
         </div>
       </section>
+
+      {subject.industryApplications && (
+        <section className="py-16 bg-white border-t border-gray-100">
+          <div className="container mx-auto px-6 max-w-4xl">
+            <SectionHeading>Application in Industry</SectionHeading>
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {subject.industryApplications.map((app, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
+                >
+                  <span className="h-2 w-2 shrink-0 rounded-full bg-cyan-500" />
+                  <span className="text-sm text-gray-900 font-medium">{app}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="py-16 bg-white border-t border-gray-100">
         <div className="container mx-auto px-6 max-w-4xl">

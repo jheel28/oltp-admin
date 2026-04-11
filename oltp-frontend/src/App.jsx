@@ -23,6 +23,8 @@ import NewsArticlesPage from "views/NewsArticlesPage";
 import RefundPolicyPage from "views/legal/RefundPolicyPage";
 import PrivacyPolicyPage from "views/legal/PrivacyPolicyPage";
 import TermsAndConditionsPage from "views/legal/TermsAndConditionsPage";
+import ContactPage from "views/legal/ContactPage";
+import AboutUsPage from "views/legal/AboutUsPage";
 
 const App = () => {
   const { login, logout, userId, token, email, role, initialized } = useAuth();
@@ -87,6 +89,8 @@ const App = () => {
         <Route path="/refund" element={<RefundPolicyPage />} />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
         <Route path="/terms" element={<TermsAndConditionsPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/about" element={<AboutUsPage />} />
         <Route path="auth/*" element={<SignIn />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

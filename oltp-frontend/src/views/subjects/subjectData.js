@@ -11,6 +11,8 @@ import T2 from "assets/img/hero/T2.jpg";
 import T3 from "assets/img/hero/T3.jpg";
 import T4 from "assets/img/hero/T4.jpg";
 import T5 from "assets/img/hero/T5.jpg";
+import hero9 from "assets/img/hero/L9.jpg";
+import hero14 from "assets/img/hero/L14.png";
 
 const mechanicalSubjects = [
   {
@@ -338,6 +340,65 @@ const mechanicalSubjects = [
     whoShouldEnroll: "CAE engineers, simulation learners, advanced mechanical engineers",
     price: "₹300/month",
     cta: "Develop the ability to simulate, analyze, and optimize engineering systems efficiently.",
+  },
+  {
+    slug: "geometric-dimensioning-tolerancing-gdt",
+    image: hero14,
+    title: "Geometric Dimensioning & Tolerancing (GD&T)",
+    displayTitle: "Geometric Dimensioning & Tolerancing (GD&T)",
+    subtitle: "",
+    hero: "Define, control, and communicate design intent with engineering precision.",
+    heroSub:
+      "Develop the ability to create manufacturable, functional, and high-quality designs using globally accepted dimensioning and tolerancing standards.",
+    about:
+      "Geometric Dimensioning and Tolerancing (GD&T) is a symbolic language used in engineering drawings to define the allowable variation in part geometry. It ensures that components fit, function, and perform correctly in real-world assemblies. Unlike traditional dimensioning, GD&T provides a more precise and functional approach by controlling form, orientation, location, and runout of features. It is widely used in industries such as automotive, aerospace, robotics, and precision manufacturing. Mastery of GD&T is essential for engineers involved in design, quality control, manufacturing, and inspection, as it directly impacts product reliability, cost efficiency, and production accuracy.",
+    masterPoints: [
+      "Interpretation of GD&T symbols and standards",
+      "Application of tolerances in engineering drawings",
+      "Functional dimensioning for assemblies",
+      "Datum systems and reference frameworks",
+      "Design for manufacturability and inspection",
+      "Error analysis and tolerance stack-up",
+    ],
+    topics: [
+      "Fundamentals of Dimensioning and Tolerancing",
+      "GD&T Symbols and Terminology",
+      "Limits, Fits, and Tolerances",
+      "Form Tolerances (Flatness, Straightness, Circularity)",
+      "Orientation Tolerances (Parallelism, Perpendicularity, Angularity)",
+      "Location Tolerances (Position, Concentricity, Symmetry)",
+      "Runout Tolerances (Circular and Total Runout)",
+      "Datum Systems and Datum Reference Frames",
+      "Feature Control Frames",
+      "Maximum Material Condition (MMC), Least Material Condition (LMC)",
+      "Tolerance Stack-Up Analysis",
+      "Inspection and Measurement Techniques (CMM Basics)",
+      "GD&T in CAD and Manufacturing Drawings",
+    ],
+    testStructure: [
+      "MCQs: GD&T concepts and symbol interpretation",
+      "MSQs: Multi-condition tolerance analysis",
+      "Numerical Problems: Tolerance calculations and stack-up analysis",
+      "Case-Based Questions: Real-world manufacturing scenarios",
+    ],
+    platformFeatures: [
+      "Drawing-based problem-solving approach",
+      "Industry-standard GD&T practices",
+      "Visualization and interpretation-focused questions",
+      "Detailed solutions with design intent explanation",
+      "Integration with CAD and manufacturing concepts",
+    ],
+    industryApplications: [
+      "Automotive component design and assembly",
+      "Aerospace precision engineering",
+      "Robotics and mechanism design",
+      "CNC machining and manufacturing",
+      "Quality inspection and metrology",
+    ],
+    whoShouldEnroll:
+      "Mechanical and manufacturing engineering students, Design engineers and CAD professionals, Quality control and inspection engineers, Product development engineers, Anyone aiming for precision engineering roles",
+    price: "₹300/month",
+    cta: "Develop the ability to design with precision, communicate effectively through engineering drawings, and ensure manufacturing accuracy using GD&T standards.",
   },
 ];
 

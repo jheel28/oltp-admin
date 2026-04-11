@@ -17,6 +17,7 @@ import {
   FaLinkedin,
   FaInstagram,
   FaWhatsapp,
+  FaPhoneAlt,
 } from "react-icons/fa";
 import { mechanicalSubjects } from "views/subjects/subjectData";
 import CategoryCard from "components/common/CategoryCard";
@@ -33,23 +34,24 @@ const SLIDER_IMAGES = [
 ];
 
 const SOCIAL_LINKS = [
-  { href: "https://www.facebook.com/share/1CUY5UXzuV/", Icon: FaFacebook, label: "Facebook", hover: "hover:text-blue-400" },
-  { href: "https://www.instagram.com/thecorrectsteps_official/", Icon: FaInstagram, label: "Instagram", hover: "hover:text-pink-400" },
-  { href: "https://www.linkedin.com/company/the-correct-steps-official/", Icon: FaLinkedin, label: "LinkedIn", hover: "hover:text-blue-300" },
-  { href: "https://youtube.com/@thecorrectsteps", Icon: FaYoutube, label: "YouTube", hover: "hover:text-red-400" },
-  { href: "https://wa.me/919958800754", Icon: FaWhatsapp, label: "WhatsApp", hover: "hover:text-green-400" },
+  { href: "https://www.facebook.com/share/1CUY5UXzuV/", Icon: FaFacebook, label: "Facebook", bg: "bg-[#1877F2]" },
+  { href: "https://www.instagram.com/thecorrectsteps_official/", Icon: FaInstagram, label: "Instagram", bg: "bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7]" },
+  { href: "https://www.linkedin.com/company/the-correct-steps-official/", Icon: FaLinkedin, label: "LinkedIn", bg: "bg-[#0077b5]" },
+  { href: "https://youtube.com/@thecorrectsteps", Icon: FaYoutube, label: "YouTube", bg: "bg-[#FF0000]" },
+  { href: "https://wa.me/919958800754", Icon: FaWhatsapp, label: "WhatsApp", bg: "bg-[#25D366]" },
 ];
 
 const NAV_LINKS = [
   { href: "#mechanical", label: "Mechanical Engineering" },
-  { href: "#tests", label: "Aptitude Tests" },
+  { href: "#tests", label: "Interview Preparation" },
   { href: "https://bingelearning.in", label: "Binge Learning", external: true },
   { href: "/news", label: "Articles and News" },
-  { href: "#contact", label: "Contact Us" },
+  { href: "/about", label: "About Us" },
+  { href: "/contact", label: "Contact Us" },
 ];
 
 const OTHER_TESTS = [
-  { title: "Verbal Ability", img: hero9 },
+  { title: "Verbal Ability and Reading Comprehension", img: hero9 },
   { title: "Data Interpretation and Logical Reasoning", img: hero10 },
   { title: "Quantitative Aptitude", img: hero11 },
 ];
@@ -98,7 +100,7 @@ const NavLink = memo(({ href, label, onClick, external }) => {
         onClick={onClick}
         target="_blank"
         rel="noopener noreferrer"
-        className="hover:text-teal-300 transition-colors uppercase tracking-wider"
+        className="hover:text-teal-300 transition-colors uppercase tracking-wider whitespace-nowrap"
       >
         {label}
       </a>
@@ -110,7 +112,7 @@ const NavLink = memo(({ href, label, onClick, external }) => {
       <a
         href={href}
         onClick={onClick}
-        className="hover:text-teal-300 transition-colors uppercase tracking-wider"
+        className="hover:text-teal-300 transition-colors uppercase tracking-wider whitespace-nowrap"
       >
         {label}
       </a>
@@ -121,7 +123,7 @@ const NavLink = memo(({ href, label, onClick, external }) => {
     <Link
       to={href}
       onClick={onClick}
-      className="hover:text-teal-300 transition-colors uppercase tracking-wider"
+      className="hover:text-teal-300 transition-colors uppercase tracking-wider whitespace-nowrap"
     >
       {label}
     </Link>
@@ -244,7 +246,7 @@ const LandingPage = () => {
               </span>
             </Link>
             <div className="flex items-center gap-1.5 sm:gap-8">
-              <div className="flex items-center gap-3 sm:gap-8 text-base md:text-lg lg:text-[18px] font-bold whitespace-nowrap">
+              <div className="flex items-center gap-3 sm:gap-8 text-base md:text-[18px] font-bold whitespace-nowrap">
                 <Link 
                   to="/auth/user/sign-in" 
                   className="text-gray-800 hover:text-teal-600 transition-colors px-2 py-2"
@@ -253,7 +255,7 @@ const LandingPage = () => {
                 </Link>
                 <Link 
                   to="/auth/register/student" 
-                  className="rounded-full bg-teal-600 hover:bg-teal-500 transition-all shadow-md px-5 sm:px-8 py-2 sm:py-3 text-white transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-lg lg:text-[19px]"
+                  className="rounded-full bg-teal-600 hover:bg-teal-500 transition-all shadow-md px-5 sm:px-8 py-2 sm:py-3 text-white transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-[18px]"
                 >
                   Sign Up
                 </Link>
@@ -277,7 +279,7 @@ const LandingPage = () => {
         </div>
         <div className={`bg-cyan-900 overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 md:max-h-none opacity-0 md:opacity-100"}`}>
           <div className="container mx-auto px-6">
-            <nav className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 md:gap-10 text-white text-base md:text-lg lg:text-[17px] font-bold py-6 md:py-4">
+            <nav className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 md:gap-5 lg:gap-8 text-white text-base md:text-[17px] font-bold py-6 md:py-4">
               {NAV_LINKS.map((link) => (
                 <NavLink key={link.href} href={link.href} label={link.label} onClick={closeMenu} external={link.external} />
               ))}
@@ -395,7 +397,7 @@ const LandingPage = () => {
       <section className="py-20 bg-gray-50 border-t border-gray-200" id="mechanical">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-12">
-            Mechanical Engineering Practice Tests
+            Interview Preparation
           </h2>
           <div className="flex flex-wrap justify-center gap-6 max-w-[1280px] mx-auto">
             {mechanicalSubjects.map((subject) => (
@@ -418,7 +420,7 @@ const LandingPage = () => {
       <section className="py-20 bg-gray-50 border-t border-gray-200" id="tests">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-12">
-            Interview and Exams Preparation
+            Interview Preparation
           </h2>
           <div className="flex flex-wrap justify-center gap-6 max-w-[1280px] mx-auto">
             {OTHER_TESTS.map((test) => (
@@ -563,7 +565,7 @@ const LandingPage = () => {
       </section>
 
       {/* ─── FOOTER ───────────────────────────────────────────────────────────── */}
-      <footer className="bg-cyan-900 text-gray-100 border-t border-white/10 relative overflow-hidden" id="contact">
+      <footer className="bg-cyan-900 text-gray-100 border-t border-white/10 relative overflow-hidden">
         <div className="container mx-auto px-6 md:px-12 pt-20 pb-10 relative z-10">
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 border-b border-white/10 pb-12 mb-8">
@@ -587,9 +589,9 @@ const LandingPage = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={link.label}
-                    className="flex items-center justify-center w-10 h-10 rounded-full bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white transition-all hover:scale-110 shadow-lg"
+                    className={`flex items-center justify-center w-11 h-11 rounded-xl text-white transition-all hover:scale-110 shadow-lg border border-white/10 hover:brightness-110 ${link.bg}`}
                   >
-                    <link.Icon className="text-lg" />
+                    <link.Icon className="text-xl" />
                   </a>
                 ))}
               </div>
@@ -600,9 +602,10 @@ const LandingPage = () => {
               <h4 className="text-white font-extrabold text-base uppercase tracking-widest mb-2 border-b border-white/20 pb-4 inline-block self-start">Platform</h4>
               <nav className="flex flex-col gap-4">
                 <a href="#mechanical" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Mechanical Engineering</a>
-                <a href="#tests" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Aptitude Tests</a>
+                <a href="#tests" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Interview Preparation</a>
                 <a href="https://bingelearning.in" target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Binge Learning</a>
                 <Link to="/news" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Articles & News</Link>
+                <Link to="/about" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> About Us</Link>
               </nav>
             </div>
 
@@ -612,7 +615,8 @@ const LandingPage = () => {
               <nav className="flex flex-col gap-4">
                 <Link to="/auth/user/sign-in" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Student Login</Link>
                 <Link to="/auth/register/student" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Create Account</Link>
-                <a href="mailto:support@thecorrectsteps.com" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Email Support</a>
+                <a href="mailto:thecorrectsteps@gmail.com" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Email Support</a>
+                <Link to="/contact" className="text-gray-200 hover:text-white transition-all flex items-center gap-2 group font-medium text-[15px]"><span className="text-teal-400 opacity-0 transform -translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all font-bold">→</span> Contact Us</Link>
               </nav>
             </div>
 
@@ -638,6 +642,47 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
+
+      {/* ─── QUICK CONNECT SIDEBAR BOX ─────────────────────────────────── */}
+      <div className="fixed bottom-24 right-0 z-[9999] pointer-events-auto group">
+        <div className="bg-white rounded-l-2xl shadow-2xl border border-gray-200 overflow-hidden w-44 md:w-48 flex flex-col p-1 transition-all hover:-translate-x-1 hover:shadow-teal-900/15">
+          
+          <div className="flex flex-col">
+            {/* WhatsApp Row */}
+            <a 
+              href="https://wa.me/919958800754" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group/item flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-gray-50 transition-all"
+            >
+              <div className="flex flex-col items-start pl-1">
+                <span className="text-[9px] uppercase tracking-widest font-black text-teal-600 mb-0.5">Quick Connect</span>
+                <span className="text-base font-bold text-gray-800 group-hover/item:text-teal-600 transition-colors">WhatsApp</span>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-[#25D366] text-white flex items-center justify-center text-2xl shadow-lg shadow-[#25D366]/20 group-hover/item:scale-110 transition-transform shrink-0">
+                <FaWhatsapp />
+              </div>
+            </a>
+
+            {/* Subtle Divider */}
+            <div className="h-px bg-gray-100 mx-3 my-0.5"></div>
+
+            {/* Call Row */}
+            <a 
+              href="tel:+919958800754"
+              className="group/item flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-gray-50 transition-all"
+            >
+              <div className="flex flex-col items-start pl-1">
+                <span className="text-base font-bold text-gray-800 group-hover/item:text-teal-600 transition-colors">Call Us</span>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-teal-600 text-white flex items-center justify-center text-lg shadow-lg shadow-teal-600/20 group-hover/item:scale-110 transition-transform shrink-0">
+                <FaPhoneAlt />
+              </div>
+            </a>
+          </div>
+
+        </div>
+      </div>
 
       {/* Scroll to Top */}
       <button

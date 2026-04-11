@@ -94,8 +94,8 @@ const CommunicationAptitudePage = () => {
         <div className="container mx-auto px-6 max-w-4xl">
           <SectionHeading>About the Program</SectionHeading>
           <p className="mt-4 text-gray-900 text-base leading-relaxed font-medium">
-            This program is a comprehensive blend of Verbal Ability, Quantitative Aptitude,
-            Logical Reasoning, English Proficiency, and Personality Development, designed
+            This program is a comprehensive blend of Verbal Ability and Reading Comprehension, Quantitative Aptitude,
+            Data Interpretation and Logical Reasoning, English Proficiency, and Personality Development, designed
             specifically to help students crack interviews and secure job opportunities.
           </p>
           <p className="mt-3 text-gray-900 text-base leading-relaxed font-medium">
@@ -114,7 +114,7 @@ const CommunicationAptitudePage = () => {
           <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             <CoreAreaCard
               number="1"
-              title="Verbal Ability"
+              title="Verbal Ability and Reading Comprehension"
               description="Develop strong command over the English language to communicate effectively in professional environments."
               points={[
                 "Reading comprehension and interpretation",
@@ -126,7 +126,7 @@ const CommunicationAptitudePage = () => {
             />
             <CoreAreaCard
               number="2"
-              title="Data Interpretation & Logical Reasoning"
+              title="Data Interpretation and Logical Reasoning"
               description="Enhance your ability to analyze data, identify patterns, and solve real-world logical problems."
               points={[
                 "Data analysis using charts, graphs, and tables",
