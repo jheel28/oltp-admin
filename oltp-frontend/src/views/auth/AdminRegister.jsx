@@ -72,7 +72,7 @@ const AdminRegister = () => {
             </div>
 
             <Form form={form} name="admin-register" onFinish={onFinish} layout="vertical" preserve>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Form.Item
                   name="firstName"
                   label={<span className="text-white/90">First Name</span>}
@@ -109,7 +109,7 @@ const AdminRegister = () => {
                 <Input placeholder="admin@example.com" size="large" />
               </Form.Item>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Form.Item
                   name="password"
                   label={<span className="text-white/90">Password</span>}

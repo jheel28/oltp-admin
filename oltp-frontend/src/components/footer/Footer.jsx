@@ -1,49 +1,43 @@
+import { Link } from "react-router-dom";
+
 const Footer = () => {
   return (
-    <div className="flex w-full items-center justify-between px-1 pb-8 pt-3 lg:px-8 flex-row">
-      <p className="text-center text-[10px] font-medium text-gray-600 md:text-sm whitespace-nowrap">
-        ©{new Date().getFullYear()} The Correct Steps. All Rights Reserved.
+    <div className="flex w-full flex-col items-center justify-between gap-4 px-4 pb-8 pt-3 md:flex-row lg:px-8">
+      <p className="text-center text-[10px] font-medium text-white/60 md:text-sm">
+        ©{new Date().getFullYear()} THE CORRECT STEPS. All Rights Reserved.
       </p>
-      <ul className="flex items-center justify-center gap-2 md:gap-6 ml-4">
-        <li className="shrink-0">
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href="mailto:hello@simmmple.com"
-            className="text-[10px] font-medium text-gray-600 hover:text-blue-500 md:text-sm whitespace-nowrap"
+      <ul className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
+        <li>
+          <Link
+            to="/contact"
+            className="text-[10px] font-medium text-white/60 hover:text-teal-400 md:text-sm"
           >
             Support
-          </a>
+          </Link>
         </li>
-        <li className="shrink-0">
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://simmmple.com/licenses"
-            className="text-[10px] font-medium text-gray-600 hover:text-blue-500 md:text-sm whitespace-nowrap"
+        <li>
+          <Link
+            to="/privacy"
+            className="text-[10px] font-medium text-white/60 hover:text-teal-400 md:text-sm"
           >
-            License
-          </a>
+            Privacy Policy
+          </Link>
         </li>
-        <li className="shrink-0">
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://simmmple.com/terms-of-service"
-            className="text-[10px] font-medium text-gray-600 hover:text-blue-500 md:text-sm whitespace-nowrap"
+        <li>
+          <Link
+            to="/terms"
+            className="text-[10px] font-medium text-white/60 hover:text-teal-400 md:text-sm"
           >
             Terms of Use
-          </a>
+          </Link>
         </li>
-        <li className="shrink-0">
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://blog.horizon-ui.com/"
-            className="text-[10px] font-medium text-gray-600 hover:text-blue-500 md:text-sm whitespace-nowrap"
+        <li>
+          <Link
+            to="/refund"
+            className="text-[10px] font-medium text-white/60 hover:text-teal-400 md:text-sm"
           >
-            Blog
-          </a>
+            Refund Policy
+          </Link>
         </li>
       </ul>
     </div>

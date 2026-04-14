@@ -241,12 +241,12 @@ const LandingPage = () => {
                 className="h-10 sm:h-14 w-auto"
                 fetchPriority="high"
               />
-              <span className="font-bold text-lg sm:text-2xl text-gray-800 tracking-tight leading-tight">
+              <span className="font-bold text-base sm:text-2xl text-gray-800 tracking-tight leading-tight max-w-[150px] sm:max-w-none">
                 THE CORRECT STEPS
               </span>
             </Link>
             <div className="flex items-center gap-1.5 sm:gap-8">
-              <div className="flex items-center gap-3 sm:gap-8 text-base md:text-[18px] font-bold whitespace-nowrap">
+              <div className="hidden md:flex items-center gap-3 sm:gap-8 text-base md:text-[18px] font-bold whitespace-nowrap">
                 <Link 
                   to="/auth/user/sign-in" 
                   className="text-gray-800 hover:text-teal-600 transition-colors px-2 py-2"
@@ -277,9 +277,20 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
-        <div className={`bg-cyan-900 overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 md:max-h-none opacity-0 md:opacity-100"}`}>
+        <div className={`bg-cyan-900 overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? "max-h-[600px] opacity-100" : "max-h-0 md:max-h-none opacity-0 md:opacity-100"}`}>
           <div className="container mx-auto px-6">
             <nav className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 md:gap-5 lg:gap-8 text-white text-base md:text-[17px] font-bold py-6 md:py-4">
+              {/* Mobile Only: Auth Links */}
+              <div className="flex md:hidden flex-col items-center gap-4 w-full mb-6 pb-6 border-b border-white/10">
+                <Link to="/auth/user/sign-in" onClick={closeMenu} className="text-xl hover:text-teal-300">Log in</Link>
+                <Link 
+                  to="/auth/register/student" 
+                  onClick={closeMenu}
+                  className="w-full max-w-[200px] text-center rounded-full bg-teal-500 hover:bg-teal-400 py-3 text-lg"
+                >
+                  Sign Up
+                </Link>
+              </div>
               {NAV_LINKS.map((link) => (
                 <NavLink key={link.href} href={link.href} label={link.label} onClick={closeMenu} external={link.external} />
               ))}
@@ -472,7 +483,7 @@ const LandingPage = () => {
             </Link>
           </div>
           
-          <div className="relative max-w-7xl mx-auto min-h-[500px]">
+          <div className="relative max-w-7xl mx-auto min-h-[500px] overflow-hidden">
             {LATEST_ARTICLES.map((article, index) => (
               <div 
                 key={index}

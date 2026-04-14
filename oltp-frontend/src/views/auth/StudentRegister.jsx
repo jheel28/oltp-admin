@@ -125,7 +125,7 @@ const StudentRegister = () => {
             </div>
 
             <div className="mb-8">
-              <Steps current={currentStep} size="small" responsive={false} className="dark-steps">
+              <Steps current={currentStep} size="small" responsive={true} className="dark-steps">
                 <Steps.Step title={<span className="text-white/70">Personal</span>} />
                 <Steps.Step title={<span className="text-white/70">Academic</span>} />
                 <Steps.Step title={<span className="text-white/70">Contact</span>} />
@@ -134,7 +134,7 @@ const StudentRegister = () => {
 
             <Form form={form} name="student-register" onFinish={onFinish} layout="vertical" preserve className="auth-form">
               <div style={{ display: currentStep === 0 ? "block" : "none" }}>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Form.Item name="firstName" label={<span className="text-white/90">First Name</span>} rules={[{ required: true }]}>
                     <Input placeholder="First name" size="large" />
                   </Form.Item>
@@ -145,7 +145,7 @@ const StudentRegister = () => {
                 <Form.Item name="email" label={<span className="text-white/90">Email</span>} rules={[{ required: true, type: "email" }]}>
                   <Input type="email" placeholder="you@example.com" size="large" />
                 </Form.Item>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Form.Item name="password" label={<span className="text-white/90">Password</span>} rules={[{ required: true, min: 6 }]}>
                     <Input.Password placeholder="Min. 6 characters" size="large" />
                   </Form.Item>
@@ -179,7 +179,7 @@ const StudentRegister = () => {
                 <Form.Item name="city" label={<span className="text-white/90">City</span>} rules={[{ required: true }]}>
                   <Input placeholder="City" size="large" />
                 </Form.Item>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <Form.Item name="pincode" label={<span className="text-white/90">Pincode / Zipcode</span>} rules={[{ required: true }]}>
                     <Input placeholder="Pincode / Zipcode" size="large" />
                   </Form.Item>
@@ -209,7 +209,7 @@ const StudentRegister = () => {
                     placeholder="Alternate"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                   <Form.Item name="fatherName" label={<span className="text-white/90">Father's Name</span>}>
                     <Input placeholder="Father's name" size="large" />
                   </Form.Item>
