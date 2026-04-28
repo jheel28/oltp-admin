@@ -4,12 +4,12 @@
 
 ## Document Information
 
-| Field       | Details                |
-|-------------|------------------------|
-| **Title**   | OLTP Admin System      |
-| **Version** | 1.0.0                  |
-| **Date**    | 2026-03-23             |
-| **Author(s)** | Development Team     |
+| Field       | Details                              |
+|-------------|--------------------------------------|
+| **Title**   | OLTP Admin System                    |
+| **Version** | 1.0.0                                |
+| **Date**    | 2026-04-29                           |
+| **Author(s)** | Preet Taparia, Jheel Toshniwal     |
 
 ---
 
@@ -30,6 +30,8 @@ This system serves as the complete administrative and student-facing platform fo
 - Test scheduling and publishing
 - Automated score recording and leaderboard generation
 - Email verification and password reset workflows
+- Public-facing pages (landing, news/articles, subject information)
+- Legal and informational pages (about, contact, privacy policy, refund policy, terms & conditions)
 
 ### Key Features
 
@@ -41,6 +43,8 @@ This system serves as the complete administrative and student-facing platform fo
 - **Image Uploads** — Profile images via Multer; answer key PDFs stored server-side
 - **Security Hardening** — Helmet, CORS, Mongo sanitization, rate limiting on login routes
 - **Responsive Frontend** — React admin and student dashboards with Ant Design, Tailwind CSS, and ApexCharts for analytics
+- **Auto-Generated Student IDs** — Student IDs are generated server-side on registration (`STU-<timestamp>-<random>`)
+- **Public Content Pages** — Landing page, news/articles, subject detail pages, and full legal/informational page suite
 
 ### Target Users
 
@@ -48,6 +52,7 @@ This system serves as the complete administrative and student-facing platform fo
 |---------|---------------------------------------------------------------|
 | Admin   | Platform staff who manage students, tests, papers, and scores |
 | Student | Enrolled learners who take tests and view their results       |
+| Visitor | Unauthenticated users who view public landing, subject, legal, and news pages |
 
 ---
 
@@ -127,6 +132,8 @@ This system serves as the complete administrative and student-facing platform fo
 | libphonenumber-js       | ^1.12.37   | Phone number validation            |
 | uuid                    | ^9.0.1     | UUID generation                    |
 | mongoose-unique-validator| ^4.0.0   | Better unique constraint errors    |
+| axios                   | ^1.6.3     | HTTP client for outbound requests  |
+| body-parser             | ^1.20.2    | Request body parsing               |
 | nodemon                 | ^3.0.2     | Dev: auto-restarts server          |
 
 **Frontend**
@@ -225,9 +232,9 @@ oltp-admin/
     │   ├── routes.js               # Admin route definitions
     │   ├── studentRoutes.js        # Student route definitions
     │   ├── components/             # Shared/reusable components
-    │   │   ├── auth-hook.jsx       # useAuth custom hook
-    │   │   ├── Auth-context.jsx    # AuthContext provider
-    │   │   ├── FetchInterceptor.jsx# Global 401 fetch interceptor
+    │   │   ├── auth-hook.js        # useAuth custom hook
+    │   │   ├── Auth-context.js     # AuthContext provider
+    │   │   ├── FetchInterceptor.js # Global 401 fetch interceptor
     │   │   └── ...
     │   ├── layouts/
     │   │   ├── admin/              # Admin dashboard shell layout
@@ -236,7 +243,10 @@ oltp-admin/
     │   │   ├── auth/               # SignIn, Register, Verify, ForgotPassword, ResetPassword
     │   │   ├── admin/              # Admin-facing feature views
     │   │   ├── student/            # Student-facing feature views (tests, results)
-    │   │   └── LandingPage.jsx     # Public landing page
+    │   │   ├── legal/              # AboutUs, Contact, PrivacyPolicy, RefundPolicy, TermsAndConditions
+    │   │   ├── subjects/           # MechanicalSubjectPage, CommunicationAptitudePage, subjectData
+    │   │   ├── LandingPage.jsx     # Public landing page
+    │   │   └── NewsArticlesPage.jsx # News and articles listing page
     │   └── assets/                 # Static assets (images, icons)
     └── public/                     # Public static files
 ```
@@ -349,6 +359,8 @@ The backend runs on `http://localhost:5000` and the frontend on `http://localhos
 | Leaderboard                  | Ranked score view accessible to admin and students                 |
 | Live Test Status             | Admin can view who has submitted a live test                       |
 | Performance Analytics        | Score charts and result breakdowns on the frontend                 |
+| Public Content Pages         | Landing page, news/articles, subject information pages             |
+| Legal Pages                  | About us, contact, privacy policy, refund policy, terms & conditions |
 
 ### Use Cases
 
@@ -364,6 +376,7 @@ The backend runs on `http://localhost:5000` and the frontend on `http://localhos
 | Student | Reset forgotten password                              |
 | Student | Attempt a published test                              |
 | Student | View personal results and leaderboard                 |
+| Visitor | Browse landing page, subject pages, news, and legal content |
 
 ---
 
@@ -465,10 +478,9 @@ Content-Type: multipart/form-data
   "email": "ravi@example.com",
   "password": "pass123",
   "phoneNumber": "+919876543210",
-  "studentId": "STU001",
   "admissionDate": "2026-01-01",
   "batch": "Batch A",
-  "address": "123 Main St",
+  "city": "Mumbai",
   "pincode": "400001",
   "state": "Maharashtra",
   "country": "India",
@@ -625,7 +637,8 @@ All collections use Mongoose schemas with strict validation.
 | studentId              | String  | Required                     |
 | admissionDate          | String  | Required                     |
 | batch                  | String  | Required                     |
-| address                | String  | Required                     |
+| address                | String  | **REMOVED** (replaced by `city`)   |
+| city                   | String  | Required                     |
 | pincode                | String  | Required                     |
 | state                  | String  | Required                     |
 | country                | String  | Required                     |
@@ -694,7 +707,7 @@ All collections use Mongoose schemas with strict validation.
 | testId             | String   | Required, Unique         |
 | testName           | String   | Required                 |
 | paperId            | String   | Required                 |
-| batchName          | String   | Required                 |
+| batchName          | String   | Default: `""`            |
 | category           | String   | Default: `""`            |
 | subjects           | [String] | —                        |
 | totalMarks         | Number   | Default: 0               |
@@ -764,11 +777,12 @@ Student ──(1:N)──> Score (by studentId)
 - **Key Functions:** `getAllAdmins`, `getAdminById`, `createAdmin`, `login`, `updateAdminById`, `updateImageById`, `updatePasswordByEmail`, `deleteAdmin`
 
 #### `Student-Controllers`
-- **Responsibility:** Student CRUD, email verification flow, password reset flow
+- **Responsibility:** Student CRUD, email verification flow, password reset flow, auto-generated student IDs
 - **Key Functions:** `getAllStudents`, `getStudentById`, `createStudent`, `login`, `verifyEmail`, `resendVerificationEmail`, `forgotPassword`, `resetPassword`, `updateStudentById`, `updateImageById`, `updatePasswordByEmail`, `deleteStudentById`
+- **Notable:** `studentId` is auto-generated via `generateStudentId()` on creation. The `address` field has been replaced by `city`.
 
 #### `Batch-Controllers`
-- **Responsibility:** Batch management
+- **Responsibility:** Batch management (no default batch; deleting a batch unassigns its students)
 - **Key Functions:** `getAllBatches`, `createBatch`, `updateBatchById`, `deleteBatchById`
 
 #### `Category-Controllers`
@@ -807,6 +821,21 @@ Student ──(1:N)──> Score (by studentId)
 - `testingScreen` — renders questions, handles timer, submits answers
 - `feedbackScreen` — displays result summary after submission
 
+#### Legal Pages (`views/legal/`)
+- `AboutUsPage` — Organization information
+- `ContactPage` — Contact form and details
+- `PrivacyPolicyPage` — Privacy policy content
+- `RefundPolicyPage` — Refund policy content
+- `TermsAndConditionsPage` — Terms and conditions content
+
+#### Subject Pages (`views/subjects/`)
+- `MechanicalSubjectPage` — Mechanical engineering subject details and syllabus
+- `CommunicationAptitudePage` — Communication and aptitude subject details
+- `subjectData.js` — Centralized subject content data
+
+#### News and Articles (`views/NewsArticlesPage.jsx`)
+- Public-facing news and articles listing page
+
 ---
 
 ## Process Flow
@@ -818,6 +847,7 @@ Student → POST /student/signup (with image)
   → express-validator validates fields
   → bcrypt hashes password
   → Unique email check
+  → studentId auto-generated (STU-<timestamp>-<random>)
   → Student record created (isVerified: false)
   → Verification email sent (Nodemailer) with token link
   → Student clicks link → GET /student/verify/:token
