@@ -130,18 +130,6 @@ const NavLink = memo(({ href, label, onClick, external }) => {
   );
 });
 
-const SocialLink = memo(({ href, Icon, label, hover }) => (
-  <a
-    href={href}
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label={label}
-    className={"text-gray-100 transition-colors text-xl " + hover}
-  >
-    <Icon />
-  </a>
-));
-
 const WhyCard = memo(({ num, title, desc }) => (
   <div className="flex gap-6 items-start">
     <div className="shrink-0 flex items-center justify-center w-14 h-14 rounded bg-transparent border-2 border-white/30 text-white font-bold text-2xl">

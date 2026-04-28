@@ -11,7 +11,6 @@ import T2 from "assets/img/hero/T2.jpg";
 import T3 from "assets/img/hero/T3.jpg";
 import T4 from "assets/img/hero/T4.jpg";
 import T5 from "assets/img/hero/T5.jpg";
-import hero9 from "assets/img/hero/L9.jpg";
 import hero14 from "assets/img/hero/L14.png";
 
 const mechanicalSubjects = [

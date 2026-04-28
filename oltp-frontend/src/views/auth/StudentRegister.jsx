@@ -7,15 +7,163 @@ import PhoneInput, { isValidPhoneNumber } from "components/PhoneInput";
 
 const { Option } = Select;
 
+const MAX_IMAGE_BYTES = 3 * 1024 * 1024;
+const CONTACT_NUMBER = "9958800754";
+
+const formatBytes = (bytes) => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+};
+
+const ErrorBanner = ({ title, detail, showContact }) => (
+  <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-4">
+    <div className="flex items-start gap-3">
+      <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-500/20">
+        <svg className="h-3 w-3 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-red-300">{title}</p>
+        {detail && <p className="mt-0.5 text-xs text-red-300/80">{detail}</p>}
+        {showContact && (
+          <p className="mt-2 text-xs text-white/60">
+            Need help? Contact us at{" "}
+            <a
+              href={`tel:${CONTACT_NUMBER}`}
+              className="font-bold text-teal-400 hover:text-teal-300 underline underline-offset-2"
+            >
+              {CONTACT_NUMBER}
+            </a>
+          </p>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
+const ImageUploadField = ({ imageFile, onFileChange }) => {
+  const [dragOver, setDragOver] = useState(false);
+  const isTooBig = imageFile && imageFile.size > MAX_IMAGE_BYTES;
+
+  const handleFile = (file) => {
+    if (!file) return;
+    onFileChange(file);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  };
+
+  return (
+    <div className="mb-4">
+      <label className="mb-1.5 block text-sm font-medium text-white/90">
+        Profile Photo <span className="text-teal-400">*</span>
+      </label>
+
+      <label
+        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={handleDrop}
+        className={[
+          "group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-5 text-center transition-all duration-200",
+          dragOver
+            ? "border-teal-400 bg-teal-500/10"
+            : isTooBig
+            ? "border-red-500/60 bg-red-500/5 hover:border-red-400"
+            : imageFile
+            ? "border-teal-500/60 bg-teal-500/5 hover:border-teal-400"
+            : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/8",
+        ].join(" ")}
+      >
+        <input
+          type="file"
+          accept="image/*"
+          className="sr-only"
+          onChange={(e) => handleFile(e.target.files[0])}
+        />
+
+        {imageFile ? (
+          <>
+            <div
+              className={[
+                "flex h-10 w-10 items-center justify-center rounded-full",
+                isTooBig ? "bg-red-500/20" : "bg-teal-500/20",
+              ].join(" ")}
+            >
+              <svg
+                className={["h-5 w-5", isTooBig ? "text-red-400" : "text-teal-400"].join(" ")}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.8}
+              >
+                {isTooBig ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                )}
+              </svg>
+            </div>
+
+            <div>
+              <p
+                className={[
+                  "max-w-[220px] truncate text-sm font-medium",
+                  isTooBig ? "text-red-300" : "text-teal-300",
+                ].join(" ")}
+                title={imageFile.name}
+              >
+                {imageFile.name}
+              </p>
+              <p className={["text-xs", isTooBig ? "text-red-400" : "text-white/40"].join(" ")}>
+                {formatBytes(imageFile.size)}
+              </p>
+            </div>
+
+            {isTooBig && (
+              <div className="w-full rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2">
+                <p className="text-xs font-semibold text-red-300">
+                  File too large — maximum allowed size is {formatBytes(MAX_IMAGE_BYTES)}
+                </p>
+                <p className="mt-0.5 text-xs text-red-300/70">
+                  Your file is {formatBytes(imageFile.size)}. Please compress or choose a smaller image.
+                </p>
+              </div>
+            )}
+
+            <p className="text-xs text-white/40">Click to change</p>
+          </>
+        ) : (
+          <>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 transition-colors group-hover:bg-white/10">
+              <svg className="h-5 w-5 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-white/70">Click or drag to upload</p>
+              <p className="text-xs text-white/30">PNG, JPG, JPEG up to {formatBytes(MAX_IMAGE_BYTES)}</p>
+            </div>
+          </>
+        )}
+      </label>
+    </div>
+  );
+};
+
 const StudentRegister = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
-  const [imageTooLarge, setImageTooLarge] = useState(false);
-  const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
   const [batches, setBatches] = useState([]);
   const [phones, setPhones] = useState({ phoneNumber: "", alternateNumber: "" });
   const [phoneSubmitted, setPhoneSubmitted] = useState(false);
+  const [registrationError, setRegistrationError] = useState(null);
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
@@ -39,12 +187,6 @@ const StudentRegister = () => {
     ["batch", "admissionDate", "city", "pincode", "state", "country"],
   ];
 
-  const phonesValid =
-    isValidPhoneNumber(phones.phoneNumber) &&
-    (!phones.alternateNumber ||
-      !phones.alternateNumber.trim() ||
-      isValidPhoneNumber(phones.alternateNumber));
-
   const handleNext = async () => {
     try {
       await form.validateFields(stepFields[currentStep] || []);
@@ -58,11 +200,26 @@ const StudentRegister = () => {
 
   const onFinish = async (values) => {
     setPhoneSubmitted(true);
-    if (!imageFile) { message.error("Please provide a profile photo"); return; }
-    if (imageFile && imageFile.size > MAX_IMAGE_BYTES) { message.error("Profile image must be 5MB or smaller"); return; }
-    if (!isValidPhoneNumber(phones.phoneNumber)) { message.error("Please enter a valid phone number"); return; }
+    setRegistrationError(null);
+
+    if (!imageFile) {
+      setRegistrationError({ title: "Profile photo is required.", detail: "Please upload a profile photo to continue.", showContact: false });
+      return;
+    }
+    if (imageFile.size > MAX_IMAGE_BYTES) {
+      setRegistrationError({
+        title: `Image is too large (${formatBytes(imageFile.size)}).`,
+        detail: `Please upload an image smaller than ${formatBytes(MAX_IMAGE_BYTES)}. Try compressing it using a tool like TinyPNG.`,
+        showContact: false,
+      });
+      return;
+    }
+    if (!isValidPhoneNumber(phones.phoneNumber)) {
+      setRegistrationError({ title: "Invalid phone number.", detail: "Please enter a valid phone number in international format.", showContact: false });
+      return;
+    }
     if (phones.alternateNumber && phones.alternateNumber.trim() && !isValidPhoneNumber(phones.alternateNumber)) {
-      message.error("Please enter a valid alternate number or leave it blank");
+      setRegistrationError({ title: "Invalid alternate number.", detail: "Please enter a valid alternate number or leave it blank.", showContact: false });
       return;
     }
 
@@ -85,7 +242,7 @@ const StudentRegister = () => {
       }
       if (values.fatherName) formData.append("fatherName", values.fatherName);
       if (values.motherName) formData.append("motherName", values.motherName);
-      if (imageFile) formData.append("image", imageFile);
+      formData.append("image", imageFile);
 
       const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
       const response = await fetch(`${backendUrl}/api/v1/student/signup`, {
@@ -93,6 +250,7 @@ const StudentRegister = () => {
         body: formData,
       });
       const data = await response.json();
+
       if (response.ok) {
         if (data.requiresVerification) {
           message.success("Registration successful! Please check your email.");
@@ -102,10 +260,20 @@ const StudentRegister = () => {
           setTimeout(() => navigate("/auth/sign-in"), 1500);
         }
       } else {
-        message.error(data.message || "Registration failed.");
+        const errorMsg = data.message || "Registration failed. Please try again.";
+        const isServerError = response.status >= 500;
+        setRegistrationError({
+          title: errorMsg,
+          detail: isServerError ? "There was a problem on our end." : null,
+          showContact: true,
+        });
       }
     } catch {
-      message.error("An error occurred during registration.");
+      setRegistrationError({
+        title: "Unable to connect to the server.",
+        detail: "Please check your internet connection and try again.",
+        showContact: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -157,7 +325,7 @@ const StudentRegister = () => {
                       ({ getFieldValue }) => ({
                         validator(_, value) {
                           if (!value || getFieldValue("password") === value) return Promise.resolve();
-                          return Promise.reject(new Error("Mismatch"));
+                          return Promise.reject(new Error("Passwords do not match"));
                         },
                       }),
                     ]}
@@ -209,6 +377,7 @@ const StudentRegister = () => {
                     placeholder="Alternate"
                   />
                 </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                   <Form.Item name="fatherName" label={<span className="text-white/90">Father's Name</span>}>
                     <Input placeholder="Father's name" size="large" />
@@ -217,27 +386,20 @@ const StudentRegister = () => {
                     <Input placeholder="Mother's name" size="large" />
                   </Form.Item>
                 </div>
-                <div className="mb-4">
-                  <label className="mb-1 block text-sm font-medium text-white/90">
-                    Profile Photo <span className="text-teal-400">*</span>
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const f = e.target.files[0];
-                      setImageFile(f);
-                      setImageTooLarge(f && f.size > MAX_IMAGE_BYTES);
-                    }}
-                    className="w-full rounded-lg border border-white/10 bg-white/5 p-2 text-white"
+
+                <ImageUploadField imageFile={imageFile} onFileChange={setImageFile} />
+
+                <div className="rounded-xl bg-white/5 p-3 mb-2">
+                  <p className="text-xs text-white/60">A verification email will be sent upon registration.</p>
+                </div>
+
+                {registrationError && (
+                  <ErrorBanner
+                    title={registrationError.title}
+                    detail={registrationError.detail}
+                    showContact={registrationError.showContact}
                   />
-                  {imageFile && !imageTooLarge && (
-                    <p className="mt-1 text-xs text-teal-400">Selected: {imageFile.name}</p>
-                  )}
-                </div>
-                <div className="rounded-xl bg-white/5 p-3 mb-4">
-                  <p className="text-xs text-white/60">Verification email will be sent upon registration.</p>
-                </div>
+                )}
               </div>
 
               <div className="mt-6 flex items-center justify-between gap-3">
@@ -261,8 +423,8 @@ const StudentRegister = () => {
                 ) : (
                   <button
                     type="submit"
-                    disabled={loading}
-                    className="ml-auto rounded-xl bg-teal-600 px-8 py-2.5 text-sm font-semibold text-white hover:bg-teal-500 disabled:opacity-60"
+                    disabled={loading || (imageFile && imageFile.size > MAX_IMAGE_BYTES)}
+                    className="ml-auto rounded-xl bg-teal-600 px-8 py-2.5 text-sm font-semibold text-white hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {loading ? "Creating..." : "Create Account"}
                   </button>
